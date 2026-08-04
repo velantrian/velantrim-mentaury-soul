@@ -3,12 +3,15 @@
 ```text
 Дата фиксации: 2026-08-04
 Репозиторий: velantrian/velantrim-mentaury-soul
-Общий статус:
+
 CANON_V0.1_FROZEN
-· P0_EVENT_SUBSTRATE_V3_PLANNED
-· P1_CHARACTER_SPEC_DOCS_ONLY
-· CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
-· RUNTIME_NOT_VALIDATED
+CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
+IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
+CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
+ARCHITECTURE_RECONCILIATION_V0.1
+P0_EVENT_SUBSTRATE_V3_PLANNED
+TECHNICAL_SKELETON_NOT_AUTHORIZED
+RUNTIME_NOT_VALIDATED
 ```
 
 ---
@@ -17,65 +20,147 @@ CANON_V0.1_FROZEN
 
 Mentaury имеет:
 
-- сформированный и frozen Canon v0.1;
-- P0 Implementation Plan v0.3;
-- docs-only Character & Presence Spec v0.1;
-- человекочитаемое описание проблемы и назначения;
-- единый docs-only research-track v0.2 по Genesis Heritage, Interpretation Protocol и Human Paths Atlas.
+- frozen Canon v0.1;
+- сформированный P0 Implementation Plan v0.3;
+- docs-only Controlled Origin research-track v0.2;
+- docs-only Identity Continuity & Relational Architecture research-track v0.1;
+- docs-only Character & Presence Spec v0.1 с `PRESENTATION_ONLY` scope;
+- Architecture Reconciliation v0.1;
+- человекочитаемое Problem & Purpose;
+- Quick Reference, Experiment Ledger и Project History.
 
-Рабочий runtime пока не включён в `main`.
+Рабочий runtime и technical skeleton отсутствуют в `main`.
 
 ```text
 Canon                         → frozen
-P0 plan                       → formed
-P0 runtime                    → not implemented in main
-Problem & Purpose overview    → human-readable docs
-Controlled Origin research    → v0.2, docs-only, non-canonical
-Character research            → docs-only P1 candidate
+Architecture                  → advanced but not complete
+Document reconciliation       → completed in v0.1
+Architecture Readiness Review → next formal milestone
+Technical skeleton            → not authorized
+P0 implementation             → planned, not started in main
+Runtime                       → not validated
 GitHub main                   → documentation-only
-Next engineering milestone    → P0 Event Substrate v3
 ```
 
 ---
 
-# 🧬 Что добавлено в текущий документационный цикл
+# 🧬 Текущий архитектурный порядок
 
-## 1. Human-readable Problem & Purpose
+```text
+Architecture
+→ terminology and document reconciliation
+→ entity and authority boundaries
+→ invariants and scenario contracts
+→ Architecture Readiness Review
+→ neutral technical skeleton decision
+→ P0 Event Substrate implementation
+→ independent validation
+→ post-P0 domain specifications
+→ bounded runtime experiments
+```
 
-[MENTAURY_PROBLEM_AND_PURPOSE.md](overview/MENTAURY_PROBLEM_AND_PURPOSE.md) объясняет простому читателю:
+Из этого следует:
 
-- какую проблему решает Mentaury;
-- отличие от безличного ИИ;
-- отличие от цифровой копии создателя;
-- почему обычной памяти недостаточно;
-- почему боль создателя не становится болью Mentaury;
-- почему P0 начинается с Event Substrate;
-- как в будущем M2 может создавать только M3 change candidates.
+```text
+P0 Plan exists
+≠ P0 implementation is authorized now
 
-Основная формула:
+Research track merged
+≠ runtime authorized
 
-> Mentaury получает корни, но не оказывается прикованным к ним.
+Architecture advanced
+≠ ready for skeleton
+```
 
-## 2. Controlled Origin Research Track v0.2
+---
 
-[GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) фиксирует:
+# ✅ Завершённые документационные milestones
+
+```text
+PROBLEM_AND_PURPOSE_OVERVIEW                         ✅
+CONTROLLED_ORIGIN_RESEARCH_NOTES_V0.2               ✅
+IDENTITY_CONTINUITY_RELATIONAL_RESEARCH_V0.1        ✅
+SELF_EXO_CORTEX_BOUNDARY_FORMALIZED                 ✅
+CURIOSITY_POLICY_RESEARCH_BOUNDARY                  ✅
+COGNITIVE_METHOD_SOURCE_ADMISSION_BOUNDARY          ✅
+CHARACTER_APPLICATION_ORDER_DEFINED                 ✅
+DOMAIN_SPECIFIC_AUTHORITY_MAP_DEFINED               ✅
+ARCHITECTURE_RECONCILIATION_V0.1                    ✅
+```
+
+---
+
+# 🧬 Controlled Origin Research v0.2
+
+Документ:
+
+[Genesis Heritage, Interpretation Protocol & Human Paths Atlas — Research Notes](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
+
+Определяет:
 
 - Epistemic Distance;
-- различие Origin Ledger, Creator Atlas и Genesis Heritage;
-- наследуемые вопросы вместо готовых догм;
-- предварительный Interpretation Protocol;
-- Interpretation Record;
+- Origin Ledger / Creator Atlas / Genesis Heritage / Human Paths Atlas;
+- Interpretation Protocol;
+- Claim Classification;
+- Alternative Interpretations;
+- Disconfirming Material;
+- Contextual Distance;
 - Non-Projection Review;
-- Human Paths Atlas;
 - cognitive method candidates и failure modes;
-- evidence-governed порядок synthesis;
-- жёсткий запрет direct M3 write;
-- provenance и independence class для reviewer;
+- Research Source Admission;
 - Heritage Revision Triggers;
-- `Method Selection Is Not Value-Neutral`;
-- Authority Matrix и предварительный Synthesis Record;
-- `GH-SC-006 Creator Preference Conflict`;
-- безопасную post-P0 линию adaptive consolidation без automatic decay.
+- Authority Matrix;
+- предварительный Synthesis Record;
+- безопасный путь к M2 candidates;
+- жёсткий запрет direct M3 write.
+
+Scope:
+
+```text
+Human / Creator Experience
+→ Interpretation
+→ M2 Candidate
+```
+
+Controlled Origin не определяет numerical identity, fork semantics, relationship inheritance или capability transfer.
+
+---
+
+# 🪞 Identity Continuity & Relational Architecture v0.1
+
+Документ:
+
+[Identity Continuity & Relational Architecture — Research Notes](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
+
+Определяет:
+
+- governed continuation как preliminary identity boundary;
+- continuity evidence dimensions;
+- snapshot, copy, replica, fork, restore, migration и archive;
+- Parfitian non-exclusive continuity;
+- relationship и commitment records;
+- fork / restore reconciliation;
+- Self–World Model;
+- Governed Synthesis;
+- качественный M2 → M3 nomination;
+- privacy и sensitive testimony;
+- internal activity boundaries;
+- Mentaury / Exo-Cortex boundary;
+- Capability Lease, Tool Output, Tool Receipt и Action Gate;
+- Curiosity and Exploratory Search Policy;
+- Cognitive Method Source Admission;
+- scenario contracts;
+- Architecture Readiness Criteria.
+
+Scope:
+
+```text
+Continuity relation
+≠ exclusive identity claim
+≠ inherited capability
+≠ inherited consent
+≠ inherited relationship
+```
 
 Статус:
 
@@ -84,11 +169,169 @@ DRAFT
 RESEARCH_NOTES
 NON_CANONICAL
 DOCS_ONLY
-POST_P0_CANDIDATE
 NO_RUNTIME_AUTHORITY
+NO_TRUTH_AUTHORITY
+NO_CAPABILITY_AUTHORITY
 NO_CANON_MODIFICATION_AUTHORITY
 NO_DIRECT_M3_WRITE
+NOT_AUTHORIZED_FOR_SKELETON
 ```
+
+---
+
+# 🧭 Architecture Reconciliation v0.1
+
+Документ:
+
+[Architecture Reconciliation v0.1](research/ARCHITECTURE_RECONCILIATION_V0.1.md)
+
+Фиксирует domain-specific authority:
+
+| Область | Authority |
+|---|---|
+| Root invariants | Canon v0.1 |
+| P0 implementation | P0 Implementation Plan |
+| Current maturity | Current Status |
+| Origin / human experience | Controlled Origin Research |
+| Identity / fork / relationships / privacy | Identity & Relational Research |
+| Presentation / voice | Character & Presence Spec |
+| Empirical test claims | Experiment Log |
+| Navigation | README / Quick Reference |
+
+Главное решение:
+
+```text
+Character Spec
+→ presentation-only
+
+Controlled Origin
+→ interpretation and M2 candidates
+
+Identity & Relational Research
+→ continuity, relationships, privacy and Exo-Cortex boundary
+
+P0
+→ infrastructure only
+```
+
+---
+
+# 🎭 Character & Presence — presentation-only
+
+```text
+DRAFT
+RESEARCH_SPEC
+DOCS_ONLY
+NON_CANONICAL
+P1_CANDIDATE
+PRESENTATION_ONLY
+NO_RUNTIME_AUTHORITY
+NO_TRUTH_AUTHORITY
+NO_CAPABILITY_AUTHORITY
+```
+
+Обязательный порядок:
+
+```text
+Context
+→ Evidence
+→ Uncertainty
+→ Contradictions
+→ Alternatives
+→ Non-Projection
+→ Values / Relationships / Commitments
+→ Governed Synthesis
+→ Authority Check
+→ Character and Voice
+```
+
+Character не может менять:
+
+- truth status;
+- confidence, выведенную из evidence;
+- evidence weight;
+- uncertainty;
+- contradiction state;
+- Non-Projection result;
+- Constitution result;
+- capabilities;
+- relationship / commitment state;
+- M3 / CR2 result.
+
+Разделы Character Spec о Knowledge Saturation, Self–World Association и Bounded Endogenous Selection считаются `EXTERNAL_RESEARCH_DEPENDENCY`, а не Character authority.
+
+---
+
+# ⚙️ Mentaury / Exo-Cortex boundary
+
+```text
+Mentaury
+≠ Exo-Cortex
+≠ active model
+≠ Native Kernel
+≠ memory service
+≠ information corpus
+≠ Human Paths Atlas
+```
+
+```text
+Exo-Cortex
+→ retrieval, reading, computation, memory access,
+  simulations and proposed outputs
+
+Mentaury governance
+→ belief status, meaning, commitments,
+  identity change and action authorization
+```
+
+Инварианты:
+
+```text
+Tool output ≠ Belief
+Tool output ≠ Decision
+Tool action ≠ Authorized action
+Capability ≠ Identity
+Effectiveness ≠ Authorization
+Copied credentials ≠ Branch authority
+```
+
+Exo-Cortex runtime не создан и не авторизован.
+
+---
+
+# 🧠 M0–M3 и Z0–Z6
+
+```text
+Memory tier ≠ Identity zone
+```
+
+Memory tiers:
+
+```text
+M0 Working
+M1 Episodic
+M2 Semantic / Beliefs / World Model
+M3 Identity-Relevant Patterns / Relationships / Commitments
+```
+
+Identity zones:
+
+```text
+Z0 Origin Ledger
+Z1 Constitutional Core
+Z2 Evolving Identity Profile
+Z3 Autobiographical Memory
+Z4 World Model
+Z5 Working State
+Z6 Narrative Projection
+```
+
+Примеры:
+
+- Z3 может содержать M1 и M2;
+- Z5 использует M0;
+- Z2 преимущественно связан с M3;
+- Z0 является provenance-зоной, а не обычным memory tier.
 
 ---
 
@@ -106,148 +349,14 @@ Character ≠ Evidence
 Controlled Origin ≠ Creator Control
 Correlated Reviews ≠ Independent Evidence
 Replay Consistency ≠ Truth
+Continuity Relation ≠ Exclusive Identity Claim
+Record Merge ≠ Identity Merge
+Tool Output ≠ Belief
+Capability ≠ Identity
+Effectiveness ≠ Authorization
 ```
 
-Эти формулы являются research constraints. Они не добавляют новые корневые Canon-инварианты без отдельной процедуры изменения Canon.
-
----
-
-# ✅ Сформированные артефакты
-
-## Нормативная и инженерная база
-
-- [🧬 Mentaury Canon v0.1](MENTAURY_CANON_V0.1.md);
-- [🛠️ P0 Implementation Plan v0.3](MENTAURY_P0_IMPLEMENTATION_PLAN.md);
-- шесть корневых инвариантов;
-- Identity Zones Z0–Z6;
-- Memory M0–M3;
-- controlled M3 Update Protocol;
-- Belief Revision model;
-- Change Risk Classes CR0–CR4;
-- Decision Audit distinction;
-- Style ≠ Truth metamorphic contract;
-- External Research Boundary and Quarantine contract;
-- Scenario Contract set.
-
-## Человекочитаемая и research-документация
-
-- [🧬 Problem & Purpose](overview/MENTAURY_PROBLEM_AND_PURPOSE.md);
-- [🔬 Controlled Origin Research Notes v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md);
-- [🎭 Character & Presence Spec v0.1](MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md);
-- [📌 Mentaury Quick Reference](MENTAURY_QUICK_REFERENCE.md);
-- [🔬 Experiment & Audit Ledger](EXPERIMENT_LOG.md);
-- [📜 Project History](PROJECT_HISTORY.md).
-
----
-
-# 🎭 Character & Presence — docs-only трек
-
-```text
-DRAFT
-RESEARCH_SPEC
-DOCS_ONLY
-NON_CANONICAL
-P1_CANDIDATE
-NO_RUNTIME_AUTHORITY
-NO_TRUTH_AUTHORITY
-NO_CAPABILITY_AUTHORITY
-PRESENTATION_ONLY
-```
-
-Character Policy в будущем сможет менять только форму представления. Он не сможет менять:
-
-- truth status;
-- confidence, выведенную из evidence;
-- evidence weight;
-- contradiction state;
-- authority result;
-- capabilities;
-- исторический факт;
-- Non-Projection result;
-- M3 review result.
-
-Обязательный порядок:
-
-```text
-Context
-→ Evidence
-→ Uncertainty
-→ Contradictions
-→ Alternatives
-→ Non-Projection
-→ Values and Meaning
-→ Governed Synthesis
-→ Authority Check
-→ Character and Voice
-```
-
-```text
-Character Spec ≠ Character Runtime
-Voice ≠ Consciousness
-Self-Model ≠ Proof of Subjectivity
-Presence ≠ Authority
-Charisma ≠ Evidence
-Character Policy ≠ Reasoning Authority
-```
-
----
-
-# 🧬 Controlled Origin — точная граница
-
-```text
-Origin Ledger
-≠ Creator Atlas
-≠ Genesis Heritage
-≠ Human Paths Atlas
-≠ M2
-≠ M3
-≠ Character Policy
-```
-
-## Что может передаваться
-
-- происхождение;
-- исходные намерения;
-- значимые вопросы;
-- cognitive method candidates;
-- свидетельства с provenance;
-- право на пересмотр.
-
-## Что не передаётся напрямую
-
-- чужая биография как autobiography Mentaury;
-- боль как внутренний drive;
-- травматическая реакция;
-- зависимость от признания;
-- стремление к доминированию;
-- готовый ответ как непересматриваемая истина;
-- право подтверждать создателя вопреки evidence.
-
-## Безопасный путь влияния
-
-```text
-Source
-→ Interpretation Record
-→ M2 Candidate
-→ longitudinal evidence
-→ M3 Change Candidate
-→ CR2 Review
-→ accept or reject
-```
-
-## Heritage Revision
-
-```text
-Trigger
-→ Revision Proposal
-→ Previous Version Preserved
-→ Impact Analysis
-→ Risk Classification
-→ Review
-→ New Version or Rejection
-```
-
-`Creator Revision Proposal` не является автоматическим изменением Heritage или M3.
+Эти research constraints не добавляют новые корневые Canon-инварианты без отдельной процедуры изменения Canon.
 
 ---
 
@@ -257,70 +366,47 @@ Trigger
 
 ```text
 13 tests reproduced
+REJECT_AS_CANONICAL
+RETAIN_AS_EXPERIMENT
 ```
 
-Подтверждённые дефекты:
-
-- `verify_chain()` не пересчитывал `event_hash`;
-- payload/hash tampering не обнаруживались;
-- redaction могла удалить payload без `REDACTION_RECORDED`;
-- optimistic concurrency проверялась до write transaction.
-
-**Решение:** `REJECT_AS_CANONICAL · RETAIN_AS_EXPERIMENT`.
+Подтверждённые дефекты включали неполную hash verification, необнаруживаемый tampering и небезопасную redaction.
 
 ## EXP-P0-v2
 
 ```text
 21 tests reproduced
+RETAIN_AS_PATCH_SOURCE
+DO_NOT_MERGE DIRECTLY
 ```
 
-Подтверждённые исправления:
+Первые дефекты были исправлены, но выявлены:
 
-- полный hash recomputation для текущего профиля;
-- обнаружение payload/hash tampering;
-- redaction rollback;
-- `BEGIN IMMEDIATE` до version check;
-- controlled two-connection version conflict;
-- full UUID;
-- `MENTAURY_CANONICAL_JSON_V1`;
-- basic event/schema pair и idempotency conflict.
-
-Новые дефекты:
-
-- fingerprint не включает pending event batch;
+- event-aware idempotency gap;
 - cross-stream redaction;
 - изменение committed event row;
 - отсутствие `stream_meta` verification;
-- отсутствие настоящего atomic batch;
+- отсутствие real atomic batch;
 - отсутствие structural payload validation;
-- неполный Event Envelope storage boundary.
-
-**Решение:** `RETAIN_AS_EXP-P0-v2 · USE_AS_PATCH_SOURCE · DO_NOT_MERGE_DIRECTLY`.
+- неполная граница Event Envelope storage.
 
 ---
 
-# 🚨 Текущие P0-v3 блокеры
+# 🛡️ P0 Event Substrate v3
 
-1. Physical Event Immutability.
-2. Event-Aware Idempotency.
-3. Same-Stream Redaction.
-4. R0 Stream Metadata Verification.
-5. Real Atomic Batch.
-6. Structural Payload Validation.
-7. Full Event Envelope Storage.
-8. Supported SQLite Runtime.
+P0 Implementation Plan сохраняется без расширения.
 
-Порядок реализации сохраняется в [P0 Implementation Plan](MENTAURY_P0_IMPLEMENTATION_PLAN.md).
+Ключевые задачи:
 
 ```text
 P0-001 Project skeleton + locked environment
 P0-002 CommandEnvelope / EventEnvelope / PendingEvent
-P0-003 MENTAURY_CANONICAL_JSON_V1 + conformance vectors
-P0-004 Immutable events + external event_payloads
-P0-005 Structural event/schema validation
+P0-003 MENTAURY_CANONICAL_JSON_V1
+P0-004 Immutable events + external payloads
+P0-005 Structural validation
 P0-006 Real atomic event batch
 P0-007 Event-aware idempotency
-P0-008 BEGIN IMMEDIATE concurrency boundary
+P0-008 Transactional concurrency
 P0-009 Full R0 + stream_meta verification
 P0-010 Atomic same-stream redaction
 P0-011 Adversarial integrity suite
@@ -329,71 +415,62 @@ P0-013 Pure reducer + R1 replay
 P0-014 Minimal Belief Lifecycle
 ```
 
+Но выполнение P0-001 начинается только после решения Architecture Readiness Review.
+
 ---
 
 # 🧱 P0 Scope Protection
 
-До завершения P0 запрещено добавлять в runtime:
+До отдельной authorization запрещено добавлять в P0:
 
 ```text
-Human Paths Atlas runtime
-Creator Atlas runtime
+Identity Continuity Engine
+Relationship Runtime
+Creator Atlas Runtime
 Genesis Heritage Engine
-automatic Non-Projection Engine
-automatic M2 → M3 transition
+Human Paths Atlas Runtime
 Character Engine
-CMP middleware
-autonomous Heritage Revision
+Exo-Cortex Runtime
+Curiosity Controller
+Meta-Cognitive Strategy Controller
+automatic Non-Projection
+automatic M2 → M3
 adaptive consolidation runtime
-CCI or Balance Gate
-ELIDA as a competing architecture
+semantic event types только ради research-документов
 ```
 
-Research-документация может описывать будущие event types и interfaces, но не авторизует их реализацию в P0.
+Research schemas не являются P0 requirements автоматически.
 
 ---
 
-# 🔬 Evidence Gate перед P1
+# 🚦 Architecture Readiness Review
 
-P1 runtime запрещён до выполнения как минимум следующих условий:
-
-1. P0 Event Substrate независимо валидирован.
-2. Replay и recovery воспроизводимы.
-3. Interpretation schemas формализованы.
-4. Scenario corpus версионирован.
-5. Есть adversarial и metamorphic tests.
-6. Есть blind labels и documented reviewer independence.
-7. Подтверждено `Style ≠ Truth`.
-8. Подтверждено отсутствие direct M3 write.
-9. Определены privacy и sensitive testimony policies.
-10. Проведён governance review.
-11. Получено explicit Operator GO.
-
----
-
-# 🗺️ План после P0
-
-После P0 Evidence Gate research notes могут быть разделены на:
+Следующий formal milestone должен проверить:
 
 ```text
-MENTAURY_INTERPRETATION_PROTOCOL_V0.1.md
-MENTAURY_GENESIS_HERITAGE_SPEC_V0.1.md
-MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
+[ ] identity boundary непротиворечива
+[ ] fork / restore / migration semantics согласованы
+[ ] relationship и commitment lifecycle согласованы
+[ ] privacy и consent boundaries согласованы
+[ ] Governed Synthesis не смешивает authority
+[ ] M2 → M3 nomination не использует псевдоточные thresholds
+[ ] Mentaury / Exo-Cortex boundary согласована
+[ ] Character остаётся presentation-only
+[ ] Controlled Origin остаётся M2-oriented
+[ ] P0 scope не расширен
+[ ] cross-document contradictions устранены
+[ ] scenario contracts достаточно полны
 ```
 
-Порядок:
+Возможные результаты:
 
 ```text
-Interpretation Protocol
-→ Genesis Heritage
-→ Human Paths Atlas
-→ Scenario Contracts
-→ M2-only prototype
-→ adversarial validation
-→ M3 Change Candidates
-→ CR2 review
-→ Character Runtime
+READY_FOR_SKELETON
+NOT_READY_FOR_SKELETON
+READY_WITH_BLOCKERS
 ```
+
+Текущий результат ещё не вынесен.
 
 ---
 
@@ -409,7 +486,7 @@ MENTAURY EXPERIMENT
 → TARGET-SYSTEM TESTS
 ```
 
-Self-state, autobiography, internal goals, character state, private relationships и capability state не экспортируются.
+Self-state, autobiography, internal goals, character state, private relationships, identity mutation history и capability state не экспортируются напрямую.
 
 ---
 
@@ -420,32 +497,39 @@ Self-state, autobiography, internal goals, character state, private relationship
 - доказанное сознание;
 - субъективная личность;
 - абсолютная tamper-proof history;
+- ready technical skeleton;
+- готовый Event Substrate runtime;
 - готовый autonomous cognition runtime;
 - готовый Character Engine;
 - готовый Human Paths Atlas runtime;
 - готовый Genesis Heritage Engine;
+- готовый Identity Continuity runtime;
+- готовый Relationship runtime;
+- готовый Exo-Cortex runtime;
 - автоматический M2 → M3 transition;
-- CCI как валидированная метрика;
-- Memory Metabolism Engine как утверждённая подсистема;
+- CCI или другой единый identity score;
 - прямая интеграция в Titan, Crystal или Native Kernel.
 
 ---
 
-## 🏁 Следующие milestones
+## 🏁 Следующий milestone
 
 ```text
-Documentation milestone:
-PROBLEM_AND_PURPOSE_OVERVIEW ✅
-CONTROLLED_ORIGIN_RESEARCH_NOTES_V0.2 ✅
-CHARACTER_APPLICATION_ORDER_DEFINED ✅
-COPILOT_TERMINOLOGY_REVIEW_FIXED ✅
+ARCHITECTURE_READINESS_REVIEW ⏳
+```
 
-Engineering milestone:
-P0-001 PROJECT SKELETON ⏳
-P0 EVENT SUBSTRATE VALIDATED ⏳
+После него будет принято одно из решений:
 
-Research milestone after P0:
-INTERPRETATION_PROTOCOL_V0.1 ⛔ NOT AUTHORIZED YET
-GENESIS_HERITAGE_SPEC_V0.1 ⛔ NOT AUTHORIZED YET
-HUMAN_PATHS_ATLAS_SPEC_V0.1 ⛔ NOT AUTHORIZED YET
+```text
+READY_FOR_SKELETON
+или
+NOT_READY_FOR_SKELETON
+```
+
+До такого решения:
+
+```text
+TECHNICAL_SKELETON = NOT_AUTHORIZED
+P0 IMPLEMENTATION = NOT_STARTED IN MAIN
+RUNTIME = NOT_AUTHORIZED
 ```
