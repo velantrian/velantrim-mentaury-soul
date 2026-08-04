@@ -169,7 +169,7 @@ mindmap
       Creator Atlas
       Human Paths Atlas
       Interpretation Records
-      Non Projection
+      Non-Projection
     🎭 Character
       Initial seed
       Character Spec docs-only
