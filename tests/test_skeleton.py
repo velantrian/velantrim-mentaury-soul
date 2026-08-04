@@ -10,7 +10,7 @@ def test_package_imports_without_side_effect_runtime() -> None:
     assert mentaury.SKELETON_STATUS == "P0-001_NEUTRAL_SKELETON"
     assert (
         mentaury.IMPLEMENTATION_STATUS
-        == "P0-008_TRANSACTIONAL_CONCURRENCY"
+        == "P0-009_FULL_R0_INTEGRITY"
     )
 
 
