@@ -1,8 +1,9 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-006
+Status:             P0-007
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
+Storage schema:     v2
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
@@ -18,32 +19,24 @@ P0-003 → MENTAURY_CANONICAL_JSON_V1
 P0-004 → immutable SQLite event rows + external payload bytes
 P0-005 → fail-closed structural event/payload validation
 P0-006 → real ordered atomic multi-event batch append
+P0-007 → event-aware idempotency fingerprint + result replay
 ```
 
-## P0-006 transaction boundary
+P0-007 computes `MENTAURY_IDEMPOTENCY_V1` over semantic command intent and the ordered pending batch. Schema v2 adds immutable idempotency records and migrates explicitly from v1.
 
 ```text
-batch preflight + canonicalization
-→ BEGIN
-→ ordered payload/event inserts
-→ COMMIT or full ROLLBACK
+idempotency record + payloads + event rows
+→ one transaction
 ```
-
-The first profile permits one target stream per batch and requires coherent
-batch metadata, contiguous versions, common causation/correlation context, and
-unique event/payload identifiers.
 
 ```text
-Atomic batch ≠ idempotency
-Atomic batch ≠ concurrency control
-Contiguous versions ≠ verified stream head
-Shared authority ref ≠ authority approval
+Fingerprint ≠ authorization
+Fingerprint ≠ event hash
+ALREADY_APPLIED ≠ R0 verification
+Single writer ≠ concurrency proof
 ```
 
-## Runtime boundary
-
-The package has no third-party runtime dependencies. SQLite is accessed through
-Python's standard library; the tested runtime is `3.46.1`.
+The package has no third-party runtime dependencies. SQLite is accessed through Python's standard library.
 
 ## Supported local commands
 
@@ -53,28 +46,14 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-## Directory ownership
-
-```text
-src/mentaury/core        substrate-level primitives only
-src/mentaury/contracts   typed contracts + canonical serialization
-src/mentaury/storage     immutable storage + atomic batch primitives
-src/mentaury/validation  fail-closed registry and structural validators
-scripts                  offline repository validation
-tests                    deterministic offline tests + vectors
-```
-
 ## Deferred milestones
 
-- P0-007: event-aware idempotency fingerprint and result replay.
 - P0-008: transactional concurrency and controlled busy handling.
 - P0-009: full R0 and stream metadata verification.
 - P0-010: governed atomic same-stream redaction.
+- P0-011: adversarial integrity suite.
+- P0-012: GitHub Actions CI.
 
 ## Explicit exclusions
 
-P0-006 contains no idempotency engine, concurrency controller, authority
-resolver, semantic belief validator, hash verifier, stream-head verifier,
-redaction workflow, identity engine, relationship runtime, Character Engine,
-Curiosity Controller, Exo-Cortex runtime, autonomous loop, background worker,
-network connector, persistent self-state, or direct M3 interface.
+No concurrency controller, authority resolver, semantic belief validator, event hash-chain verifier, stream-head verifier, redaction workflow, identity engine, relationship runtime, Character Engine, Curiosity Controller, Exo-Cortex runtime, autonomous loop, background worker, network connector, persistent self-state, or direct M3 interface.
