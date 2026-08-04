@@ -285,7 +285,7 @@ def test_schema_version_one_migrates_to_idempotency_schema(tmp_path: Path) -> No
         version = store.raw_connection_for_tests().execute(
             "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
         ).fetchone()[0]
-        assert version == SCHEMA_VERSION == 2
+        assert version == SCHEMA_VERSION == 3
         store.raw_connection_for_tests().execute(
             "SELECT idempotency_key FROM idempotency_records LIMIT 0"
         )
