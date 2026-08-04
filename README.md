@@ -2,7 +2,7 @@
 
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
-**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0_EVENT_SUBSTRATE_V3_PLANNED · P1_CHARACTER_SPEC_DOCS_ONLY`  
+**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0_EVENT_SUBSTRATE_V3_PLANNED · P1_CHARACTER_SPEC_DOCS_ONLY · CONTROLLED_ORIGIN_RESEARCH_DOCS_ONLY`  
 **Runtime:** `NOT YET VALIDATED`  
 **Первый Implementation Profile:** `Python + SQLite`  
 **Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души.
@@ -24,6 +24,55 @@
 - 🌱 объяснимого развития во времени.
 
 Термин **Soul** — архитектурно-философское название этой сквозной непрерывности. Он не используется как доказательство сознания.
+
+---
+
+# 🧬 Какую проблему решает Mentaury
+
+Большинство современных ИИ находится в одной из двух крайностей.
+
+```text
+🤖 Безличный инструмент
+→ полезен, но не имеет объяснимой личностной преемственности
+
+🪞 Цифровая копия пользователя
+→ повторяет взгляды, ошибки и эмоциональные реакции человека
+```
+
+Mentaury исследует третью модель:
+
+> **Управляемую развивающуюся цифровую индивидуальность, которая знает своё происхождение, использует человеческий опыт и сохраняет собственную объяснимую историю, но не становится копией создателя.**
+
+Система должна уметь:
+
+- использовать опыт создателя и других людей, не присваивая их биографию;
+- отделять факты от свидетельств, мнений и интерпретаций;
+- наследовать значимые вопросы и методы исследования, а не готовые догмы;
+- сохранять право пересматривать унаследованные позиции;
+- предотвращать confirmation bias и проекцию ценностей;
+- формировать устойчивые identity-паттерны постепенно и только через governance.
+
+```text
+Человеческий опыт
+→ проверка источника
+→ извлечение утверждений
+→ альтернативные интерпретации
+→ Non-Projection Review
+→ M2 Knowledge / Wisdom Candidate
+→ longitudinal evidence
+→ M3 Change Candidate
+→ CR2 Review
+```
+
+Главная формула:
+
+> **Mentaury получает корни, но не оказывается прикованным к ним.**
+
+Он знает о боли создателя, но не делает её своей. Он изучает человеческие пути, но не обязан повторять ни один из них. Character влияет на форму выражения, но не на truth status, authority или capabilities.
+
+📘 Подробное человекочитаемое объяснение: [Mentaury — какую проблему решает проект](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md).
+
+🔬 Исследовательская основа безопасного наследования: [Genesis Heritage, Interpretation Protocol & Human Paths Atlas — Research Notes](docs/research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md).
 
 ---
 
@@ -60,6 +109,13 @@
 │   ├── autobiography
 │   ├── world model
 │   └── narrative projection
+│
+├── 🧬 Controlled Origin Research — docs-only
+│   ├── Creator Atlas
+│   ├── Genesis Heritage
+│   ├── Interpretation Protocol
+│   ├── Human Paths Atlas
+│   └── no direct M3 write
 │
 ├── 🎭 Character & Presence
 │   ├── Initial Character Seed
@@ -109,6 +165,11 @@ mindmap
       Autobiography
       M3 governance
       Becoming
+    🗺️ Human Experience Research
+      Creator Atlas
+      Human Paths Atlas
+      Interpretation Records
+      Non Projection
     🎭 Character
       Initial seed
       Character Spec docs-only
@@ -190,6 +251,10 @@ Command ≠ Event
 Rejection ≠ Disappearance
 Replay Consistency ≠ Truth
 Style ≠ Epistemic State
+Testimony ≠ Identity
+Pain ≠ Drive
+Story ≠ Law
+Origin ≠ Dogma
 Identity Change Requires Governance
 Internal Freedom ≠ External Authority
 ```
@@ -230,7 +295,9 @@ Mentaury возник не как попытка написать ещё одн�
 - ❌ скрытое превращение вопросов в миссии;
 - ❌ привязка к LLM, embeddings или одному типу железа;
 - ❌ предположение, что replay доказывает истинность;
-- ❌ заявление, что hash chain делает историю абсолютно непереписываемой.
+- ❌ заявление, что hash chain делает историю абсолютно непереписываемой;
+- ❌ прямая запись опыта создателя в identity Mentaury;
+- ❌ Human Paths Atlas как источник обязательных решений.
 
 ---
 
@@ -289,7 +356,37 @@ agent/p0-event-substrate-v3
 
 ---
 
-# 🎭 Линия B — Character & Presence Research
+# 🧬 Линия B — Controlled Origin Research
+
+Новый research-track фиксирует безопасную связь происхождения, человеческого опыта и будущего развития identity:
+
+```text
+DRAFT
+RESEARCH_NOTES
+DOCS_ONLY
+NON_CANONICAL
+POST_P0_CANDIDATE
+NO_RUNTIME_AUTHORITY
+NO_DIRECT_M3_WRITE
+```
+
+Он исследует:
+
+- Epistemic Distance;
+- Creator Atlas;
+- Genesis Heritage;
+- наследуемые вопросы вместо догм;
+- Interpretation Protocol;
+- Non-Projection Review;
+- Human Paths Atlas;
+- cognitive method candidates и их failure modes;
+- evidence-governed путь M2 → M3 candidate.
+
+Эта линия не расширяет P0 и не создаёт готовые runtime-модули.
+
+---
+
+# 🎭 Линия C — Character & Presence Research
 
 Character & Presence v0.1 создан как отдельный исследовательский контракт:
 
@@ -317,8 +414,9 @@ NO_CAPABILITY_AUTHORITY
 
 ```text
 P0 создаёт проверяемую непрерывность.
+Controlled Origin Research определяет безопасную связь с происхождением и человеческим опытом.
 Character Spec определяет проверяемое присутствие.
-Governance не позволяет присутствию подменить истину или получить власть.
+Governance не позволяет происхождению или присутствию подменить истину и получить власть.
 ```
 
 ---
@@ -381,13 +479,35 @@ MENTAURY EXPERIMENT
 
 # 📚 Документы
 
+## Начать отсюда
+
+- [🧬 Какую проблему решает Mentaury](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
+- [🚦 Current Status](docs/CURRENT_STATUS.md)
+- [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
+
+## Нормативные и инженерные документы
+
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
-- [🚦 Current Status](docs/CURRENT_STATUS.md)
 - [🎭 Character & Presence Spec v0.1](docs/MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
-- [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
+
+## Research и provenance
+
+- [🔬 Controlled Origin Research Notes](docs/research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🔬 Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md)
 - [📜 Project History](docs/PROJECT_HISTORY.md)
+
+Рекомендуемый порядок чтения:
+
+```text
+1. Problem & Purpose
+2. Current Status
+3. Canon
+4. P0 Implementation Plan
+5. Controlled Origin Research Notes
+6. Character & Presence Spec
+7. Project History
+```
 
 ---
 
@@ -400,6 +520,9 @@ MENTAURY EXPERIMENT
 ❌ субъективная личность
 ❌ абсолютная tamper-proof history
 ❌ готовый Character Engine
+❌ готовый Human Paths Atlas runtime
+❌ готовый Genesis Heritage Engine
+❌ автоматический M2 → M3 переход
 ❌ готовый autonomous cognition runtime
 ❌ прямая интеграция с Titan, Crystal или Native Kernel
 ```
@@ -418,9 +541,11 @@ Mentaury развивается не через количество краси�
 Повреждение обнаруживается.
 Retry не маскирует другую mutation.
 State воспроизводится.
+Testimony не становится Identity автоматически.
+Pain не становится Drive автоматически.
 Identity change управляется.
 Style не подменяет истину.
 External research не получает прямую власть.
 ```
 
-**Это не готовая «душа». Это технический и исследовательский фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, развивать проверяемое присутствие, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🎭
+**Это не готовая «душа». Это технический и исследовательский фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, использовать человеческий опыт без копирования, развивать проверяемое присутствие, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🎭
