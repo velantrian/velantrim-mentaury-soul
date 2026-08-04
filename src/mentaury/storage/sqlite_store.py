@@ -14,6 +14,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Self
 
+from .concurrency import (
+    DEFAULT_BUSY_RETRY_POLICY,
+    BusyRetryPolicy,
+    VersionConflictError,
+    begin_immediate,
+    commit_with_retry,
+    is_stream_version_conflict,
+)
+
 from mentaury.contracts import (
     ActorRef,
     AuthorityRef,
@@ -24,6 +33,7 @@ from mentaury.contracts import (
 )
 
 SCHEMA_VERSION: Final[int] = 2
+MINIMUM_SQLITE_VERSION: Final[tuple[int, int, int]] = (3, 37, 0)
 
 
 class StorageError(RuntimeError):
@@ -45,6 +55,7 @@ class StoredPayload:
 
 _SCHEMA_SQL: Final[str] = """
 PRAGMA foreign_keys = ON;
+PRAGMA journal_mode = WAL;
 
 CREATE TABLE IF NOT EXISTS p0_schema_meta (
     singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
@@ -147,23 +158,48 @@ COMMIT;
 class SQLiteEventPayloadStore:
     """Replaceable first-profile adapter for P0-004 storage primitives."""
 
-    def __init__(self, connection: sqlite3.Connection) -> None:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
+    ) -> None:
+        ensure_supported_sqlite_runtime()
+        if not isinstance(busy_policy, BusyRetryPolicy):
+            raise TypeError("busy_policy must be a BusyRetryPolicy")
         self._connection = connection
+        self._busy_policy = busy_policy
         self._connection.row_factory = sqlite3.Row
         self._connection.execute("PRAGMA foreign_keys = ON")
 
     @classmethod
-    def connect(cls, path: str | Path) -> Self:
-        """Open a database explicitly without initializing its schema."""
+    def connect(
+        cls,
+        path: str | Path,
+        *,
+        busy_timeout_ms: int = 0,
+        busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
+    ) -> Self:
+        """Open a database explicitly with bounded application-level retries."""
 
-        connection = sqlite3.connect(path, isolation_level=None)
-        return cls(connection)
+        if isinstance(busy_timeout_ms, bool) or busy_timeout_ms < 0:
+            raise ValueError("busy_timeout_ms must be a non-negative integer")
+        connection = sqlite3.connect(
+            path,
+            isolation_level=None,
+            timeout=busy_timeout_ms / 1000,
+        )
+        connection.execute(f"PRAGMA busy_timeout = {busy_timeout_ms}")
+        return cls(connection, busy_policy)
 
     @classmethod
-    def in_memory(cls) -> Self:
+    def in_memory(
+        cls,
+        *,
+        busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
+    ) -> Self:
         """Open an explicit isolated in-memory database for deterministic tests."""
 
-        return cls.connect(":memory:")
+        return cls.connect(":memory:", busy_policy=busy_policy)
 
     def close(self) -> None:
         self._connection.close()
@@ -218,7 +254,12 @@ class SQLiteEventPayloadStore:
         event: EventEnvelope,
         payload: Mapping[str, object],
     ) -> None:
-        """Atomically store one external payload and one immutable event row."""
+        """Atomically store one external payload and one immutable event row.
+
+        The supplied digest/hash fields are recorded but deliberately not
+        computed or verified in P0-004. Real multi-event append belongs to
+        P0-006.
+        """
 
         if not isinstance(event, EventEnvelope):
             raise TypeError("event must be an EventEnvelope")
@@ -227,7 +268,7 @@ class SQLiteEventPayloadStore:
         created_at = canonical_timestamp(event.recorded_at)
 
         try:
-            self._connection.execute("BEGIN")
+            begin_immediate(self._connection, self._busy_policy)
             self._connection.execute(
                 """
                 INSERT INTO event_payloads(payload_ref, payload_bytes, created_at)
@@ -277,14 +318,25 @@ class SQLiteEventPayloadStore:
                     event.event_hash,
                 ),
             )
+        except sqlite3.IntegrityError as exc:
+            if self._connection.in_transaction:
+                self._connection.execute("ROLLBACK")
+            if is_stream_version_conflict(exc):
+                raise VersionConflictError(
+                    event.stream_id,
+                    event.stream_version,
+                ) from exc
+            raise
         except Exception:
             if self._connection.in_transaction:
                 self._connection.execute("ROLLBACK")
             raise
         else:
-            self._connection.execute("COMMIT")
+            commit_with_retry(self._connection, self._busy_policy)
 
     def load_event(self, event_id: str) -> EventEnvelope | None:
+        """Reconstruct the complete immutable envelope metadata."""
+
         self._require_initialized()
         row = self._connection.execute(
             "SELECT * FROM events WHERE event_id = ?", (event_id,)
@@ -294,6 +346,8 @@ class SQLiteEventPayloadStore:
         return _event_from_row(row)
 
     def load_payload(self, payload_ref: str) -> StoredPayload | None:
+        """Load external payload bytes without interpreting domain schema."""
+
         self._require_initialized()
         row = self._connection.execute(
             """
@@ -312,6 +366,8 @@ class SQLiteEventPayloadStore:
         )
 
     def list_stream(self, stream_id: str) -> tuple[EventEnvelope, ...]:
+        """Return immutable envelope metadata in stream-version order."""
+
         self._require_initialized()
         rows = self._connection.execute(
             "SELECT * FROM events WHERE stream_id = ? ORDER BY stream_version",
@@ -320,6 +376,12 @@ class SQLiteEventPayloadStore:
         return tuple(_event_from_row(row) for row in rows)
 
     def raw_connection_for_tests(self) -> sqlite3.Connection:
+        """Expose the connection only for adversarial infrastructure tests.
+
+        This method is not a domain capability. It exists so tests can prove
+        SQLite triggers reject direct event-row mutation.
+        """
+
         return self._connection
 
 
@@ -349,3 +411,14 @@ def _event_from_row(row: sqlite3.Row) -> EventEnvelope:
         previous_hash=row["previous_hash"],
         event_hash=row["event_hash"],
     )
+
+
+def ensure_supported_sqlite_runtime(
+    version: tuple[int, int, int] | None = None,
+) -> None:
+    actual = sqlite3.sqlite_version_info if version is None else version
+    if actual < MINIMUM_SQLITE_VERSION:
+        raise StorageError(
+            f"unsupported SQLite runtime {actual}; "
+            f"minimum is {MINIMUM_SQLITE_VERSION}"
+        )

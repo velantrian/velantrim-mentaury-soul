@@ -5,10 +5,17 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-
 from mentaury.contracts import EventEnvelope, canonical_json_bytes, canonical_timestamp
 from mentaury.contracts.primitives import FrozenPayload, freeze_payload
 
+from .concurrency import (
+    DEFAULT_BUSY_RETRY_POLICY,
+    BusyRetryPolicy,
+    VersionConflictError,
+    begin_immediate,
+    commit_with_retry,
+    is_stream_version_conflict,
+)
 from .sqlite_store import SQLiteEventPayloadStore
 
 
@@ -48,10 +55,17 @@ class _PreparedEntry:
 class SQLiteAtomicBatchAppender:
     """Append one coherent ordered event batch in a single SQL transaction."""
 
-    def __init__(self, store: SQLiteEventPayloadStore) -> None:
+    def __init__(
+        self,
+        store: SQLiteEventPayloadStore,
+        busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
+    ) -> None:
         if not isinstance(store, SQLiteEventPayloadStore):
             raise TypeError("store must be a SQLiteEventPayloadStore")
+        if not isinstance(busy_policy, BusyRetryPolicy):
+            raise TypeError("busy_policy must be a BusyRetryPolicy")
         self._store = store
+        self._busy_policy = busy_policy
 
     def append(self, entries: Iterable[BatchEntry]) -> BatchAppendReceipt:
         prepared = _prepare_batch(tuple(entries))
@@ -59,14 +73,23 @@ class SQLiteAtomicBatchAppender:
         connection = self._store._connection
 
         try:
-            connection.execute("BEGIN")
+            begin_immediate(connection, self._busy_policy)
             _insert_prepared_batch(connection, prepared)
+        except sqlite3.IntegrityError as exc:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
+            if is_stream_version_conflict(exc):
+                raise VersionConflictError(
+                    prepared[0].event.stream_id,
+                    prepared[0].event.stream_version,
+                ) from exc
+            raise
         except Exception:
             if connection.in_transaction:
                 connection.execute("ROLLBACK")
             raise
         else:
-            connection.execute("COMMIT")
+            commit_with_retry(connection, self._busy_policy)
 
         return _receipt_from_prepared(prepared)
 
@@ -76,13 +99,11 @@ def _prepare_batch(entries: tuple[BatchEntry, ...]) -> tuple[_PreparedEntry, ...
         raise BatchInvariantError("batch cannot be empty")
     if any(not isinstance(entry, BatchEntry) for entry in entries):
         raise TypeError("all entries must be BatchEntry")
-
     events = tuple(entry.event for entry in entries)
     expected_size = len(events)
     first = events[0]
     event_ids: set[str] = set()
     payload_refs: set[str] = set()
-
     for index, event in enumerate(events):
         if event.batch_id != first.batch_id:
             raise BatchInvariantError("all events must share one batch_id")
@@ -106,7 +127,6 @@ def _prepare_batch(entries: tuple[BatchEntry, ...]) -> tuple[_PreparedEntry, ...
             raise BatchInvariantError("payload_ref must be unique inside batch")
         event_ids.add(event.event_id)
         payload_refs.add(event.payload_ref)
-
     return tuple(
         _PreparedEntry(
             event=entry.event,
@@ -117,18 +137,13 @@ def _prepare_batch(entries: tuple[BatchEntry, ...]) -> tuple[_PreparedEntry, ...
     )
 
 
-def _insert_prepared_batch(
-    connection: sqlite3.Connection,
-    prepared: tuple[_PreparedEntry, ...],
-) -> None:
+def _insert_prepared_batch(connection: sqlite3.Connection, prepared: tuple[_PreparedEntry, ...]) -> None:
     for item in prepared:
         _insert_payload(connection, item)
         _insert_event(connection, item.event)
 
 
-def _receipt_from_prepared(
-    prepared: tuple[_PreparedEntry, ...],
-) -> BatchAppendReceipt:
+def _receipt_from_prepared(prepared: tuple[_PreparedEntry, ...]) -> BatchAppendReceipt:
     events = tuple(item.event for item in prepared)
     return BatchAppendReceipt(
         batch_id=events[0].batch_id,
@@ -141,10 +156,7 @@ def _receipt_from_prepared(
 
 def _insert_payload(connection: sqlite3.Connection, item: _PreparedEntry) -> None:
     connection.execute(
-        """
-        INSERT INTO event_payloads(payload_ref, payload_bytes, created_at)
-        VALUES (?, ?, ?)
-        """,
+        "INSERT INTO event_payloads(payload_ref, payload_bytes, created_at) VALUES (?, ?, ?)",
         (item.event.payload_ref, item.payload_bytes, item.created_at),
     )
 
@@ -161,34 +173,18 @@ def _insert_event(connection: sqlite3.Connection, event: EventEnvelope) -> None:
             affects_domain_state, payload_digest, payload_ref,
             previous_hash, event_hash
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
         """,
         (
-            event.event_id,
-            event.event_type,
-            event.envelope_schema_version,
-            event.payload_schema,
-            event.stream_id,
-            event.stream_version,
-            event.batch_id,
-            event.batch_index,
-            event.batch_size,
-            canonical_timestamp(event.occurred_at),
-            canonical_timestamp(event.recorded_at),
-            event.producer.component,
-            event.producer.version,
-            event.initiator.actor_type,
-            event.initiator.actor_id,
-            event.authority.capability_lease_id,
-            event.authority.capability_revision,
-            event.causation_id,
-            event.correlation_id,
-            int(event.affects_domain_state),
-            event.payload_digest,
-            event.payload_ref,
-            event.previous_hash,
-            event.event_hash,
+            event.event_id, event.event_type, event.envelope_schema_version,
+            event.payload_schema, event.stream_id, event.stream_version,
+            event.batch_id, event.batch_index, event.batch_size,
+            canonical_timestamp(event.occurred_at), canonical_timestamp(event.recorded_at),
+            event.producer.component, event.producer.version,
+            event.initiator.actor_type, event.initiator.actor_id,
+            event.authority.capability_lease_id, event.authority.capability_revision,
+            event.causation_id, event.correlation_id, int(event.affects_domain_state),
+            event.payload_digest, event.payload_ref, event.previous_hash, event.event_hash,
         ),
     )

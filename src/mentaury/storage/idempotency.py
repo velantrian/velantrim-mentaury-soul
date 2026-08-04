@@ -30,6 +30,14 @@ from .atomic_batch import (
     _prepare_batch,
     _receipt_from_prepared,
 )
+from .concurrency import (
+    DEFAULT_BUSY_RETRY_POLICY,
+    BusyRetryPolicy,
+    VersionConflictError,
+    begin_immediate,
+    commit_with_retry,
+    is_stream_version_conflict,
+)
 from .sqlite_store import SQLiteEventPayloadStore
 
 IDEMPOTENCY_PROFILE: Final[str] = "MENTAURY_IDEMPOTENCY_V1"
@@ -90,10 +98,17 @@ class IdempotentAppendResult:
 class SQLiteIdempotentBatchAppender:
     """Apply or replay one semantic command/batch result by idempotency key."""
 
-    def __init__(self, store: SQLiteEventPayloadStore) -> None:
+    def __init__(
+        self,
+        store: SQLiteEventPayloadStore,
+        busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
+    ) -> None:
         if not isinstance(store, SQLiteEventPayloadStore):
             raise TypeError("store must be a SQLiteEventPayloadStore")
+        if not isinstance(busy_policy, BusyRetryPolicy):
+            raise TypeError("busy_policy must be a BusyRetryPolicy")
         self._store = store
+        self._busy_policy = busy_policy
 
     def append(self, request: IdempotentBatchRequest) -> IdempotentAppendResult:
         if not isinstance(request, IdempotentBatchRequest):
@@ -106,7 +121,7 @@ class SQLiteIdempotentBatchAppender:
         self._store._require_initialized()
 
         try:
-            connection.execute("BEGIN")
+            begin_immediate(connection, self._busy_policy)
             existing = connection.execute(
                 """
                 SELECT fingerprint_profile, fingerprint, batch_id, stream_id,
@@ -127,7 +142,7 @@ class SQLiteIdempotentBatchAppender:
                         fingerprint,
                     )
                 receipt = _receipt_from_row(existing)
-                connection.execute("COMMIT")
+                commit_with_retry(connection, self._busy_policy)
                 return IdempotentAppendResult(
                     IdempotencyStatus.ALREADY_APPLIED,
                     fingerprint,
@@ -156,12 +171,21 @@ class SQLiteIdempotentBatchAppender:
                     canonical_timestamp(prepared[0].event.recorded_at),
                 ),
             )
+        except sqlite3.IntegrityError as exc:
+            if connection.in_transaction:
+                connection.execute("ROLLBACK")
+            if is_stream_version_conflict(exc):
+                raise VersionConflictError(
+                    prepared[0].event.stream_id,
+                    prepared[0].event.stream_version,
+                ) from exc
+            raise
         except Exception:
             if connection.in_transaction:
                 connection.execute("ROLLBACK")
             raise
         else:
-            connection.execute("COMMIT")
+            commit_with_retry(connection, self._busy_policy)
 
         return IdempotentAppendResult(
             IdempotencyStatus.APPLIED,

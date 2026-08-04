@@ -5,26 +5,17 @@ from dataclasses import replace
 
 import pytest
 
-from mentaury.contracts import (
-    ActorRef,
-    AuthorityRef,
-    EventEnvelope,
-    ProducerRef,
-)
+from mentaury.contracts import ActorRef, AuthorityRef, EventEnvelope, ProducerRef
 from mentaury.storage import (
     BatchEntry,
     BatchInvariantError,
     SQLiteAtomicBatchAppender,
     SQLiteEventPayloadStore,
+    VersionConflictError,
 )
 
 
-def event(
-    index: int,
-    *,
-    batch_size: int = 3,
-    batch_id: str = "BATCH-1",
-) -> EventEnvelope:
+def event(index: int, *, batch_size: int = 3, batch_id: str = "BATCH-1") -> EventEnvelope:
     return EventEnvelope(
         event_id=f"EVT-{index + 1}",
         event_type="BELIEF_EVENT",
@@ -64,14 +55,8 @@ def test_successful_batch_persists_all_events_and_payloads() -> None:
         assert receipt.event_ids == ("EVT-1", "EVT-2", "EVT-3")
         assert receipt.first_stream_version == 1
         assert receipt.last_stream_version == 3
-        assert [
-            item.event_id
-            for item in store.list_stream("belief:B-204")
-        ] == list(receipt.event_ids)
-        assert all(
-            store.load_payload(f"PAYLOAD-{index}") is not None
-            for index in range(1, 4)
-        )
+        assert [e.event_id for e in store.list_stream("belief:B-204")] == list(receipt.event_ids)
+        assert all(store.load_payload(f"PAYLOAD-{i}") is not None for i in range(1, 4))
 
 
 def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
@@ -85,8 +70,9 @@ def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
             payload_ref="OLD-PAYLOAD",
         )
         store.append_one(old, {"old": True})
-        with pytest.raises(sqlite3.IntegrityError):
-            SQLiteAtomicBatchAppender(store).append(entries())
+        conflicting = list(entries())
+        with pytest.raises(VersionConflictError):
+            SQLiteAtomicBatchAppender(store).append(conflicting)
         assert store.load_event("EVT-1") is None
         assert store.load_event("EVT-3") is None
         assert store.load_payload("PAYLOAD-1") is None
@@ -94,7 +80,7 @@ def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
         assert store.load_event("OLD") is not None
 
 
-def test_late_payload_conflict_rolls_back_prior_new_rows() -> None:
+def test_payload_conflict_rolls_back_prior_event_rows() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         old = replace(
@@ -124,23 +110,17 @@ def test_empty_batch_is_rejected() -> None:
 @pytest.mark.parametrize(
     ("replacement", "message"),
     [
-        (lambda item: replace(item, batch_id="OTHER"), "batch_id"),
-        (lambda item: replace(item, batch_size=4), "batch_size"),
-        (lambda item: replace(item, batch_index=2), "batch_index"),
-        (lambda item: replace(item, stream_version=7), "contiguous"),
-        (lambda item: replace(item, stream_id="other:stream"), "one stream"),
-        (lambda item: replace(item, causation_id="OTHER"), "causation_id"),
+        (lambda e: replace(e, batch_id="OTHER"), "batch_id"),
+        (lambda e: replace(e, batch_size=4), "batch_size"),
+        (lambda e: replace(e, batch_index=2), "batch_index"),
+        (lambda e: replace(e, stream_version=7), "contiguous"),
+        (lambda e: replace(e, stream_id="other:stream"), "one stream"),
+        (lambda e: replace(e, causation_id="OTHER"), "causation_id"),
     ],
 )
-def test_incoherent_batch_metadata_is_rejected(
-    replacement,
-    message: str,
-) -> None:
+def test_incoherent_batch_metadata_is_rejected(replacement, message: str) -> None:
     batch = list(entries())
-    batch[1] = BatchEntry(
-        replacement(batch[1].event),
-        {"index": 1},
-    )
+    batch[1] = BatchEntry(replacement(batch[1].event), {"index": 1})
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         with pytest.raises(BatchInvariantError, match=message):

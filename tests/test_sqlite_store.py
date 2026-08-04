@@ -8,7 +8,11 @@ from pathlib import Path
 import pytest
 
 from mentaury.contracts import ActorRef, AuthorityRef, EventEnvelope, ProducerRef
-from mentaury.storage import SQLiteEventPayloadStore, StoreNotInitializedError
+from mentaury.storage import (
+    SQLiteEventPayloadStore,
+    StoreNotInitializedError,
+    VersionConflictError,
+)
 
 
 def event(
@@ -109,8 +113,7 @@ def test_payload_material_cannot_be_rewritten_in_place() -> None:
         store.append_one(event(), {"statement": "alpha"})
         with pytest.raises(sqlite3.IntegrityError, match="cannot be rewritten"):
             store.raw_connection_for_tests().execute(
-                "UPDATE event_payloads SET payload_bytes = X'00' "
-                "WHERE payload_ref = 'PAYLOAD-1'"
+                "UPDATE event_payloads SET payload_bytes = X'00' WHERE payload_ref = 'PAYLOAD-1'"
             )
 
 
@@ -124,7 +127,7 @@ def test_failed_event_insert_rolls_back_new_payload() -> None:
             payload_ref="PAYLOAD-2",
             stream_version=1,
         )
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(VersionConflictError):
             store.append_one(duplicate_version, {"statement": "beta"})
 
         assert store.load_event("EVT-2") is None

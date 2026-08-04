@@ -8,7 +8,10 @@ import mentaury
 def test_package_imports_without_side_effect_runtime() -> None:
     assert mentaury.__version__ == "0.0.0"
     assert mentaury.SKELETON_STATUS == "P0-001_NEUTRAL_SKELETON"
-    assert mentaury.IMPLEMENTATION_STATUS == "P0-007_EVENT_AWARE_IDEMPOTENCY"
+    assert (
+        mentaury.IMPLEMENTATION_STATUS
+        == "P0-008_TRANSACTIONAL_CONCURRENCY"
+    )
 
 
 def test_reserved_namespaces_are_importable() -> None:
