@@ -1,0 +1,35 @@
+{
+  "profile": "MENTAURY_CANONICAL_JSON_V1",
+  "safe_integer_max": 9007199254740991,
+  "canonical_values": [
+    {
+      "name": "empty_object",
+      "value": {},
+      "canonical": "{}",
+      "utf8_hex": "7b7d"
+    },
+    {
+      "name": "deterministic_key_order",
+      "value": {"z": 0, "a": 1, "nested": {"β": "κόσμος", "a": true}},
+      "canonical": "{\"a\":1,\"nested\":{\"a\":true,\"β\":\"κόσμος\"},\"z\":0}",
+      "utf8_hex": "7b2261223a312c226e6573746564223a7b2261223a747275652c22ceb2223a22cebacf8ccf83cebccebfcf82227d2c227a223a307d"
+    },
+    {
+      "name": "array_and_escaping",
+      "value": [null, false, "line\n\"quote\"\\slash"],
+      "canonical": "[null,false,\"line\\n\\\"quote\\\"\\\\slash\"]",
+      "utf8_hex": "5b6e756c6c2c66616c73652c226c696e655c6e5c2271756f74655c225c5c736c617368225d"
+    }
+  ],
+  "timestamps": [
+    {"input": "2026-08-04T22:00:00Z", "canonical": "2026-08-04T22:00:00Z"},
+    {"input": "2026-08-04T22:00:00.12Z", "canonical": "2026-08-04T22:00:00.120Z"},
+    {"input": "2026-08-05T00:00:00+02:00", "canonical": "2026-08-04T22:00:00Z"}
+  ],
+  "decimal_strings": [
+    {"input": "1.2300", "canonical": "1.23"},
+    {"input": "-0.000", "canonical": "0"},
+    {"input": "1E+3", "canonical": "1000"},
+    {"input": ".500", "canonical": "0.5"}
+  ]
+}

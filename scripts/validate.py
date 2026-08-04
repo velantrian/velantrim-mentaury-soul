@@ -1,4 +1,4 @@
-"""Offline structural validation for P0-002 envelope contracts."""
+"""Offline structural validation for P0-003 canonical JSON."""
 
 from __future__ import annotations
 
@@ -11,12 +11,16 @@ REQUIRED_PATHS = (
     "requirements-dev.lock",
     "docs/ENVIRONMENT_MANIFEST.md",
     "docs/P0_002_ENVELOPE_CONTRACTS.md",
+    "docs/P0_003_CANONICAL_JSON.md",
     "src/mentaury/__init__.py",
     "src/mentaury/py.typed",
     "src/mentaury/contracts/primitives.py",
     "src/mentaury/contracts/envelopes.py",
+    "src/mentaury/contracts/canonical_json.py",
     "tests/test_skeleton.py",
     "tests/test_envelopes.py",
+    "tests/test_canonical_json.py",
+    "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
     "identity_engine.py",
@@ -51,7 +55,7 @@ def main() -> int:
             print(f"- {name}")
         return 1
 
-    print("P0-002 envelope contract validation: PASS")
+    print("P0-003 canonical JSON validation: PASS")
     return 0
 
 

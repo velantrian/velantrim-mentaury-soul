@@ -1,7 +1,7 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-002
+Status:             P0-003
 Profile:            Python + standard-library SQLite (SQLite not used yet)
 Python:             3.13.x
 Runtime deps:       NONE
@@ -12,40 +12,52 @@ Domain runtime:     FORBIDDEN
 
 ## Purpose
 
-This manifest records the first replaceable implementation profile for the neutral Mentaury P0 infrastructure. It is not part of the substrate-neutral Canon.
+This manifest records the first replaceable implementation profile for the
+neutral Mentaury P0 infrastructure. It is not part of the substrate-neutral
+Canon.
 
-## P0-002 contract boundary
-
-P0-002 adds immutable typed contracts for:
+## Implemented boundary
 
 ```text
-CommandEnvelope
-PendingEvent
-EventEnvelope
-ActorRef
-AuthorityRef
-ProducerRef
+P0-001 → neutral package skeleton
+P0-002 → immutable typed envelope contracts
+P0-003 → MENTAURY_CANONICAL_JSON_V1
 ```
 
-Caller-provided payload trees are copied into recursively read-only snapshots. This protects envelope-local immutability but does not claim canonical serialization, cryptographic integrity, schema correctness, persisted immutability, or valid authority.
+P0-003 provides deterministic UTF-8 serialization, strict numeric admission,
+Unicode scalar validation, explicit decimal-string normalization, UTC timestamp
+normalization, envelope projections, event hash-input bytes, and conformance
+vectors.
 
 ```text
-Envelope construction ≠ authority approval
-Frozen payload snapshot ≠ canonical JSON
-EventEnvelope value ≠ committed storage row
-Payload digest field ≠ verified digest
+Canonical serialization ≠ schema correctness
+Canonical serialization ≠ hash verification
+Canonical serialization ≠ persisted immutability
+Canonical serialization ≠ valid authority
+```
+
+## Numeric and text policy
+
+```text
+Float / NaN / Infinity → FORBIDDEN
+Safe integer range     → ±(2^53-1)
+Decimal object         → FORBIDDEN implicitly
+Decimal helper output  → explicit schema-controlled string
+Unicode normalization  → NONE
+Lone surrogate         → FORBIDDEN
 ```
 
 ## Deferred milestones
 
-- P0-003 defines `MENTAURY_CANONICAL_JSON_V1` and conformance vectors.
 - P0-004 implements immutable events and external payload storage.
 - P0-005 adds event/schema registry and structural payload validators.
 - Later commits add atomic batch, idempotency, concurrency, R0 and redaction.
 
 ## Runtime boundary
 
-The package uses no third-party runtime dependencies. Python's standard library is the only runtime base. SQLite integration begins only in a later sequential P0 commit.
+The package uses no third-party runtime dependencies. Python's standard library
+is the only runtime base. SQLite integration begins only in a later sequential
+P0 commit.
 
 ## Supported local commands
 
@@ -59,13 +71,16 @@ python3 -m compileall -q src tests scripts
 
 ```text
 src/mentaury/core        substrate-level primitives only
-src/mentaury/contracts   typed infrastructure contracts
+src/mentaury/contracts   typed contracts + canonical serialization
 src/mentaury/storage     replaceable storage ports/adapters
 src/mentaury/validation  fail-closed structural validation
 scripts                  offline repository validation
-tests                    deterministic offline tests
+tests                    deterministic offline tests + vectors
 ```
 
 ## Explicit exclusions
 
-P0-002 contains no Event Store, SQLite persistence, canonical serializer, schema registry, authority resolver, identity engine, relationship runtime, Character Engine, Curiosity Controller, Exo-Cortex runtime, autonomous loop, background worker, network connector, persistent self-state, or direct M3 interface.
+P0-003 contains no Event Store, SQLite persistence, schema registry, authority
+resolver, hash engine, identity engine, relationship runtime, Character Engine,
+Curiosity Controller, Exo-Cortex runtime, autonomous loop, background worker,
+network connector, persistent self-state, or direct M3 interface.
