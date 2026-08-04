@@ -1,4 +1,20 @@
-"""Storage port namespace.
+"""Explicit P0 storage adapters.
 
-No database is opened and no state is persisted during package import.
+Importing this namespace opens no database and persists no state.
 """
+
+from .sqlite_store import (
+    SCHEMA_VERSION,
+    SQLiteEventPayloadStore,
+    StorageError,
+    StoredPayload,
+    StoreNotInitializedError,
+)
+
+__all__ = [
+    "SCHEMA_VERSION",
+    "SQLiteEventPayloadStore",
+    "StorageError",
+    "StoredPayload",
+    "StoreNotInitializedError",
+]

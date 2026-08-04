@@ -1,12 +1,11 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-003
-Profile:            Python + standard-library SQLite (SQLite not used yet)
-Python:             3.13.x
+Status:             P0-004
+Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
-Persistence import: FORBIDDEN
+Database at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
 ```
 
@@ -22,42 +21,41 @@ Canon.
 P0-001 → neutral package skeleton
 P0-002 → immutable typed envelope contracts
 P0-003 → MENTAURY_CANONICAL_JSON_V1
+P0-004 → immutable SQLite event rows + external payload bytes
 ```
 
-P0-003 provides deterministic UTF-8 serialization, strict numeric admission,
-Unicode scalar validation, explicit decimal-string normalization, UTC timestamp
-normalization, envelope projections, event hash-input bytes, and conformance
-vectors.
+## Explicit initialization
+
+Importing the package creates no connection and writes no state. Storage use
+requires:
 
 ```text
-Canonical serialization ≠ schema correctness
-Canonical serialization ≠ hash verification
-Canonical serialization ≠ persisted immutability
-Canonical serialization ≠ valid authority
+SQLiteEventPayloadStore.connect(path)
+→ initialize_schema()
+→ explicit operations
 ```
 
-## Numeric and text policy
+## P0-004 persistence boundary
 
 ```text
-Float / NaN / Infinity → FORBIDDEN
-Safe integer range     → ±(2^53-1)
-Decimal object         → FORBIDDEN implicitly
-Decimal helper output  → explicit schema-controlled string
-Unicode normalization  → NONE
-Lone surrogate         → FORBIDDEN
+events          → immutable metadata rows
+event_payloads  → separately stored canonical payload bytes
 ```
 
-## Deferred milestones
+SQLite triggers reject event UPDATE/DELETE and payload-byte rewrites. The public
+adapter exposes no redaction/delete method yet.
 
-- P0-004 implements immutable events and external payload storage.
-- P0-005 adds event/schema registry and structural payload validators.
-- Later commits add atomic batch, idempotency, concurrency, R0 and redaction.
+```text
+SQLite trigger ≠ tamper-proof security boundary
+Single-event transaction ≠ multi-event batch
+Stored hash ≠ verified hash
+External payload table ≠ governed redaction
+```
 
 ## Runtime boundary
 
-The package uses no third-party runtime dependencies. Python's standard library
-is the only runtime base. SQLite integration begins only in a later sequential
-P0 commit.
+The package has no third-party runtime dependencies. SQLite is accessed only
+through Python's standard library. The tested SQLite runtime is `3.46.1`.
 
 ## Supported local commands
 
@@ -72,15 +70,25 @@ python3 -m compileall -q src tests scripts
 ```text
 src/mentaury/core        substrate-level primitives only
 src/mentaury/contracts   typed contracts + canonical serialization
-src/mentaury/storage     replaceable storage ports/adapters
+src/mentaury/storage     explicit replaceable storage adapters
 src/mentaury/validation  fail-closed structural validation
 scripts                  offline repository validation
 tests                    deterministic offline tests + vectors
 ```
 
+## Deferred milestones
+
+- P0-005 adds event/schema registry and structural validators.
+- P0-006 implements real ordered atomic multi-event batch append.
+- P0-007 adds event-aware idempotency.
+- P0-008 adds controlled concurrency and busy handling.
+- P0-009 adds full R0 and stream metadata verification.
+- P0-010 adds governed atomic same-stream redaction.
+
 ## Explicit exclusions
 
-P0-003 contains no Event Store, SQLite persistence, schema registry, authority
-resolver, hash engine, identity engine, relationship runtime, Character Engine,
+P0-004 contains no authority resolver, schema registry, hash verifier,
+multi-event command handler, idempotency engine, concurrency controller,
+redaction workflow, identity engine, relationship runtime, Character Engine,
 Curiosity Controller, Exo-Cortex runtime, autonomous loop, background worker,
 network connector, persistent self-state, or direct M3 interface.

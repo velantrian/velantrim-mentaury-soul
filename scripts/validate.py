@@ -1,4 +1,4 @@
-"""Offline structural validation for P0-003 canonical JSON."""
+"""Offline structural validation for P0-004 storage primitives."""
 
 from __future__ import annotations
 
@@ -10,16 +10,19 @@ REQUIRED_PATHS = (
     "pyproject.toml",
     "requirements-dev.lock",
     "docs/ENVIRONMENT_MANIFEST.md",
-    "docs/P0_002_ENVELOPE_CONTRACTS.md",
     "docs/P0_003_CANONICAL_JSON.md",
+    "docs/P0_004_IMMUTABLE_EVENT_PAYLOAD_STORAGE.md",
     "src/mentaury/__init__.py",
     "src/mentaury/py.typed",
     "src/mentaury/contracts/primitives.py",
     "src/mentaury/contracts/envelopes.py",
     "src/mentaury/contracts/canonical_json.py",
+    "src/mentaury/storage/__init__.py",
+    "src/mentaury/storage/sqlite_store.py",
     "tests/test_skeleton.py",
     "tests/test_envelopes.py",
     "tests/test_canonical_json.py",
+    "tests/test_sqlite_store.py",
     "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
@@ -28,7 +31,6 @@ FORBIDDEN_RUNTIME_MODULES = (
     "character_engine.py",
     "curiosity_controller.py",
     "exo_cortex_runtime.py",
-    "event_store.py",
 )
 
 
@@ -50,12 +52,12 @@ def main() -> int:
         if path.name in FORBIDDEN_RUNTIME_MODULES
     ]
     if found_forbidden:
-        print("forbidden runtime modules found:")
+        print("forbidden domain runtime modules found:")
         for name in found_forbidden:
             print(f"- {name}")
         return 1
 
-    print("P0-003 canonical JSON validation: PASS")
+    print("P0-004 immutable event/payload storage validation: PASS")
     return 0
 
 
