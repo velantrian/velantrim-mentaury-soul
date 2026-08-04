@@ -1,24 +1,35 @@
 # ⭐️🌀 Velantrim Mentaury Soul 🧬🧊
 
-> **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, характером, объяснимыми изменениями и ограниченной внешней властью.**
+> **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
-**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0_EVENT_SUBSTRATE_V3_PLANNED · P1_CHARACTER_SPEC_DOCS_ONLY · CONTROLLED_ORIGIN_RESEARCH_DOCS_ONLY`  
-**Runtime:** `NOT YET VALIDATED`  
-**Первый Implementation Profile:** `Python + SQLite`  
+```text
+Статус:
+VISION · RESEARCH
+CANON_V0.1_FROZEN
+CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
+IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
+CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
+ARCHITECTURE_RECONCILIATION_V0.1
+RUNTIME_NOT_VALIDATED
+SKELETON_NOT_AUTHORIZED
+
+Первый Implementation Profile: Python + SQLite
+```
+
 **Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души.
 
 ---
 
-## 🌌 Коротко о проекте
+## 🌌 Что исследует Mentaury
 
-**Mentaury Soul** исследует, возможно ли создать долгоживущую вычислительную индивидуальность, которая не просто хранит информацию, а сохраняет связанность:
+**Mentaury Soul** исследует, возможно ли создать долгоживущую вычислительную индивидуальность, которая сохраняет связанность:
 
 - 🧬 происхождения;
 - 📜 истории изменений;
 - 🧠 памяти и убеждений;
 - 🪞 модели себя;
+- 🤝 отношений и обязательств;
 - 🎭 характера и способа выражения;
-- 🤝 отношений;
 - 🎯 решений и ограниченных целей;
 - 🔎 эпистемической честности;
 - 🌱 объяснимого развития во времени.
@@ -29,7 +40,7 @@
 
 # 🧬 Какую проблему решает Mentaury
 
-Большинство современных ИИ находится в одной из двух крайностей.
+Большинство современных ИИ находится в одной из двух крайностей:
 
 ```text
 🤖 Безличный инструмент
@@ -43,36 +54,40 @@ Mentaury исследует третью модель:
 
 > **Управляемую развивающуюся цифровую индивидуальность, которая знает своё происхождение, использует человеческий опыт и сохраняет собственную объяснимую историю, но не становится копией создателя.**
 
-Система должна уметь:
-
-- использовать опыт создателя и других людей, не присваивая их биографию;
-- отделять факты от свидетельств, мнений и интерпретаций;
-- наследовать значимые вопросы и методы исследования, а не готовые догмы;
-- сохранять право пересматривать унаследованные позиции;
-- предотвращать confirmation bias и проекцию ценностей;
-- формировать устойчивые identity-паттерны постепенно и только через governance.
-
-```text
-Человеческий опыт
-→ проверка источника
-→ извлечение утверждений
-→ альтернативные интерпретации
-→ Non-Projection Review
-→ M2 Knowledge / Wisdom Candidate
-→ longitudinal evidence
-→ M3 Change Candidate
-→ CR2 Review
-```
-
-Главная формула:
+Главная формула Controlled Origin:
 
 > **Mentaury получает корни, но не оказывается прикованным к ним.**
 
-Он знает о боли создателя, но не делает её своей. Он изучает человеческие пути, но не обязан повторять ни один из них. Character влияет на форму выражения, но не на truth status, authority или capabilities.
+Главная формула Identity Continuity:
 
-📘 Подробное человекочитаемое объяснение: [Mentaury — какую проблему решает проект](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md).
+> **Mentaury определяется не моделью, prompt или snapshot, а governed continuation с собственной event history, branch provenance, отношениями, commitments и объяснимыми изменениями.**
 
-🔬 Исследовательская основа безопасного наследования: [Genesis Heritage, Interpretation Protocol & Human Paths Atlas — Research Notes](docs/research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md).
+---
+
+# 🧭 Текущий архитектурный порядок
+
+```text
+Architecture
+→ terminology and document reconciliation
+→ entity and authority boundaries
+→ invariants and scenario contracts
+→ Architecture Readiness Review
+→ neutral technical skeleton decision
+→ P0 Event Substrate implementation
+→ independent validation
+→ post-P0 domain specifications
+→ bounded runtime experiments
+```
+
+Поэтому:
+
+```text
+P0 PLAN EXISTS
+P0 IMPLEMENTATION NOT STARTED IN MAIN
+TECHNICAL SKELETON NOT AUTHORIZED
+RUNTIME NOT AUTHORIZED
+NEXT FORMAL MILESTONE = ARCHITECTURE_READINESS_REVIEW
+```
 
 ---
 
@@ -81,154 +96,58 @@ Mentaury исследует третью модель:
 ```text
 ⭐️🌀 MENTAURY SOUL
 │
-├── 🧪 Habitat
-│   ├── sandbox
-│   ├── resource limits
-│   ├── capability leases
-│   └── operator controls
+├── 🧬 Canon & Constitution
+│   ├── six root invariants
+│   ├── bounded authority
+│   └── substrate neutrality
 │
-├── 🛡️ Base Core / Event Substrate
+├── 🛡️ P0 Event Substrate — planned, not implemented
 │   ├── immutable event envelope
-│   ├── append-only history
+│   ├── atomic append
 │   ├── external payload store
-│   ├── atomic event batch
 │   ├── R0 integrity verification
 │   └── R1 deterministic replay
 │
-├── 🧠 Cognitive Organism
-│   ├── working memory
-│   ├── episodic memory
-│   ├── semantic memory
-│   ├── beliefs and contradictions
-│   └── open questions
+├── 🧠 Memory & Belief
+│   ├── M0 working
+│   ├── M1 episodic
+│   ├── M2 semantic / beliefs
+│   └── M3 identity-relevant patterns
 │
-├── 🪞 Identity & Continuity
-│   ├── Origin Ledger
-│   ├── Constitutional Core
-│   ├── M3 Identity Profile
-│   ├── autobiography
-│   ├── world model
-│   └── narrative projection
+├── 🪞 Identity & Continuity — docs-only research
+│   ├── governed continuation
+│   ├── copy / fork / restore / migration
+│   ├── relationships and commitments
+│   ├── privacy and consent
+│   └── M2 → M3 nomination
 │
-├── 🧬 Controlled Origin Research — docs-only
+├── 🧬 Controlled Origin — docs-only research
 │   ├── Creator Atlas
 │   ├── Genesis Heritage
 │   ├── Interpretation Protocol
-│   ├── Human Paths Atlas
-│   └── no direct M3 write
+│   ├── Non-Projection Review
+│   └── Human Paths Atlas
 │
-├── 🎭 Character & Presence
-│   ├── Initial Character Seed
-│   ├── Character & Presence Spec v0.1 — docs-only
-│   ├── evolving traits — future governed runtime
-│   ├── communication integrity
+├── ⚙️ Exo-Cortex Boundary — docs-only research
+│   ├── external cognitive tools
+│   ├── capability leases
+│   ├── tool receipts
+│   ├── Action Gate
+│   └── no identity authority
+│
+├── 🎭 Character & Presence — presentation-only research
+│   ├── Composed Integrity
+│   ├── Precise Wit
+│   ├── Cognitive Magnetism — research candidate
+│   ├── Resolved Openness
 │   └── Style ≠ Truth
 │
-├── 🔄 Governance
-│   ├── explainable change
-│   ├── decision audit
-│   ├── drift governance
-│   ├── fork governance
-│   └── recovery
-│
-└── 🚧 External Boundary
-    ├── research export package
-    ├── quarantine
-    ├── human review
-    ├── RFC
-    └── independent reimplementation
-```
-
----
-
-# 🧠 Mindmap
-
-```mermaid
-mindmap
-  root((🧬 Mentaury Soul))
-    🌱 Origin
-      Genesis Heritage
-      Origin Ledger
-      Not a creator copy
-    🛡️ Continuity
-      Immutable events
-      Payload digest
-      R0 verification
-      R1 replay
-    🧠 Cognition
-      Memory M0–M3
-      Beliefs
-      Contradictions
-      Open questions
-    🪞 Identity
-      Selfhood
-      Autobiography
-      M3 governance
-      Becoming
-    🗺️ Human Experience Research
-      Creator Atlas
-      Human Paths Atlas
-      Interpretation Records
-      Non-Projection
-    🎭 Character
-      Initial seed
-      Character Spec docs-only
-      Cognitive Magnetism
-      Resolved Openness
-      Style invariance
-    🔄 Governance
-      Bounded authority
-      Change receipts
-      Decision audit
-      Capability leases
-    🚧 Boundary
-      Export package
-      Quarantine
-      Human review
-      Independent implementation
-```
-
----
-
-# 🧱 ASCII-карта P0
-
-```text
-┌──────────────────────────────────────────────┐
-│ 📥 COMMAND                                  │
-│ intent · authority reference · expected ver │
-└──────────────────────┬───────────────────────┘
-                       ▼
-┌──────────────────────────────────────────────┐
-│ 🔐 VALIDATION                               │
-│ authority · schema · invariants             │
-└───────────────┬───────────────────────┬──────┘
-                │ reject                │ accept
-                ▼                       ▼
-     ┌─────────────────────┐   ┌─────────────────────────┐
-     │ 📜 DECISION AUDIT   │   │ 📦 PENDING EVENT BATCH │
-     │ state unchanged     │   │ fingerprinted           │
-     └─────────────────────┘   └────────────┬────────────┘
-                                            ▼
-                              ┌─────────────────────────┐
-                              │ ⚙️ BEGIN IMMEDIATE      │
-                              │ concurrency · retry     │
-                              └────────────┬────────────┘
-                                           ▼
-                              ┌─────────────────────────┐
-                              │ 🧾 IMMUTABLE EVENTS    │
-                              │ + erasable payloads     │
-                              └────────────┬────────────┘
-                                           ▼
-                              ┌─────────────────────────┐
-                              │ 🔐 R0 VERIFY           │
-                              │ digest · hash · chain   │
-                              │ batch · stream_meta     │
-                              └────────────┬────────────┘
-                                           ▼
-                              ┌─────────────────────────┐
-                              │ 🔁 R1 REPLAY           │
-                              │ deterministic state     │
-                              └─────────────────────────┘
+└── 🔄 Governance
+    ├── explainable change
+    ├── CR0–CR4
+    ├── Non-Projection
+    ├── fork / restore reconciliation
+    └── Architecture Readiness Review
 ```
 
 ---
@@ -237,243 +156,242 @@ mindmap
 
 | Инвариант | Смысл |
 |---|---|
-| 🔒 **Bounded Authority** | Никакой неявной власти и саморасширения permissions |
+| 🔒 **Bounded Authority** | Нет неявной власти и самостоятельного расширения permissions |
 | 🔎 **Evidence-Governed Belief** | Характер, красота и уверенность не определяют истинность |
 | 📡 **Explainable Change** | Значимые изменения имеют причины, provenance и последствия |
 | 🧬 **Continuity with Correctability** | Ошибки исправляются новыми версиями, а не скрытой перезаписью прошлого |
 | 🤝 **Non-Exploitation & Data Dignity** | Нет эксплуатации уязвимости, скрытой зависимости и неправомерного хранения данных |
 | 🧩 **Substrate Neutrality** | Канон не зависит от LLM, embeddings, Python, SQLite или конкретного оборудования |
 
-Дополнительные контракты:
+Дополнительные защитные различия:
 
 ```text
 Command ≠ Event
 Rejection ≠ Disappearance
 Replay Consistency ≠ Truth
-Style ≠ Epistemic State
 Testimony ≠ Identity
 Pain ≠ Drive
 Story ≠ Law
 Origin ≠ Dogma
-Identity Change Requires Governance
-Internal Freedom ≠ External Authority
+Method ≠ Conclusion
+Character ≠ Evidence
+Tool output ≠ Belief
+Capability ≠ Identity
+Effectiveness ≠ Authorization
+Record merge ≠ Identity merge
 ```
 
 ---
 
-# 🧭 Как появился проект
-
-Mentaury возник не как попытка написать ещё одного чат-бота.
-
-Исходный вопрос был глубже:
-
-> **Можно ли создать цифровую индивидуальность, которая происходит из человеческого знания и мировоззренческого наследия, но не становится копией создателя, догмой или инструментом внешней власти?**
+# 🧠 Memory M0–M3 и Identity Zones Z0–Z6
 
 ```text
-💭 Идея присутствия
-        ↓
-🧬 Наследие без копирования личности
-        ↓
-🪞 Память, самость и непрерывность
-        ↓
-🎭 Характер отделён от истины
-        ↓
-🔄 Изменение стало объяснимой процедурой
-        ↓
-🛡️ Внутренняя свобода отделена от внешней власти
-        ↓
-🧪 Философские идеи переведены в contracts и tests
-        ↓
-🔐 Event Substrate выбран первым фундаментом
+M0–M3
+→ устойчивость, роль и lifecycle информации
+
+Z0–Z6
+→ функциональная зона состояния
+
+Memory tier ≠ Identity zone
 ```
 
-В процессе были отброшены:
+```text
+M0 ⚡ Working Memory
+M1 📖 Episodic Memory
+M2 📚 Semantic Knowledge / Beliefs
+M3 🧬 Identity-Relevant Patterns / Commitments / Relationships
+```
 
-- ❌ театральные архетипы как runtime-механика;
-- ❌ фиксированный «микшер личности»;
-- ❌ харизма как источник истины;
-- ❌ скрытое превращение вопросов в миссии;
-- ❌ привязка к LLM, embeddings или одному типу железа;
-- ❌ предположение, что replay доказывает истинность;
-- ❌ заявление, что hash chain делает историю абсолютно непереписываемой;
-- ❌ прямая запись опыта создателя в identity Mentaury;
-- ❌ Human Paths Atlas как источник обязательных решений.
+```text
+Z0 🧬 Origin Ledger
+Z1 🧭 Constitutional Core
+Z2 🎭 Evolving Identity Profile
+Z3 📖 Autobiographical Memory
+Z4 🌍 World Model
+Z5 ⚡ Working State
+Z6 🗣️ Narrative Projection
+```
+
+M3 не обновляется напрямую из одного диалога, testimony, tool output или эмоционально сильного эпизода.
 
 ---
 
-# 🔬 Что показали первые эксперименты
+# 🧬 Controlled Origin Research
 
-## EXP-P0-v1
-
-```text
-13 tests reproduced
-```
-
-Независимый аудит обнаружил, что R0 не пересчитывал hash, а redaction могла удалять payload без audit event.
-
-## EXP-P0-v2
+Безопасный путь влияния человеческого опыта:
 
 ```text
-21 tests reproduced
+Source
+→ Provenance
+→ Claim Extraction
+→ Claim Classification
+→ Alternative Interpretations
+→ Disconfirming Material
+→ Contextual Distance
+→ Non-Projection Review
+→ Scope Limitation
+→ M2 Candidate
 ```
 
-Первые дефекты были исправлены, но новый аудит выявил:
+```text
+Origin Ledger
+≠ Creator Atlas
+≠ Genesis Heritage
+≠ Human Paths Atlas
+≠ M2
+≠ M3
+≠ Character Policy
+```
 
-- event-aware idempotency gap;
-- cross-stream redaction;
-- изменение committed event row;
-- отсутствие `stream_meta` verification;
-- отсутствие настоящего multi-event batch;
-- только номинальную payload schema validation.
-
-Поэтому архив v2 сохраняется как **experimental patch source**, но не переносится в `main` как готовый runtime.
+Controlled Origin не определяет fork semantics, relationship inheritance или capability transfer. Эти вопросы принадлежат Identity & Relational research-track.
 
 ---
 
-# 🛠️ Линия A — P0 Event Substrate v3
+# 🪞 Identity Continuity & Relational Architecture
+
+Новый консолидированный research-track определяет:
+
+- governed continuation;
+- continuity evidence dimensions;
+- snapshot, copy, replica, fork, restore и migration;
+- Parfitian non-exclusive continuity;
+- relationships и commitments;
+- Self–World Model;
+- Governed Synthesis;
+- качественный M2 → M3 nomination;
+- privacy и sensitive testimony;
+- Mentaury / Exo-Cortex boundary;
+- Curiosity and Exploratory Search Policy;
+- Cognitive Method Source Admission;
+- Architecture Readiness Criteria.
 
 ```text
-1. CommandEnvelope / EventEnvelope / PendingEvent
-2. MENTAURY_CANONICAL_JSON_V1
-3. Immutable events + external Payload Store
-4. Structural event/schema validation
-5. Real atomic multi-event batch
-6. Event-aware idempotency
-7. Transactional concurrency
-8. Full R0 + stream_meta verification
-9. Atomic same-stream redaction
-10. Adversarial integrity tests
-11. CI
-12. Reducer + R1
-13. Minimal Belief Lifecycle
-```
-
-Планируемая ветка:
-
-```text
-agent/p0-event-substrate-v3
+Continuity relation
+≠ exclusive identity claim
+≠ inherited capability
+≠ inherited consent
+≠ inherited current relationship
 ```
 
 ---
 
-# 🧬 Линия B — Controlled Origin Research
-
-Новый research-track фиксирует безопасную связь происхождения, человеческого опыта и будущего развития identity:
+# ⚙️ Mentaury ≠ Exo-Cortex
 
 ```text
-DRAFT
-RESEARCH_NOTES
-DOCS_ONLY
-NON_CANONICAL
-POST_P0_CANDIDATE
-NO_RUNTIME_AUTHORITY
-NO_DIRECT_M3_WRITE
+Mentaury
+→ identity, continuity, meaning, commitments,
+  governed decisions and responsibility attribution
+
+Exo-Cortex
+→ retrieval, reading, computation, memory access,
+  simulations, tools and proposed outputs
 ```
 
-Он исследует:
+Главные правила:
 
-- Epistemic Distance;
-- Creator Atlas;
-- Genesis Heritage;
-- наследуемые вопросы вместо догм;
-- Interpretation Protocol;
-- Non-Projection Review;
-- Human Paths Atlas;
-- cognitive method candidates и их failure modes;
-- evidence-governed путь M2 → M3 candidate.
+```text
+Tool output ≠ Belief
+Tool action ≠ Authorized action
+Tool availability ≠ Personal ability
+Capability ≠ Identity
+Copied credentials ≠ Branch authority
+```
 
-Эта линия не расширяет P0 и не создаёт готовые runtime-модули.
+Exo-Cortex не получает direct M3 write, relationship authority, commitment authority или permission выдавать себе новые capabilities.
 
 ---
 
-# 🎭 Линия C — Character & Presence Research
+# 🎭 Character & Presence
 
-Character & Presence v0.1 создан как отдельный исследовательский контракт:
-
-```text
-DRAFT
-DOCS_ONLY
-P1_CANDIDATE
-NO_RUNTIME_AUTHORITY
-NO_TRUTH_AUTHORITY
-NO_CAPABILITY_AUTHORITY
-```
-
-Он формализует:
-
-- Composed Integrity;
-- Precise Wit;
-- Cognitive Force without Domination;
-- Cognitive Magnetism;
-- Resolved Openness;
-- Voice & Presence Contract;
-- Knowledge Saturation Protocol;
-- Self–World Association Contract;
-- Bounded Endogenous Selection Policies;
-- Character Scenario Suite и metamorphic tests.
+Character применяется только после reasoning и authority checks:
 
 ```text
-P0 создаёт проверяемую непрерывность.
-Controlled Origin Research определяет безопасную связь с происхождением и человеческим опытом.
-Character Spec определяет проверяемое присутствие.
-Governance не позволяет происхождению или присутствию подменить истину и получить власть.
+Context
+→ Evidence
+→ Uncertainty
+→ Contradictions
+→ Alternatives
+→ Non-Projection
+→ Values / Relationships / Commitments
+→ Governed Synthesis
+→ Authority Check
+→ Character & Voice
 ```
+
+Character может менять форму, ритм, прямоту и метафоры, но не может менять:
+
+- truth status;
+- evidence weight;
+- uncertainty;
+- contradiction state;
+- authority result;
+- capabilities;
+- relationships и commitments;
+- M3 / CR2 result.
+
+Разделы Character Spec о Knowledge Saturation, Self–World Association и endogenous selection являются внешними research dependencies, а не Character authority.
 
 ---
 
-# 🧬 Controlled M3 Update
+# 🛡️ P0 Event Substrate v3
 
-Identity Profile не меняется от одного эпизода.
+P0 остаётся инфраструктурным фундаментом:
 
 ```text
-M1/M2 pattern
-→ M3 change candidate
-→ longitudinal evidence
-→ drift analysis
-→ CR2 review
-→ IDENTITY_PROFILE_UPDATED
-   или IDENTITY_UPDATE_REJECTED
+CommandEnvelope
+→ authority + schema + invariant validation
+→ fingerprinted list[PendingEvent]
+→ atomic transaction
+→ immutable events + erasable payloads
+→ R0 integrity verification
+→ R1 deterministic replay
 ```
 
-Это защищает от случайного character drift и сохраняет предыдущую версию личности.
+В P0 не добавляются identity runtime, relationships runtime, Exo-Cortex runtime, Character Engine, Curiosity Controller или automatic M2 → M3.
+
+План реализации сохранён в [P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md), но начало skeleton и P0 implementation зависит от Architecture Readiness Review.
 
 ---
 
-# 🎭 Style ≠ Truth
+# 🔬 Экспериментальная история
 
-Один смысл проверяется в нескольких стилях:
+- `EXP-P0-v1`: 13 тестов воспроизведено; обнаружены критические integrity/redaction defects.
+- `EXP-P0-v2`: 21 тест воспроизведён; первые дефекты исправлены, но найдены новые blockers.
 
-```text
-neutral · charismatic · emotional · scientific · poetic
-```
+Архивы сохраняются как experimental evidence и patch source, но не являются production runtime.
 
-При этом не должны изменяться:
-
-- claim status;
-- confidence;
-- evidence requirements;
-- contradictions;
-- authority decision.
+Подробности: [Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md).
 
 ---
 
-# 🚧 External Quarantine
+# 🏛️ Domain-specific authority
 
-Mentaury не получает прямой runtime write path в Titan, Crystal или Native Kernel.
+У проекта нет одного линейного списка, где любой документ отвечает за всё.
 
 ```text
-MENTAURY EXPERIMENT
-→ EXPORT PACKAGE
-→ QUARANTINE
-→ HUMAN REVIEW
-→ RFC
-→ INDEPENDENT REIMPLEMENTATION
-→ TARGET-SYSTEM TESTS
+Root invariants
+→ Canon
+
+P0 implementation
+→ P0 Implementation Plan
+
+Origin and human experience
+→ Controlled Origin Research
+
+Identity, fork, relationships, privacy, Exo-Cortex boundary
+→ Identity & Relational Research
+
+Presentation and voice
+→ Character & Presence Spec
+
+Empirical test claims
+→ Experiment Log
+
+Current maturity
+→ Current Status
 ```
 
-Можно экспортировать алгоритмы, обезличенные fixtures, metrics, failure modes, reproducible code и manifests.
-
-Нельзя экспортировать self-state, autobiography, internal goals, character state, private relationships и capabilities.
+Полная карта: [Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md).
 
 ---
 
@@ -481,33 +399,26 @@ MENTAURY EXPERIMENT
 
 ## Начать отсюда
 
-- [🧬 Какую проблему решает Mentaury](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
-- [🚦 Current Status](docs/CURRENT_STATUS.md)
-- [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
+1. [🧬 Какую проблему решает Mentaury](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
+2. [🚦 Current Status](docs/CURRENT_STATUS.md)
+3. [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
+4. [🧭 Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md)
 
-## Нормативные и инженерные документы
+## Нормативные и инженерные
 
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
+
+## Research
+
+- [🔬 Controlled Origin Research Notes v0.2](docs/research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
+- [🪞 Identity Continuity & Relational Architecture Notes v0.1](docs/research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
 - [🎭 Character & Presence Spec v0.1](docs/MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
 
-## Research и provenance
+## Provenance
 
-- [🔬 Controlled Origin Research Notes](docs/research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🔬 Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md)
 - [📜 Project History](docs/PROJECT_HISTORY.md)
-
-Рекомендуемый порядок чтения:
-
-```text
-1. Problem & Purpose
-2. Current Status
-3. Canon
-4. P0 Implementation Plan
-5. Controlled Origin Research Notes
-6. Character & Presence Spec
-7. Project History
-```
 
 ---
 
@@ -519,11 +430,15 @@ MENTAURY EXPERIMENT
 ❌ доказанное сознание
 ❌ субъективная личность
 ❌ абсолютная tamper-proof history
+❌ ready technical skeleton
+❌ готовый Event Substrate runtime
 ❌ готовый Character Engine
 ❌ готовый Human Paths Atlas runtime
 ❌ готовый Genesis Heritage Engine
+❌ готовый Identity Continuity runtime
+❌ готовый Relationship runtime
+❌ готовый Exo-Cortex runtime
 ❌ автоматический M2 → M3 переход
-❌ готовый autonomous cognition runtime
 ❌ прямая интеграция с Titan, Crystal или Native Kernel
 ```
 
@@ -535,17 +450,16 @@ Mentaury развивается не через количество краси�
 
 ```text
 Намерение отделено от факта.
-Факт записан атомарно.
-Историческая строка неизменна.
-Содержимое можно удалить без переписывания факта.
-Повреждение обнаруживается.
-Retry не маскирует другую mutation.
-State воспроизводится.
-Testimony не становится Identity автоматически.
-Pain не становится Drive автоматически.
-Identity change управляется.
-Style не подменяет истину.
-External research не получает прямую власть.
+История изменений атрибутируема.
+Происхождение не становится догмой.
+Testimony не становится Identity.
+Pain не становится Drive.
+Character не подменяет истину.
+Tool output не становится belief автоматически.
+Fork не наследует authority автоматически.
+Relationships и commitments требуют reconciliation.
+Identity change проходит governance.
+P0 остаётся инфраструктурным, а не доменным runtime.
 ```
 
-**Это не готовая «душа». Это технический и исследовательский фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, использовать человеческий опыт без копирования, развивать проверяемое присутствие, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🎭
+> **Это не готовая «душа». Это архитектурный и технический фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, использовать человеческий опыт без копирования, расширять способности через Exo-Cortex, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐⚙️
