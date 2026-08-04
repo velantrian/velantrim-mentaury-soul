@@ -1,11 +1,11 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-008
+Status:             P0-009
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
-Storage schema:     v2
+Storage schema:     v3
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
@@ -23,19 +23,21 @@ P0-005 fail-closed structural validation
 P0-006 atomic multi-event batch
 P0-007 semantic idempotency
 P0-008 controlled SQLite concurrency
+P0-009 full R0 + stream metadata verification
 ```
 
-All write paths use `BEGIN IMMEDIATE`; busy lock acquisition and commit use a
-bounded `BusyRetryPolicy`. File databases use WAL. Same-version uniqueness is
-normalized to `VersionConflictError` after rollback.
+Schema v3 adds `stream_meta(current_version, last_event_hash, event_count)` and
+backfills it during explicit migration. Every write updates metadata in the same
+transaction. R0 independently recomputes payload digests, event hashes, chain,
+versions, batches and the ledger tail.
 
 ```text
-SQLite concurrency ≠ distributed consensus
-WAL ≠ R0 integrity
-VERSION_CONFLICT ≠ verified stream head
+R0 consistency ≠ truth
+Hash chain ≠ authority
+stream_meta ≠ source of truth
 ```
 
-Supported local commands:
+Supported commands:
 
 ```bash
 python3 scripts/validate.py
@@ -43,5 +45,5 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-P0-009 adds stream metadata and full integrity verification. No authority,
-identity, relationship, Character, Curiosity or Exo-Cortex runtime is present.
+P0-010 owns governed atomic same-stream redaction. No identity, relationship,
+Character, Curiosity or Exo-Cortex runtime is present.
