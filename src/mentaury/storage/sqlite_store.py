@@ -22,6 +22,12 @@ from .concurrency import (
     commit_with_retry,
     is_stream_version_conflict,
 )
+from .stream_meta import (
+    StreamMeta,
+    read_stream_meta,
+    require_expected_stream_version,
+    update_stream_meta,
+)
 
 from mentaury.contracts import (
     ActorRef,
@@ -32,7 +38,7 @@ from mentaury.contracts import (
     canonical_timestamp,
 )
 
-SCHEMA_VERSION: Final[int] = 2
+SCHEMA_VERSION: Final[int] = 3
 MINIMUM_SQLITE_VERSION: Final[tuple[int, int, int]] = (3, 37, 0)
 
 
@@ -154,6 +160,35 @@ UPDATE p0_schema_meta SET schema_version = 2 WHERE singleton = 1;
 COMMIT;
 """
 
+_MIGRATE_2_TO_3_SQL: Final[str] = """
+BEGIN IMMEDIATE;
+
+CREATE TABLE stream_meta (
+    stream_id TEXT PRIMARY KEY NOT NULL,
+    current_version INTEGER NOT NULL CHECK (current_version >= 0),
+    last_event_hash TEXT NOT NULL,
+    event_count INTEGER NOT NULL CHECK (event_count >= 0)
+) STRICT;
+
+INSERT INTO stream_meta(stream_id, current_version, last_event_hash, event_count)
+SELECT
+    e.stream_id,
+    MAX(e.stream_version),
+    (
+        SELECT tail.event_hash
+        FROM events AS tail
+        WHERE tail.stream_id = e.stream_id
+        ORDER BY tail.stream_version DESC
+        LIMIT 1
+    ),
+    COUNT(*)
+FROM events AS e
+GROUP BY e.stream_id;
+
+UPDATE p0_schema_meta SET schema_version = 3 WHERE singleton = 1;
+COMMIT;
+"""
+
 
 class SQLiteEventPayloadStore:
     """Replaceable first-profile adapter for P0-004 storage primitives."""
@@ -228,11 +263,22 @@ class SQLiteEventPayloadStore:
                     self._connection.execute("ROLLBACK")
                 raise
             current = 2
+        if current == 2:
+            try:
+                self._connection.executescript(_MIGRATE_2_TO_3_SQL)
+            except Exception:
+                if self._connection.in_transaction:
+                    self._connection.execute("ROLLBACK")
+                raise
+            current = 3
         if current != SCHEMA_VERSION:
             raise StorageError("unsupported P0 storage schema version")
         try:
             self._connection.execute(
                 "SELECT idempotency_key FROM idempotency_records LIMIT 0"
+            )
+            self._connection.execute(
+                "SELECT stream_id FROM stream_meta LIMIT 0"
             )
         except sqlite3.OperationalError as exc:
             raise StorageError("incomplete P0 storage schema") from exc
@@ -254,12 +300,7 @@ class SQLiteEventPayloadStore:
         event: EventEnvelope,
         payload: Mapping[str, object],
     ) -> None:
-        """Atomically store one external payload and one immutable event row.
-
-        The supplied digest/hash fields are recorded but deliberately not
-        computed or verified in P0-004. Real multi-event append belongs to
-        P0-006.
-        """
+        """Atomically store one external payload and one immutable event row."""
 
         if not isinstance(event, EventEnvelope):
             raise TypeError("event must be an EventEnvelope")
@@ -269,6 +310,9 @@ class SQLiteEventPayloadStore:
 
         try:
             begin_immediate(self._connection, self._busy_policy)
+            previous_meta = require_expected_stream_version(
+                self._connection, event
+            )
             self._connection.execute(
                 """
                 INSERT INTO event_payloads(payload_ref, payload_bytes, created_at)
@@ -318,6 +362,7 @@ class SQLiteEventPayloadStore:
                     event.event_hash,
                 ),
             )
+            update_stream_meta(self._connection, (event,), previous_meta)
         except sqlite3.IntegrityError as exc:
             if self._connection.in_transaction:
                 self._connection.execute("ROLLBACK")
@@ -335,8 +380,6 @@ class SQLiteEventPayloadStore:
             commit_with_retry(self._connection, self._busy_policy)
 
     def load_event(self, event_id: str) -> EventEnvelope | None:
-        """Reconstruct the complete immutable envelope metadata."""
-
         self._require_initialized()
         row = self._connection.execute(
             "SELECT * FROM events WHERE event_id = ?", (event_id,)
@@ -346,8 +389,6 @@ class SQLiteEventPayloadStore:
         return _event_from_row(row)
 
     def load_payload(self, payload_ref: str) -> StoredPayload | None:
-        """Load external payload bytes without interpreting domain schema."""
-
         self._require_initialized()
         row = self._connection.execute(
             """
@@ -366,8 +407,6 @@ class SQLiteEventPayloadStore:
         )
 
     def list_stream(self, stream_id: str) -> tuple[EventEnvelope, ...]:
-        """Return immutable envelope metadata in stream-version order."""
-
         self._require_initialized()
         rows = self._connection.execute(
             "SELECT * FROM events WHERE stream_id = ? ORDER BY stream_version",
@@ -375,13 +414,13 @@ class SQLiteEventPayloadStore:
         ).fetchall()
         return tuple(_event_from_row(row) for row in rows)
 
+    def load_stream_meta(self, stream_id: str) -> StreamMeta:
+        """Return persisted stream metadata or the empty-stream default."""
+
+        self._require_initialized()
+        return read_stream_meta(self._connection, stream_id)
+
     def raw_connection_for_tests(self) -> sqlite3.Connection:
-        """Expose the connection only for adversarial infrastructure tests.
-
-        This method is not a domain capability. It exists so tests can prove
-        SQLite triggers reject direct event-row mutation.
-        """
-
         return self._connection
 
 
