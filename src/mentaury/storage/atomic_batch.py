@@ -17,6 +17,7 @@ from .concurrency import (
     is_stream_version_conflict,
 )
 from .sqlite_store import SQLiteEventPayloadStore
+from .stream_meta import require_expected_stream_version, update_stream_meta
 
 
 class BatchInvariantError(ValueError):
@@ -137,10 +138,19 @@ def _prepare_batch(entries: tuple[BatchEntry, ...]) -> tuple[_PreparedEntry, ...
     )
 
 
-def _insert_prepared_batch(connection: sqlite3.Connection, prepared: tuple[_PreparedEntry, ...]) -> None:
+def _insert_prepared_batch(
+    connection: sqlite3.Connection,
+    prepared: tuple[_PreparedEntry, ...],
+) -> None:
+    previous_meta = require_expected_stream_version(connection, prepared[0].event)
     for item in prepared:
         _insert_payload(connection, item)
         _insert_event(connection, item.event)
+    update_stream_meta(
+        connection,
+        tuple(item.event for item in prepared),
+        previous_meta,
+    )
 
 
 def _receipt_from_prepared(prepared: tuple[_PreparedEntry, ...]) -> BatchAppendReceipt:
