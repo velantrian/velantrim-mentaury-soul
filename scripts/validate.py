@@ -1,4 +1,4 @@
-"""Offline structural validation for P0-005 schema contracts."""
+"""Offline structural validation for P0-006 atomic batch."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ REQUIRED_PATHS = (
     "pyproject.toml",
     "requirements-dev.lock",
     "docs/ENVIRONMENT_MANIFEST.md",
-    "docs/P0_004_IMMUTABLE_EVENT_PAYLOAD_STORAGE.md",
     "docs/P0_005_STRUCTURAL_SCHEMA_VALIDATION.md",
+    "docs/P0_006_ATOMIC_MULTI_EVENT_BATCH.md",
     "src/mentaury/__init__.py",
     "src/mentaury/py.typed",
     "src/mentaury/contracts/primitives.py",
@@ -19,6 +19,7 @@ REQUIRED_PATHS = (
     "src/mentaury/contracts/canonical_json.py",
     "src/mentaury/storage/__init__.py",
     "src/mentaury/storage/sqlite_store.py",
+    "src/mentaury/storage/atomic_batch.py",
     "src/mentaury/validation/__init__.py",
     "src/mentaury/validation/issues.py",
     "src/mentaury/validation/specs.py",
@@ -29,6 +30,7 @@ REQUIRED_PATHS = (
     "tests/test_canonical_json.py",
     "tests/test_sqlite_store.py",
     "tests/test_schema_validation.py",
+    "tests/test_atomic_batch.py",
     "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
@@ -63,7 +65,7 @@ def main() -> int:
             print(f"- {name}")
         return 1
 
-    print("P0-005 structural schema validation: PASS")
+    print("P0-006 atomic multi-event batch validation: PASS")
     return 0
 
 
