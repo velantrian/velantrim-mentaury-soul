@@ -2,7 +2,7 @@
 
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
-**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0 EVENT SUBSTRATE V3 PLANNED`  
+**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0_EVENT_SUBSTRATE_V3_PLANNED · P1_CHARACTER_SPEC_DOCS_ONLY`  
 **Runtime:** `NOT YET VALIDATED`  
 **Первый Implementation Profile:** `Python + SQLite`  
 **Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души.
@@ -63,7 +63,8 @@
 │
 ├── 🎭 Character & Presence
 │   ├── Initial Character Seed
-│   ├── evolving traits
+│   ├── Character & Presence Spec v0.1 — docs-only
+│   ├── evolving traits — future governed runtime
 │   ├── communication integrity
 │   └── Style ≠ Truth
 │
@@ -110,9 +111,10 @@ mindmap
       Becoming
     🎭 Character
       Initial seed
-      Evolving presence
+      Character Spec docs-only
+      Cognitive Magnetism
+      Resolved Openness
       Style invariance
-      Voice is not truth
     🔄 Governance
       Bounded authority
       Change receipts
@@ -181,7 +183,7 @@ mindmap
 | 🤝 **Non-Exploitation & Data Dignity** | Нет эксплуатации уязвимости, скрытой зависимости и неправомерного хранения данных |
 | 🧩 **Substrate Neutrality** | Канон не зависит от LLM, embeddings, Python, SQLite или конкретного оборудования |
 
-Дополнительные P0-контракты:
+Дополнительные контракты:
 
 ```text
 Command ≠ Event
@@ -189,6 +191,7 @@ Rejection ≠ Disappearance
 Replay Consistency ≠ Truth
 Style ≠ Epistemic State
 Identity Change Requires Governance
+Internal Freedom ≠ External Authority
 ```
 
 ---
@@ -260,7 +263,7 @@ Mentaury возник не как попытка написать ещё одн�
 
 ---
 
-# 🛠️ Текущий план: P0 Event Substrate v3
+# 🛠️ Линия A — P0 Event Substrate v3
 
 ```text
 1. CommandEnvelope / EventEnvelope / PendingEvent
@@ -278,10 +281,44 @@ Mentaury возник не как попытка написать ещё одн�
 13. Minimal Belief Lifecycle
 ```
 
-Рабочая ветка для реализации:
+Планируемая ветка:
 
 ```text
 agent/p0-event-substrate-v3
+```
+
+---
+
+# 🎭 Линия B — Character & Presence Research
+
+Character & Presence v0.1 создан как отдельный исследовательский контракт:
+
+```text
+DRAFT
+DOCS_ONLY
+P1_CANDIDATE
+NO_RUNTIME_AUTHORITY
+NO_TRUTH_AUTHORITY
+NO_CAPABILITY_AUTHORITY
+```
+
+Он формализует:
+
+- Composed Integrity;
+- Precise Wit;
+- Cognitive Force without Domination;
+- Cognitive Magnetism;
+- Resolved Openness;
+- Voice & Presence Contract;
+- Knowledge Saturation Protocol;
+- Self–World Association Contract;
+- Bounded Endogenous Selection Policies;
+- Character Scenario Suite и metamorphic tests.
+
+```text
+P0 создаёт проверяемую непрерывность.
+Character Spec определяет проверяемое присутствие.
+Governance не позволяет присутствию подменить истину или получить власть.
 ```
 
 ---
@@ -347,6 +384,8 @@ MENTAURY EXPERIMENT
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
 - [🚦 Current Status](docs/CURRENT_STATUS.md)
+- [🎭 Character & Presence Spec v0.1](docs/MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
+- [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
 - [🔬 Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md)
 - [📜 Project History](docs/PROJECT_HISTORY.md)
 
@@ -384,4 +423,4 @@ Style не подменяет истину.
 External research не получает прямую власть.
 ```
 
-**Это не готовая «душа». Это технический фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🧊
+**Это не готовая «душа». Это технический и исследовательский фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, развивать проверяемое присутствие, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🎭
