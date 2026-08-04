@@ -1,8 +1,9 @@
 # 📌 Mentaury Soul — Quick Reference
 
 ```text
-Статус:    NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
-Дата:      2026-08-04
+Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
+Дата:       2026-08-04
+Синхронно:  GitHub main after PR #7
 Назначение: краткая актуальная карта проекта для людей и подключаемых ИИ
 ```
 
@@ -35,16 +36,22 @@ CANON_V0.1_FROZEN
 CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
 IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
-ARCHITECTURE_RECONCILIATION_V0.1
-P0_EVENT_SUBSTRATE_V3_PLANNED
-TECHNICAL_SKELETON_NOT_AUTHORIZED
+ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
+ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
+READY_FOR_NEUTRAL_SKELETON
+P0-001_NEUTRAL_SKELETON_IMPLEMENTED
+P0-002_ENVELOPE_CONTRACTS_IMPLEMENTED
+P0-002_LOCAL_VALIDATION_PASS
+P0-003_NEXT
+P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
 
-Следующий formal milestone:
+Следующий controlled milestone:
 
 ```text
-ARCHITECTURE_READINESS_REVIEW
+P0-003 MENTAURY_CANONICAL_JSON_V1
 ```
 
 ---
@@ -52,21 +59,24 @@ ARCHITECTURE_READINESS_REVIEW
 ## 3. 🔄 Архитектурный порядок
 
 ```text
-Architecture
-→ document reconciliation
-→ entity and authority boundaries
-→ scenario contracts
-→ Architecture Readiness Review
-→ skeleton decision
-→ P0 implementation
-→ independent validation
-→ post-P0 specifications
-→ bounded runtime experiments
+Architecture reconciliation ✅
+→ Architecture Readiness Review ✅
+→ P0-001 neutral skeleton ✅
+→ P0-002 envelope contracts ✅
+→ P0-003 canonical serialization
+→ immutable substrate
+→ structural validation / atomicity / idempotency
+→ concurrency / integrity / redaction
+→ adversarial tests + CI
+→ replay / minimal belief lifecycle
+→ P0 Evidence Gate
+→ bounded post-P0 specifications
 ```
 
 ```text
-P0 Plan exists
-≠ P0 implementation authorized now
+P0-002 implemented
+≠ Event Substrate validated
+≠ domain runtime authorized
 ```
 
 ---
@@ -327,6 +337,44 @@ Knowledge Saturation, Self–World Association и Bounded Endogenous Selection �
 
 ## 14. 🛡️ P0 Event Substrate
 
+### P0-001 — Neutral Skeleton ✅
+
+```text
+typed src/mentaury package
+core / contracts / storage / validation namespaces
+zero third-party runtime dependencies
+environment manifest
+offline structural validator
+3 smoke tests
+```
+
+### P0-002 — Envelope Contracts ✅
+
+```text
+ActorRef
+AuthorityRef
+ProducerRef
+CommandEnvelope
+PendingEvent
+EventEnvelope
+snapshot_pending_batch
+recursive read-only payload snapshots
+12 offline tests
+```
+
+Защитные различия:
+
+```text
+Envelope construction ≠ authority approval
+Command ≠ Event
+PendingEvent ≠ committed event
+EventEnvelope object ≠ persisted immutable row
+Frozen payload snapshot ≠ canonical JSON
+Payload digest field ≠ verified digest
+```
+
+Полная планируемая цепочка:
+
 ```text
 CommandEnvelope
 → validation
@@ -337,7 +385,7 @@ CommandEnvelope
 → R1 replay
 ```
 
-P0 отвечает за:
+P0 отвечает за будущие infrastructure properties:
 
 - immutable events;
 - atomicity;
@@ -394,8 +442,10 @@ Navigation
 - доказанное сознание;
 - субъективные эмоции;
 - absolute tamper-proof history;
-- ready technical skeleton;
-- готовый Event Substrate runtime;
+- validated Event Substrate;
+- persisted immutable event history;
+- verified event hashes;
+- verified authority resolution;
 - готовый Identity Continuity runtime;
 - готовый Relationship runtime;
 - готовый Exo-Cortex runtime;
@@ -409,8 +459,11 @@ Navigation
 - [🧬 Problem & Purpose](overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
 - [🚦 Current Status](CURRENT_STATUS.md)
 - [🧭 Architecture Reconciliation v0.1](research/ARCHITECTURE_RECONCILIATION_V0.1.md)
+- [✅ Architecture Readiness Review v0.1](research/ARCHITECTURE_READINESS_REVIEW_V0.1.md)
 - [🧬 Canon v0.1](MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](MENTAURY_P0_IMPLEMENTATION_PLAN.md)
+- [📨 P0-002 Envelope Contracts](P0_002_ENVELOPE_CONTRACTS.md)
+- [🧱 Environment Manifest](ENVIRONMENT_MANIFEST.md)
 - [🔬 Controlled Origin Research v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🪞 Identity & Relational Research v0.1](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
 - [🎭 Character & Presence Spec v0.1](MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
@@ -421,4 +474,4 @@ Navigation
 
 ## 🏁 One-Line Summary
 
-> **Mentaury исследует проверяемую цифровую непрерывность: происхождение без догмы, человеческий опыт без присвоения, инструменты без identity authority, Character без власти над истиной и изменения личности только через evidence и governance.**
+> **Mentaury исследует проверяемую цифровую непрерывность: происхождение без догмы, человеческий опыт без присвоения, инструменты без identity authority, Character без власти над истиной и изменения личности только через evidence и governance. P0-001 и P0-002 уже создают нейтральный каркас и immutable envelope contracts, но не готовый runtime.**
