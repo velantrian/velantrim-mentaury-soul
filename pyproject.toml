@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools==82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mentaury-soul"
+version = "0.0.0"
+description = "Neutral infrastructure skeleton for the Mentaury P0 Event Substrate"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+license = { text = "Research-only; license not yet selected" }
+authors = [{ name = "Velantrim" }]
+dependencies = []
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["mentaury*"]
+
+[tool.setuptools.package-data]
+mentaury = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-config --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["mentaury"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
