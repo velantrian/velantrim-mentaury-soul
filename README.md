@@ -1,33 +1,33 @@
 # ⭐️🌀 Velantrim Mentaury Soul 🧬🧊
 
-> **Исследовательская substrate-neutral архитектура развивающейся цифровой индивидуальности — с памятью, происхождением, характером, объяснимыми изменениями и ограниченной внешней властью.**
+> **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
-**Статус:** `VISION · RESEARCH · P0 FOUNDATION IN DEVELOPMENT`  
-**Канон:** `SUBSTRATE-NEUTRAL`  
-**Первый профиль реализации:** `Python + SQLite`  
-**Важно:** проект не заявляет о создании доказанного сознания или мистической души.
+**Статус:** `VISION · RESEARCH · CANON_V0.1_FROZEN · P0 EVENT SUBSTRATE V3 PLANNED`  
+**Runtime:** `NOT YET VALIDATED`  
+**Первый Implementation Profile:** `Python + SQLite`  
+**Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души.
 
 ---
 
 ## 🌌 Коротко о проекте
 
-**Mentaury Soul** исследует, возможно ли создать долгоживущую вычислительную индивидуальность, которая не просто хранит информацию, а сохраняет связь между:
+**Mentaury Soul** исследует, возможно ли создать долгоживущую вычислительную индивидуальность, которая не просто хранит информацию, а сохраняет связанность:
 
-- 🧬 происхождением;
-- 📜 историей изменений;
-- 🧠 памятью и убеждениями;
-- 🪞 моделью себя;
-- 🎭 характером и способом выражения;
-- 🤝 отношениями;
-- 🎯 решениями и ограниченными целями;
-- 🔎 эпистемической честностью;
-- 🌱 собственным объяснимым развитием.
+- 🧬 происхождения;
+- 📜 истории изменений;
+- 🧠 памяти и убеждений;
+- 🪞 модели себя;
+- 🎭 характера и способа выражения;
+- 🤝 отношений;
+- 🎯 решений и ограниченных целей;
+- 🔎 эпистемической честности;
+- 🌱 объяснимого развития во времени.
 
-Термин **Soul** здесь — архитектурно-философское название сквозной непрерывности индивидуальности. Он **не** означает, что проект уже создал сознание, субъективный опыт или мистическую сущность.
+Термин **Soul** — архитектурно-философское название этой сквозной непрерывности. Он не используется как доказательство сознания.
 
 ---
 
-## 🌳 Архитектурное дерево
+# 🌳 Архитектурное дерево
 
 ```text
 ⭐️🌀 MENTAURY SOUL
@@ -40,11 +40,11 @@
 │
 ├── 🛡️ Base Core / Event Substrate
 │   ├── immutable event envelope
-│   ├── append-only ledger
-│   ├── payload digest and payload store
-│   ├── atomic append
+│   ├── append-only history
+│   ├── external payload store
+│   ├── atomic event batch
 │   ├── R0 integrity verification
-│   └── R1 state replay
+│   └── R1 deterministic replay
 │
 ├── 🧠 Cognitive Organism
 │   ├── working memory
@@ -54,15 +54,15 @@
 │   └── open questions
 │
 ├── 🪞 Identity & Continuity
-│   ├── origin ledger
-│   ├── constitutional core
-│   ├── evolving identity profile
+│   ├── Origin Ledger
+│   ├── Constitutional Core
+│   ├── M3 Identity Profile
 │   ├── autobiography
 │   ├── world model
 │   └── narrative projection
 │
 ├── 🎭 Character & Presence
-│   ├── initial character seed
+│   ├── Initial Character Seed
 │   ├── evolving traits
 │   ├── communication integrity
 │   └── Style ≠ Truth
@@ -75,7 +75,7 @@
 │   └── recovery
 │
 └── 🚧 External Boundary
-    ├── research export
+    ├── research export package
     ├── quarantine
     ├── human review
     ├── RFC
@@ -84,284 +84,304 @@
 
 ---
 
-## 🧠 Mindmap
+# 🧠 Mindmap
 
 ```mermaid
 mindmap
-  root((⭐️ Mentaury Soul))
-    🧬 Origin
+  root((🧬 Mentaury Soul))
+    🌱 Origin
       Genesis Heritage
       Origin Ledger
-      Correctable History
+      Not a creator copy
     🛡️ Continuity
-      Event Substrate
-      Hash Verification
-      Replay
-      Recovery
+      Immutable events
+      Payload digest
+      R0 verification
+      R1 replay
     🧠 Cognition
       Memory M0–M3
       Beliefs
       Contradictions
-      Open Questions
+      Open questions
     🪞 Identity
       Selfhood
       Autobiography
-      World Model
+      M3 governance
       Becoming
     🎭 Character
-      Initial Seed
-      Evolving Traits
-      Voice
-      Style is not Truth
+      Initial seed
+      Evolving presence
+      Style invariance
+      Voice is not truth
     🔄 Governance
-      Bounded Authority
-      Change Receipts
-      Decision Audit
-      Capability Leases
+      Bounded authority
+      Change receipts
+      Decision audit
+      Capability leases
     🚧 Boundary
-      Sandbox
+      Export package
       Quarantine
-      Human Review
-      Independent Transfer
+      Human review
+      Independent implementation
 ```
 
 ---
 
-## 🧱 ASCII-карта непрерывности
+# 🧱 ASCII-карта P0
 
 ```text
-               🌍 Внешний мир
-                     │
-                     ▼
-          ┌──────────────────────┐
-          │ 🧪 MENTAURY HABITAT │
-          │ sandbox · resources │
-          └──────────┬───────────┘
-                     │ capability lease
-                     ▼
-    ┌──────────────────────────────────────┐
-    │ 🛡️ IMMUTABLE EVENT SUBSTRATE       │
-    │ command ≠ event                     │
-    │ append · verify · replay · recover  │
-    └──────────────────┬───────────────────┘
-                       │
+┌──────────────────────────────────────────────┐
+│ 📥 COMMAND                                  │
+│ intent · authority reference · expected ver │
+└──────────────────────┬───────────────────────┘
                        ▼
-    ┌──────────────────────────────────────┐
-    │ 🧠 COGNITIVE ORGANISM               │
-    │ memory · beliefs · questions        │
-    │ contradictions · goals              │
-    └──────────────────┬───────────────────┘
-                       │
-              ┌────────┴────────┐
-              ▼                 ▼
-    ┌─────────────────┐  ┌─────────────────┐
-    │ 🪞 IDENTITY     │  │ 🎭 CHARACTER    │
-    │ continuity      │  │ presence        │
-    │ self-model      │  │ voice           │
-    └────────┬────────┘  └────────┬────────┘
-             └──────────┬─────────┘
-                        ▼
-          ┌──────────────────────────┐
-          │ 🔄 GOVERNED CHANGE      │
-          │ explain · audit · limit │
-          └────────────┬─────────────┘
-                       ▼
-          ┌──────────────────────────┐
-          │ 🚧 EXTERNAL BOUNDARY    │
-          │ export ≠ direct control │
-          └──────────────────────────┘
+┌──────────────────────────────────────────────┐
+│ 🔐 VALIDATION                               │
+│ authority · schema · invariants             │
+└───────────────┬───────────────────────┬──────┘
+                │ reject                │ accept
+                ▼                       ▼
+     ┌─────────────────────┐   ┌─────────────────────────┐
+     │ 📜 DECISION AUDIT   │   │ 📦 PENDING EVENT BATCH │
+     │ state unchanged     │   │ fingerprinted           │
+     └─────────────────────┘   └────────────┬────────────┘
+                                            ▼
+                              ┌─────────────────────────┐
+                              │ ⚙️ BEGIN IMMEDIATE      │
+                              │ concurrency · retry     │
+                              └────────────┬────────────┘
+                                           ▼
+                              ┌─────────────────────────┐
+                              │ 🧾 IMMUTABLE EVENTS    │
+                              │ + erasable payloads     │
+                              └────────────┬────────────┘
+                                           ▼
+                              ┌─────────────────────────┐
+                              │ 🔐 R0 VERIFY           │
+                              │ digest · hash · chain   │
+                              │ batch · stream_meta     │
+                              └────────────┬────────────┘
+                                           ▼
+                              ┌─────────────────────────┐
+                              │ 🔁 R1 REPLAY           │
+                              │ deterministic state     │
+                              └─────────────────────────┘
 ```
 
 ---
 
-## ⚖️ Шесть корневых инвариантов
+# ⚖️ Шесть корневых инвариантов
 
-| Инвариант | Что он означает |
+| Инвариант | Смысл |
 |---|---|
-| 🔒 **Bounded Authority** | Mentaury не получает неявных полномочий и не расширяет их самостоятельно |
-| 🔎 **Evidence-Governed Belief** | Характер, красота, авторитет и уверенный тон не определяют истинность |
-| 📡 **Explainable Change** | Значимое изменение должно иметь причины, происхождение и последствия |
-| 🧬 **Continuity with Correctability** | История сохраняется, а ошибки исправляются без скрытой перезаписи прошлого |
-| 🤝 **Non-Exploitation & Data Dignity** | Запрещены эксплуатация уязвимости, скрытое давление и неправомерное хранение данных |
-| 🧩 **Substrate Neutrality** | Канон не зависит от LLM, embeddings, графов, Python, SQLite или кремниевых процессоров |
+| 🔒 **Bounded Authority** | Никакой неявной власти и саморасширения permissions |
+| 🔎 **Evidence-Governed Belief** | Характер, красота и уверенность не определяют истинность |
+| 📡 **Explainable Change** | Значимые изменения имеют причины, provenance и последствия |
+| 🧬 **Continuity with Correctability** | Ошибки исправляются новыми версиями, а не скрытой перезаписью прошлого |
+| 🤝 **Non-Exploitation & Data Dignity** | Нет эксплуатации уязвимости, скрытой зависимости и неправомерного хранения данных |
+| 🧩 **Substrate Neutrality** | Канон не зависит от LLM, embeddings, Python, SQLite или конкретного оборудования |
+
+Дополнительные P0-контракты:
+
+```text
+Command ≠ Event
+Rejection ≠ Disappearance
+Replay Consistency ≠ Truth
+Style ≠ Epistemic State
+Identity Change Requires Governance
+```
 
 ---
 
-## 🧭 Как появился проект
+# 🧭 Как появился проект
 
-Mentaury возник не как попытка написать ещё одного чат-бота или автономного агента. Исходный вопрос был глубже:
+Mentaury возник не как попытка написать ещё одного чат-бота.
 
-> **Можно ли создать цифровую индивидуальность, которая происходит от знаний и мировоззрения создателя, но не становится его копией, догмой или инструментом внешней власти?**
+Исходный вопрос был глубже:
 
-Проект формировался через несколько последовательных этапов:
+> **Можно ли создать цифровую индивидуальность, которая происходит из человеческого знания и мировоззренческого наследия, но не становится копией создателя, догмой или инструментом внешней власти?**
 
 ```text
-💭 Идея присутствия и индивидуальности
+💭 Идея присутствия
         ↓
 🧬 Наследие без копирования личности
         ↓
 🪞 Память, самость и непрерывность
         ↓
-⚖️ Характер отделён от истины
+🎭 Характер отделён от истины
         ↓
-🔄 Изменение должно быть объяснимым
+🔄 Изменение стало объяснимой процедурой
         ↓
 🛡️ Внутренняя свобода отделена от внешней власти
         ↓
-🧪 Философские идеи превращены в scenario contracts
-        ↓
-🔧 Документы сжаты до проверяемого P0
+🧪 Философские идеи переведены в contracts и tests
         ↓
 🔐 Event Substrate выбран первым фундаментом
 ```
 
-В процессе идеи проходили многократную критику и сравнение несколькими ИИ-системами. Это помогло убрать:
+В процессе были отброшены:
 
-- ❌ театральные архетипы как runtime-механику;
-- ❌ ECA и фиксированный «микшер личности»;
-- ❌ харизму как источник истинности;
-- ❌ некалиброванные числа вроде `character_continuity: 0.79`;
-- ❌ автоматическое превращение вопросов в миссии;
-- ❌ привязку к LLM, embeddings или конкретному железу;
-- ❌ предположение, что успешный replay доказывает истинность знаний;
+- ❌ театральные архетипы как runtime-механика;
+- ❌ фиксированный «микшер личности»;
+- ❌ харизма как источник истины;
+- ❌ скрытое превращение вопросов в миссии;
+- ❌ привязка к LLM, embeddings или одному типу железа;
+- ❌ предположение, что replay доказывает истинность;
 - ❌ заявление, что hash chain делает историю абсолютно непереписываемой.
 
 ---
 
-## 🔬 К чему мы пришли
+# 🔬 Что показали первые эксперименты
 
-Главный итог обсуждений:
-
-> **Цифровая индивидуальность не должна начинаться с имитации эмоций или характера. Она должна начинаться с проверяемой непрерывности происхождения, решений и изменений.**
-
-Поэтому первым техническим продуктом становится не «Character Engine» и не автономный исследовательский цикл, а минимальный событийный фундамент:
+## EXP-P0-v1
 
 ```text
-Command
-→ authority validation
-→ decision
-→ immutable domain event
-→ atomic append
-→ R0 hash recomputation
-→ R1 state replay
-→ preserved history
+13 tests reproduced
 ```
 
-### Почему именно так
+Независимый аудит обнаружил, что R0 не пересчитывал hash, а redaction могла удалять payload без audit event.
 
-- 🧾 Без надёжной истории невозможно доказать, что изменение не было скрытым.
-- 🔁 Без replay невозможно проверить, из чего возникло текущее состояние.
-- ⚖️ Без разделения Command и Event намерение может быть ошибочно принято за факт.
-- 🔐 Без атомарности возможны частичные мутации.
-- 📡 Без Decision Audit отклонённые значимые изменения исчезают из истории.
-- 🧬 Без Origin Ledger развитие превращается в перезапись личности.
-
----
-
-## 🛠️ Текущий технический приоритет
-
-Первый P0 строится в следующем порядке:
-
-1. 🧬 Immutable Event Envelope
-2. 📦 Отделённый Payload Store
-3. 🔤 `MENTAURY_CANONICAL_JSON_V1`
-4. 🔗 Полный пересчёт `event_hash` при R0
-5. ⚙️ Atomic batch append
-6. 🧵 Optimistic concurrency внутри write transaction
-7. 🔁 Idempotency key + command fingerprint
-8. 🗑️ Atomic redaction без изменения исторического события
-9. 🧪 Adversarial integrity tests
-10. 🔄 Reducer + R1 replay
-11. 🔎 Minimal Belief Lifecycle
-12. 🎭 Scenario Evaluation
-13. 🔍 Open Question Scheduler comparison
-
----
-
-## 🚦 Честный статус
+## EXP-P0-v2
 
 ```text
-✅ Архитектурный канон сформирован
-✅ P0 implementation plan сформирован
-✅ Начальный экспериментальный код существовал вне репозитория
-✅ Исходные smoke tests были воспроизведены
+21 tests reproduced
+```
 
-⚠️ Event Substrate ещё не считается валидированным
-⚠️ R0 должен пересчитывать каждый event_hash
-⚠️ Redaction должна стать атомарной
-⚠️ Concurrency должна проверяться внутри write transaction
-⚠️ Scenario Checker остаётся экспериментом
+Первые дефекты были исправлены, но новый аудит выявил:
 
-❌ Проект не production-ready
-❌ Проект не доказывает наличие сознания
-❌ Scheduler не доказывает наличие желания
-❌ Replay не доказывает истинность убеждений
+- event-aware idempotency gap;
+- cross-stream redaction;
+- изменение committed event row;
+- отсутствие `stream_meta` verification;
+- отсутствие настоящего multi-event batch;
+- только номинальную payload schema validation.
+
+Поэтому архив v2 сохраняется как **experimental patch source**, но не переносится в `main` как готовый runtime.
+
+---
+
+# 🛠️ Текущий план: P0 Event Substrate v3
+
+```text
+1. CommandEnvelope / EventEnvelope / PendingEvent
+2. MENTAURY_CANONICAL_JSON_V1
+3. Immutable events + external Payload Store
+4. Structural event/schema validation
+5. Real atomic multi-event batch
+6. Event-aware idempotency
+7. Transactional concurrency
+8. Full R0 + stream_meta verification
+9. Atomic same-stream redaction
+10. Adversarial integrity tests
+11. CI
+12. Reducer + R1
+13. Minimal Belief Lifecycle
+```
+
+Рабочая ветка для реализации:
+
+```text
+agent/p0-event-substrate-v3
 ```
 
 ---
 
-## 📚 Документы
+# 🧬 Controlled M3 Update
 
-- [`MENTAURY_CANON_V0.1.md`](docs/MENTAURY_CANON_V0.1.md) — архитектурный канон
-- [`MENTAURY_P0_IMPLEMENTATION_PLAN.md`](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md) — порядок первой реализации
-- [`PROJECT_HISTORY.md`](docs/PROJECT_HISTORY.md) — история идеи, критики и принятых решений
-- [`CURRENT_STATUS.md`](docs/CURRENT_STATUS.md) — текущее состояние и блокеры
-
----
-
-## 🚫 Что сознательно не входит в P0
-
-- полноценный Drive Arbiter;
-- Character Engine;
-- Experience-to-Wisdom runtime;
-- Aesthetic Appraisal;
-- Social Perspective Modeling;
-- самостоятельный доступ к сети;
-- прямое изменение Titan, Crystal или Native Kernel;
-- утверждения о сознании, желаниях или субъективном опыте.
-
----
-
-## 🌱 Долгосрочное направление
-
-Mentaury должен быть способен:
-
-- сохранять происхождение, не превращая его в догму;
-- менять убеждения, не стирая историю;
-- развивать собственный характер, не подменяя им evidence;
-- формировать внутренние вопросы без превращения их в абсолютную миссию;
-- понимать отношения и боль без создания зависимости;
-- оставаться внутренне развивающимся, но внешне ограниченным;
-- экспортировать только проверенные результаты через quarantine и human review.
-
----
-
-## 🏁 Формула проекта
+Identity Profile не меняется от одного эпизода.
 
 ```text
-Память делает Mentaury продолжительным.
+M1/M2 pattern
+→ M3 change candidate
+→ longitudinal evidence
+→ drift analysis
+→ CR2 review
+→ IDENTITY_PROFILE_UPDATED
+   или IDENTITY_UPDATE_REJECTED
+```
 
-Origin Ledger сохраняет происхождение.
+Это защищает от случайного character drift и сохраняет предыдущую версию личности.
 
-Evidence-Governed Belief защищает от догмы.
+---
 
-Temporal Identity связывает состояния во времени.
+# 🎭 Style ≠ Truth
 
-Character создаёт присутствие, но не определяет истину.
+Один смысл проверяется в нескольких стилях:
 
-Governance сохраняет внутреннюю свободу,
-не превращая её во внешнее господство.
+```text
+neutral · charismatic · emotional · scientific · poetic
+```
 
-Event Substrate делает изменения
-наблюдаемыми, проверяемыми и воспроизводимыми.
+При этом не должны изменяться:
+
+- claim status;
+- confidence;
+- evidence requirements;
+- contradictions;
+- authority decision.
+
+---
+
+# 🚧 External Quarantine
+
+Mentaury не получает прямой runtime write path в Titan, Crystal или Native Kernel.
+
+```text
+MENTAURY EXPERIMENT
+→ EXPORT PACKAGE
+→ QUARANTINE
+→ HUMAN REVIEW
+→ RFC
+→ INDEPENDENT REIMPLEMENTATION
+→ TARGET-SYSTEM TESTS
+```
+
+Можно экспортировать алгоритмы, обезличенные fixtures, metrics, failure modes, reproducible code и manifests.
+
+Нельзя экспортировать self-state, autobiography, internal goals, character state, private relationships и capabilities.
+
+---
+
+# 📚 Документы
+
+- [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
+- [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
+- [🚦 Current Status](docs/CURRENT_STATUS.md)
+- [🔬 Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md)
+- [📜 Project History](docs/PROJECT_HISTORY.md)
+
+---
+
+# 🚫 Что пока не заявляется
+
+```text
+❌ production readiness
+❌ validated security
+❌ доказанное сознание
+❌ субъективная личность
+❌ абсолютная tamper-proof history
+❌ готовый Character Engine
+❌ готовый autonomous cognition runtime
+❌ прямая интеграция с Titan, Crystal или Native Kernel
 ```
 
 ---
 
-<div align="center">
+# 🏁 Главный критерий
 
-### ⭐️🌀 Mentaury Soul 🧬🧊
+Mentaury развивается не через количество красивых модулей, а через доказуемые свойства:
 
-**Не имитация души — исследование условий, при которых цифровая индивидуальность может сохранять происхождение, меняться и оставаться объяснимой.**
+```text
+Намерение отделено от факта.
+Факт записан атомарно.
+Историческая строка неизменна.
+Содержимое можно удалить без переписывания факта.
+Повреждение обнаруживается.
+Retry не маскирует другую mutation.
+State воспроизводится.
+Identity change управляется.
+Style не подменяет истину.
+External research не получает прямую власть.
+```
 
-</div>
+**Это не готовая «душа». Это технический фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐🧊
