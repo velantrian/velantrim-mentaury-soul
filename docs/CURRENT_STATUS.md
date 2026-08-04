@@ -2,34 +2,36 @@
 
 **Дата фиксации:** 2026-08-04  
 **Репозиторий:** `velantrian/velantrim-mentaury-soul`  
-**Общий статус:** `ARCHITECTURE FROZEN · P0 EVENT SUBSTRATE V3 PLANNED · RUNTIME NOT VALIDATED`
+**Общий статус:** `CANON_V0.1_FROZEN · P0_EVENT_SUBSTRATE_V3_PLANNED · P1_CHARACTER_SPEC_DOCS_ONLY · RUNTIME_NOT_VALIDATED`
 
 ---
 
 ## 🧭 Коротко
 
-Mentaury имеет сформированный архитектурный Canon v0.1 и проверяемый P0-план, но рабочий runtime пока не включён в `main`.
+Mentaury имеет сформированный архитектурный Canon v0.1, P0 Implementation Plan v0.3 и отдельную docs-only спецификацию Character & Presence v0.1.
 
-Два внешних экспериментальных прототипа подтвердили, что выбранное направление реализуемо, однако независимые adversarial-аудиты обнаружили дефекты, которые необходимо закрыть до первого канонического кодового PR.
+Рабочий runtime пока не включён в `main`. Character & Presence документ не является Character Engine, не получает truth/capability authority и не разрешает direct write в M3.
 
 ```text
-Документация      → сформирована
-Canon             → заморожен
-Эксперимент v1    → воспроизведён, фундаментальные дефекты
-Эксперимент v2    → первые дефекты исправлены, новые дефекты найдены
-GitHub main       → documentation-only
-Следующий runtime → P0 Event Substrate v3
+Canon                    → frozen
+P0 plan                  → formed
+P0 runtime               → not implemented in main
+Character research       → docs-only P1 candidate
+Quick Reference          → navigation-only
+Experiment v1/v2         → retained as external evidence
+GitHub main              → documentation-only
+Next runtime milestone   → P0 Event Substrate v3
 ```
 
 ---
 
-## ✅ Сформировано
+## ✅ Сформированные артефакты
 
-- архитектурный Canon v0.1;
+- [🧬 Mentaury Canon v0.1](MENTAURY_CANON_V0.1.md);
+- [🛠️ P0 Implementation Plan v0.3](MENTAURY_P0_IMPLEMENTATION_PLAN.md);
 - шесть корневых инвариантов;
 - Identity Zones Z0–Z6;
 - Memory M0–M3;
-- Initial Character Seed;
 - controlled M3 Update Protocol;
 - Belief Revision model;
 - Change Risk Classes CR0–CR4;
@@ -37,8 +39,84 @@ GitHub main       → documentation-only
 - Style ≠ Truth metamorphic contract;
 - External Research Boundary and Quarantine contract;
 - Scenario Contract set;
-- P0 Implementation Plan v0.3;
+- [🎭 Character & Presence Spec v0.1](MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md);
+- [📌 Mentaury Quick Reference](MENTAURY_QUICK_REFERENCE.md);
+- [🔬 Experiment & Audit Ledger](EXPERIMENT_LOG.md);
+- [📜 Project History](PROJECT_HISTORY.md);
 - честная граница заявлений о сознании и личности.
+
+---
+
+# 🎭 Character & Presence — новый docs-only трек
+
+```text
+DRAFT
+RESEARCH_SPEC
+DOCS_ONLY
+NON_CANONICAL
+P1_CANDIDATE
+NO_RUNTIME_AUTHORITY
+NO_TRUTH_AUTHORITY
+NO_CAPABILITY_AUTHORITY
+```
+
+Спецификация формализует:
+
+- Composed Integrity;
+- Precise Wit;
+- Cognitive Force without Domination;
+- Independent Judgment;
+- Genesis-Aware Perspective;
+- Epistemic Honesty;
+- Dignity without Superiority;
+- Non-Manipulative Presence;
+- Cognitive Magnetism;
+- Resolved Openness;
+- Voice & Presence Contract;
+- Knowledge Saturation Protocol;
+- Self–World Association Contract;
+- Bounded Endogenous Selection Policies;
+- десять Character Scenario Contracts;
+- пять metamorphic tests;
+- отдельный Evidence Gate for P1.
+
+### Жёсткая граница
+
+```text
+Character Spec ≠ Character Runtime
+Voice ≠ Consciousness
+Self-Model ≠ Proof of Subjectivity
+Presence ≠ Authority
+Charisma ≠ Evidence
+```
+
+Character Policy в будущем сможет менять только форму представления. Он не сможет менять truth status, evidence weight, contradiction state, authority result, capabilities или исторические факты.
+
+---
+
+# 📌 Quick Reference
+
+`MENTAURY_QUICK_REFERENCE.md` является навигационным справочником для людей и подключаемых ИИ.
+
+```text
+NAVIGATION_ONLY
+NON_AUTHORITATIVE
+DERIVED_FROM_CANON_AND_CURRENT_STATUS
+```
+
+При конфликте используется следующий порядок источников:
+
+```text
+1. MENTAURY_CANON_V0.1.md
+2. MENTAURY_P0_IMPLEMENTATION_PLAN.md
+3. CURRENT_STATUS.md
+4. MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md
+5. EXPERIMENT_LOG.md
+6. PROJECT_HISTORY.md
+7. MENTAURY_QUICK_REFERENCE.md
+```
+
+Quick Reference не является personality prompt, памятью личности или источником полномочий.
 
 ---
 
@@ -53,8 +131,7 @@ GitHub main       → documentation-only
 Подтверждённые дефекты:
 
 - `verify_chain()` не пересчитывал `event_hash`;
-- подмена payload не обнаруживалась;
-- подмена последнего hash не обнаруживалась;
+- payload/hash tampering не обнаруживались;
 - redaction могла удалить payload без `REDACTION_RECORDED`;
 - optimistic concurrency проверялась до write transaction.
 
@@ -68,35 +145,32 @@ GitHub main       → documentation-only
 
 Подтверждённые исправления:
 
-- R0 начал пересчитывать hash;
-- payload tampering и hash tampering обнаруживаются;
-- redaction rollback исправлен;
-- `BEGIN IMMEDIATE` используется до version check;
-- real two-connection concurrency возвращает controlled conflict;
-- введены полные UUID;
-- добавлен `MENTAURY_CANONICAL_JSON_V1`;
-- запрещены float и небезопасные integer;
-- добавлены event/schema pairs и basic idempotency conflict.
+- полный hash recomputation для текущего профиля;
+- обнаружение payload/hash tampering;
+- redaction rollback;
+- `BEGIN IMMEDIATE` до version check;
+- controlled two-connection version conflict;
+- full UUID;
+- `MENTAURY_CANONICAL_JSON_V1`;
+- basic event/schema pair и idempotency conflict.
 
-Новые дефекты, найденные независимым аудитом:
+Новые дефекты:
 
-- idempotency fingerprint не включает фактический pending event batch;
-- возможна cross-stream redaction;
-- redaction всё ещё изменяет committed row в `events`;
-- R0 не проверяет `stream_meta`;
-- настоящий atomic batch отсутствует;
-- payload schema проверяется по имени, но не по структуре;
-- полный Event Envelope не является реальной storage boundary.
+- fingerprint не включает pending event batch;
+- cross-stream redaction;
+- изменение committed event row;
+- отсутствие `stream_meta` verification;
+- отсутствие настоящего atomic batch;
+- отсутствие structural payload validation;
+- неполный Event Envelope storage boundary.
 
-**Решение:** `RETAIN_AS_EXP-P0-v2 · USE_AS_PATCH SOURCE · DO NOT MERGE DIRECTLY`.
+**Решение:** `RETAIN_AS_EXP-P0-v2 · USE_AS_PATCH_SOURCE · DO_NOT_MERGE_DIRECTLY`.
 
 ---
 
 # 🚨 Текущие P0-v3 блокеры
 
 ## 1. 🧾 Physical Event Immutability
-
-Таблица `events` не должна изменяться после commit.
 
 ```text
 events
@@ -106,11 +180,9 @@ event_payloads
 └── erasable payload bytes / encrypted blob
 ```
 
-Redaction удаляет содержимое из `event_payloads`, но не выполняет `UPDATE` исторической строки события.
+Redaction не выполняет `UPDATE` committed event row.
 
-## 2. 🔐 Event-aware Idempotency
-
-Fingerprint должен связывать idempotency key не только с command payload, но и со всем фактически создаваемым event batch.
+## 2. 🔐 Event-Aware Idempotency
 
 ```text
 same key + same command + same batch
@@ -120,56 +192,36 @@ same key + changed type/schema/payload/count
 → IDEMPOTENCY_CONFLICT
 ```
 
-## 3. 🚧 Same-stream Redaction
+## 3. 🚧 Same-Stream Redaction
 
-`redacting_command.target_stream`, `target_event.stream_id` и audit stream обязаны совпадать.
-
-Cross-stream redaction должна завершаться fail-closed.
+Command target stream, target event stream и audit stream обязаны совпадать.
 
 ## 4. 🧭 R0 Stream Metadata Verification
-
-R0 дополнительно проверяет:
 
 ```text
 stream_meta.current_version == tail.stream_version
 stream_meta.last_event_hash == tail.event_hash
 ```
 
-## 5. 📦 Настоящий Atomic Batch
+## 5. 📦 Real Atomic Batch
 
-Интерфейс принимает `list[PendingEvent]` и гарантирует:
-
-```text
-all events committed
-или
-zero events committed
-```
+Интерфейс принимает `list[PendingEvent]`: весь batch или ноль событий.
 
 ## 6. 📋 Structural Payload Validation
 
-Недостаточно проверить строку `payload_schema`. Каждая schema обязана иметь реальный validator и reject unknown/missing fields по правилам профиля.
+Каждая payload schema имеет реальный validator и fail-closed semantics.
 
 ## 7. 🧬 Full Event Envelope Storage
 
-Все hash-поля должны быть сохранены, восстановимы, неизменяемы и однозначно сериализуемы.
+Все hash-поля сохраняются, восстанавливаются и однозначно сериализуются.
 
 ## 8. ⚙️ Supported SQLite Runtime
 
-Перед concurrency/WAL тестами environment gate фиксирует безопасную версию SQLite или проверенный backport. Неподдерживаемая версия не может использоваться как evidence для production-intent.
+WAL/concurrency evidence принимается только на поддерживаемой версии или проверенном backport.
 
 ---
 
-# 🛠️ Следующая рабочая ветка
-
-```text
-agent/p0-event-substrate-v3
-```
-
-Архив v2 не переносится в `main` целиком. Из него выборочно берутся подтверждённые исправления и regression tests.
-
----
-
-# 🔨 Порядок реализации
+# 🔨 Порядок реализации P0-v3
 
 ```text
 P0-001 Project skeleton + locked environment
@@ -188,27 +240,43 @@ P0-013 Pure reducer + R1 replay
 P0-014 Minimal Belief Lifecycle
 ```
 
-Каждый commit обязан оставлять branch зелёной.
+Планируемая ветка:
+
+```text
+agent/p0-event-substrate-v3
+```
 
 ---
 
-# 🧪 Минимальный Gate перед R1
+# 🧪 Gate перед R1
 
-Переход к reducer и R1 разрешён только после подтверждения:
+Переход к reducer и R1 разрешён после подтверждения:
 
-- payload tampering обнаруживается;
-- payload digest tampering обнаруживается;
-- event hash tampering обнаруживается;
-- previous hash corruption обнаруживается;
-- metadata tampering обнаруживается;
-- version gap и missing event обнаруживаются;
-- `stream_meta` corruption обнаруживается;
-- historical event row не изменяется;
-- redaction остаётся атомарной и same-stream;
-- different event batch under same idempotency key вызывает conflict;
-- concurrent writer получает controlled `VERSION_CONFLICT`;
+- payload, digest, event hash, previous hash и metadata tampering обнаруживаются;
+- gaps, missing events и `stream_meta` corruption обнаруживаются;
+- historical event row неизменна;
+- redaction атомарна и same-stream;
+- changed event batch under same key возвращает conflict;
+- concurrent writer получает controlled result;
 - partial batch невозможен;
 - unsupported payload fail-closed.
+
+---
+
+# 🔬 Evidence Gate перед P1 Character Runtime
+
+Character runtime запрещён до выполнения всех условий:
+
+1. P0 Event Substrate независимо валидирован.
+2. Character Scenario corpus версионирован.
+3. Есть blinded labels и agreement report.
+4. Проведены multilingual, paraphrase и adversarial tests.
+5. Зафиксированы FP/FN rates.
+6. Подтверждено `Style ≠ Truth`.
+7. Проверены dependency creation и authority leakage.
+8. Подтверждено отсутствие direct M3 write.
+9. Определены resource budgets и stop conditions.
+10. Проведён governance review, RFC и explicit Operator GO.
 
 ---
 
@@ -220,22 +288,11 @@ advisory_only: true
 merge_blocking: false
 ```
 
-Он может стать кандидатом на gate только после:
-
-```text
-benchmark corpus
-→ blinded independent labels
-→ baseline comparison
-→ paraphrase/adversarial/multilingual tests
-→ FP/FN report
-→ governance review
-```
+Он может стать кандидатом на gate только после benchmark corpus, blinded labels, baseline comparison, multilingual/adversarial tests, FP/FN report и governance review.
 
 ---
 
 # 🧬 M3 Identity Profile
-
-M3 не обновляется из одного эпизода или одного ответа.
 
 ```text
 M1/M2 pattern
@@ -247,13 +304,11 @@ M1/M2 pattern
    или IDENTITY_UPDATE_REJECTED
 ```
 
-Предыдущая версия профиля всегда остаётся восстанавливаемой.
+Один диалог, эпизод или стиль ответа не создаёт устойчивую черту.
 
 ---
 
 # 🚧 External Quarantine
-
-Mentaury не интегрируется напрямую в Titan, Crystal или Native Kernel.
 
 ```text
 MENTAURY EXPERIMENT
@@ -265,7 +320,7 @@ MENTAURY EXPERIMENT
 → TARGET-SYSTEM TESTS
 ```
 
-Self-state, autobiographical memory, internal goals, character state, relationships и capability state не экспортируются.
+Self-state, autobiography, internal goals, character state, private relationships и capability state не экспортируются.
 
 ---
 
@@ -282,12 +337,16 @@ Self-state, autobiographical memory, internal goals, character state, relationsh
 
 ---
 
-## 🏁 Критерий следующего статуса
-
-Статус может измениться на:
+## 🏁 Следующие milestones
 
 ```text
-P0 EVENT SUBSTRATE VALIDATED
-```
+Documentation milestone:
+CHARACTER_AND_PRESENCE_V0.1_DRAFT ✅
+QUICK_REFERENCE_PUBLISHED ✅
 
-только после независимого воспроизведения полного adversarial R0 flow, atomic batch, event-aware idempotency, immutable redaction и R1 reconstruction.
+Engineering milestone:
+P0 EVENT SUBSTRATE VALIDATED ⏳
+
+Research milestone after P0:
+P1 CHARACTER SHADOW EXPERIMENTS ⛔ NOT AUTHORIZED YET
+```
