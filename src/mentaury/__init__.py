@@ -1,13 +1,13 @@
 """Neutral Mentaury package boundary.
 
-P0-001 intentionally exposes no identity, relationship, cognition, tool, or
-persistence runtime. Later P0 commits may add infrastructure only through the
-approved sequential implementation plan.
+P0-002 exposes typed envelope contracts only. It still provides no identity,
+relationship, cognition, tool, persistence, or autonomous runtime.
 """
 
 from typing import Final
 
-__all__ = ["__version__", "SKELETON_STATUS"]
+__all__ = ["__version__", "SKELETON_STATUS", "IMPLEMENTATION_STATUS"]
 
 __version__: Final[str] = "0.0.0"
 SKELETON_STATUS: Final[str] = "P0-001_NEUTRAL_SKELETON"
+IMPLEMENTATION_STATUS: Final[str] = "P0-002_ENVELOPE_CONTRACTS"
