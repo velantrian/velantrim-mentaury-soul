@@ -5,9 +5,9 @@
 Репозиторий: velantrian/velantrim-mentaury-soul
 
 CANON_V0.1_FROZEN
-P0-001…P0-008_IMPLEMENTED
-P0-008_LOCAL_VALIDATION_PASS
-P0-009_NEXT
+P0-001…P0-009_IMPLEMENTED
+P0-009_LOCAL_VALIDATION_PASS
+P0-010_NEXT
 P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -22,28 +22,34 @@ P0-005 structural schemas           → implemented
 P0-006 atomic multi-event batch     → implemented
 P0-007 event-aware idempotency      → implemented
 P0-008 transactional concurrency    → implemented
+P0-009 full R0 integrity            → implemented
 Local structural validation         → PASS
-Local pytest                         → 74 passed
+Local pytest                         → 88 passed
 Compileall                           → PASS
-P0-009 R0 + stream metadata         → next controlled commit
+P0-010 same-stream redaction        → next controlled commit
 ```
 
-# ⚙️ P0-008
+# 🔗 P0-009
 
-Added bounded `BEGIN IMMEDIATE` and `COMMIT` retry handling, WAL file profile,
-SQLite runtime gate, `StoreBusyError`, and controlled `VersionConflictError`.
+Storage schema v3 adds transactional `stream_meta`. R0 independently verifies:
 
 ```text
-same key/same intent → APPLIED + ALREADY_APPLIED
-same key/different intent → APPLIED + conflict
-different keys/same version → APPLIED + VERSION_CONFLICT
-held lock → STORE_BUSY + zero partial writes
+contiguous stream versions
+complete ordered batches
+event/schema + payload structure
+payload digest recomputation
+previous_hash continuity
+event_hash recomputation
+stream_meta version/hash/count
 ```
 
+Adversarial tests mutate payloads, event fields, batch order and metadata after
+bypassing normal SQLite guards; R0 reports the first actionable failure.
+
 ```text
-Concurrency control ≠ R0 integrity
-WAL ≠ durability proof
-SQLite lock ≠ authority approval
+R0 consistency ≠ epistemic truth
+Hash continuity ≠ authorization
+R0 PASS ≠ deterministic replay proof
 ```
 
 GitHub Actions remain scheduled for P0-012; remote CI is not claimed.
@@ -51,8 +57,7 @@ GitHub Actions remain scheduled for P0-012; remote CI is not claimed.
 # 🗺️ Sequence
 
 ```text
-P0-001…P0-008 ✅
-→ P0-009 Full R0 + stream metadata verification
+P0-001…P0-009 ✅
 → P0-010 Atomic same-stream redaction
 → P0-011 Adversarial integrity tests
 → P0-012 GitHub Actions CI
@@ -64,6 +69,6 @@ P0-001…P0-008 ✅
 # 🏁 Next
 
 ```text
-P0-009 FULL R0 + STREAM METADATA VERIFICATION
+P0-010 ATOMIC SAME-STREAM REDACTION
 Status: NOT STARTED
 ```
