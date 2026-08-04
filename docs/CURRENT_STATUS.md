@@ -1,7 +1,7 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации: 2026-08-04
+Дата фиксации: 2026-08-05
 Репозиторий: velantrian/velantrim-mentaury-soul
 
 CANON_V0.1_FROZEN
@@ -10,8 +10,9 @@ ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
 READY_FOR_NEUTRAL_SKELETON
 P0-001_NEUTRAL_SKELETON_IMPLEMENTED
 P0-002_ENVELOPE_CONTRACTS_IMPLEMENTED
-P0-002_LOCAL_VALIDATION_PASS
-P0-003_NEXT
+P0-003_CANONICAL_JSON_V1_IMPLEMENTED
+P0-003_LOCAL_VALIDATION_PASS
+P0-004_NEXT
 P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -21,121 +22,119 @@ RUNTIME_NOT_VALIDATED
 
 ## 🧭 Текущая точка
 
-`P0-002` реализует только immutable typed envelope contracts. Он не создаёт Event Store и не утверждает, что событие было сохранено, авторизовано или криптографически проверено.
+`P0-003` реализует только однозначную сериализацию portable value trees и
+P0-002 envelope projections. Он не создаёт Event Store и не вычисляет hash.
 
 ```text
 P0-001 neutral skeleton             → implemented
 P0-002 envelope contracts           → implemented
+P0-003 canonical JSON               → implemented
 Local structural validation         → PASS
-Local pytest                         → 12 passed
+Local pytest                         → 20 passed
 Compileall                           → PASS
-Editable package build/import       → PASS
 Third-party runtime dependencies    → none
-P0-003 canonical JSON               → next controlled commit
+P0-004 event + payload storage      → next controlled commit
 Domain runtime                      → not authorized
 Full Mentaury runtime               → not validated
 ```
 
 ---
 
-# 📨 P0-002 — что добавлено
+# 🔤 P0-003 — что добавлено
 
 ```text
-src/mentaury/contracts/primitives.py
-src/mentaury/contracts/envelopes.py
+src/mentaury/contracts/canonical_json.py
 
-typed references:
-ActorRef
-AuthorityRef
-ProducerRef
+typed deterministic helpers:
+canonical_json_text
+canonical_json_bytes
+canonical_timestamp
+canonical_decimal_string
 
-immutable contracts:
-CommandEnvelope
-PendingEvent
-EventEnvelope
+P0 envelope projections:
+command_envelope_value
+pending_event_value
+pending_batch_value
+event_envelope_value
+event_hash_input_value
 
-ordered helper:
-snapshot_pending_batch
+byte helpers:
+canonical_command_bytes
+canonical_pending_batch_bytes
+canonical_event_bytes
+canonical_event_hash_input_bytes
 
-tests/test_envelopes.py
-docs/P0_002_ENVELOPE_CONTRACTS.md
-```
-
-Обновлены:
-
-```text
-src/mentaury/contracts/__init__.py
-src/mentaury/__init__.py
-scripts/validate.py
-docs/ENVIRONMENT_MANIFEST.md
-docs/CURRENT_STATUS.md
+tests/test_canonical_json.py
+tests/fixtures/canonical_json_v1_vectors.json
+docs/P0_003_CANONICAL_JSON.md
 ```
 
 ---
 
-# 🔒 P0-002 Contract Boundary
+# 🔒 Canonical Profile Boundary
 
 ```text
-CommandEnvelope
-→ submitted intent
+UTF-8
+sorted object keys
+no insignificant whitespace
+exact Unicode scalar sequence
+lone surrogates forbidden
+float forbidden
+safe integers only
+explicit decimal strings
+UTC timestamps
+millisecond maximum precision
+cycles forbidden
+```
 
-PendingEvent
-→ proposed fact before commit
+Event hash input:
 
-EventEnvelope
-→ committed-event metadata shape with external payload reference
+```text
+previous_hash → included
+event_hash    → excluded
 ```
 
 Защитные различия:
 
 ```text
-Envelope construction ≠ authority approval
-Command ≠ Event
-PendingEvent ≠ committed event
-EventEnvelope object ≠ persisted immutable row
-Payload digest field ≠ verified digest
-Frozen payload snapshot ≠ canonical JSON
+Canonical bytes ≠ valid schema
+Canonical bytes ≠ verified hash
+Canonical bytes ≠ persisted immutable row
+Canonical bytes ≠ authorized fact
+Canonical bytes ≠ truth
 ```
-
-Payload containers defensively копируются в read-only mappings и tuples. Это защищает локальный snapshot от последующей мутации caller-owned объектов, но не заменяет P0-003 canonical serialization или P0-004 storage immutability.
 
 ---
 
-# ✅ P0-002 Validation
+# ✅ P0-003 Validation
 
 ```text
 python3 scripts/validate.py
-→ P0-002 envelope contract validation: PASS
+→ P0-003 canonical JSON validation: PASS
 
 PYTHONPATH=src python3 -m pytest
-→ 12 passed
+→ 20 passed
 
 python3 -m compileall -q src tests scripts
 → PASS
-
-editable package build/import
-→ PASS
 ```
 
-GitHub Actions ещё не добавлены; они запланированы на `P0-012`. Поэтому remote CI не заявляется.
+GitHub Actions ещё не добавлены; они запланированы на `P0-012`. Поэтому remote
+CI не заявляется.
 
 ---
 
 # 🔒 Scope Protection
 
-P0-002 не реализует:
+P0-003 не реализует:
 
 ```text
-canonical JSON
-conformance vectors
 Event Store
 SQLite persistence
-payload digest computation
-hash chain
+payload blob storage
 schema registry
 strict payload schema validation
-authority resolver
-command handler
+hash computation / verification
 atomic append
 idempotency
 concurrency
@@ -160,7 +159,7 @@ network actions
 ```text
 P0-001 Neutral Skeleton ✅
 → P0-002 Envelope Contracts ✅
-→ P0-003 MENTAURY_CANONICAL_JSON_V1
+→ P0-003 MENTAURY_CANONICAL_JSON_V1 ✅
 → P0-004 Immutable events + external Payload Store
 → P0-005 Structural event/schema validators
 → P0-006 Real atomic multi-event batch
@@ -197,7 +196,7 @@ P0-001 Neutral Skeleton ✅
 # 🏁 Следующий milestone
 
 ```text
-P0-003 MENTAURY_CANONICAL_JSON_V1
+P0-004 IMMUTABLE EVENTS + EXTERNAL PAYLOAD STORE
 Status: NOT STARTED
-Prerequisite: P0-002 merge and green review
+Prerequisite: P0-003 merge and green review
 ```
