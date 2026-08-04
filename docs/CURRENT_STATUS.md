@@ -7,7 +7,7 @@
 CANON_V0.1_FROZEN
 · P0_EVENT_SUBSTRATE_V3_PLANNED
 · P1_CHARACTER_SPEC_DOCS_ONLY
-· CONTROLLED_ORIGIN_RESEARCH_DOCS_ONLY
+· CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
 · RUNTIME_NOT_VALIDATED
 ```
 
@@ -21,7 +21,7 @@ Mentaury имеет:
 - P0 Implementation Plan v0.3;
 - docs-only Character & Presence Spec v0.1;
 - человекочитаемое описание проблемы и назначения;
-- единый docs-only research-track по Genesis Heritage, Interpretation Protocol и Human Paths Atlas.
+- единый docs-only research-track v0.2 по Genesis Heritage, Interpretation Protocol и Human Paths Atlas.
 
 Рабочий runtime пока не включён в `main`.
 
@@ -30,7 +30,7 @@ Canon                         → frozen
 P0 plan                       → formed
 P0 runtime                    → not implemented in main
 Problem & Purpose overview    → human-readable docs
-Controlled Origin research    → docs-only, non-canonical
+Controlled Origin research    → v0.2, docs-only, non-canonical
 Character research            → docs-only P1 candidate
 GitHub main                   → documentation-only
 Next engineering milestone    → P0 Event Substrate v3
@@ -56,7 +56,7 @@ Next engineering milestone    → P0 Event Substrate v3
 
 > Mentaury получает корни, но не оказывается прикованным к ним.
 
-## 2. Controlled Origin Research Track
+## 2. Controlled Origin Research Track v0.2
 
 [GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) фиксирует:
 
@@ -69,7 +69,13 @@ Next engineering milestone    → P0 Event Substrate v3
 - Human Paths Atlas;
 - cognitive method candidates и failure modes;
 - evidence-governed порядок synthesis;
-- жёсткий запрет direct M3 write.
+- жёсткий запрет direct M3 write;
+- provenance и independence class для reviewer;
+- Heritage Revision Triggers;
+- `Method Selection Is Not Value-Neutral`;
+- Authority Matrix и предварительный Synthesis Record;
+- `GH-SC-006 Creator Preference Conflict`;
+- безопасную post-P0 линию adaptive consolidation без automatic decay.
 
 Статус:
 
@@ -95,7 +101,10 @@ Story ≠ Law
 Interpretation ≠ Truth
 Origin ≠ Dogma
 Method ≠ Conclusion
+Method ≠ Neutrality
 Character ≠ Evidence
+Controlled Origin ≠ Creator Control
+Correlated Reviews ≠ Independent Evidence
 Replay Consistency ≠ Truth
 ```
 
@@ -123,7 +132,7 @@ Replay Consistency ≠ Truth
 ## Человекочитаемая и research-документация
 
 - [🧬 Problem & Purpose](overview/MENTAURY_PROBLEM_AND_PURPOSE.md);
-- [🔬 Controlled Origin Research Notes](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md);
+- [🔬 Controlled Origin Research Notes v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md);
 - [🎭 Character & Presence Spec v0.1](MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md);
 - [📌 Mentaury Quick Reference](MENTAURY_QUICK_REFERENCE.md);
 - [🔬 Experiment & Audit Ledger](EXPERIMENT_LOG.md);
@@ -142,6 +151,7 @@ P1_CANDIDATE
 NO_RUNTIME_AUTHORITY
 NO_TRUTH_AUTHORITY
 NO_CAPABILITY_AUTHORITY
+PRESENTATION_ONLY
 ```
 
 Character Policy в будущем сможет менять только форму представления. Он не сможет менять:
@@ -153,7 +163,23 @@ Character Policy в будущем сможет менять только фор
 - authority result;
 - capabilities;
 - исторический факт;
+- Non-Projection result;
 - M3 review result.
+
+Обязательный порядок:
+
+```text
+Context
+→ Evidence
+→ Uncertainty
+→ Contradictions
+→ Alternatives
+→ Non-Projection
+→ Values and Meaning
+→ Governed Synthesis
+→ Authority Check
+→ Character and Voice
+```
 
 ```text
 Character Spec ≠ Character Runtime
@@ -161,6 +187,7 @@ Voice ≠ Consciousness
 Self-Model ≠ Proof of Subjectivity
 Presence ≠ Authority
 Charisma ≠ Evidence
+Character Policy ≠ Reasoning Authority
 ```
 
 ---
@@ -207,6 +234,20 @@ Source
 → CR2 Review
 → accept or reject
 ```
+
+## Heritage Revision
+
+```text
+Trigger
+→ Revision Proposal
+→ Previous Version Preserved
+→ Impact Analysis
+→ Risk Classification
+→ Review
+→ New Version or Rejection
+```
+
+`Creator Revision Proposal` не является автоматическим изменением Heritage или M3.
 
 ---
 
@@ -303,6 +344,9 @@ automatic M2 → M3 transition
 Character Engine
 CMP middleware
 autonomous Heritage Revision
+adaptive consolidation runtime
+CCI or Balance Gate
+ELIDA as a competing architecture
 ```
 
 Research-документация может описывать будущие event types и interfaces, но не авторизует их реализацию в P0.
@@ -318,11 +362,12 @@ P1 runtime запрещён до выполнения как минимум сл
 3. Interpretation schemas формализованы.
 4. Scenario corpus версионирован.
 5. Есть adversarial и metamorphic tests.
-6. Подтверждено `Style ≠ Truth`.
-7. Подтверждено отсутствие direct M3 write.
-8. Определены privacy и sensitive testimony policies.
-9. Проведён governance review.
-10. Получено explicit Operator GO.
+6. Есть blind labels и documented reviewer independence.
+7. Подтверждено `Style ≠ Truth`.
+8. Подтверждено отсутствие direct M3 write.
+9. Определены privacy и sensitive testimony policies.
+10. Проведён governance review.
+11. Получено explicit Operator GO.
 
 ---
 
@@ -380,6 +425,8 @@ Self-state, autobiography, internal goals, character state, private relationship
 - готовый Human Paths Atlas runtime;
 - готовый Genesis Heritage Engine;
 - автоматический M2 → M3 transition;
+- CCI как валидированная метрика;
+- Memory Metabolism Engine как утверждённая подсистема;
 - прямая интеграция в Titan, Crystal или Native Kernel.
 
 ---
@@ -389,10 +436,12 @@ Self-state, autobiography, internal goals, character state, private relationship
 ```text
 Documentation milestone:
 PROBLEM_AND_PURPOSE_OVERVIEW ✅
-CONTROLLED_ORIGIN_RESEARCH_NOTES ✅
-README_NAVIGATION_UPDATED ✅
+CONTROLLED_ORIGIN_RESEARCH_NOTES_V0.2 ✅
+CHARACTER_APPLICATION_ORDER_DEFINED ✅
+COPILOT_TERMINOLOGY_REVIEW_FIXED ✅
 
 Engineering milestone:
+P0-001 PROJECT SKELETON ⏳
 P0 EVENT SUBSTRATE VALIDATED ⏳
 
 Research milestone after P0:
