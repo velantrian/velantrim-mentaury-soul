@@ -9,14 +9,20 @@ CANON_V0.1_FROZEN
 CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
 IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
-ARCHITECTURE_RECONCILIATION_V0.1
+ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
+ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
+READY_FOR_NEUTRAL_SKELETON
+P0-001_NEUTRAL_SKELETON_IMPLEMENTED
+P0-002_ENVELOPE_CONTRACTS_IMPLEMENTED
+P0-003_NEXT
+P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
-SKELETON_NOT_AUTHORIZED
 
-Первый Implementation Profile: Python + SQLite
+Первый Implementation Profile: Python 3.13 + standard-library SQLite
 ```
 
-**Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души.
+**Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души. P0-001 и P0-002 являются инфраструктурными milestones, а не готовой цифровой личностью.
 
 ---
 
@@ -64,30 +70,46 @@ Mentaury исследует третью модель:
 
 ---
 
-# 🧭 Текущий архитектурный порядок
+# 🚦 Текущая инженерная точка
 
 ```text
-Architecture
-→ terminology and document reconciliation
-→ entity and authority boundaries
-→ invariants and scenario contracts
-→ Architecture Readiness Review
-→ neutral technical skeleton decision
-→ P0 Event Substrate implementation
-→ independent validation
-→ post-P0 domain specifications
-→ bounded runtime experiments
+Architecture Reconciliation ✅
+→ Architecture Readiness Review ✅
+→ P0-001 Neutral Skeleton ✅
+→ P0-002 Envelope Contracts ✅
+→ P0-003 MENTAURY_CANONICAL_JSON_V1 ⏭️
+→ P0-004 Immutable Events + Payload Store
+→ P0-005 Structural Schemas
+→ P0-006 Atomic Batch
+→ P0-007 Idempotency
+→ P0-008 Concurrency
+→ P0-009 R0 Integrity
+→ P0-010 Same-Stream Redaction
+→ P0-011 Adversarial Tests
+→ P0-012 GitHub Actions CI
+→ P0-013 R1 Replay
+→ P0-014 Minimal Belief Lifecycle
+→ P0-015 Evidence Gate
 ```
-
-Поэтому:
 
 ```text
-P0 PLAN EXISTS
-P0 IMPLEMENTATION NOT STARTED IN MAIN
-TECHNICAL SKELETON NOT AUTHORIZED
-RUNTIME NOT AUTHORIZED
-NEXT FORMAL MILESTONE = ARCHITECTURE_READINESS_REVIEW
+P0-002 implemented
+≠ Event Substrate validated
+≠ persisted immutable history
+≠ domain runtime authorized
 ```
+
+Локальная проверка P0-002:
+
+```text
+Structural validator → PASS
+pytest               → 12 passed
+compileall            → PASS
+editable build/import → PASS
+GitHub Actions         → not present; not claimed
+```
+
+Актуальный статус: [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
 
 ---
 
@@ -101,8 +123,11 @@ NEXT FORMAL MILESTONE = ARCHITECTURE_READINESS_REVIEW
 │   ├── bounded authority
 │   └── substrate neutrality
 │
-├── 🛡️ P0 Event Substrate — planned, not implemented
-│   ├── immutable event envelope
+├── 🛡️ P0 Event Substrate — in progress
+│   ├── P0-001 neutral skeleton ✅
+│   ├── P0-002 envelope contracts ✅
+│   ├── P0-003 canonical JSON ⏭️
+│   ├── immutable event storage
 │   ├── atomic append
 │   ├── external payload store
 │   ├── R0 integrity verification
@@ -167,7 +192,11 @@ NEXT FORMAL MILESTONE = ARCHITECTURE_READINESS_REVIEW
 
 ```text
 Command ≠ Event
-Rejection ≠ Disappearance
+PendingEvent ≠ Committed Event
+Envelope construction ≠ Authority approval
+Frozen payload snapshot ≠ Canonical JSON
+EventEnvelope object ≠ Persisted immutable row
+Payload digest field ≠ Verified digest
 Replay Consistency ≠ Truth
 Testimony ≠ Identity
 Pain ≠ Drive
@@ -249,7 +278,7 @@ Controlled Origin не определяет fork semantics, relationship inherit
 
 # 🪞 Identity Continuity & Relational Architecture
 
-Новый консолидированный research-track определяет:
+Консолидированный research-track определяет:
 
 - governed continuation;
 - continuity evidence dimensions;
@@ -333,23 +362,50 @@ Character может менять форму, ритм, прямоту и мет
 
 ---
 
-# 🛡️ P0 Event Substrate v3
+# 📨 P0-002 Envelope Contracts
 
-P0 остаётся инфраструктурным фундаментом:
+P0-002 добавил immutable typed infrastructure contracts:
+
+```text
+ActorRef
+AuthorityRef
+ProducerRef
+CommandEnvelope
+PendingEvent
+EventEnvelope
+snapshot_pending_batch
+```
+
+Назначение:
 
 ```text
 CommandEnvelope
-→ authority + schema + invariant validation
-→ fingerprinted list[PendingEvent]
-→ atomic transaction
-→ immutable events + erasable payloads
-→ R0 integrity verification
-→ R1 deterministic replay
+→ submitted intent
+
+PendingEvent
+→ proposed fact before commit
+
+EventEnvelope
+→ committed-event metadata shape with external payload reference
 ```
 
-В P0 не добавляются identity runtime, relationships runtime, Exo-Cortex runtime, Character Engine, Curiosity Controller или automatic M2 → M3.
+Caller-owned payload mappings и sequences defensively копируются в read-only mappings и tuples.
 
-План реализации сохранён в [P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md), но начало skeleton и P0 implementation зависит от Architecture Readiness Review.
+```text
+Caller mutation after construction
+≠ envelope payload mutation
+```
+
+Но это не заменяет будущие слои:
+
+```text
+local frozen object
+≠ canonical serialization
+≠ persisted immutability
+≠ cryptographic verification
+```
+
+Подробности: [P0-002 Envelope Contracts](docs/P0_002_ENVELOPE_CONTRACTS.md).
 
 ---
 
@@ -403,11 +459,14 @@ Current maturity
 2. [🚦 Current Status](docs/CURRENT_STATUS.md)
 3. [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
 4. [🧭 Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md)
+5. [✅ Architecture Readiness Review v0.1](docs/research/ARCHITECTURE_READINESS_REVIEW_V0.1.md)
 
 ## Нормативные и инженерные
 
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
+- [📨 P0-002 Envelope Contracts](docs/P0_002_ENVELOPE_CONTRACTS.md)
+- [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
 
@@ -429,9 +488,11 @@ Current maturity
 ❌ validated security
 ❌ доказанное сознание
 ❌ субъективная личность
-❌ абсолютная tamper-proof history
-❌ ready technical skeleton
-❌ готовый Event Substrate runtime
+❌ absolute tamper-proof history
+❌ validated Event Substrate
+❌ persisted immutable event history
+❌ verified authority resolution
+❌ verified event hashes
 ❌ готовый Character Engine
 ❌ готовый Human Paths Atlas runtime
 ❌ готовый Genesis Heritage Engine
