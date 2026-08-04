@@ -1,8 +1,11 @@
-"""Explicit P0 storage adapters.
+"""Explicit P0 storage adapters and atomic batch primitives."""
 
-Importing this namespace opens no database and persists no state.
-"""
-
+from .atomic_batch import (
+    BatchAppendReceipt,
+    BatchEntry,
+    BatchInvariantError,
+    SQLiteAtomicBatchAppender,
+)
 from .sqlite_store import (
     SCHEMA_VERSION,
     SQLiteEventPayloadStore,
@@ -12,7 +15,11 @@ from .sqlite_store import (
 )
 
 __all__ = [
+    "BatchAppendReceipt",
+    "BatchEntry",
+    "BatchInvariantError",
     "SCHEMA_VERSION",
+    "SQLiteAtomicBatchAppender",
     "SQLiteEventPayloadStore",
     "StorageError",
     "StoredPayload",
