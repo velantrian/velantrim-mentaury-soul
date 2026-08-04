@@ -1,4 +1,28 @@
-"""Fail-closed validation namespace.
+"""Fail-closed P0 structural validation contracts."""
 
-Concrete envelope and schema validation begins in later P0 commits.
-"""
+from .issues import SchemaValidationError, ValidationCode, ValidationIssue
+from .registry import EventSchemaDefinition, SchemaRegistry
+from .specs import (
+    ArraySpec,
+    BooleanSpec,
+    IntegerSpec,
+    NullSpec,
+    ObjectSpec,
+    OneOfSpec,
+    StringSpec,
+)
+
+__all__ = [
+    "ArraySpec",
+    "BooleanSpec",
+    "EventSchemaDefinition",
+    "IntegerSpec",
+    "NullSpec",
+    "ObjectSpec",
+    "OneOfSpec",
+    "SchemaRegistry",
+    "SchemaValidationError",
+    "StringSpec",
+    "ValidationCode",
+    "ValidationIssue",
+]

@@ -10,7 +10,7 @@ def test_package_imports_without_side_effect_runtime() -> None:
     assert mentaury.SKELETON_STATUS == "P0-001_NEUTRAL_SKELETON"
     assert (
         mentaury.IMPLEMENTATION_STATUS
-        == "P0-004_IMMUTABLE_EVENT_PAYLOAD_STORAGE"
+        == "P0-005_STRUCTURAL_SCHEMA_VALIDATION"
     )
 
 
