@@ -64,20 +64,20 @@ def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
         store.initialize_schema()
         old = replace(
             event(0, batch_size=1),
-            event_id="OLD",
+            event_id="EVT-2",
             batch_id="OLD",
-            stream_version=2,
+            stream_id="other:stream",
             payload_ref="OLD-PAYLOAD",
         )
         store.append_one(old, {"old": True})
         conflicting = list(entries())
-        with pytest.raises(VersionConflictError):
+        with pytest.raises(sqlite3.IntegrityError):
             SQLiteAtomicBatchAppender(store).append(conflicting)
         assert store.load_event("EVT-1") is None
         assert store.load_event("EVT-3") is None
         assert store.load_payload("PAYLOAD-1") is None
         assert store.load_payload("PAYLOAD-3") is None
-        assert store.load_event("OLD") is not None
+        assert store.load_event("EVT-2") is not None
 
 
 def test_payload_conflict_rolls_back_prior_event_rows() -> None:
@@ -144,6 +144,6 @@ def test_retry_is_not_idempotent_yet() -> None:
         store.initialize_schema()
         appender = SQLiteAtomicBatchAppender(store)
         appender.append(entries())
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(VersionConflictError):
             appender.append(entries())
         assert len(store.list_stream("belief:B-204")) == 3
