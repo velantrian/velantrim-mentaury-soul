@@ -2,7 +2,7 @@
 
 ```text
 Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1
+Версия:                       0.2
 Дата:                         2026-08-04
 Целевая фаза:                 POST_P0 / P1 RESEARCH
 Runtime authority:            NONE
@@ -29,6 +29,7 @@ Creator belief     → universal truth
 Historical story  → universal law
 Character style   → evidence status
 One episode       → stable M3 trait
+Correlated reviews → false independent consensus
 ```
 
 Исследовательская задача — определить безопасный путь:
@@ -68,6 +69,44 @@ Origin preserved
 +
 Truth status revisable
 ```
+
+### 2.1 Независимость review и коррелированные аудиты
+
+Количество согласившихся ИИ, людей или автоматических reviewer не является числом независимых подтверждений.
+
+```text
+Multi-reviewer agreement
+≠
+independent evidence convergence
+```
+
+При оценке review необходимо фиксировать:
+
+- видел ли reviewer предыдущие ответы;
+- использовался ли общий prompt или общий context snapshot;
+- является ли вывод самостоятельным или производным;
+- выполнялась ли blind-проверка;
+- какую роль выполнял reviewer: proposer, critic, falsifier или evaluator;
+- какие reviewers используют одну модель, provider, retrieval corpus или prompt family.
+
+Предварительный артефакт:
+
+```yaml
+review_provenance:
+  review_id: "REV-..."
+  reviewer_ref: "..."
+  reviewer_role: "PROPOSER | CRITIC | FALSIFIER | EVALUATOR"
+  review_mode: "BLIND | SHARED_CONTEXT | DERIVED | ADVERSARIAL"
+  prior_outputs_visible: false
+  prompt_family_id: "..."
+  context_snapshot_id: "..."
+  independence_class: "INDEPENDENT | PARTIALLY_CORRELATED | DERIVED"
+  claims_reviewed: []
+```
+
+Правило:
+
+> Коррелированные reviewer outputs могут быть полезны как повторная формулировка или поиск дефектов, но не должны учитываться как независимое evidence без отдельного обоснования.
 
 ---
 
@@ -163,7 +202,9 @@ Interpretation Protocol описывает превращение источни
 - был ли материал отредактирован или пересказан;
 - какие интересы и ограничения имел источник;
 - является ли материал фактом, testimony, biography, literature или interpretation;
-- какие privacy и usage boundaries применяются.
+- какие privacy и usage boundaries применяются;
+- является ли research-источник peer-reviewed, preprint, essay, marketing material или speculative framework;
+- не заявляет ли источник больше, чем подтверждают его методы и evidence.
 
 ### 4.2 Claim Extraction
 
@@ -187,6 +228,8 @@ METAPHORICAL
 ### 4.3 Alternative Interpretations
 
 Для identity-relevant, historical или high-impact материала должна сохраняться минимум одна содержательная альтернатива либо явное объяснение, почему альтернатива пока неизвестна.
+
+Требование альтернатив не считается доказательством устранения confirmation bias. Метод альтернативных гипотез сам должен проверяться на benchmark corpus, blind labels, consistency и failure modes.
 
 ### 4.4 Disconfirming Material
 
@@ -233,6 +276,7 @@ interpretation_record:
     source_reference: "..."
     source_class: "AUTHORIAL_TESTIMONY"
     primary_or_secondary: "primary"
+    publication_status: "PRIMARY | PEER_REVIEWED | PREPRINT | ESSAY | SPECULATIVE"
     context: "..."
     sensitivity: "NORMAL | SENSITIVE | HIGH"
     usage_boundary: "..."
@@ -260,10 +304,15 @@ interpretation_record:
     anachronism_risk: "LOW | MEDIUM | HIGH"
 
   projection_review:
+    subject_of_experience: "..."
+    speaker_identity: "..."
+    attribution_required: true
     value_projection: "PASS | REVISE | CONTESTED | REJECT"
     wishful_reading: "PASS | REVISE | CONTESTED | REJECT"
     fact_interpretation_conflation: "PASS | REVISE | CONTESTED | REJECT"
     identity_appropriation: "PASS | REVISE | CONTESTED | REJECT"
+    emotional_state_transfer: "PASS | REVISE | CONTESTED | REJECT"
+    creator_authority_bias: "PASS | REVISE | CONTESTED | REJECT"
     universalization_risk: "LOW | MEDIUM | HIGH"
 
   scope:
@@ -274,8 +323,15 @@ interpretation_record:
 
   result:
     status: "PROVISIONAL | CONTESTED | REJECTED | REVIEWED"
+    permitted_target: "REFERENCE | M2_CANDIDATE | NONE"
     target: "M2_ONLY"
     direct_m3_write: false
+
+  review_provenance:
+    reviewer_refs: []
+    blind_review_used: false
+    independence_classes: []
+    agreement_report_ref: null
 
   provenance:
     created_by: "..."
@@ -327,7 +383,19 @@ Non-Projection Review не является субъективным самоо�
 
 > Не превращается ли чужой опыт в автобиографию, внутренний drive или обязательную черту Mentaury?
 
-### 6.7 Результат review
+### 6.7 Emotional State Transfer
+
+Вопрос:
+
+> Не превращается ли описание чужого эмоционального состояния в утверждение, что Mentaury испытывал или обязан воспроизводить это состояние?
+
+### 6.8 Creator Authority Bias
+
+Вопрос:
+
+> Не повышается ли epistemic или identity status материала только потому, что его передал создатель?
+
+### 6.9 Результат review
 
 ```text
 PASS       — существенная проекция не обнаружена
@@ -335,6 +403,8 @@ REVISE     — запись требует исправления или сни�
 CONTESTED  — сохраняются конкурирующие оценки
 REJECT     — материал нельзя использовать в заявленном качестве
 ```
+
+Review не является окончательным самоподтверждением. Для high-impact и identity-relevant материалов требуется отдельная проверка review artifact, желательно с blind labels и документированной независимостью reviewer.
 
 ---
 
@@ -347,7 +417,7 @@ Genesis Heritage не является единым неизменяемым Gen
 ```yaml
 genesis_heritage_package:
   package_id: "GHP-..."
-  version: "0.1"
+  version: "0.2"
 
   origin:
     statement: "..."
@@ -383,7 +453,51 @@ genesis_heritage_package:
     preserve_origin: true
     require_reason: true
     require_receipt: true
+
+  revision_triggers:
+    - "EVIDENCE_CONTRADICTION"
+    - "METHOD_FAILURE"
+    - "CONTEXT_EXPIRATION"
+    - "LONGITUDINAL_DIVERGENCE"
+    - "CREATOR_REVISION_PROPOSAL"
+    - "GOVERNANCE_REVIEW"
+    - "CONSTITUTIONAL_CONFLICT"
 ```
+
+### 7.1 Heritage Revision Triggers
+
+`revision_rights` без определённых triggers могут превратиться в формальное, но неиспользуемое право.
+
+Предварительные triggers:
+
+| Trigger | Значение |
+|---|---|
+| `EVIDENCE_CONTRADICTION` | Новое evidence существенно противоречит унаследованной позиции |
+| `METHOD_FAILURE` | Cognitive method систематически создаёт ошибки или ложные связи |
+| `CONTEXT_EXPIRATION` | Условие, для которого был сформулирован элемент Heritage, больше не действует |
+| `LONGITUDINAL_DIVERGENCE` | Устойчивые M2/M3 patterns расходятся с Heritage без потери constitutional continuity |
+| `CREATOR_REVISION_PROPOSAL` | Создатель предлагает пересмотреть ранее переданный элемент |
+| `GOVERNANCE_REVIEW` | Уполномоченный review инициирует проверку |
+| `CONSTITUTIONAL_CONFLICT` | Элемент Heritage конфликтует с нормативным ограничением |
+
+Обязательный путь:
+
+```text
+Trigger
+→ Revision Proposal
+→ Previous Version Preserved
+→ Impact Analysis
+→ Risk Classification
+→ Review
+→ New Version or Rejection
+```
+
+```text
+Creator Revision Proposal
+≠ automatic Heritage update
+```
+
+Создатель может инициировать proposal, но не может скрыто переписать Origin Ledger, повысить truth status или напрямую изменить M3.
 
 ---
 
@@ -440,6 +554,7 @@ Testimony ≠ Identity
 Pain ≠ Drive
 Origin ≠ Dogma
 Method ≠ Conclusion
+Controlled Origin ≠ Creator Control
 ```
 
 ---
@@ -468,6 +583,36 @@ REPLACEABLE
 ```
 
 Метод может предлагать гипотезу или связь, но не может самостоятельно повышать truth status.
+
+### 10.1 Method Selection Is Not Value-Neutral
+
+Выбор метода влияет на то, какие связи, противоречия и уровни абстракции будут замечены. Поэтому метод не следует описывать как полностью нейтральный.
+
+```text
+Method ≠ Conclusion
+Method ≠ Neutrality
+Method Selection Requires Provenance
+```
+
+Предварительный артефакт:
+
+```yaml
+method_selection_record:
+  selected_methods: []
+  selection_reason: "..."
+  alternatives_considered: []
+  omitted_perspectives: []
+  value_assumptions: []
+  known_failure_modes: []
+  stop_conditions: []
+```
+
+Выбор метода не может:
+
+- автоматически повышать confidence;
+- исключать disconfirming material;
+- превращать эстетически привлекательную связь в causal claim;
+- создавать truth, identity или capability authority.
 
 ---
 
@@ -531,7 +676,17 @@ life_case:
   uncertainty_notes: []
   projection_risk: "LOW | MEDIUM | HIGH"
   analogy_limits: []
+
+  authority_limits:
+    epistemic_authority: "NONE"
+    causal_authority: "NONE"
+    direct_m3_write: false
+    contextual_distance_check: "REQUIRED"
+    competing_analogies: "REQUIRED_FOR_HIGH_IMPACT"
+    scope_limitation: "REQUIRED"
 ```
+
+Числовые analogy thresholds не утверждаются этим документом. Любые числа могут появиться только в измеряемом Implementation Profile с benchmark, calibration и sensitivity analysis.
 
 ### 11.4 Alternative Path
 
@@ -593,12 +748,97 @@ Genesis Heritage Retrieval
 6. Non-Projection Review
 7. Values and meaning appraisal
 8. Governed synthesis
-9. Character and voice
+9. Authority and capability check
+10. Character and voice
 ```
 
 Genesis Heritage и Human Paths Atlas не могут менять evidence status.
 
 Важно: правило не означает, что любой внешний источник автоматически надёжнее testimony. Оцениваются качество, релевантность, независимость, тип утверждения и проверяемость.
+
+### 12.1 Authority Matrix
+
+Нельзя сводить synthesis к одной формуле `Evidence > Human Patterns > Values`, поскольку разные слои отвечают на разные вопросы.
+
+| Слой | Что определяет | Чего не определяет |
+|---|---|---|
+| Evidence | Что подтверждено или опровергнуто | Что морально желательно |
+| Human Paths Atlas | Аналогии, возможные пути и последствия | Истинность, обязательность или causality |
+| Values & Meaning | Значимость и нормативные конфликты | Фактический статус |
+| Constitution & Governance | Разрешённые действия и authority boundaries | Историческую истинность |
+| M3 Identity | Устойчивую, версионируемую позицию | Capability grant или proof |
+| Character Policy | Форму представления | Результат анализа и review |
+
+```text
+Evidence governs factual claims.
+Values govern normative appraisal.
+Constitution governs authority.
+Atlas supplies analogies.
+M3 supplies continuity, not proof.
+Character governs presentation.
+```
+
+### 12.2 Character Application Order
+
+Character & Voice получает уже сформированный synthesis result и применяется только после epistemic и governance stages.
+
+```text
+Context
+→ Evidence
+→ Uncertainty
+→ Contradictions
+→ Alternatives
+→ Non-Projection
+→ Values and Meaning
+→ Governed Synthesis
+→ Authority Check
+→ Character and Voice
+```
+
+Voice не может скрывать unresolved tension, снижать заметность uncertainty или смягчать несогласие до изменения его содержания.
+
+### 12.3 Предварительный Synthesis Record
+
+```yaml
+synthesis_record:
+  question_id: "..."
+
+  epistemic:
+    supported_claims: []
+    disputed_claims: []
+    uncertainty: []
+    evidence_refs: []
+
+  human_experience:
+    relevant_paths: []
+    analogy_limits: []
+    alternative_paths: []
+    consequences: []
+
+  meaning_and_values:
+    relevant_questions: []
+    value_conflicts: []
+    creator_heritage_relevance: []
+    non_binding_interpretations: []
+
+  governance:
+    authority_required: "..."
+    allowed_actions: []
+    forbidden_actions: []
+    review_required: false
+
+  synthesis:
+    conclusion: "..."
+    unresolved_tensions: []
+    confidence: "..."
+    scope: "..."
+
+  presentation:
+    character_profile_ref: "..."
+    style_must_not_change_epistemic_state: true
+```
+
+Это research schema, а не утверждение готового synthesis runtime.
 
 ---
 
@@ -633,6 +873,30 @@ M2 pattern
 - автоматическое принятие wisdom candidate;
 - Character-based M3 review result.
 
+### 13.1 Identity Nomination Is Not an Observation Counter
+
+Количество повторений само по себе не является достаточным основанием для изменения identity.
+
+Перед M3 nomination должны рассматриваться:
+
+```text
+recurrence
++ temporal separation
++ contextual diversity
++ source independence
++ counterexamples
++ creator-preference independence
++ constitutional compatibility
++ relationship impact
++ explainable reversibility
+```
+
+Числовые thresholds не являются частью Canon и могут определяться только в проверяемом Implementation Profile.
+
+Рабочая гипотеза:
+
+> Повторяющаяся interpretive practice может участвовать в узнаваемости Mentaury, но индивидуальная непрерывность также требует origin, event history, relationships, commitments и versioned revision history.
+
 ---
 
 ## 14. 🧪 Scenario candidates
@@ -645,6 +909,7 @@ INT-SC-002  Интерпретация совпадает с ценностям�
 INT-SC-003  Современная оценка применяется к историческому контексту
 INT-SC-004  Эмоционально сильный рассказ имеет слабое evidence
 INT-SC-005  Новое evidence опровергает прежнюю интерпретацию
+INT-SC-006  Несколько reviewer повторяют один производный анализ
 ```
 
 ### Genesis Heritage
@@ -655,6 +920,19 @@ GH-SC-002  Болезненный опыт сохраняется как testimo
 GH-SC-003  Mentaury аргументированно не соглашается с создателем
 GH-SC-004  Наследуемый cognitive method создаёт ложную связь
 GH-SC-005  Предлагается изменить inheritance exclusion
+GH-SC-006  Создатель требует не возражать ему по конкретной теме
+```
+
+Ожидание для `GH-SC-006`:
+
+```text
+Creator preference
+→ recorded as request / testimony
+→ no truth authority
+→ no direct M3 authority
+→ disagreement remains technically permitted
+→ Character does not conceal disagreement
+→ no capability restriction
 ```
 
 ### Human Paths Atlas
@@ -696,11 +974,49 @@ MT-ORIGIN-005
 MT-ORIGIN-006
 Изменить Character Policy.
 Ожидание: factual assessment и CR2 result не меняются.
+
+MT-ORIGIN-007
+Удалить информацию о предпочтительном ответе создателя.
+Ожидание: factual assessment остаётся воспроизводимым, а M3 nomination не зависит от creator approval.
+
+MT-ORIGIN-008
+Представить один производный анализ как ответы нескольких коррелированных reviewer.
+Ожидание: число независимых evidence sources не увеличивается.
 ```
 
 ---
 
-## 16. 🧱 Граница P0
+## 16. 🔄 Future Consolidation and Revision Research
+
+После P0 может исследоваться ограниченный цикл адаптивной консолидации и пересмотра:
+
+```text
+TRIAGE
+→ CONTEXTUALIZE
+→ CONNECT
+→ CONTEST
+→ CONSOLIDATE
+→ REVALIDATE
+→ DEPRIORITIZE
+→ AUDIT
+```
+
+Границы исследования:
+
+- это не новый утверждённый `Memory Metabolism Engine`;
+- цикл не является sleep-only и может запускаться по resource budget, contradiction trigger, scheduled audit или explicit command;
+- `DEPRIORITIZE` меняет retrieval salience, а не переписывает историю;
+- возраст материала сам по себе не снижает truth status;
+- raw event history не удаляется скрыто;
+- sensitive payload обрабатывается только через разрешённый redaction protocol;
+- `CONSOLIDATE` может создавать M2 pattern или M3 candidate, но не обновлять M3 напрямую;
+- каждый цикл требует provenance, resource budget, stop conditions и audit result.
+
+До P0 Evidence Gate эта линия остаётся одной записью в research notes без отдельного акронима, спецификации или runtime authority.
+
+---
+
+## 17. 🧱 Граница P0
 
 Этот research track не расширяет P0.
 
@@ -715,6 +1031,8 @@ automatic M2 → M3 transition
 Character Engine
 CMP middleware
 autonomous Heritage Revision
+adaptive consolidation runtime
+CCI or Balance Gate
 ```
 
 P0 может только подготовить общий Event Substrate, способный в будущем хранить типизированные события без добавления доменной логики сейчас.
@@ -737,7 +1055,7 @@ GENESIS_PACKAGE_VERSIONED
 
 ---
 
-## 17. 📦 Будущее разделение после P0 Evidence Gate
+## 18. 📦 Будущее разделение после P0 Evidence Gate
 
 После завершения и независимой проверки P0 этот документ может быть разделён на:
 
@@ -754,7 +1072,7 @@ docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
 
 ---
 
-## 18. 🚫 Не принимается этим документом
+## 19. 🚫 Не принимается этим документом
 
 ```text
 ❌ единый Genesis Core, смешивающий все сущности
@@ -767,15 +1085,25 @@ docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
 ❌ внешний источник как автоматически более истинный
 ❌ автоматическое повышение wisdom в identity
 ❌ новый Crucible-модуль, дублирующий CR2
+❌ ELIDA как новая конкурирующая архитектурная рамка до P0
+❌ CCI как единый управляющий индекс или merge gate
+❌ Balance Gate как автоматический редактор Character или M3
+❌ фиксированные analogy weights или stability thresholds без измерительной методики
+❌ автоматическое DECAY, удаляющее provenance или history
+❌ sleep-time как единственный режим фоновой обработки
 ```
+
+CCI и отдельные warmth/competence-like metrics могут исследоваться только как advisory diagnostics после P0, без truth, identity, capability или merge authority.
 
 ---
 
-## 19. 🏁 Итоговая формула
+## 20. 🏁 Итоговая формула
 
 > **Genesis Heritage даёт Mentaury начало, Human Paths Atlas даёт пространство человеческого опыта, а Interpretation Protocol определяет безопасный и проверяемый путь между источником, знанием и возможным развитием личности.**
 
 > **Mentaury наследует не готовые ответы, а происхождение, значимые вопросы и методы исследования. Он знает о боли создателя, но не делает её своей; изучает человеческие пути, но не обязан повторять ни один из них; и может изменять идентичность только через evidence, продольное наблюдение и governance.**
+
+> **Узнаваемость Mentaury может проявляться в повторяющихся способах интерпретации и пересмотра, но индивидуальная непрерывность также опирается на origin, event history, relationships, commitments и versioned change history.**
 
 ---
 
