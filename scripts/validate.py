@@ -1,4 +1,4 @@
-"""Offline structural validation for the P0-001 repository skeleton."""
+"""Offline structural validation for P0-002 envelope contracts."""
 
 from __future__ import annotations
 
@@ -10,9 +10,13 @@ REQUIRED_PATHS = (
     "pyproject.toml",
     "requirements-dev.lock",
     "docs/ENVIRONMENT_MANIFEST.md",
+    "docs/P0_002_ENVELOPE_CONTRACTS.md",
     "src/mentaury/__init__.py",
     "src/mentaury/py.typed",
+    "src/mentaury/contracts/primitives.py",
+    "src/mentaury/contracts/envelopes.py",
     "tests/test_skeleton.py",
+    "tests/test_envelopes.py",
 )
 FORBIDDEN_RUNTIME_MODULES = (
     "identity_engine.py",
@@ -20,6 +24,7 @@ FORBIDDEN_RUNTIME_MODULES = (
     "character_engine.py",
     "curiosity_controller.py",
     "exo_cortex_runtime.py",
+    "event_store.py",
 )
 
 
@@ -41,12 +46,12 @@ def main() -> int:
         if path.name in FORBIDDEN_RUNTIME_MODULES
     ]
     if found_forbidden:
-        print("forbidden domain runtime modules found:")
+        print("forbidden runtime modules found:")
         for name in found_forbidden:
             print(f"- {name}")
         return 1
 
-    print("P0-001 skeleton validation: PASS")
+    print("P0-002 envelope contract validation: PASS")
     return 0
 
 
