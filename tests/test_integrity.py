@@ -373,6 +373,7 @@ def test_stream_meta_version_tampering_is_detected() -> None:
 
 def _downgrade_database_to_v2(database: Path, *, tamper: bool) -> None:
     connection = sqlite3.connect(database, isolation_level=None)
+    connection.execute("DROP TABLE redactions")
     connection.execute("DROP TABLE stream_meta")
     connection.execute("UPDATE p0_schema_meta SET schema_version = 2 WHERE singleton = 1")
     if tamper:

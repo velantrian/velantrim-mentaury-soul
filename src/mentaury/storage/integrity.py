@@ -10,6 +10,7 @@ from mentaury.contracts import EventEnvelope, canonical_json_bytes
 from mentaury.validation import SchemaRegistry
 
 from .budget import ResourceBudgetExceeded, VerificationBudget
+from .redaction import redacted_targets_for_stream
 from .sealing import compute_event_hash, compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
 from .stream_meta import GENESIS_HASH, read_stream_meta
@@ -30,6 +31,8 @@ class IntegrityCode(StrEnum):
     STREAM_META_VERSION_MISMATCH = "STREAM_META_VERSION_MISMATCH"
     STREAM_META_HASH_MISMATCH = "STREAM_META_HASH_MISMATCH"
     STREAM_META_COUNT_MISMATCH = "STREAM_META_COUNT_MISMATCH"
+    REDACTED_PAYLOAD_STILL_PRESENT = "REDACTED_PAYLOAD_STILL_PRESENT"
+    REDACTION_PAYLOAD_REF_MISMATCH = "REDACTION_PAYLOAD_REF_MISMATCH"
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +93,7 @@ class R0IntegrityVerifier:
                 return self._fail(stream_id, 0, IntegrityCode.STREAM_META_COUNT_MISMATCH, "empty stream must have event_count 0")
             return R0IntegrityReport(stream_id, True, 0, None)
 
+        redacted = redacted_targets_for_stream(self._store._connection, stream_id)
         expected_previous_hash = GENESIS_HASH
         checked = 0
         batch_start = 0
@@ -112,6 +116,20 @@ class R0IntegrityVerifier:
             envelope_issues = self._registry.validate_event_envelope(event)
             if envelope_issues:
                 return self._event_fail(event, checked, IntegrityCode.SCHEMA_INVALID, str(envelope_issues[0]))
+
+            if event.event_id in redacted:
+                if event.payload_ref != redacted[event.event_id]:
+                    return self._event_fail(event, checked, IntegrityCode.REDACTION_PAYLOAD_REF_MISMATCH, "redaction record payload_ref differs from event payload_ref")
+                if self._store.load_payload(event.payload_ref) is not None:
+                    return self._event_fail(event, checked, IntegrityCode.REDACTED_PAYLOAD_STILL_PRESENT, "payload material must be absent after governed redaction")
+                if event.previous_hash != expected_previous_hash:
+                    return self._event_fail(event, checked, IntegrityCode.PREVIOUS_HASH_MISMATCH, "previous_hash does not match the prior event hash")
+                if event.event_hash != compute_event_hash(event):
+                    return self._event_fail(event, checked, IntegrityCode.EVENT_HASH_MISMATCH, "stored event hash differs from recomputed hash")
+                expected_previous_hash = event.event_hash
+                checked += 1
+                continue
+
             payload = self._store.load_payload(event.payload_ref)
             if payload is None:
                 return self._event_fail(event, checked, IntegrityCode.PAYLOAD_MISSING, "payload material is missing")
