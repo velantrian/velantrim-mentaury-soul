@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+import sqlite3
 from dataclasses import replace
+from pathlib import Path
+
+import pytest
 
 from mentaury.contracts import ActorRef, AuthorityRef, EventEnvelope, ProducerRef
 from mentaury.storage import (
     GENESIS_HASH,
     IntegrityCode,
     R0IntegrityVerifier,
+    SQLiteAtomicBatchAppender,
     SQLiteEventPayloadStore,
+    StorageError,
+    BatchEntry,
     seal_event,
 )
 from mentaury.validation import (
@@ -59,22 +66,26 @@ def raw_event(
         causation_id=f"CMD-{version}",
         correlation_id="CORR-1",
         affects_domain_state=True,
-        payload_digest="sha256:pending",
+        payload_digest="sha256:untrusted",
         payload_ref=f"PAYLOAD-{version}",
-        previous_hash=GENESIS_HASH,
-        event_hash="sha256:pending",
+        previous_hash="sha256:untrusted",
+        event_hash="sha256:untrusted",
     )
 
 
-def append_valid_stream(store: SQLiteEventPayloadStore, count: int = 3) -> tuple[EventEnvelope, ...]:
-    previous = GENESIS_HASH
+def append_valid_stream(
+    store: SQLiteEventPayloadStore,
+    count: int = 3,
+) -> tuple[EventEnvelope, ...]:
     events: list[EventEnvelope] = []
     for version in range(1, count + 1):
         payload = {"n": version}
-        sealed = seal_event(raw_event(version), payload, previous_hash=previous)
-        store.append_one(sealed, payload)
-        events.append(sealed)
-        previous = sealed.event_hash
+        committed = store.append_one(
+            raw_event(version),
+            payload,
+            registry=registry(),
+        )
+        events.append(committed)
     return tuple(events)
 
 
@@ -124,6 +135,21 @@ def test_payload_tampering_is_detected() -> None:
         assert report.failure.code is IntegrityCode.PAYLOAD_DIGEST_MISMATCH
 
 
+def test_noncanonical_payload_bytes_are_detected_before_digest_comparison() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_valid_stream(store, 1)
+        connection = store.raw_connection_for_tests()
+        connection.execute("DROP TRIGGER payload_material_cannot_be_rewritten")
+        connection.execute(
+            "UPDATE event_payloads SET payload_bytes = ? WHERE payload_ref = 'PAYLOAD-1'",
+            (b'{ "n" : 1 }',),
+        )
+        report = R0IntegrityVerifier(store, registry()).verify_stream("test:stream")
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.PAYLOAD_NOT_CANONICAL
+
+
 def test_event_hash_tampering_is_detected() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
@@ -164,15 +190,14 @@ def test_stream_version_gap_is_detected() -> None:
         assert report.failure.code is IntegrityCode.STREAM_VERSION_GAP
 
 
-def test_incomplete_batch_is_detected() -> None:
+def test_incomplete_batch_tampering_is_detected() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        payload = {"n": 1}
-        incomplete = seal_event(
-            raw_event(1, batch_id="BATCH-X", batch_index=0, batch_size=2),
-            payload,
+        append_valid_stream(store, 1)
+        drop_event_update_guard(store)
+        store.raw_connection_for_tests().execute(
+            "UPDATE events SET batch_size = 2 WHERE event_id = 'EVT-1'"
         )
-        store.append_one(incomplete, payload)
         report = R0IntegrityVerifier(store, registry()).verify_stream("test:stream")
         assert report.failure is not None
         assert report.failure.code is IntegrityCode.BATCH_INCOMPLETE
@@ -229,32 +254,24 @@ def test_stream_meta_count_tampering_is_detected() -> None:
 
 def test_seal_event_recomputes_digest_and_hash() -> None:
     payload = {"n": 1}
-    sealed = seal_event(raw_event(1), payload)
+    sealed = seal_event(raw_event(1), payload, previous_hash=GENESIS_HASH)
     assert sealed.payload_digest.startswith("sha256:")
     assert sealed.event_hash.startswith("sha256:")
-    assert sealed.payload_digest != "sha256:pending"
-    assert sealed.event_hash != "sha256:pending"
+    assert sealed.payload_digest != "sha256:untrusted"
+    assert sealed.event_hash != "sha256:untrusted"
 
 
 def test_batch_order_tampering_is_detected() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         payload1 = {"n": 1}
-        first = seal_event(
-            raw_event(1, batch_id="BATCH-X", batch_index=0, batch_size=2),
-            payload1,
-        )
+        first = raw_event(1, batch_id="BATCH-X", batch_index=0, batch_size=2)
         payload2 = {"n": 2}
-        second = seal_event(
-            replace(
-                raw_event(2, batch_id="BATCH-X", batch_index=1, batch_size=2),
-                causation_id=first.causation_id,
-            ),
-            payload2,
-            previous_hash=first.event_hash,
+        second = replace(
+            raw_event(2, batch_id="BATCH-X", batch_index=1, batch_size=2),
+            causation_id=first.causation_id,
         )
-        from mentaury.storage import BatchEntry, SQLiteAtomicBatchAppender
-        SQLiteAtomicBatchAppender(store).append(
+        SQLiteAtomicBatchAppender(store, registry()).append(
             (BatchEntry(first, payload1), BatchEntry(second, payload2))
         )
         drop_event_update_guard(store)
@@ -276,3 +293,66 @@ def test_stream_meta_version_tampering_is_detected() -> None:
         report = R0IntegrityVerifier(store, registry()).verify_stream("test:stream")
         assert report.failure is not None
         assert report.failure.code is IntegrityCode.STREAM_META_VERSION_MISMATCH
+
+
+def _downgrade_database_to_v2(database: Path, *, tamper: bool) -> None:
+    connection = sqlite3.connect(database, isolation_level=None)
+    connection.execute("DROP TABLE stream_meta")
+    connection.execute("UPDATE p0_schema_meta SET schema_version = 2 WHERE singleton = 1")
+    if tamper:
+        connection.execute("DROP TRIGGER events_are_immutable_on_update")
+        connection.execute(
+            "UPDATE events SET event_hash = 'sha256:corrupted' WHERE event_id = 'EVT-1'"
+        )
+    connection.close()
+
+
+def test_populated_v2_migration_verifies_history_before_backfill(tmp_path: Path) -> None:
+    database = tmp_path / "valid-v2.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as store:
+        store.initialize_schema()
+        append_valid_stream(store, 2)
+    _downgrade_database_to_v2(database, tamper=False)
+
+    with SQLiteEventPayloadStore.connect(database) as migrated:
+        migrated.initialize_schema(migration_registry=registry())
+        meta = migrated.load_stream_meta("test:stream")
+        assert meta.current_version == 2
+        assert meta.event_count == 2
+        assert R0IntegrityVerifier(migrated, registry()).verify_stream("test:stream").ok
+
+
+def test_corrupted_v2_migration_fails_closed_without_stream_meta(tmp_path: Path) -> None:
+    database = tmp_path / "corrupted-v2.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as store:
+        store.initialize_schema()
+        append_valid_stream(store, 1)
+    _downgrade_database_to_v2(database, tamper=True)
+
+    with SQLiteEventPayloadStore.connect(database) as candidate:
+        with pytest.raises(StorageError, match="event hash mismatch"):
+            candidate.initialize_schema(migration_registry=registry())
+        version = candidate.raw_connection_for_tests().execute(
+            "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
+        ).fetchone()[0]
+        assert version == 2
+        with pytest.raises(sqlite3.OperationalError):
+            candidate.raw_connection_for_tests().execute(
+                "SELECT stream_id FROM stream_meta LIMIT 0"
+            )
+
+
+def test_populated_v2_migration_requires_registry(tmp_path: Path) -> None:
+    database = tmp_path / "registry-required-v2.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as store:
+        store.initialize_schema()
+        append_valid_stream(store, 1)
+    _downgrade_database_to_v2(database, tamper=False)
+
+    with SQLiteEventPayloadStore.connect(database) as candidate:
+        with pytest.raises(StorageError, match="migration_registry"):
+            candidate.initialize_schema()
+        version = candidate.raw_connection_for_tests().execute(
+            "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
+        ).fetchone()[0]
+        assert version == 2
