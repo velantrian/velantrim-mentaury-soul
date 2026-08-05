@@ -183,9 +183,9 @@ Stable diagnostic codes include:
 
 ---
 
-## 6. Adversarial evidence required
+## 6. Adversarial evidence
 
-The P0-009 test set covers or must cover:
+The P0-009 test set covers:
 
 - caller-supplied fake hash fields are not persisted;
 - schema rejection leaves payload, event, idempotency record, and `stream_meta` unchanged;
@@ -202,21 +202,25 @@ The P0-009 test set covers or must cover:
 
 ---
 
-## Validation status
+## Validation evidence
 
-A temporary validation-only branch previously passed structural validation,
-full pytest and compileall for the pre-budget head. Because budget contracts
-changed the PR after that run, fresh exact-head evidence is required.
+Validation-only run `31023632096` executed against PR code head
+`1a4e4afd33d945875b567e2f65711d774eef7186` on Python 3.13.
 
 ```text
-Structural validator → PENDING ON CURRENT HEAD
-Full pytest          → PENDING ON CURRENT HEAD
-Compileall           → PENDING ON CURRENT HEAD
+Structural validator → PASS
+Full pytest          → PASS
+Compileall           → PASS
 Permanent P0-012 CI  → NOT PRESENT
 ```
 
-A validation-only workflow is not part of PR #15 or `main` and does not count as
-P0-012.
+All individual job steps completed with `success`. The validation workflow lives
+only on a separate temporary branch. It is not part of PR #15 or `main` and does
+not count as P0-012.
+
+Because this evidence record changes documentation after the validated code
+head, the final PR head must receive one last exact-snapshot validation before
+review-ready status.
 
 ---
 
@@ -237,8 +241,8 @@ Draft PR ≠ implemented milestone
 ## Next controlled step
 
 ```text
-fresh exact-head validation
-→ review trusted write, migration and budget boundaries
+final exact-head validation
+→ final review of trusted write, migration and budget boundaries
 → explicit review-ready decision
 → explicit merge decision for P0-009
 → only after merge: P0-010 Atomic Same-Stream Redaction
