@@ -1,19 +1,20 @@
 # 🔗 P0-009 — Trusted Commit Boundary + Full R0 Verification
 
 ```text
-Status:             DRAFT · OPEN PR #15 · NOT MERGED
-Storage schema:     v3 candidate
+Status:             IMPLEMENTED · MERGED PR #15
+Main SHA:           08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
+Storage schema:     v3
 Integrity profile:  trusted write allocation + bounded R0 verification
 Failure mode:       fail closed / first actionable failure
-Payload redaction:  NOT IMPLEMENTED
-Replay:             NOT IMPLEMENTED
+Payload redaction:  NOT IMPLEMENTED · P0-010
+Replay:             NOT IMPLEMENTED · P0-013
 Domain truth:       NOT CLAIMED
-Permanent CI:       NOT PRESENT
+Permanent CI:       NOT PRESENT · P0-012
 ```
 
 ## Purpose
 
-P0-009 must prove three separate properties:
+P0-009 proves three separate infrastructure properties:
 
 ```text
 WRITE PATH
@@ -59,8 +60,8 @@ The same rule applies to:
 - `SQLiteAtomicBatchAppender.append`;
 - `SQLiteIdempotentBatchAppender.append`.
 
-`append_one` additionally rejects any envelope that does not represent exactly
-one complete event batch:
+`append_one` rejects any envelope that does not represent exactly one complete
+event batch:
 
 ```text
 batch_size == 1
@@ -204,23 +205,23 @@ The P0-009 test set covers:
 
 ## Validation evidence
 
-Validation-only run `31023632096` executed against PR code head
-`1a4e4afd33d945875b567e2f65711d774eef7186` on Python 3.13.
+Final exact-head validation ran against PR head
+`6f8ff1663e161e554c8d4610f1692187c2129b45` on Python 3.13.
+
+Run: `31023788916`
 
 ```text
-Structural validator → PASS
-Full pytest          → PASS
-Compileall           → PASS
-Permanent P0-012 CI  → NOT PRESENT
+Python setup          → PASS
+Locked dependencies   → PASS
+Structural validator  → PASS
+Full pytest           → PASS
+Compileall             → PASS
+Permanent P0-012 CI   → NOT PRESENT
 ```
 
-All individual job steps completed with `success`. The validation workflow lives
-only on a separate temporary branch. It is not part of PR #15 or `main` and does
-not count as P0-012.
-
-Because this evidence record changes documentation after the validated code
-head, the final PR head must receive one last exact-snapshot validation before
-review-ready status.
+All individual job steps completed with `success`. The workflow existed only on
+a separate validation branch. It was not part of PR #15 or `main` and does not
+count as P0-012.
 
 ---
 
@@ -235,15 +236,15 @@ Resource budget ≠ Canonical threshold
 stream_meta ≠ source of truth
 Validation-only run ≠ permanent CI
 R0 PASS ≠ R1 replay equivalence
-Draft PR ≠ implemented milestone
+Implemented P0-009 ≠ domain runtime
 ```
 
 ## Next controlled step
 
 ```text
-final exact-head validation
-→ final review of trusted write, migration and budget boundaries
-→ explicit review-ready decision
-→ explicit merge decision for P0-009
-→ only after merge: P0-010 Atomic Same-Stream Redaction
+P0-010 Atomic Same-Stream Redaction
+→ preserve immutable event rows
+→ delete only external payload material
+→ append same-stream redaction evidence atomically
+→ keep R0 verification fail closed
 ```
