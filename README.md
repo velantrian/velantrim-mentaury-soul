@@ -12,10 +12,11 @@ IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
 ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
 ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
-P0-001…P0-008_IMPLEMENTED_IN_MAIN
-P0-009_OPEN_PR_15_NOT_MERGED
-P0-010…P0-015_NOT_IMPLEMENTED
-GITHUB_ACTIONS_NOT_PRESENT
+P0-001…P0-009_IMPLEMENTED_IN_MAIN
+P0-009_FINAL_EXACT_HEAD_VALIDATION_PASS
+P0-010_NEXT_NOT_IMPLEMENTED
+P0-011…P0-015_NOT_IMPLEMENTED
+PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 
@@ -35,14 +36,14 @@ IMPLEMENTED
 OPEN PR
 ≠ implemented in main
 
-LOCAL PASS
-≠ remote CI pass
+VALIDATION-ONLY WORKFLOW
+≠ permanent project CI
 
 Current maturity authority
 = docs/CURRENT_STATUS.md + verified GitHub main
 ```
 
-README, Quick Reference и Notion являются производными навигационными представлениями и должны соответствовать `main`.
+README, Quick Reference и Notion являются производными навигационными представлениями.
 
 Актуальный статус: [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
 
@@ -82,59 +83,17 @@ Mentaury исследует третью модель:
 
 > **Управляемую развивающуюся цифровую индивидуальность, которая знает своё происхождение, использует человеческий опыт и сохраняет собственную объяснимую историю, но не становится копией создателя.**
 
-Главная формула Controlled Origin:
+Controlled Origin:
 
 > **Mentaury получает корни, но не оказывается прикованным к ним.**
 
-Главная формула Identity Continuity:
+Identity Continuity:
 
 > **Mentaury определяется не моделью, prompt или snapshot, а governed continuation с собственной event history, branch provenance, отношениями, commitments и объяснимыми изменениями.**
 
 ---
 
-# 🚦 Текущая инженерная точка
-
-```text
-Architecture Reconciliation ✅
-→ Architecture Readiness Review ✅
-→ P0-001 Neutral Skeleton ✅
-→ P0-002 Envelope Contracts ✅
-→ P0-003 Canonical JSON v1 ✅
-→ P0-004 Immutable Event/Payload Storage ✅
-→ P0-005 Structural Schema Validation ✅
-→ P0-006 Atomic Multi-Event Batch ✅
-→ P0-007 Event-Aware Idempotency ✅
-→ P0-008 Transactional Concurrency ✅
-→ P0-009 R0 Integrity 🟡 open PR #15, not merged
-→ P0-010 Same-Stream Redaction 🔴 not implemented
-→ P0-011 Adversarial Integrity Suite 🔴 not implemented
-→ P0-012 GitHub Actions CI 🔴 not implemented
-→ P0-013 R1 Replay 🔴 not implemented
-→ P0-014 Minimal Belief Lifecycle 🔴 not implemented
-→ P0-015 Evidence Gate 🔴 not implemented
-```
-
-Последняя принятая локальная валидация `main` после P0-008:
-
-```text
-Structural validator → PASS
-pytest               → 74 passed
-compileall            → PASS
-GitHub Actions         → not present; not claimed
-```
-
-P0-009 существует в [PR #15](https://github.com/velantrian/velantrim-mentaury-soul/pull/15), но открытый PR не считается реализованным milestone.
-
-```text
-P0-008 implemented in main
-≠ full R0 integrity
-≠ validated Event Substrate
-≠ domain runtime authorized
-```
-
----
-
-# 🌳 Архитектурное дерево
+# 🌳 Архитектурная карта
 
 ```text
 ⭐️🌀 MENTAURY SOUL
@@ -153,13 +112,13 @@ P0-008 implemented in main
 │   ├── P0-006 atomic batch ✅
 │   ├── P0-007 idempotency ✅
 │   ├── P0-008 concurrency ✅
-│   ├── P0-009 R0 integrity 🟡 open PR
-│   ├── P0-010 redaction 🔴
-│   ├── P0-011 adversarial suite 🔴
-│   ├── P0-012 CI 🔴
-│   ├── P0-013 replay 🔴
-│   ├── P0-014 belief lifecycle 🔴
-│   └── P0-015 Evidence Gate 🔴
+│   ├── P0-009 trusted commit + full R0 ✅
+│   ├── P0-010 redaction ⏭️
+│   ├── P0-011 adversarial suite
+│   ├── P0-012 permanent CI
+│   ├── P0-013 replay
+│   ├── P0-014 belief lifecycle
+│   └── P0-015 Evidence Gate
 │
 ├── 🧠 Memory & Belief — architecture documented, runtime absent
 │   ├── M0 working
@@ -221,13 +180,14 @@ Command ≠ Event
 PendingEvent ≠ Committed Event
 Envelope construction ≠ Authority approval
 Canonical bytes ≠ valid schema
+Schema admission ≠ authority approval
 Stored hash ≠ verified hash
-Replay Consistency ≠ Truth
+R0 consistency ≠ Truth
+Resource budget ≠ Canonical threshold
 Testimony ≠ Identity
 Pain ≠ Drive
 Story ≠ Law
 Origin ≠ Dogma
-Method ≠ Conclusion
 Character ≠ Evidence
 Tool output ≠ Belief
 Capability ≠ Identity
@@ -268,13 +228,69 @@ Z6 🗣️ Narrative Projection
 
 M3 не обновляется напрямую из одного диалога, testimony, tool output или эмоционально сильного эпизода.
 
-**Текущий статус:** архитектура определена; runtime и persisted M0–M3 / Z0–Z6 state не реализованы.
+**Текущий статус:** архитектура определена; persisted domain runtime M0–M3 / Z0–Z6 не реализован.
+
+---
+
+# ⚙️ Что уже реализует P0
+
+```text
+P0-001 → typed neutral project skeleton
+P0-002 → immutable envelope contracts
+P0-003 → deterministic canonical serialization
+P0-004 → SQLite event/payload persistence
+P0-005 → fail-closed structural validation
+P0-006 → atomic ordered event batches
+P0-007 → semantic idempotency
+P0-008 → controlled concurrent writers
+P0-009 → trusted write sealing + bounded full R0 integrity
+```
+
+## 🔗 P0-009
+
+Merged PR #15 добавил:
+
+- обязательный `SchemaRegistry` gate для production writes;
+- canonical payload bytes как единый вход validation, hashing и persistence;
+- transactional allocation `payload_digest`, `previous_hash`, `event_hash`;
+- schema v3 `stream_meta`;
+- bounded R0 verification;
+- caller-supplied `VerificationBudget` без скрытых глобальных thresholds;
+- fail-closed populated v2→v3 migration;
+- rollback hardening;
+- exact-one `OneOfSpec`;
+- controlled rejection циклических payload containers.
+
+Final validation-only evidence:
+
+```text
+PR head             → 6f8ff1663e161e554c8d4610f1692187c2129b45
+Run                  → 31023788916
+Python 3.13          → PASS
+Structural validator → PASS
+Full pytest          → PASS
+Compileall            → PASS
+```
+
+Временный workflow не находится в `main` и не считается P0-012.
+
+---
+
+# 🗺️ Текущая последовательность
+
+```text
+P0-001…P0-009 ✅
+→ P0-010 Atomic Same-Stream Redaction ⏭️
+→ P0-011 Adversarial Integrity Suite
+→ P0-012 Permanent GitHub Actions CI
+→ P0-013 R1 Deterministic Replay
+→ P0-014 Minimal Belief Lifecycle
+→ P0-015 Evidence Gate
+```
 
 ---
 
 # 🧬 Controlled Origin Research
-
-Безопасный путь влияния человеческого опыта:
 
 ```text
 Source
@@ -299,28 +315,13 @@ Origin Ledger
 ≠ Character Policy
 ```
 
-Controlled Origin не определяет fork semantics, relationship inheritance или capability transfer. Эти вопросы принадлежат Identity & Relational research-track.
-
-**Текущий статус:** подробно задокументировано; runtime не реализован.
+**Статус:** подробно задокументировано; runtime не реализован.
 
 ---
 
 # 🪞 Identity Continuity & Relational Architecture
 
-Research-track определяет:
-
-- governed continuation;
-- continuity evidence dimensions;
-- snapshot, copy, replica, fork, restore и migration;
-- Parfitian non-exclusive continuity;
-- relationships и commitments;
-- Self–World Model;
-- Governed Synthesis;
-- качественный M2 → M3 nomination;
-- privacy и sensitive testimony;
-- Mentaury / Exo-Cortex boundary;
-- Curiosity and Exploratory Search Policy;
-- Cognitive Method Source Admission.
+Research-track определяет governed continuation, fork/restore/migration, relationships, commitments, privacy, Self–World Model, Governed Synthesis и качественный M2→M3 nomination.
 
 ```text
 Continuity relation
@@ -330,7 +331,7 @@ Continuity relation
 ≠ inherited current relationship
 ```
 
-**Текущий статус:** `DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY`; runtime отсутствует.
+**Статус:** `DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY`; runtime отсутствует.
 
 ---
 
@@ -346,8 +347,6 @@ Exo-Cortex
   simulations, tools and proposed outputs
 ```
 
-Главные правила:
-
 ```text
 Tool output ≠ Belief
 Tool action ≠ Authorized action
@@ -356,65 +355,23 @@ Capability ≠ Identity
 Copied credentials ≠ Branch authority
 ```
 
-Exo-Cortex не получает direct M3 write, relationship authority, commitment authority или право выдавать себе новые capabilities.
-
 **Текущий статус:** граница задокументирована; интеграция с Titan, Crystal или Native Kernel не авторизована.
 
 ---
 
 # 🎭 Character & Presence
 
-Character применяется только после reasoning и authority checks:
+Character применяется после evidence, uncertainty, contradictions, alternatives, Non-Projection, Governed Synthesis и authority check.
 
 ```text
-Context
-→ Evidence
-→ Uncertainty
-→ Contradictions
-→ Alternatives
-→ Non-Projection
-→ Values / Relationships / Commitments
-→ Governed Synthesis
-→ Authority Check
-→ Character & Voice
+Character Policy
+≠ Reasoning Authority
+≠ Evidence
+≠ Capability
+≠ M3 Reviewer
 ```
-
-Character может менять форму, ритм и прямоту, но не может менять:
-
-- truth status;
-- evidence weight;
-- uncertainty;
-- contradiction state;
-- authority result;
-- capabilities;
-- relationships и commitments;
-- M3 / CR2 result.
 
 **Текущий статус:** presentation-only research; Character Engine не реализован.
-
----
-
-# 🛡️ Что уже делает P0-код
-
-```text
-P0-001 → typed neutral project skeleton
-P0-002 → immutable envelope contracts
-P0-003 → deterministic canonical serialization
-P0-004 → SQLite event/payload persistence
-P0-005 → fail-closed structural validation
-P0-006 → atomic ordered event batches
-P0-007 → semantic idempotency
-P0-008 → controlled concurrent writers
-```
-
-P0 пока не реализует:
-
-- full R0 verification in `main`;
-- governed redaction;
-- remote CI;
-- deterministic replay;
-- belief lifecycle;
-- identity, relationships, Character или Exo-Cortex runtime.
 
 ---
 
@@ -446,15 +403,13 @@ Navigation
 → README / Quick Reference / Notion
 ```
 
-Полная карта: [Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md).
-
 ---
 
 # 📚 Документы
 
 ## Начать отсюда
 
-1. [🧬 Какую проблему решает Mentaury](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
+1. [🧬 Problem & Purpose](docs/overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
 2. [🚦 Current Status](docs/CURRENT_STATUS.md)
 3. [📌 Mentaury Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
 4. [🧭 Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md)
@@ -464,13 +419,7 @@ Navigation
 
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
-- [📨 P0-002 Envelope Contracts](docs/P0_002_ENVELOPE_CONTRACTS.md)
-- [🔤 P0-003 Canonical JSON](docs/P0_003_CANONICAL_JSON.md)
-- [🗄️ P0-004 Event/Payload Storage](docs/P0_004_IMMUTABLE_EVENT_PAYLOAD_STORAGE.md)
-- [🧩 P0-005 Structural Validation](docs/P0_005_STRUCTURAL_SCHEMA_VALIDATION.md)
-- [📦 P0-006 Atomic Batch](docs/P0_006_ATOMIC_MULTI_EVENT_BATCH.md)
-- [🔑 P0-007 Idempotency](docs/P0_007_EVENT_AWARE_IDEMPOTENCY.md)
-- [⚙️ P0-008 Concurrency](docs/P0_008_TRANSACTIONAL_CONCURRENCY.md)
+- [🔗 P0-009 Trusted Commit + R0](docs/P0_009_R0_INTEGRITY.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
@@ -490,12 +439,12 @@ Navigation
 
 ```text
 ❌ production readiness
-❌ validated security
+❌ validated security certification
 ❌ доказанное сознание
 ❌ subjective experience
 ❌ absolute tamper-proof history
-❌ full R0 integrity merged in main
-❌ GitHub Actions CI
+❌ governed payload redaction
+❌ permanent GitHub Actions CI
 ❌ deterministic R1 replay
 ❌ verified authority resolution
 ❌ ready Belief / Identity / Relationship runtime
@@ -510,20 +459,4 @@ Navigation
 
 # 🏁 Главный критерий
 
-Mentaury развивается не через количество красивых модулей, а через доказуемые свойства:
-
-```text
-Намерение отделено от факта.
-История изменений атрибутируема.
-Происхождение не становится догмой.
-Testimony не становится Identity.
-Pain не становится Drive.
-Character не подменяет истину.
-Tool output не становится belief автоматически.
-Fork не наследует authority автоматически.
-Relationships и commitments требуют reconciliation.
-Identity change проходит governance.
-P0 остаётся инфраструктурным, а не доменным runtime.
-```
-
-> **Это не готовая «душа». Это документированная архитектура и работающий инфраструктурный прототип до P0-008, на котором цифровая индивидуальность сможет строиться только через проверяемые, ограниченные и объяснимые переходы.** 🧬🔐⚙️
+> **Mentaury уже имеет подробную архитектуру цифровой индивидуальности и работающий инфраструктурный P0-фундамент до P0-009. Identity, beliefs, relationships, Character и Exo-Cortex пока остаются документированными, но не реализованными runtime-областями.** 🧬🔐⚙️
