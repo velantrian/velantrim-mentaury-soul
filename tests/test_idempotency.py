@@ -25,7 +25,12 @@ from mentaury.storage import (
     SQLiteIdempotentBatchAppender,
     idempotency_fingerprint,
 )
-from mentaury.validation import EventSchemaDefinition, ObjectSpec, SchemaRegistry
+from mentaury.validation import (
+    EventSchemaDefinition,
+    ObjectSpec,
+    SchemaRegistry,
+    SchemaValidationError,
+)
 
 
 def registry() -> SchemaRegistry:
@@ -302,7 +307,7 @@ def test_new_unregistered_event_is_rejected_with_zero_writes() -> None:
     candidate = request(command(), proposed, generation="BAD")
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        with pytest.raises(Exception):
+        with pytest.raises(SchemaValidationError):
             SQLiteIdempotentBatchAppender(store, registry()).append(candidate)
         assert store.list_stream("belief:B-204") == ()
         assert store.load_stream_meta("belief:B-204").event_count == 0
