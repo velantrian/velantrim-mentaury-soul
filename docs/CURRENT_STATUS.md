@@ -1,74 +1,195 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации: 2026-08-05
-Репозиторий: velantrian/velantrim-mentaury-soul
+Дата фиксации:                  2026-08-05
+Репозиторий:                    velantrian/velantrim-mentaury-soul
+Authoritative ref:              GitHub main
+Verified implementation base:  8d1fe4c4b2f274376383ab33ba5d04d787a3f244 · P0-008
 
 CANON_V0.1_FROZEN
-P0-001…P0-009_IMPLEMENTED
-P0-009_LOCAL_VALIDATION_PASS
-P0-010_NEXT
-P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
+P0-001…P0-008_IMPLEMENTED_IN_MAIN
+P0-008_LOCAL_VALIDATION_PASS
+P0-009_OPEN_PR_15_NOT_MERGED
+P0-010…P0-015_NOT_IMPLEMENTED
+PR_16_DOCUMENTATION_ONLY_STATUS_SYNC
+GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
 
+## ⚖️ Правило текущей правды
+
 ```text
-P0-001 neutral skeleton             → implemented
-P0-002 envelope contracts           → implemented
-P0-003 canonical JSON               → implemented
-P0-004 event/payload storage        → implemented
-P0-005 structural schemas           → implemented
-P0-006 atomic multi-event batch     → implemented
-P0-007 event-aware idempotency      → implemented
-P0-008 transactional concurrency    → implemented
-P0-009 full R0 integrity            → implemented
-Local structural validation         → PASS
-Local pytest                         → 88 passed
-Compileall                           → PASS
-P0-010 same-stream redaction        → next controlled commit
+IMPLEMENTED
+= merged into GitHub main
+
+OPEN PR
+≠ implemented in main
+
+LOCAL PASS
+≠ remote CI pass
+
+Notion / README / Quick Reference
+= derived navigation documents
+
+Current maturity authority
+= this file + verified GitHub main state
 ```
 
-# 🔗 P0-009
+Любой статус в Notion, README, обсуждении или ответе ИИ считается производным и должен быть исправлен, если он расходится с фактическим `main`.
 
-Storage schema v3 adds transactional `stream_meta`. R0 independently verifies:
+---
+
+# ✅ Реализовано в `main`
+
+| Milestone | Состояние | Проверенная граница |
+|---|---|---|
+| P0-001 Neutral Skeleton | ✅ Implemented | project/package boundary only |
+| P0-002 Envelope Contracts | ✅ Implemented | construction ≠ authority approval |
+| P0-003 Canonical JSON v1 | ✅ Implemented | canonical bytes ≠ valid schema or verified hash |
+| P0-004 Event/Payload Storage | ✅ Implemented | persisted rows ≠ full integrity proof |
+| P0-005 Structural Schema Validation | ✅ Implemented | schema validity ≠ truth or authorization |
+| P0-006 Atomic Multi-Event Batch | ✅ Implemented | atomicity ≠ idempotency or concurrency control |
+| P0-007 Event-Aware Idempotency | ✅ Implemented | replay receipt ≠ integrity verification |
+| P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking ≠ distributed consensus |
+
+Последняя локальная валидация принятого implementation baseline после P0-008:
 
 ```text
-contiguous stream versions
-complete ordered batches
-event/schema + payload structure
-payload digest recomputation
-previous_hash continuity
-event_hash recomputation
-stream_meta version/hash/count
+python3 scripts/validate.py  → PASS
+pytest                       → 74 passed
+compileall                   → PASS
+GitHub Actions               → NOT PRESENT
 ```
 
-Adversarial tests mutate payloads, event fields, batch order and metadata after
-bypassing normal SQLite guards; R0 reports the first actionable failure.
+---
+
+# ⚙️ P0-008 — текущий принятый инженерный предел
+
+Реализованы:
+
+- bounded `BEGIN IMMEDIATE` retries;
+- bounded `COMMIT` retries;
+- WAL для file-backed SQLite;
+- SQLite runtime gate;
+- `StoreBusyError`;
+- controlled `VersionConflictError`;
+- реальные two-connection race tests.
 
 ```text
-R0 consistency ≠ epistemic truth
-Hash continuity ≠ authorization
-R0 PASS ≠ deterministic replay proof
+same key / same intent
+→ APPLIED + ALREADY_APPLIED
+
+same key / different intent
+→ APPLIED + IDEMPOTENCY_CONFLICT
+
+different keys / same stream version
+→ APPLIED + VERSION_CONFLICT
+
+held write lock
+→ STORE_BUSY + zero partial writes
 ```
 
-GitHub Actions remain scheduled for P0-012; remote CI is not claimed.
+```text
+Concurrency control ≠ R0 integrity
+WAL ≠ durability proof
+SQLite lock ≠ authority approval
+```
 
-# 🗺️ Sequence
+---
+
+# 🟡 P0-009 — код существует, но не принят
 
 ```text
-P0-001…P0-009 ✅
-→ P0-010 Atomic same-stream redaction
-→ P0-011 Adversarial integrity tests
+PR:       #15
+Title:    P0-009: add full R0 integrity verification
+Branch:   agent/p0-r0-integrity
+State:    OPEN
+Merged:   NO
+Main:     UNCHANGED AT P0-008 IMPLEMENTATION LEVEL
+```
+
+В ветке PR заявлены:
+
+- storage schema v3 и transactional `stream_meta`;
+- payload-digest recomputation;
+- event-hash recomputation;
+- `previous_hash` continuity;
+- batch completeness and ordering checks;
+- stream version and metadata checks;
+- `R0IntegrityVerifier`;
+- 88 локальных тестов.
+
+Статус доказательства:
+
+```text
+CODE EXISTS IN OPEN PR
+LOCAL VALIDATION CLAIMED
+NOT PART OF MAIN
+REMOTE CI ABSENT
+REVIEW / FIX / MERGE REQUIRED
+```
+
+P0-009 не должен обозначаться как `IMPLEMENTED`, пока PR #15 не прошёл review и не был смержен.
+
+---
+
+# 🔴 Не реализовано
+
+```text
+P0-010 Atomic Same-Stream Redaction    → NOT IMPLEMENTED
+P0-011 Adversarial Integrity Suite     → NOT IMPLEMENTED
+P0-012 GitHub Actions CI               → NOT IMPLEMENTED
+P0-013 R1 Deterministic Replay         → NOT IMPLEMENTED
+P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
+P0-015 Evidence Gate Report            → NOT IMPLEMENTED
+```
+
+Для P0-010…P0-015 нет принятого implementation PR. Текущий **PR #16** является только documentation/status synchronization и **не реализует P0-010**. PR #17 и PR #18 на момент проверки отсутствуют.
+
+---
+
+# 🚫 Domain runtime не авторизован
+
+Пока отсутствуют:
+
+- M0/M1/M2/M3 runtime;
+- belief lifecycle runtime;
+- Identity Continuity runtime;
+- relationship and commitment runtime;
+- Controlled Origin ingestion;
+- Genesis Heritage runtime;
+- Human Paths Atlas runtime;
+- Governed Synthesis engine;
+- Capability Lease resolver;
+- Tool Receipt / Action Gate runtime;
+- Character Engine;
+- Curiosity controller;
+- Titan, Crystal или Native Kernel runtime integration;
+- LLM integration и autonomous goals.
+
+Документация этих областей существует как `DOCS_ONLY`, `NON_CANONICAL` или `PRESENTATION_ONLY` research. Она не является работающим domain runtime.
+
+---
+
+# 🗺️ Контролируемая последовательность
+
+```text
+P0-001…P0-008 ✅ merged in main
+→ review and correct P0-009 PR #15
+→ merge P0-009 only after evidence is sufficient
+→ P0-010 same-stream redaction
+→ P0-011 adversarial integrity suite
 → P0-012 GitHub Actions CI
-→ P0-013 R1 replay
-→ P0-014 Minimal Belief Lifecycle
+→ P0-013 R1 deterministic replay
+→ P0-014 minimal belief lifecycle
 → P0-015 Evidence Gate report
 ```
 
-# 🏁 Next
+# 🏁 Следующее действие
 
 ```text
-P0-010 ATOMIC SAME-STREAM REDACTION
-Status: NOT STARTED
+P0-009 FULL R0 + STREAM METADATA VERIFICATION
+Status: OPEN PR · NOT MERGED
+Required: review → fixes → local validation → merge decision
 ```
