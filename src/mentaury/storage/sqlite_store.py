@@ -1,33 +1,19 @@
-"""P0-004 SQLite adapter for immutable event rows and external payloads.
+"""SQLite adapter for immutable P0 events, payloads, and trusted R0 writes.
 
-The adapter is explicit: importing this module opens no database. P0-004 stores
-one already-formed EventEnvelope together with canonical payload bytes in one
-transaction. It does not allocate versions, validate domain schemas, resolve
-authority, compute hashes, append multi-event batches, or implement redaction.
+Importing this module opens no database. P0-009 production writes validate the
+registered event/schema pair and payload structure, allocate canonical digest
+and hash-chain fields inside the transaction, then persist payload, immutable
+event row, and stream metadata atomically.
 """
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Final, Self
-
-from .concurrency import (
-    DEFAULT_BUSY_RETRY_POLICY,
-    BusyRetryPolicy,
-    VersionConflictError,
-    begin_immediate,
-    commit_with_retry,
-    is_stream_version_conflict,
-)
-from .stream_meta import (
-    StreamMeta,
-    read_stream_meta,
-    require_expected_stream_version,
-    update_stream_meta,
-)
 
 from mentaury.contracts import (
     ActorRef,
@@ -37,13 +23,36 @@ from mentaury.contracts import (
     canonical_json_bytes,
     canonical_timestamp,
 )
+from mentaury.validation import SchemaRegistry
+
+from .concurrency import (
+    DEFAULT_BUSY_RETRY_POLICY,
+    BusyRetryPolicy,
+    VersionConflictError,
+    begin_immediate,
+    commit_with_retry,
+    is_stream_version_conflict,
+)
+from .sealing import (
+    compute_event_hash,
+    compute_payload_digest,
+    seal_event_bytes,
+    validate_event_for_commit,
+)
+from .stream_meta import (
+    GENESIS_HASH,
+    StreamMeta,
+    read_stream_meta,
+    require_expected_stream_version,
+    update_stream_meta,
+)
 
 SCHEMA_VERSION: Final[int] = 3
 MINIMUM_SQLITE_VERSION: Final[tuple[int, int, int]] = (3, 37, 0)
 
 
 class StorageError(RuntimeError):
-    """Base error for controlled P0-004 storage failures."""
+    """Base error for controlled P0 storage failures."""
 
 
 class StoreNotInitializedError(StorageError):
@@ -160,16 +169,16 @@ UPDATE p0_schema_meta SET schema_version = 2 WHERE singleton = 1;
 COMMIT;
 """
 
-_MIGRATE_2_TO_3_SQL: Final[str] = """
-BEGIN IMMEDIATE;
-
+_CREATE_STREAM_META_SQL: Final[str] = """
 CREATE TABLE stream_meta (
     stream_id TEXT PRIMARY KEY NOT NULL,
     current_version INTEGER NOT NULL CHECK (current_version >= 0),
     last_event_hash TEXT NOT NULL,
     event_count INTEGER NOT NULL CHECK (event_count >= 0)
-) STRICT;
+) STRICT
+"""
 
+_BACKFILL_STREAM_META_SQL: Final[str] = """
 INSERT INTO stream_meta(stream_id, current_version, last_event_hash, event_count)
 SELECT
     e.stream_id,
@@ -183,15 +192,12 @@ SELECT
     ),
     COUNT(*)
 FROM events AS e
-GROUP BY e.stream_id;
-
-UPDATE p0_schema_meta SET schema_version = 3 WHERE singleton = 1;
-COMMIT;
+GROUP BY e.stream_id
 """
 
 
 class SQLiteEventPayloadStore:
-    """Replaceable first-profile adapter for P0-004 storage primitives."""
+    """Replaceable first-profile adapter for trusted P0 storage primitives."""
 
     def __init__(
         self,
@@ -245,8 +251,23 @@ class SQLiteEventPayloadStore:
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> None:
         self.close()
 
-    def initialize_schema(self) -> None:
-        """Create or migrate the explicit P0 storage schema."""
+    def initialize_schema(
+        self,
+        *,
+        migration_registry: SchemaRegistry | None = None,
+    ) -> None:
+        """Create or migrate the explicit P0 storage schema.
+
+        A populated v2 ledger is upgraded only after fail-closed R0-style
+        verification under one write lock. Empty legacy schemas need no
+        registry; populated schemas require the event registry used to admit
+        their event types.
+        """
+
+        if migration_registry is not None and not isinstance(
+            migration_registry, SchemaRegistry
+        ):
+            raise TypeError("migration_registry must be a SchemaRegistry or None")
 
         self._connection.executescript(_SCHEMA_SQL)
         version = self._connection.execute(
@@ -265,7 +286,17 @@ class SQLiteEventPayloadStore:
             current = 2
         if current == 2:
             try:
-                self._connection.executescript(_MIGRATE_2_TO_3_SQL)
+                begin_immediate(self._connection, self._busy_policy)
+                _verify_v2_ledger_before_migration(
+                    self._connection,
+                    migration_registry,
+                )
+                self._connection.execute(_CREATE_STREAM_META_SQL)
+                self._connection.execute(_BACKFILL_STREAM_META_SQL)
+                self._connection.execute(
+                    "UPDATE p0_schema_meta SET schema_version = 3 WHERE singleton = 1"
+                )
+                commit_with_retry(self._connection, self._busy_policy)
             except Exception:
                 if self._connection.in_transaction:
                     self._connection.execute("ROLLBACK")
@@ -299,70 +330,40 @@ class SQLiteEventPayloadStore:
         self,
         event: EventEnvelope,
         payload: Mapping[str, object],
-    ) -> None:
-        """Atomically store one external payload and one immutable event row."""
+        *,
+        registry: SchemaRegistry,
+    ) -> EventEnvelope:
+        """Validate, seal, and atomically commit one event and its payload.
+
+        Input digest/hash/previous-hash fields are non-authoritative. The
+        committed envelope is returned with fields allocated under the stream
+        write lock.
+        """
 
         if not isinstance(event, EventEnvelope):
             raise TypeError("event must be an EventEnvelope")
+        if event.batch_size != 1 or event.batch_index != 0:
+            raise StorageError(
+                "single-event append requires batch_size 1 and batch_index 0"
+            )
         self._require_initialized()
-        payload_bytes = canonical_json_bytes(payload)
+        payload_bytes = validate_event_for_commit(event, payload, registry)
         created_at = canonical_timestamp(event.recorded_at)
+        committed: EventEnvelope | None = None
 
         try:
             begin_immediate(self._connection, self._busy_policy)
             previous_meta = require_expected_stream_version(
                 self._connection, event
             )
-            self._connection.execute(
-                """
-                INSERT INTO event_payloads(payload_ref, payload_bytes, created_at)
-                VALUES (?, ?, ?)
-                """,
-                (event.payload_ref, payload_bytes, created_at),
+            committed = seal_event_bytes(
+                event,
+                payload_bytes,
+                previous_hash=previous_meta.last_event_hash,
             )
-            self._connection.execute(
-                """
-                INSERT INTO events(
-                    event_id, event_type, envelope_schema_version, payload_schema,
-                    stream_id, stream_version, batch_id, batch_index, batch_size,
-                    occurred_at, recorded_at, producer_component, producer_version,
-                    initiator_type, initiator_id, capability_lease_id,
-                    capability_revision, causation_id, correlation_id,
-                    affects_domain_state, payload_digest, payload_ref,
-                    previous_hash, event_hash
-                ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                    ?, ?, ?, ?
-                )
-                """,
-                (
-                    event.event_id,
-                    event.event_type,
-                    event.envelope_schema_version,
-                    event.payload_schema,
-                    event.stream_id,
-                    event.stream_version,
-                    event.batch_id,
-                    event.batch_index,
-                    event.batch_size,
-                    canonical_timestamp(event.occurred_at),
-                    canonical_timestamp(event.recorded_at),
-                    event.producer.component,
-                    event.producer.version,
-                    event.initiator.actor_type,
-                    event.initiator.actor_id,
-                    event.authority.capability_lease_id,
-                    event.authority.capability_revision,
-                    event.causation_id,
-                    event.correlation_id,
-                    int(event.affects_domain_state),
-                    event.payload_digest,
-                    event.payload_ref,
-                    event.previous_hash,
-                    event.event_hash,
-                ),
-            )
-            update_stream_meta(self._connection, (event,), previous_meta)
+            self._insert_payload(committed, payload_bytes, created_at)
+            self._insert_event(committed)
+            update_stream_meta(self._connection, (committed,), previous_meta)
         except sqlite3.IntegrityError as exc:
             if self._connection.in_transaction:
                 self._connection.execute("ROLLBACK")
@@ -378,6 +379,68 @@ class SQLiteEventPayloadStore:
             raise
         else:
             commit_with_retry(self._connection, self._busy_policy)
+
+        if committed is None:  # pragma: no cover - defensive control-flow guard
+            raise AssertionError("committed event was not allocated")
+        return committed
+
+    def _insert_payload(
+        self,
+        event: EventEnvelope,
+        payload_bytes: bytes,
+        created_at: str,
+    ) -> None:
+        self._connection.execute(
+            """
+            INSERT INTO event_payloads(payload_ref, payload_bytes, created_at)
+            VALUES (?, ?, ?)
+            """,
+            (event.payload_ref, payload_bytes, created_at),
+        )
+
+    def _insert_event(self, event: EventEnvelope) -> None:
+        self._connection.execute(
+            """
+            INSERT INTO events(
+                event_id, event_type, envelope_schema_version, payload_schema,
+                stream_id, stream_version, batch_id, batch_index, batch_size,
+                occurred_at, recorded_at, producer_component, producer_version,
+                initiator_type, initiator_id, capability_lease_id,
+                capability_revision, causation_id, correlation_id,
+                affects_domain_state, payload_digest, payload_ref,
+                previous_hash, event_hash
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?
+            )
+            """,
+            (
+                event.event_id,
+                event.event_type,
+                event.envelope_schema_version,
+                event.payload_schema,
+                event.stream_id,
+                event.stream_version,
+                event.batch_id,
+                event.batch_index,
+                event.batch_size,
+                event.occurred_at,
+                event.recorded_at,
+                event.producer.component,
+                event.producer.version,
+                event.initiator.actor_type,
+                event.initiator.actor_id,
+                event.authority.capability_lease_id,
+                event.authority.capability_revision,
+                event.causation_id,
+                event.correlation_id,
+                int(event.affects_domain_state),
+                event.payload_digest,
+                event.payload_ref,
+                event.previous_hash,
+                event.event_hash,
+            ),
+        )
 
     def load_event(self, event_id: str) -> EventEnvelope | None:
         self._require_initialized()
@@ -422,6 +485,95 @@ class SQLiteEventPayloadStore:
 
     def raw_connection_for_tests(self) -> sqlite3.Connection:
         return self._connection
+
+
+def _verify_v2_ledger_before_migration(
+    connection: sqlite3.Connection,
+    registry: SchemaRegistry | None,
+) -> None:
+    rows = connection.execute(
+        "SELECT * FROM events ORDER BY stream_id, stream_version"
+    ).fetchall()
+    if not rows:
+        return
+    if registry is None:
+        raise StorageError(
+            "populated v2 ledger requires migration_registry for fail-closed upgrade"
+        )
+
+    current_stream: str | None = None
+    expected_version = 1
+    expected_previous_hash = GENESIS_HASH
+    stream_events: list[EventEnvelope] = []
+
+    def verify_batches(events: list[EventEnvelope]) -> None:
+        start = 0
+        while start < len(events):
+            first = events[start]
+            if first.batch_index != 0:
+                raise StorageError("v2 migration rejected: batch must start at index 0")
+            end = start + first.batch_size
+            if end > len(events):
+                raise StorageError("v2 migration rejected: incomplete batch")
+            for index, member in enumerate(events[start:end]):
+                if (
+                    member.batch_id != first.batch_id
+                    or member.batch_size != first.batch_size
+                    or member.batch_index != index
+                ):
+                    raise StorageError("v2 migration rejected: incoherent batch")
+            start = end
+
+    for row in rows:
+        event = _event_from_row(row)
+        if event.stream_id != current_stream:
+            if stream_events:
+                verify_batches(stream_events)
+            current_stream = event.stream_id
+            expected_version = 1
+            expected_previous_hash = GENESIS_HASH
+            stream_events = []
+        if event.stream_version != expected_version:
+            raise StorageError("v2 migration rejected: stream version gap")
+        if event.previous_hash != expected_previous_hash:
+            raise StorageError("v2 migration rejected: previous_hash mismatch")
+
+        payload_row = connection.execute(
+            "SELECT payload_bytes FROM event_payloads WHERE payload_ref = ?",
+            (event.payload_ref,),
+        ).fetchone()
+        if payload_row is None:
+            raise StorageError("v2 migration rejected: payload missing")
+        payload_bytes = bytes(payload_row["payload_bytes"])
+        try:
+            decoded = json.loads(payload_bytes.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise StorageError(
+                "v2 migration rejected: payload decode failure"
+            ) from exc
+        if not isinstance(decoded, dict):
+            raise StorageError("v2 migration rejected: payload is not an object")
+        try:
+            canonical = canonical_json_bytes(decoded)
+        except (TypeError, ValueError) as exc:
+            raise StorageError(
+                "v2 migration rejected: payload is not canonicalizable"
+            ) from exc
+        if canonical != payload_bytes:
+            raise StorageError("v2 migration rejected: non-canonical payload bytes")
+        registry.require_event_envelope(event)
+        registry.require_event_payload(event, decoded)
+        if event.payload_digest != compute_payload_digest(payload_bytes):
+            raise StorageError("v2 migration rejected: payload digest mismatch")
+        if event.event_hash != compute_event_hash(event):
+            raise StorageError("v2 migration rejected: event hash mismatch")
+
+        stream_events.append(event)
+        expected_previous_hash = event.event_hash
+        expected_version += 1
+
+    if stream_events:
+        verify_batches(stream_events)
 
 
 def _event_from_row(row: sqlite3.Row) -> EventEnvelope:
