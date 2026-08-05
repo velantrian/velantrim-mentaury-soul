@@ -41,13 +41,19 @@ def _validate(
             _validate(value, option, path, set(active))
             for option in spec.options
         ]
-        if any(not result for result in options):
+        matches = sum(not result for result in options)
+        if matches == 1:
             return []
+        message = (
+            "value matches no allowed option"
+            if matches == 0
+            else "value matches more than one allowed option"
+        )
         return [
             _issue(
                 ValidationCode.TYPE_MISMATCH,
                 path,
-                "value matches no allowed option",
+                message,
             )
         ]
 
