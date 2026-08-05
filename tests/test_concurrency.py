@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sqlite3
 import threading
 from pathlib import Path
 from queue import Queue
@@ -15,6 +16,7 @@ from mentaury.storage import (
     StoreBusyError,
     VersionConflictError,
 )
+from mentaury.storage.concurrency import commit_with_retry
 from test_idempotency import command, pending_batch, registry, request
 
 
@@ -146,6 +148,8 @@ def test_busy_policy_validation() -> None:
         BusyRetryPolicy(max_attempts=0)
     with pytest.raises(ValueError):
         BusyRetryPolicy(backoff_seconds=-1)
+    with pytest.raises(TypeError):
+        BusyRetryPolicy(backoff_seconds=True)
 
 
 def test_sqlite_runtime_gate_and_busy_timeout(tmp_path: Path) -> None:
@@ -165,3 +169,34 @@ def test_sqlite_runtime_gate_and_busy_timeout(tmp_path: Path) -> None:
             "PRAGMA busy_timeout"
         ).fetchone()[0]
         assert value == 17
+
+
+class _CommitFailureConnection:
+    def __init__(self, *, busy: bool) -> None:
+        self.in_transaction = True
+        self.busy = busy
+        self.commands: list[str] = []
+
+    def execute(self, command: str) -> None:
+        self.commands.append(command)
+        if command == "COMMIT":
+            message = "database is locked" if self.busy else "disk I/O error"
+            raise sqlite3.OperationalError(message)
+        if command == "ROLLBACK":
+            self.in_transaction = False
+
+
+def test_non_busy_commit_failure_rolls_back_before_reraising() -> None:
+    connection = _CommitFailureConnection(busy=False)
+    with pytest.raises(sqlite3.OperationalError, match="disk I/O"):
+        commit_with_retry(connection, BusyRetryPolicy(max_attempts=1))
+    assert connection.commands == ["COMMIT", "ROLLBACK"]
+    assert not connection.in_transaction
+
+
+def test_busy_commit_exhaustion_rolls_back_before_store_busy() -> None:
+    connection = _CommitFailureConnection(busy=True)
+    with pytest.raises(StoreBusyError):
+        commit_with_retry(connection, BusyRetryPolicy(max_attempts=2, backoff_seconds=0))
+    assert connection.commands == ["COMMIT", "COMMIT", "ROLLBACK"]
+    assert not connection.in_transaction
