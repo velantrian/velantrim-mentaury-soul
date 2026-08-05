@@ -15,7 +15,7 @@ from mentaury.storage import (
     StoreBusyError,
     VersionConflictError,
 )
-from test_idempotency import command, pending_batch, request
+from test_idempotency import command, pending_batch, registry, request
 
 
 def test_busy_retry_exhaustion_is_controlled_and_writes_nothing(tmp_path: Path) -> None:
@@ -27,7 +27,9 @@ def test_busy_retry_exhaustion_is_controlled_and_writes_nothing(tmp_path: Path) 
         try:
             with SQLiteEventPayloadStore.connect(database, busy_policy=policy) as contender:
                 with pytest.raises(StoreBusyError) as captured:
-                    SQLiteIdempotentBatchAppender(contender, policy).append(request())
+                    SQLiteIdempotentBatchAppender(
+                        contender, registry(), policy
+                    ).append(request())
                 assert captured.value.attempts == 2
                 assert contender.list_stream("belief:B-204") == ()
         finally:
@@ -44,7 +46,9 @@ def _run_request(
     try:
         with SQLiteEventPayloadStore.connect(database, busy_policy=policy) as store:
             barrier.wait()
-            result = SQLiteIdempotentBatchAppender(store, policy).append(request_value)
+            result = SQLiteIdempotentBatchAppender(
+                store, registry(), policy
+            ).append(request_value)
             outcomes.put(result.status)
     except BaseException as exc:  # captured for deterministic test assertion
         outcomes.put(exc)
