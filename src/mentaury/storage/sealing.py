@@ -15,10 +15,6 @@ from mentaury.contracts import (
 from mentaury.validation import SchemaRegistry
 
 
-class CommitValidationError(ValueError):
-    """Raised before persistence when a proposed event cannot be committed safely."""
-
-
 def compute_payload_digest(payload_bytes: bytes) -> str:
     if not isinstance(payload_bytes, bytes):
         raise TypeError("payload_bytes must be bytes")
