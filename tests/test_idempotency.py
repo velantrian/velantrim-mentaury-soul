@@ -25,6 +25,27 @@ from mentaury.storage import (
     SQLiteIdempotentBatchAppender,
     idempotency_fingerprint,
 )
+from mentaury.validation import EventSchemaDefinition, ObjectSpec, SchemaRegistry
+
+
+def registry() -> SchemaRegistry:
+    payload = ObjectSpec({}, additional_properties=True)
+    return SchemaRegistry(
+        [
+            EventSchemaDefinition(
+                event_type="BELIEF_CREATED",
+                payload_schema="belief-created/v1",
+                affects_domain_state=True,
+                payload=payload,
+            ),
+            EventSchemaDefinition(
+                event_type="EVIDENCE_ATTACHED",
+                payload_schema="evidence-attached/v1",
+                affects_domain_state=True,
+                payload=payload,
+            ),
+        ]
+    )
 
 
 def command(
@@ -95,10 +116,10 @@ def entries_for(
                 causation_id=cmd.command_id,
                 correlation_id=cmd.correlation_id,
                 affects_domain_state=item.affects_domain_state,
-                payload_digest=f"sha256:payload-{generation}-{index}",
+                payload_digest=f"sha256:untrusted-payload-{generation}-{index}",
                 payload_ref=f"PAYLOAD-{generation}-{index}",
-                previous_hash=f"sha256:previous-{generation}-{index}",
-                event_hash=f"sha256:event-{generation}-{index}",
+                previous_hash=f"sha256:untrusted-previous-{generation}-{index}",
+                event_hash=f"sha256:untrusted-event-{generation}-{index}",
             ),
             item.payload,
         )
@@ -121,13 +142,16 @@ def request(
     )
 
 
-def test_first_apply_persists_batch_and_idempotency_record() -> None:
+def test_first_apply_persists_batch_idempotency_record_and_hash_chain() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        result = SQLiteIdempotentBatchAppender(store).append(request())
+        result = SQLiteIdempotentBatchAppender(store, registry()).append(request())
         assert result.status is IdempotencyStatus.APPLIED
         assert result.receipt.event_ids == ("EVT-A-0", "EVT-A-1")
-        assert len(store.list_stream("belief:B-204")) == 2
+        committed = store.list_stream("belief:B-204")
+        assert len(committed) == 2
+        assert committed[1].previous_hash == committed[0].event_hash
+        assert all("untrusted" not in event.event_hash for event in committed)
         row = store.raw_connection_for_tests().execute(
             "SELECT fingerprint FROM idempotency_records WHERE idempotency_key = 'IDEMP-1'"
         ).fetchone()
@@ -149,7 +173,7 @@ def test_semantic_retry_ignores_volatile_ids_and_replays_receipt() -> None:
 
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        appender = SQLiteIdempotentBatchAppender(store)
+        appender = SQLiteIdempotentBatchAppender(store, registry())
         applied = appender.append(first)
         replayed = appender.append(retry)
         assert replayed.status is IdempotencyStatus.ALREADY_APPLIED
@@ -188,10 +212,10 @@ def test_semantic_retry_ignores_volatile_ids_and_replays_receipt() -> None:
         lambda: request(command(), tuple(reversed(pending_batch())), generation="B"),
     ],
 )
-def test_same_key_with_changed_semantics_is_conflict(changed) -> None:
+def test_same_key_with_changed_semantics_is_conflict_before_new_write(changed) -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        appender = SQLiteIdempotentBatchAppender(store)
+        appender = SQLiteIdempotentBatchAppender(store, registry())
         applied = appender.append(request())
         with pytest.raises(IdempotencyConflictError) as captured:
             appender.append(changed())
@@ -230,13 +254,13 @@ def test_nested_entry_payload_is_snapshotted_before_fingerprint_use() -> None:
     mutable["value"].append("mutated")
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        SQLiteIdempotentBatchAppender(store).append(request_value)
+        SQLiteIdempotentBatchAppender(store, registry()).append(request_value)
         stored = store.load_payload("PAYLOAD-A-0")
         assert stored is not None
         assert stored.payload_bytes == b'{"value":["alpha"]}'
 
 
-def test_idempotency_record_failure_rolls_back_batch() -> None:
+def test_idempotency_record_failure_rolls_back_batch_and_stream_meta() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         store.raw_connection_for_tests().execute(
@@ -249,9 +273,10 @@ def test_idempotency_record_failure_rolls_back_batch() -> None:
             """
         )
         with pytest.raises(sqlite3.IntegrityError, match="forced"):
-            SQLiteIdempotentBatchAppender(store).append(request())
+            SQLiteIdempotentBatchAppender(store, registry()).append(request())
         assert store.list_stream("belief:B-204") == ()
         assert store.load_payload("PAYLOAD-A-0") is None
+        assert store.load_stream_meta("belief:B-204").event_count == 0
         count = store.raw_connection_for_tests().execute(
             "SELECT COUNT(*) FROM idempotency_records"
         ).fetchone()[0]
@@ -261,7 +286,7 @@ def test_idempotency_record_failure_rolls_back_batch() -> None:
 def test_idempotency_records_are_immutable() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        SQLiteIdempotentBatchAppender(store).append(request())
+        SQLiteIdempotentBatchAppender(store, registry()).append(request())
         connection = store.raw_connection_for_tests()
         with pytest.raises(sqlite3.IntegrityError, match="cannot be updated"):
             connection.execute("UPDATE idempotency_records SET fingerprint = 'changed'")
@@ -269,7 +294,25 @@ def test_idempotency_records_are_immutable() -> None:
             connection.execute("DELETE FROM idempotency_records")
 
 
-def test_schema_version_one_migrates_to_idempotency_schema(tmp_path: Path) -> None:
+def test_new_unregistered_event_is_rejected_with_zero_writes() -> None:
+    proposed = pending_batch(
+        event_types=("UNKNOWN",),
+        schemas=("unknown/v1",),
+    )
+    candidate = request(command(), proposed, generation="BAD")
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        with pytest.raises(Exception):
+            SQLiteIdempotentBatchAppender(store, registry()).append(candidate)
+        assert store.list_stream("belief:B-204") == ()
+        assert store.load_stream_meta("belief:B-204").event_count == 0
+        count = store.raw_connection_for_tests().execute(
+            "SELECT COUNT(*) FROM idempotency_records"
+        ).fetchone()[0]
+        assert count == 0
+
+
+def test_schema_version_one_migrates_to_current_empty_schema(tmp_path: Path) -> None:
     database = tmp_path / "legacy.sqlite3"
     connection = sqlite3.connect(database, isolation_level=None)
     connection.execute(
