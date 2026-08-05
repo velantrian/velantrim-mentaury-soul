@@ -35,6 +35,10 @@ class BusyRetryPolicy:
     def __post_init__(self) -> None:
         if isinstance(self.max_attempts, bool) or self.max_attempts < 1:
             raise ValueError("max_attempts must be a positive integer")
+        if isinstance(self.backoff_seconds, bool) or not isinstance(
+            self.backoff_seconds, (int, float)
+        ):
+            raise TypeError("backoff_seconds must be numeric")
         if self.backoff_seconds < 0:
             raise ValueError("backoff_seconds must be non-negative")
 
@@ -57,10 +61,10 @@ def begin_immediate(
             return attempt
         except sqlite3.OperationalError as exc:
             if not is_busy_error(exc):
+                _rollback_if_active(connection)
                 raise
             last_error = exc
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+            _rollback_if_active(connection)
             if attempt < policy.max_attempts and policy.backoff_seconds:
                 time.sleep(policy.backoff_seconds)
     assert last_error is not None
@@ -87,8 +91,10 @@ def commit_with_retry(
     connection: sqlite3.Connection,
     policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
 ) -> int:
-    """Complete an active transaction with bounded SQLITE_BUSY retries."""
+    """Complete an active transaction with bounded retries and fail-closed rollback."""
 
+    if not isinstance(policy, BusyRetryPolicy):
+        raise TypeError("policy must be a BusyRetryPolicy")
     last_error: sqlite3.OperationalError | None = None
     for attempt in range(1, policy.max_attempts + 1):
         try:
@@ -96,11 +102,16 @@ def commit_with_retry(
             return attempt
         except sqlite3.OperationalError as exc:
             if not is_busy_error(exc):
+                _rollback_if_active(connection)
                 raise
             last_error = exc
             if attempt < policy.max_attempts and policy.backoff_seconds:
                 time.sleep(policy.backoff_seconds)
     assert last_error is not None
+    _rollback_if_active(connection)
+    raise StoreBusyError(policy.max_attempts, last_error)
+
+
+def _rollback_if_active(connection: sqlite3.Connection) -> None:
     if connection.in_transaction:
         connection.execute("ROLLBACK")
-    raise StoreBusyError(policy.max_attempts, last_error)
