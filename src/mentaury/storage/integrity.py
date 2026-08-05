@@ -1,20 +1,15 @@
-"""P0-009 R0 integrity computation and first-failure diagnostics."""
+"""P0-009 R0 integrity verification and first-failure diagnostics."""
 
 from __future__ import annotations
 
-import hashlib
 import json
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from enum import StrEnum
 
-from mentaury.contracts import (
-    EventEnvelope,
-    canonical_event_hash_input_bytes,
-    canonical_json_bytes,
-    canonical_timestamp,
-)
+from mentaury.contracts import EventEnvelope, canonical_json_bytes
 from mentaury.validation import SchemaRegistry
 
+from .sealing import compute_event_hash, compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
 from .stream_meta import GENESIS_HASH, read_stream_meta
 
@@ -26,6 +21,7 @@ class IntegrityCode(StrEnum):
     SCHEMA_INVALID = "SCHEMA_INVALID"
     PAYLOAD_MISSING = "PAYLOAD_MISSING"
     PAYLOAD_DECODE_ERROR = "PAYLOAD_DECODE_ERROR"
+    PAYLOAD_NOT_CANONICAL = "PAYLOAD_NOT_CANONICAL"
     PAYLOAD_DIGEST_MISMATCH = "PAYLOAD_DIGEST_MISMATCH"
     PREVIOUS_HASH_MISMATCH = "PREVIOUS_HASH_MISMATCH"
     EVENT_HASH_MISMATCH = "EVENT_HASH_MISMATCH"
@@ -49,39 +45,6 @@ class R0IntegrityReport:
     ok: bool
     checked_events: int
     failure: IntegrityFailure | None
-
-
-def compute_payload_digest(payload_bytes: bytes) -> str:
-    if not isinstance(payload_bytes, bytes):
-        raise TypeError("payload_bytes must be bytes")
-    return f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
-
-
-def compute_event_hash(event: EventEnvelope) -> str:
-    if not isinstance(event, EventEnvelope):
-        raise TypeError("event must be an EventEnvelope")
-    digest = hashlib.sha256(canonical_event_hash_input_bytes(event)).hexdigest()
-    return f"sha256:{digest}"
-
-
-def seal_event(
-    event: EventEnvelope,
-    payload: object,
-    *,
-    previous_hash: str | None = None,
-) -> EventEnvelope:
-    """Return a canonical-timestamp event with recomputed digest and event hash."""
-
-    payload_bytes = canonical_json_bytes(payload)
-    provisional = replace(
-        event,
-        occurred_at=canonical_timestamp(event.occurred_at),
-        recorded_at=canonical_timestamp(event.recorded_at),
-        payload_digest=compute_payload_digest(payload_bytes),
-        previous_hash=event.previous_hash if previous_hash is None else previous_hash,
-        event_hash="sha256:pending",
-    )
-    return replace(provisional, event_hash=compute_event_hash(provisional))
 
 
 class R0IntegrityVerifier:
@@ -191,6 +154,29 @@ class R0IntegrityVerifier:
                     checked,
                     IntegrityCode.PAYLOAD_DECODE_ERROR,
                     f"payload cannot be decoded: {exc}",
+                )
+            if not isinstance(decoded, dict):
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.SCHEMA_INVALID,
+                    "event payload must decode to an object",
+                )
+            try:
+                canonical_payload = canonical_json_bytes(decoded)
+            except (TypeError, ValueError) as exc:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.SCHEMA_INVALID,
+                    f"payload is not canonically representable: {exc}",
+                )
+            if canonical_payload != payload.payload_bytes:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.PAYLOAD_NOT_CANONICAL,
+                    "stored payload bytes differ from canonical encoding",
                 )
             payload_issues = self._registry.validate_event_payload(event, decoded)
             if payload_issues:
