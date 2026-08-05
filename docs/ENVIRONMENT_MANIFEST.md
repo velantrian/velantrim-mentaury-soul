@@ -10,7 +10,7 @@ Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
-Remote CI:          NOT PRESENT
+Permanent CI:       NOT PRESENT
 ```
 
 ## Accepted baseline in `main`
@@ -38,18 +38,23 @@ PR #15 proposes:
 - single-event batch invariants for `append_one`;
 - sequential sealing of atomic and idempotent batches under one write lock;
 - fail-closed verification before populated v2 → v3 migration;
-- R0 verification of canonical payload bytes, schema, digest, chain, batches, versions, and stream metadata.
+- explicit caller-supplied `VerificationBudget` for populated migration and R0;
+- event-count, per-payload and cumulative payload byte limits;
+- R0 verification of canonical payload bytes, schema, digest, chain, batches, versions, budgets and stream metadata.
 
 ```text
 Caller hash fields ≠ committed hash fields
 Post-write verification ≠ trusted commit validation
+No supplied budget ≠ permission to scan without limits
+Test/deployment budget ≠ Canon
+Budget exhaustion ≠ ledger corruption
 R0 consistency ≠ truth
 Hash chain ≠ authority
 stream_meta ≠ source of truth
 Draft PR ≠ implemented milestone
 ```
 
-Supported local validation commands:
+Supported validation commands:
 
 ```bash
 python3 scripts/validate.py
@@ -57,6 +62,9 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-No fresh PASS is claimed by this manifest after the trusted-write refactor. P0-010
-owns governed atomic same-stream redaction. No identity, relationship, Character,
-Curiosity or Exo-Cortex runtime is present.
+The previous validation-only remote run covered the pre-budget head. Fresh
+exact-head evidence is required after the budget changes. The temporary
+validation workflow is not part of PR #15 or `main` and is not P0-012.
+
+P0-010 owns governed atomic same-stream redaction. No identity, relationship,
+Character, Curiosity or Exo-Cortex runtime is present.
