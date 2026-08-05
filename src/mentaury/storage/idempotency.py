@@ -1,4 +1,4 @@
-"""P0-007 event-aware idempotency fingerprint and atomic result record."""
+"""P0-007/P0-009 event-aware idempotency and trusted batch commit."""
 
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ from mentaury.contracts.canonical_json import (
     authority_ref_value,
     pending_batch_value,
 )
+from mentaury.validation import SchemaRegistry
 
 from .atomic_batch import (
     BatchAppendReceipt,
@@ -96,29 +97,33 @@ class IdempotentAppendResult:
 
 
 class SQLiteIdempotentBatchAppender:
-    """Apply or replay one semantic command/batch result by idempotency key."""
+    """Apply or replay one validated semantic command/batch result."""
 
     def __init__(
         self,
         store: SQLiteEventPayloadStore,
+        registry: SchemaRegistry,
         busy_policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
     ) -> None:
         if not isinstance(store, SQLiteEventPayloadStore):
             raise TypeError("store must be a SQLiteEventPayloadStore")
+        if not isinstance(registry, SchemaRegistry):
+            raise TypeError("registry must be a SchemaRegistry")
         if not isinstance(busy_policy, BusyRetryPolicy):
             raise TypeError("busy_policy must be a BusyRetryPolicy")
         self._store = store
+        self._registry = registry
         self._busy_policy = busy_policy
 
     def append(self, request: IdempotentBatchRequest) -> IdempotentAppendResult:
         if not isinstance(request, IdempotentBatchRequest):
             raise TypeError("request must be an IdempotentBatchRequest")
-        prepared = _prepare_batch(request.entries)
         fingerprint = idempotency_fingerprint(
             request.command, request.pending_events
         )
         connection = self._store._connection
         self._store._require_initialized()
+        receipt: BatchAppendReceipt | None = None
 
         try:
             begin_immediate(connection, self._busy_policy)
@@ -149,8 +154,9 @@ class SQLiteIdempotentBatchAppender:
                     receipt,
                 )
 
-            _insert_prepared_batch(connection, prepared)
-            receipt = _receipt_from_prepared(prepared)
+            prepared = _prepare_batch(request.entries, self._registry)
+            committed = _insert_prepared_batch(connection, prepared)
+            receipt = _receipt_from_prepared(committed)
             connection.execute(
                 """
                 INSERT INTO idempotency_records(
@@ -168,16 +174,17 @@ class SQLiteIdempotentBatchAppender:
                     canonical_json_bytes(list(receipt.event_ids)),
                     receipt.first_stream_version,
                     receipt.last_stream_version,
-                    canonical_timestamp(prepared[0].event.recorded_at),
+                    canonical_timestamp(committed[0].event.recorded_at),
                 ),
             )
         except sqlite3.IntegrityError as exc:
             if connection.in_transaction:
                 connection.execute("ROLLBACK")
             if is_stream_version_conflict(exc):
+                first = request.entries[0].event
                 raise VersionConflictError(
-                    prepared[0].event.stream_id,
-                    prepared[0].event.stream_version,
+                    first.stream_id,
+                    first.stream_version,
                 ) from exc
             raise
         except Exception:
@@ -187,6 +194,8 @@ class SQLiteIdempotentBatchAppender:
         else:
             commit_with_retry(connection, self._busy_policy)
 
+        if receipt is None:  # pragma: no cover - defensive control-flow guard
+            raise AssertionError("idempotent receipt was not allocated")
         return IdempotentAppendResult(
             IdempotencyStatus.APPLIED,
             fingerprint,

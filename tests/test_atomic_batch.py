@@ -13,6 +13,20 @@ from mentaury.storage import (
     SQLiteEventPayloadStore,
     VersionConflictError,
 )
+from mentaury.validation import EventSchemaDefinition, ObjectSpec, SchemaRegistry
+
+
+def registry() -> SchemaRegistry:
+    return SchemaRegistry(
+        [
+            EventSchemaDefinition(
+                event_type="BELIEF_EVENT",
+                payload_schema="belief-event/v1",
+                affects_domain_state=True,
+                payload=ObjectSpec({}, additional_properties=True),
+            )
+        ]
+    )
 
 
 def event(index: int, *, batch_size: int = 3, batch_id: str = "BATCH-1") -> EventEnvelope:
@@ -34,10 +48,10 @@ def event(index: int, *, batch_size: int = 3, batch_id: str = "BATCH-1") -> Even
         causation_id="CMD-1",
         correlation_id="CORR-1",
         affects_domain_state=True,
-        payload_digest=f"sha256:payload-{index}",
+        payload_digest=f"sha256:untrusted-payload-{index}",
         payload_ref=f"PAYLOAD-{index + 1}",
-        previous_hash=f"sha256:previous-{index}",
-        event_hash=f"sha256:event-{index}",
+        previous_hash=f"sha256:untrusted-previous-{index}",
+        event_hash=f"sha256:untrusted-event-{index}",
     )
 
 
@@ -48,15 +62,19 @@ def entries(count: int = 3) -> tuple[BatchEntry, ...]:
     )
 
 
-def test_successful_batch_persists_all_events_and_payloads() -> None:
+def test_successful_batch_persists_all_events_payloads_and_hash_chain() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        receipt = SQLiteAtomicBatchAppender(store).append(entries())
+        receipt = SQLiteAtomicBatchAppender(store, registry()).append(entries())
         assert receipt.event_ids == ("EVT-1", "EVT-2", "EVT-3")
         assert receipt.first_stream_version == 1
         assert receipt.last_stream_version == 3
-        assert [e.event_id for e in store.list_stream("belief:B-204")] == list(receipt.event_ids)
+        committed = store.list_stream("belief:B-204")
+        assert [e.event_id for e in committed] == list(receipt.event_ids)
         assert all(store.load_payload(f"PAYLOAD-{i}") is not None for i in range(1, 4))
+        assert committed[1].previous_hash == committed[0].event_hash
+        assert committed[2].previous_hash == committed[1].event_hash
+        assert all("untrusted" not in event.event_hash for event in committed)
 
 
 def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
@@ -64,23 +82,23 @@ def test_failure_in_middle_rolls_back_entire_new_batch() -> None:
         store.initialize_schema()
         old = replace(
             event(0, batch_size=1),
-            event_id="OLD",
+            event_id="EVT-2",
             batch_id="OLD",
-            stream_version=2,
+            stream_id="other:stream",
             payload_ref="OLD-PAYLOAD",
         )
-        store.append_one(old, {"old": True})
+        store.append_one(old, {"old": True}, registry=registry())
         conflicting = list(entries())
-        with pytest.raises(VersionConflictError):
-            SQLiteAtomicBatchAppender(store).append(conflicting)
+        with pytest.raises(sqlite3.IntegrityError):
+            SQLiteAtomicBatchAppender(store, registry()).append(conflicting)
         assert store.load_event("EVT-1") is None
         assert store.load_event("EVT-3") is None
         assert store.load_payload("PAYLOAD-1") is None
         assert store.load_payload("PAYLOAD-3") is None
-        assert store.load_event("OLD") is not None
+        assert store.load_event("EVT-2") is not None
 
 
-def test_payload_conflict_rolls_back_prior_event_rows() -> None:
+def test_payload_conflict_rolls_back_prior_event_rows_and_stream_meta() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         old = replace(
@@ -90,21 +108,22 @@ def test_payload_conflict_rolls_back_prior_event_rows() -> None:
             stream_id="other:stream",
             payload_ref="PAYLOAD-3",
         )
-        store.append_one(old, {"old": True})
+        store.append_one(old, {"old": True}, registry=registry())
         with pytest.raises(sqlite3.IntegrityError):
-            SQLiteAtomicBatchAppender(store).append(entries())
+            SQLiteAtomicBatchAppender(store, registry()).append(entries())
         assert store.load_event("EVT-1") is None
         assert store.load_event("EVT-2") is None
         assert store.load_payload("PAYLOAD-1") is None
         assert store.load_payload("PAYLOAD-2") is None
         assert store.load_event("OLD") is not None
+        assert store.load_stream_meta("belief:B-204").event_count == 0
 
 
 def test_empty_batch_is_rejected() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         with pytest.raises(BatchInvariantError, match="empty"):
-            SQLiteAtomicBatchAppender(store).append(())
+            SQLiteAtomicBatchAppender(store, registry()).append(())
 
 
 @pytest.mark.parametrize(
@@ -124,7 +143,7 @@ def test_incoherent_batch_metadata_is_rejected(replacement, message: str) -> Non
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         with pytest.raises(BatchInvariantError, match=message):
-            SQLiteAtomicBatchAppender(store).append(batch)
+            SQLiteAtomicBatchAppender(store, registry()).append(batch)
         assert store.list_stream("belief:B-204") == ()
 
 
@@ -134,7 +153,7 @@ def test_serialization_failure_occurs_before_transaction() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         with pytest.raises(ValueError, match="float"):
-            SQLiteAtomicBatchAppender(store).append(batch)
+            SQLiteAtomicBatchAppender(store, registry()).append(batch)
         assert not store.raw_connection_for_tests().in_transaction
         assert store.list_stream("belief:B-204") == ()
 
@@ -142,8 +161,8 @@ def test_serialization_failure_occurs_before_transaction() -> None:
 def test_retry_is_not_idempotent_yet() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        appender = SQLiteAtomicBatchAppender(store)
+        appender = SQLiteAtomicBatchAppender(store, registry())
         appender.append(entries())
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(VersionConflictError):
             appender.append(entries())
         assert len(store.list_stream("belief:B-204")) == 3

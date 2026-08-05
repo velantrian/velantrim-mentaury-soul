@@ -47,22 +47,44 @@ def freeze_payload_value(value: object) -> FrozenPayloadValue:
 
     Floats are accepted at P0-002 because canonical numeric policy belongs to
     P0-003. Bytes and non-string object keys are rejected because they are not
-    portable payload-tree values.
+    portable payload-tree values. Cyclic containers fail closed instead of
+    escaping as an uncontrolled recursion error.
     """
 
+    return _freeze_payload_value(value, set())
+
+
+def _freeze_payload_value(
+    value: object,
+    active: set[int],
+) -> FrozenPayloadValue:
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, Mapping):
-        frozen: dict[str, FrozenPayloadValue] = {}
-        for key, item in value.items():
-            if not isinstance(key, str):
-                raise TypeError("payload object keys must be strings")
-            frozen[key] = freeze_payload_value(item)
-        return MappingProxyType(frozen)
+        identity = id(value)
+        if identity in active:
+            raise TypeError("cyclic payload container is forbidden")
+        active.add(identity)
+        try:
+            frozen: dict[str, FrozenPayloadValue] = {}
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise TypeError("payload object keys must be strings")
+                frozen[key] = _freeze_payload_value(item, active)
+            return MappingProxyType(frozen)
+        finally:
+            active.remove(identity)
     if isinstance(value, Sequence) and not isinstance(
         value, (str, bytes, bytearray, memoryview)
     ):
-        return tuple(freeze_payload_value(item) for item in value)
+        identity = id(value)
+        if identity in active:
+            raise TypeError("cyclic payload container is forbidden")
+        active.add(identity)
+        try:
+            return tuple(_freeze_payload_value(item, active) for item in value)
+        finally:
+            active.remove(identity)
     raise TypeError(f"unsupported payload value type: {type(value).__name__}")
 
 
