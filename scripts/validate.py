@@ -11,10 +11,11 @@ REQUIRED_PATHS = (
     "src/mentaury/storage/__init__.py", "src/mentaury/storage/sqlite_store.py",
     "src/mentaury/storage/atomic_batch.py", "src/mentaury/storage/idempotency.py",
     "src/mentaury/storage/concurrency.py", "src/mentaury/storage/stream_meta.py",
-    "src/mentaury/storage/integrity.py", "src/mentaury/validation/__init__.py",
-    "src/mentaury/validation/issues.py", "src/mentaury/validation/specs.py",
-    "src/mentaury/validation/validator.py", "src/mentaury/validation/registry.py",
-    "tests/test_skeleton.py", "tests/test_envelopes.py", "tests/test_canonical_json.py",
+    "src/mentaury/storage/sealing.py", "src/mentaury/storage/integrity.py",
+    "src/mentaury/validation/__init__.py", "src/mentaury/validation/issues.py",
+    "src/mentaury/validation/specs.py", "src/mentaury/validation/validator.py",
+    "src/mentaury/validation/registry.py", "tests/test_skeleton.py",
+    "tests/test_envelopes.py", "tests/test_canonical_json.py",
     "tests/test_sqlite_store.py", "tests/test_schema_validation.py",
     "tests/test_atomic_batch.py", "tests/test_idempotency.py",
     "tests/test_concurrency.py", "tests/test_integrity.py",
@@ -38,6 +39,6 @@ def main() -> int:
         print("forbidden domain runtime modules found:")
         for name in found: print(f"- {name}")
         return 1
-    print("P0-009 full R0 integrity validation: PASS")
+    print("P0-009 full R0 integrity structural validation: PASS")
     return 0
 if __name__ == "__main__": raise SystemExit(main())
