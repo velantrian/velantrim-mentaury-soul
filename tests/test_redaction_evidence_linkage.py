@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 
 import pytest
@@ -22,6 +23,7 @@ from mentaury.storage import (
     SQLiteEventPayloadStore,
     SQLiteRedactionExecutor,
     VerificationBudget,
+    redaction_fingerprint,
 )
 from mentaury.validation import (
     EventSchemaDefinition,
@@ -179,6 +181,25 @@ def _assert_failure(
     assert not report.ok
     assert report.failure is not None
     assert report.failure.code is expected
+
+
+def test_redaction_fingerprint_is_authority_scoped_not_issuer_scoped() -> None:
+    original = _request()
+    different_issuer = replace(
+        original,
+        issuer=ActorRef("service", "service:redaction-retry"),
+    )
+    different_authority = replace(
+        original,
+        authority=AuthorityRef("CAP-OTHER", 1),
+    )
+
+    assert redaction_fingerprint(original) == redaction_fingerprint(
+        different_issuer
+    )
+    assert redaction_fingerprint(original) != redaction_fingerprint(
+        different_authority
+    )
 
 
 def test_r0_rejects_forged_row_without_audit_event() -> None:
