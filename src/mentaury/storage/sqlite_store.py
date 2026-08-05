@@ -25,6 +25,7 @@ from mentaury.contracts import (
 )
 from mentaury.validation import SchemaRegistry
 
+from .budget import VerificationBudget
 from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
@@ -255,19 +256,24 @@ class SQLiteEventPayloadStore:
         self,
         *,
         migration_registry: SchemaRegistry | None = None,
+        migration_budget: VerificationBudget | None = None,
     ) -> None:
         """Create or migrate the explicit P0 storage schema.
 
         A populated v2 ledger is upgraded only after fail-closed R0-style
         verification under one write lock. Empty legacy schemas need no
-        registry; populated schemas require the event registry used to admit
-        their event types.
+        registry or budget; populated schemas require both an event registry
+        and an explicit caller-supplied resource budget.
         """
 
         if migration_registry is not None and not isinstance(
             migration_registry, SchemaRegistry
         ):
             raise TypeError("migration_registry must be a SchemaRegistry or None")
+        if migration_budget is not None and not isinstance(
+            migration_budget, VerificationBudget
+        ):
+            raise TypeError("migration_budget must be a VerificationBudget or None")
 
         self._connection.executescript(_SCHEMA_SQL)
         version = self._connection.execute(
@@ -290,6 +296,7 @@ class SQLiteEventPayloadStore:
                 _verify_v2_ledger_before_migration(
                     self._connection,
                     migration_registry,
+                    migration_budget,
                 )
                 self._connection.execute(_CREATE_STREAM_META_SQL)
                 self._connection.execute(_BACKFILL_STREAM_META_SQL)
@@ -490,21 +497,29 @@ class SQLiteEventPayloadStore:
 def _verify_v2_ledger_before_migration(
     connection: sqlite3.Connection,
     registry: SchemaRegistry | None,
+    budget: VerificationBudget | None,
 ) -> None:
-    rows = connection.execute(
-        "SELECT * FROM events ORDER BY stream_id, stream_version"
-    ).fetchall()
-    if not rows:
+    event_count = connection.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+    if event_count == 0:
         return
     if registry is None:
         raise StorageError(
             "populated v2 ledger requires migration_registry for fail-closed upgrade"
         )
+    if budget is None:
+        raise StorageError(
+            "populated v2 ledger requires migration_budget for bounded upgrade"
+        )
+    budget.require_event_count(event_count)
 
+    rows = connection.execute(
+        "SELECT * FROM events ORDER BY stream_id, stream_version"
+    ).fetchall()
     current_stream: str | None = None
     expected_version = 1
     expected_previous_hash = GENESIS_HASH
     stream_events: list[EventEnvelope] = []
+    total_payload_bytes = 0
 
     def verify_batches(events: list[EventEnvelope]) -> None:
         start = 0
@@ -545,6 +560,9 @@ def _verify_v2_ledger_before_migration(
         if payload_row is None:
             raise StorageError("v2 migration rejected: payload missing")
         payload_bytes = bytes(payload_row["payload_bytes"])
+        budget.require_payload_size(len(payload_bytes))
+        total_payload_bytes += len(payload_bytes)
+        budget.require_total_payload_size(total_payload_bytes)
         try:
             decoded = json.loads(payload_bytes.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
