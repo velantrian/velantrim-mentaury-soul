@@ -6,6 +6,7 @@ from .atomic_batch import (
     BatchInvariantError,
     SQLiteAtomicBatchAppender,
 )
+from .budget import ResourceBudgetExceeded, VerificationBudget
 from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
@@ -53,7 +54,9 @@ __all__ = [
     "IntegrityFailure",
     "R0IntegrityReport",
     "R0IntegrityVerifier",
+    "ResourceBudgetExceeded",
     "StreamMeta",
+    "VerificationBudget",
     "IDEMPOTENCY_PROFILE",
     "BusyRetryPolicy",
     "BatchAppendReceipt",
