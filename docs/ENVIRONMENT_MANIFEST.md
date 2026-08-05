@@ -1,11 +1,12 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-009 DRAFT PR
+Status:             P0-009 IMPLEMENTED IN MAIN
+Main SHA:           08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
-Storage schema:     v3 candidate
+Storage schema:     v3
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
@@ -24,11 +25,12 @@ P0-005 fail-closed structural validation
 P0-006 atomic multi-event batch
 P0-007 semantic idempotency
 P0-008 controlled SQLite concurrency
+P0-009 trusted commit boundary + bounded R0 integrity
 ```
 
-## P0-009 candidate boundary
+## P0-009 implementation boundary
 
-PR #15 proposes:
+Merged PR #15 provides:
 
 - storage schema v3 with `stream_meta(current_version, last_event_hash, event_count)`;
 - mandatory `SchemaRegistry` admission for production writes;
@@ -51,7 +53,7 @@ Budget exhaustion ≠ ledger corruption
 R0 consistency ≠ truth
 Hash chain ≠ authority
 stream_meta ≠ source of truth
-Draft PR ≠ implemented milestone
+Implemented P0-009 ≠ domain runtime
 ```
 
 Supported validation commands:
@@ -62,11 +64,11 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-Validation-only run `31023632096` passed structural validation, full pytest and
-compileall on Python 3.13 for code head
-`1a4e4afd33d945875b567e2f65711d774eef7186`. The temporary workflow is not part
-of PR #15 or `main` and is not P0-012. One final exact-head run is required after
-recording this documentation evidence.
+Final validation-only run `31023788916` passed Python setup, locked dependency
+installation, structural validation, full pytest and compileall against exact PR
+head `6f8ff1663e161e554c8d4610f1692187c2129b45`.
+
+The temporary workflow was not part of PR #15 or `main` and is not P0-012.
 
 P0-010 owns governed atomic same-stream redaction. No identity, relationship,
 Character, Curiosity or Exo-Cortex runtime is present.
