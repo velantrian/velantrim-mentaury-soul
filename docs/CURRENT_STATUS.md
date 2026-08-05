@@ -4,15 +4,14 @@
 Дата фиксации:                  2026-08-05
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation base:  8d1fe4c4b2f274376383ab33ba5d04d787a3f244 · P0-008
+Verified implementation head:  08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
 
 CANON_V0.1_FROZEN
-P0-001…P0-008_IMPLEMENTED_IN_MAIN
-P0-008_LOCAL_VALIDATION_PASS
-P0-009_OPEN_PR_15_NOT_MERGED
-P0-010…P0-015_NOT_IMPLEMENTED
-PR_16_DOCUMENTATION_ONLY_STATUS_SYNC
-GITHUB_ACTIONS_NOT_PRESENT
+P0-001…P0-009_IMPLEMENTED_IN_MAIN
+P0-009_FINAL_EXACT_HEAD_VALIDATION_PASS
+P0-010_NEXT_NOT_IMPLEMENTED
+P0-011…P0-015_NOT_IMPLEMENTED
+PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
@@ -26,8 +25,8 @@ IMPLEMENTED
 OPEN PR
 ≠ implemented in main
 
-LOCAL PASS
-≠ remote CI pass
+VALIDATION-ONLY WORKFLOW
+≠ permanent project CI
 
 Notion / README / Quick Reference
 = derived navigation documents
@@ -35,8 +34,6 @@ Notion / README / Quick Reference
 Current maturity authority
 = this file + verified GitHub main state
 ```
-
-Любой статус в Notion, README, обсуждении или ответе ИИ считается производным и должен быть исправлен, если он расходится с фактическим `main`.
 
 ---
 
@@ -46,106 +43,76 @@ Current maturity authority
 |---|---|---|
 | P0-001 Neutral Skeleton | ✅ Implemented | project/package boundary only |
 | P0-002 Envelope Contracts | ✅ Implemented | construction ≠ authority approval |
-| P0-003 Canonical JSON v1 | ✅ Implemented | canonical bytes ≠ valid schema or verified hash |
-| P0-004 Event/Payload Storage | ✅ Implemented | persisted rows ≠ full integrity proof |
-| P0-005 Structural Schema Validation | ✅ Implemented | schema validity ≠ truth or authorization |
-| P0-006 Atomic Multi-Event Batch | ✅ Implemented | atomicity ≠ idempotency or concurrency control |
+| P0-003 Canonical JSON v1 | ✅ Implemented | canonical bytes ≠ truth or authorization |
+| P0-004 Event/Payload Storage | ✅ Implemented | persisted rows ≠ complete integrity proof |
+| P0-005 Structural Schema Validation | ✅ Implemented | schema validity ≠ semantic correctness |
+| P0-006 Atomic Multi-Event Batch | ✅ Implemented | atomicity ≠ idempotency or concurrency |
 | P0-007 Event-Aware Idempotency | ✅ Implemented | replay receipt ≠ integrity verification |
 | P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking ≠ distributed consensus |
-
-Последняя локальная валидация принятого implementation baseline после P0-008:
-
-```text
-python3 scripts/validate.py  → PASS
-pytest                       → 74 passed
-compileall                   → PASS
-GitHub Actions               → NOT PRESENT
-```
+| P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |
 
 ---
 
-# ⚙️ P0-008 — текущий принятый инженерный предел
+# 🔗 P0-009 — принятый инженерный предел
 
-Реализованы:
-
-- bounded `BEGIN IMMEDIATE` retries;
-- bounded `COMMIT` retries;
-- WAL для file-backed SQLite;
-- SQLite runtime gate;
-- `StoreBusyError`;
-- controlled `VersionConflictError`;
-- реальные two-connection race tests.
-
-```text
-same key / same intent
-→ APPLIED + ALREADY_APPLIED
-
-same key / different intent
-→ APPLIED + IDEMPOTENCY_CONFLICT
-
-different keys / same stream version
-→ APPLIED + VERSION_CONFLICT
-
-held write lock
-→ STORE_BUSY + zero partial writes
-```
-
-```text
-Concurrency control ≠ R0 integrity
-WAL ≠ durability proof
-SQLite lock ≠ authority approval
-```
-
----
-
-# 🟡 P0-009 — код существует, но не принят
+Merged PR:
 
 ```text
 PR:       #15
-Title:    P0-009: add full R0 integrity verification
-Branch:   agent/p0-r0-integrity
-State:    OPEN
-Merged:   NO
-Main:     UNCHANGED AT P0-008 IMPLEMENTATION LEVEL
+Title:    P0-009: trusted commit boundary and full R0 integrity
+Merged:   YES
+Main SHA: 08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
 ```
 
-В ветке PR заявлены:
+Реализовано:
 
-- storage schema v3 и transactional `stream_meta`;
-- payload-digest recomputation;
-- event-hash recomputation;
-- `previous_hash` continuity;
-- batch completeness and ordering checks;
-- stream version and metadata checks;
-- `R0IntegrityVerifier`;
-- 88 локальных тестов.
+- mandatory `SchemaRegistry` admission для production writes;
+- canonical payload bytes shared by validation, hashing and persistence;
+- payload digest, previous hash и event hash allocated in the trusted transaction boundary;
+- transactional `stream_meta` schema v3;
+- full R0 verification of canonical payload bytes, schema, digest, chain, versions, batches and metadata;
+- explicit caller-supplied `VerificationBudget` for R0 and populated migration;
+- fail-closed populated v2 → v3 migration;
+- rollback on busy and unexpected `COMMIT` failures;
+- exact-one `OneOfSpec` semantics;
+- controlled cyclic-payload rejection.
 
-Статус доказательства:
+Финальная validation-only проверка exact PR head:
 
 ```text
-CODE EXISTS IN OPEN PR
-LOCAL VALIDATION CLAIMED
-NOT PART OF MAIN
-REMOTE CI ABSENT
-REVIEW / FIX / MERGE REQUIRED
+PR head             → 6f8ff1663e161e554c8d4610f1692187c2129b45
+Run                  → 31023788916
+Python 3.13          → PASS
+Locked dependencies  → PASS
+Structural validator → PASS
+Full pytest          → PASS
+Compileall            → PASS
 ```
 
-P0-009 не должен обозначаться как `IMPLEMENTED`, пока PR #15 не прошёл review и не был смержен.
+Workflow существовал только на отдельной validation-ветке и не был добавлен в
+PR #15 или `main`.
+
+```text
+R0 consistency ≠ epistemic truth
+Schema admission ≠ authority approval
+Hash continuity ≠ authorization
+Resource budget ≠ Canonical threshold
+Validation-only workflow ≠ P0-012
+R0 PASS ≠ R1 replay equivalence
+```
 
 ---
 
 # 🔴 Не реализовано
 
 ```text
-P0-010 Atomic Same-Stream Redaction    → NOT IMPLEMENTED
+P0-010 Atomic Same-Stream Redaction    → NEXT · NOT IMPLEMENTED
 P0-011 Adversarial Integrity Suite     → NOT IMPLEMENTED
-P0-012 GitHub Actions CI               → NOT IMPLEMENTED
+P0-012 Permanent GitHub Actions CI     → NOT IMPLEMENTED
 P0-013 R1 Deterministic Replay         → NOT IMPLEMENTED
 P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
 P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 ```
-
-Для P0-010…P0-015 нет принятого implementation PR. Текущий **PR #16** является только documentation/status synchronization и **не реализует P0-010**. PR #17 и PR #18 на момент проверки отсутствуют.
 
 ---
 
@@ -153,13 +120,12 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 
 Пока отсутствуют:
 
-- M0/M1/M2/M3 runtime;
+- M0/M1/M2/M3 domain runtime;
 - belief lifecycle runtime;
 - Identity Continuity runtime;
 - relationship and commitment runtime;
 - Controlled Origin ingestion;
-- Genesis Heritage runtime;
-- Human Paths Atlas runtime;
+- Genesis Heritage and Human Paths Atlas runtime;
 - Governed Synthesis engine;
 - Capability Lease resolver;
 - Tool Receipt / Action Gate runtime;
@@ -168,19 +134,18 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 - Titan, Crystal или Native Kernel runtime integration;
 - LLM integration и autonomous goals.
 
-Документация этих областей существует как `DOCS_ONLY`, `NON_CANONICAL` или `PRESENTATION_ONLY` research. Она не является работающим domain runtime.
+Документация этих областей существует как `DOCS_ONLY`, `NON_CANONICAL` или
+`PRESENTATION_ONLY` research. Она не является работающим domain runtime.
 
 ---
 
 # 🗺️ Контролируемая последовательность
 
 ```text
-P0-001…P0-008 ✅ merged in main
-→ review and correct P0-009 PR #15
-→ merge P0-009 only after evidence is sufficient
-→ P0-010 same-stream redaction
+P0-001…P0-009 ✅ merged in main
+→ P0-010 atomic same-stream redaction
 → P0-011 adversarial integrity suite
-→ P0-012 GitHub Actions CI
+→ P0-012 permanent GitHub Actions CI
 → P0-013 R1 deterministic replay
 → P0-014 minimal belief lifecycle
 → P0-015 Evidence Gate report
@@ -189,7 +154,7 @@ P0-001…P0-008 ✅ merged in main
 # 🏁 Следующее действие
 
 ```text
-P0-009 FULL R0 + STREAM METADATA VERIFICATION
-Status: OPEN PR · NOT MERGED
-Required: review → fixes → local validation → merge decision
+P0-010 ATOMIC SAME-STREAM REDACTION
+Status: NOT IMPLEMENTED
+Precondition: preserve immutable event history and R0-valid redaction evidence
 ```
