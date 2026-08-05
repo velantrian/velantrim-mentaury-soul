@@ -19,7 +19,6 @@ from .integrity import (
     R0IntegrityVerifier,
 )
 from .sealing import (
-    CommitValidationError,
     compute_event_hash,
     compute_payload_digest,
     seal_event,
@@ -60,7 +59,6 @@ __all__ = [
     "BatchAppendReceipt",
     "BatchEntry",
     "BatchInvariantError",
-    "CommitValidationError",
     "IdempotencyConflictError",
     "IdempotencyInvariantError",
     "IdempotencyStatus",
