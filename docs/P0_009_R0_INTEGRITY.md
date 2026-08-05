@@ -3,17 +3,17 @@
 ```text
 Status:             DRAFT · OPEN PR #15 · NOT MERGED
 Storage schema:     v3 candidate
-Integrity profile:  trusted write allocation + R0 diagnostic verification
+Integrity profile:  trusted write allocation + bounded R0 verification
 Failure mode:       fail closed / first actionable failure
 Payload redaction:  NOT IMPLEMENTED
 Replay:             NOT IMPLEMENTED
 Domain truth:       NOT CLAIMED
-Remote CI:          NOT PRESENT
+Permanent CI:       NOT PRESENT
 ```
 
 ## Purpose
 
-P0-009 must prove two separate properties:
+P0-009 must prove three separate properties:
 
 ```text
 WRITE PATH
@@ -21,9 +21,13 @@ WRITE PATH
 
 R0 VERIFIER
 → persisted ledger, payload material, hash chain, batches and stream metadata remain consistent
+
+RESOURCE ENVELOPE
+→ verification and populated migration stop at explicit caller-supplied limits
 ```
 
-Post-write diagnosis is not a substitute for a trusted commit boundary.
+Post-write diagnosis is not a substitute for a trusted commit boundary. A valid
+ledger is not permission to consume unbounded resources.
 
 ---
 
@@ -87,56 +91,87 @@ not the authoritative source of history.
 
 ---
 
-## 3. Fail-closed v2 → v3 migration
+## 3. Explicit resource budgets
 
-An empty v2 database can be upgraded without a registry. A populated v2 ledger
-requires the appropriate `SchemaRegistry` and is verified under a write lock
-before `stream_meta` is created or backfilled.
+R0 verification requires a caller-supplied `VerificationBudget`:
 
-Migration verifies per stream:
+```text
+max_events
+max_payload_bytes
+max_total_payload_bytes
+```
 
-1. contiguous versions;
-2. complete ordered batches;
-3. payload presence and UTF-8 JSON decoding;
-4. exact canonical payload bytes;
-5. registered event/schema identity;
-6. structural payload validity;
-7. payload digest recomputation;
-8. previous-hash continuity;
-9. event-hash recomputation.
+Populated v2 → v3 migration requires the same explicit budget in addition to a
+`SchemaRegistry`.
+
+There is deliberately no global default:
+
+```text
+Test profile numbers       ≠ Canon
+Deployment budget          ≠ Identity policy
+Budget exhaustion          ≠ integrity corruption
+No supplied budget         → operation not admitted
+Exceeded supplied budget   → RESOURCE_BUDGET_EXCEEDED
+```
+
+The event-count limit is checked before the stream is materialized. Per-payload
+and cumulative payload limits are checked before decoding and deeper validation.
+
+---
+
+## 4. Fail-closed v2 → v3 migration
+
+An empty v2 database can be upgraded without a registry or budget. A populated
+v2 ledger requires both and is verified under a write lock before `stream_meta`
+is created or backfilled.
+
+Migration verifies:
+
+1. declared event-count budget;
+2. contiguous versions;
+3. complete ordered batches;
+4. payload presence and declared byte budgets;
+5. UTF-8 JSON decoding and exact canonical bytes;
+6. registered event/schema identity;
+7. structural payload validity;
+8. payload digest recomputation;
+9. previous-hash continuity;
+10. event-hash recomputation.
 
 Any failure rolls back the migration:
 
 ```text
-corrupted v2 history
+corruption or budget exhaustion
 → no stream_meta table accepted
 → schema version remains v2
-→ explicit repair/review required
+→ explicit repair, larger authorized profile, or review required
 ```
 
 ---
 
-## 4. R0 verification
+## 5. R0 verification
 
 R0 independently verifies:
 
 ```text
-1. reconstruct immutable envelope
-2. verify stream_version sequence
-3. verify batch completeness and order
-4. verify registered event/schema pair
-5. load and decode external payload
-6. verify payload bytes are canonical
-7. validate payload structure
-8. recompute payload_digest
-9. verify previous_hash continuity
-10. recompute event_hash
-11. compare stream_meta tail version/hash/count
-12. return first actionable failure
+1. check event-count budget before stream materialization
+2. reconstruct immutable envelope
+3. verify stream_version sequence
+4. verify batch completeness and order
+5. verify registered event/schema pair
+6. load payload and check per-payload/cumulative budgets
+7. decode payload and verify canonical bytes
+8. validate payload structure
+9. recompute payload_digest
+10. verify previous_hash continuity
+11. recompute event_hash
+12. compare stream_meta tail version/hash/count
+13. return first actionable failure
 ```
 
 Stable diagnostic codes include:
 
+- resource-budget exhaustion;
 - stream version gaps;
 - incomplete or out-of-order batches;
 - schema defects;
@@ -148,9 +183,9 @@ Stable diagnostic codes include:
 
 ---
 
-## 5. Adversarial evidence required
+## 6. Adversarial evidence required
 
-The P0-009 test set must cover:
+The P0-009 test set covers or must cover:
 
 - caller-supplied fake hash fields are not persisted;
 - schema rejection leaves payload, event, idempotency record, and `stream_meta` unchanged;
@@ -159,21 +194,29 @@ The P0-009 test set must cover:
 - stored non-canonical payload bytes are detected;
 - corrupted populated v2 migration fails closed;
 - valid populated v2 migration verifies history before backfill;
-- populated migration without a registry is rejected.
+- populated migration without registry or budget is rejected;
+- event-count, per-payload and cumulative budget exhaustion is controlled;
+- unexpected and exhausted busy `COMMIT` failures roll back;
+- overlapping `OneOfSpec` matches are rejected;
+- cyclic payload containers are rejected without uncontrolled recursion.
 
 ---
 
 ## Validation status
 
+A temporary validation-only branch previously passed structural validation,
+full pytest and compileall for the pre-budget head. Because budget contracts
+changed the PR after that run, fresh exact-head evidence is required.
+
 ```text
-Structural validator → NOT YET RE-RUN AFTER TRUSTED-WRITE REFACTOR
-pytest               → NOT YET RE-RUN AFTER TRUSTED-WRITE REFACTOR
-compileall            → NOT YET RE-RUN AFTER TRUSTED-WRITE REFACTOR
-GitHub Actions         → NOT PRESENT
+Structural validator → PENDING ON CURRENT HEAD
+Full pytest          → PENDING ON CURRENT HEAD
+Compileall           → PENDING ON CURRENT HEAD
+Permanent P0-012 CI  → NOT PRESENT
 ```
 
-No PASS is claimed until fresh execution evidence is produced against the
-current PR head.
+A validation-only workflow is not part of PR #15 or `main` and does not count as
+P0-012.
 
 ---
 
@@ -184,8 +227,9 @@ R0 consistency ≠ epistemic truth
 Hash continuity ≠ authorization
 Canonical encoding ≠ semantic correctness
 Schema admission ≠ permission or authority approval
+Resource budget ≠ Canonical threshold
 stream_meta ≠ source of truth
-Local pass ≠ remote CI pass
+Validation-only run ≠ permanent CI
 R0 PASS ≠ R1 replay equivalence
 Draft PR ≠ implemented milestone
 ```
@@ -193,8 +237,9 @@ Draft PR ≠ implemented milestone
 ## Next controlled step
 
 ```text
-fresh validation
-→ review of trusted write/migration boundaries
+fresh exact-head validation
+→ review trusted write, migration and budget boundaries
+→ explicit review-ready decision
 → explicit merge decision for P0-009
 → only after merge: P0-010 Atomic Same-Stream Redaction
 ```
