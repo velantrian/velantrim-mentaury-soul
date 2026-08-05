@@ -2,6 +2,7 @@
 
 ```text
 Status: DOCUMENTATION_ONLY
+GitHub PR: #16
 Canon modification: NONE
 P0 implementation change: NONE
 Runtime authority: NONE
@@ -20,6 +21,18 @@ P0-010…P0-015 → not implemented
 .github/workflows → absent
 Remote CI success → not claimed
 ```
+
+## Important PR-number clarification
+
+This documentation correction became **PR #16**.
+
+```text
+PR #16
+= documentation/status synchronization
+≠ P0-010 implementation
+```
+
+There is no accepted implementation PR for P0-010, P0-011 or P0-012. PR #17 and PR #18 were absent at verification time.
 
 ## Corrected documents
 
