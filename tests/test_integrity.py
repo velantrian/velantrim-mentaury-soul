@@ -400,6 +400,14 @@ def test_populated_v2_migration_verifies_history_before_backfill(tmp_path: Path)
         assert meta.current_version == 2
         assert meta.event_count == 2
         assert verifier(migrated).verify_stream("test:stream").ok
+        version = migrated.raw_connection_for_tests().execute(
+            "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
+        ).fetchone()[0]
+        assert version == 4
+        redaction_rows = migrated.raw_connection_for_tests().execute(
+            "SELECT COUNT(*) FROM redactions"
+        ).fetchone()[0]
+        assert redaction_rows == 0
 
 
 def test_corrupted_v2_migration_fails_closed_without_stream_meta(tmp_path: Path) -> None:

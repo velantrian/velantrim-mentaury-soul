@@ -356,6 +356,34 @@ def test_failure_after_audit_event_rolls_back_before_stream_meta_and_evidence() 
         assert store.load_stream_meta("test:stream").event_count == 1
 
 
+def test_failure_at_stream_meta_update_rolls_back_everything() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_target(store)
+        store.raw_connection_for_tests().execute(
+            """
+            CREATE TRIGGER fail_stream_meta_update
+            BEFORE UPDATE ON stream_meta
+            BEGIN
+                SELECT RAISE(ABORT, 'forced stream_meta failure');
+            END
+            """
+        )
+        with pytest.raises(sqlite3.IntegrityError, match="forced"):
+            executor(store).redact(redaction_request())
+
+        # The audit event insert succeeded before this trigger fired, but the
+        # whole transaction still rolls back: no audit event, no stream_meta
+        # change, and the target payload reappears.
+        assert store.load_payload("PAYLOAD-EVT-1") is not None
+        assert len(store.list_stream("test:stream")) == 1
+        assert store.load_stream_meta("test:stream").event_count == 1
+        count = store.raw_connection_for_tests().execute(
+            "SELECT COUNT(*) FROM redactions"
+        ).fetchone()[0]
+        assert count == 0
+
+
 def test_target_payload_already_absent_is_rejected_defensively() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
