@@ -17,9 +17,9 @@ REQUIRED_PATHS = (
     "src/mentaury/validation/registry.py", "tests/test_skeleton.py",
     "tests/test_envelopes.py", "tests/test_canonical_json.py",
     "tests/test_sqlite_store.py", "tests/test_schema_validation.py",
-    "tests/test_atomic_batch.py", "tests/test_idempotency.py",
-    "tests/test_concurrency.py", "tests/test_integrity.py",
-    "tests/fixtures/canonical_json_v1_vectors.json",
+    "tests/test_one_of_semantics.py", "tests/test_atomic_batch.py",
+    "tests/test_idempotency.py", "tests/test_concurrency.py",
+    "tests/test_integrity.py", "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
     "identity_engine.py", "relationship_runtime.py", "character_engine.py",
