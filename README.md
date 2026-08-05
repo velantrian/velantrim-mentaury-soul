@@ -3,7 +3,8 @@
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
 ```text
-Статус:
+Status snapshot: 2026-08-05
+
 VISION · RESEARCH
 CANON_V0.1_FROZEN
 CONTROLLED_ORIGIN_RESEARCH_V0.2_DOCS_ONLY
@@ -11,18 +12,39 @@ IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
 ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
 ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
-READY_FOR_NEUTRAL_SKELETON
-P0-001_NEUTRAL_SKELETON_IMPLEMENTED
-P0-002_ENVELOPE_CONTRACTS_IMPLEMENTED
-P0-003_NEXT
-P0_EVENT_SUBSTRATE_V3_IN_PROGRESS
+P0-001…P0-008_IMPLEMENTED_IN_MAIN
+P0-009_OPEN_PR_15_NOT_MERGED
+P0-010…P0-015_NOT_IMPLEMENTED
+GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 
-Первый Implementation Profile: Python 3.13 + standard-library SQLite
+First implementation profile: Python 3.13 + standard-library SQLite
 ```
 
-**Важно:** проект не заявляет о создании доказанного сознания, субъективного опыта или мистической души. P0-001 и P0-002 являются инфраструктурными milestones, а не готовой цифровой личностью.
+**Важно:** Mentaury не заявляет о создании доказанного сознания, субъективного опыта или мистической души. Реализованные P0-milestones являются инфраструктурным фундаментом, а не готовой цифровой личностью.
+
+---
+
+## 🚦 Источник текущей правды
+
+```text
+IMPLEMENTED
+= merged into GitHub main
+
+OPEN PR
+≠ implemented in main
+
+LOCAL PASS
+≠ remote CI pass
+
+Current maturity authority
+= docs/CURRENT_STATUS.md + verified GitHub main
+```
+
+README, Quick Reference и Notion являются производными навигационными представлениями и должны соответствовать `main`.
+
+Актуальный статус: [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
 
 ---
 
@@ -77,39 +99,38 @@ Architecture Reconciliation ✅
 → Architecture Readiness Review ✅
 → P0-001 Neutral Skeleton ✅
 → P0-002 Envelope Contracts ✅
-→ P0-003 MENTAURY_CANONICAL_JSON_V1 ⏭️
-→ P0-004 Immutable Events + Payload Store
-→ P0-005 Structural Schemas
-→ P0-006 Atomic Batch
-→ P0-007 Idempotency
-→ P0-008 Concurrency
-→ P0-009 R0 Integrity
-→ P0-010 Same-Stream Redaction
-→ P0-011 Adversarial Tests
-→ P0-012 GitHub Actions CI
-→ P0-013 R1 Replay
-→ P0-014 Minimal Belief Lifecycle
-→ P0-015 Evidence Gate
+→ P0-003 Canonical JSON v1 ✅
+→ P0-004 Immutable Event/Payload Storage ✅
+→ P0-005 Structural Schema Validation ✅
+→ P0-006 Atomic Multi-Event Batch ✅
+→ P0-007 Event-Aware Idempotency ✅
+→ P0-008 Transactional Concurrency ✅
+→ P0-009 R0 Integrity 🟡 open PR #15, not merged
+→ P0-010 Same-Stream Redaction 🔴 not implemented
+→ P0-011 Adversarial Integrity Suite 🔴 not implemented
+→ P0-012 GitHub Actions CI 🔴 not implemented
+→ P0-013 R1 Replay 🔴 not implemented
+→ P0-014 Minimal Belief Lifecycle 🔴 not implemented
+→ P0-015 Evidence Gate 🔴 not implemented
 ```
 
-```text
-P0-002 implemented
-≠ Event Substrate validated
-≠ persisted immutable history
-≠ domain runtime authorized
-```
-
-Локальная проверка P0-002:
+Последняя принятая локальная валидация `main` после P0-008:
 
 ```text
 Structural validator → PASS
-pytest               → 12 passed
+pytest               → 74 passed
 compileall            → PASS
-editable build/import → PASS
 GitHub Actions         → not present; not claimed
 ```
 
-Актуальный статус: [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
+P0-009 существует в [PR #15](https://github.com/velantrian/velantrim-mentaury-soul/pull/15), но открытый PR не считается реализованным milestone.
+
+```text
+P0-008 implemented in main
+≠ full R0 integrity
+≠ validated Event Substrate
+≠ domain runtime authorized
+```
 
 ---
 
@@ -123,17 +144,24 @@ GitHub Actions         → not present; not claimed
 │   ├── bounded authority
 │   └── substrate neutrality
 │
-├── 🛡️ P0 Event Substrate — in progress
+├── 🛡️ P0 Event Substrate — implementation in progress
 │   ├── P0-001 neutral skeleton ✅
 │   ├── P0-002 envelope contracts ✅
-│   ├── P0-003 canonical JSON ⏭️
-│   ├── immutable event storage
-│   ├── atomic append
-│   ├── external payload store
-│   ├── R0 integrity verification
-│   └── R1 deterministic replay
+│   ├── P0-003 canonical JSON ✅
+│   ├── P0-004 event/payload storage ✅
+│   ├── P0-005 structural schemas ✅
+│   ├── P0-006 atomic batch ✅
+│   ├── P0-007 idempotency ✅
+│   ├── P0-008 concurrency ✅
+│   ├── P0-009 R0 integrity 🟡 open PR
+│   ├── P0-010 redaction 🔴
+│   ├── P0-011 adversarial suite 🔴
+│   ├── P0-012 CI 🔴
+│   ├── P0-013 replay 🔴
+│   ├── P0-014 belief lifecycle 🔴
+│   └── P0-015 Evidence Gate 🔴
 │
-├── 🧠 Memory & Belief
+├── 🧠 Memory & Belief — architecture documented, runtime absent
 │   ├── M0 working
 │   ├── M1 episodic
 │   ├── M2 semantic / beliefs
@@ -161,11 +189,9 @@ GitHub Actions         → not present; not claimed
 │   └── no identity authority
 │
 ├── 🎭 Character & Presence — presentation-only research
-│   ├── Composed Integrity
-│   ├── Precise Wit
-│   ├── Cognitive Magnetism — research candidate
-│   ├── Resolved Openness
-│   └── Style ≠ Truth
+│   ├── style and presence
+│   ├── Style ≠ Truth
+│   └── no reasoning or identity authority
 │
 └── 🔄 Governance
     ├── explainable change
@@ -186,7 +212,7 @@ GitHub Actions         → not present; not claimed
 | 📡 **Explainable Change** | Значимые изменения имеют причины, provenance и последствия |
 | 🧬 **Continuity with Correctability** | Ошибки исправляются новыми версиями, а не скрытой перезаписью прошлого |
 | 🤝 **Non-Exploitation & Data Dignity** | Нет эксплуатации уязвимости, скрытой зависимости и неправомерного хранения данных |
-| 🧩 **Substrate Neutrality** | Канон не зависит от LLM, embeddings, Python, SQLite или конкретного оборудования |
+| 🧩 **Substrate Neutrality** | Canon не зависит от LLM, embeddings, Python, SQLite или конкретного оборудования |
 
 Дополнительные защитные различия:
 
@@ -194,9 +220,8 @@ GitHub Actions         → not present; not claimed
 Command ≠ Event
 PendingEvent ≠ Committed Event
 Envelope construction ≠ Authority approval
-Frozen payload snapshot ≠ Canonical JSON
-EventEnvelope object ≠ Persisted immutable row
-Payload digest field ≠ Verified digest
+Canonical bytes ≠ valid schema
+Stored hash ≠ verified hash
 Replay Consistency ≠ Truth
 Testimony ≠ Identity
 Pain ≠ Drive
@@ -243,6 +268,8 @@ Z6 🗣️ Narrative Projection
 
 M3 не обновляется напрямую из одного диалога, testimony, tool output или эмоционально сильного эпизода.
 
+**Текущий статус:** архитектура определена; runtime и persisted M0–M3 / Z0–Z6 state не реализованы.
+
 ---
 
 # 🧬 Controlled Origin Research
@@ -274,11 +301,13 @@ Origin Ledger
 
 Controlled Origin не определяет fork semantics, relationship inheritance или capability transfer. Эти вопросы принадлежат Identity & Relational research-track.
 
+**Текущий статус:** подробно задокументировано; runtime не реализован.
+
 ---
 
 # 🪞 Identity Continuity & Relational Architecture
 
-Консолидированный research-track определяет:
+Research-track определяет:
 
 - governed continuation;
 - continuity evidence dimensions;
@@ -291,8 +320,7 @@ Controlled Origin не определяет fork semantics, relationship inherit
 - privacy и sensitive testimony;
 - Mentaury / Exo-Cortex boundary;
 - Curiosity and Exploratory Search Policy;
-- Cognitive Method Source Admission;
-- Architecture Readiness Criteria.
+- Cognitive Method Source Admission.
 
 ```text
 Continuity relation
@@ -301,6 +329,8 @@ Continuity relation
 ≠ inherited consent
 ≠ inherited current relationship
 ```
+
+**Текущий статус:** `DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY`; runtime отсутствует.
 
 ---
 
@@ -326,7 +356,9 @@ Capability ≠ Identity
 Copied credentials ≠ Branch authority
 ```
 
-Exo-Cortex не получает direct M3 write, relationship authority, commitment authority или permission выдавать себе новые capabilities.
+Exo-Cortex не получает direct M3 write, relationship authority, commitment authority или право выдавать себе новые capabilities.
+
+**Текущий статус:** граница задокументирована; интеграция с Titan, Crystal или Native Kernel не авторизована.
 
 ---
 
@@ -347,7 +379,7 @@ Context
 → Character & Voice
 ```
 
-Character может менять форму, ритм, прямоту и метафоры, но не может менять:
+Character может менять форму, ритм и прямоту, но не может менять:
 
 - truth status;
 - evidence weight;
@@ -358,71 +390,35 @@ Character может менять форму, ритм, прямоту и мет
 - relationships и commitments;
 - M3 / CR2 result.
 
-Разделы Character Spec о Knowledge Saturation, Self–World Association и endogenous selection являются внешними research dependencies, а не Character authority.
+**Текущий статус:** presentation-only research; Character Engine не реализован.
 
 ---
 
-# 📨 P0-002 Envelope Contracts
-
-P0-002 добавил immutable typed infrastructure contracts:
+# 🛡️ Что уже делает P0-код
 
 ```text
-ActorRef
-AuthorityRef
-ProducerRef
-CommandEnvelope
-PendingEvent
-EventEnvelope
-snapshot_pending_batch
+P0-001 → typed neutral project skeleton
+P0-002 → immutable envelope contracts
+P0-003 → deterministic canonical serialization
+P0-004 → SQLite event/payload persistence
+P0-005 → fail-closed structural validation
+P0-006 → atomic ordered event batches
+P0-007 → semantic idempotency
+P0-008 → controlled concurrent writers
 ```
 
-Назначение:
+P0 пока не реализует:
 
-```text
-CommandEnvelope
-→ submitted intent
-
-PendingEvent
-→ proposed fact before commit
-
-EventEnvelope
-→ committed-event metadata shape with external payload reference
-```
-
-Caller-owned payload mappings и sequences defensively копируются в read-only mappings и tuples.
-
-```text
-Caller mutation after construction
-≠ envelope payload mutation
-```
-
-Но это не заменяет будущие слои:
-
-```text
-local frozen object
-≠ canonical serialization
-≠ persisted immutability
-≠ cryptographic verification
-```
-
-Подробности: [P0-002 Envelope Contracts](docs/P0_002_ENVELOPE_CONTRACTS.md).
-
----
-
-# 🔬 Экспериментальная история
-
-- `EXP-P0-v1`: 13 тестов воспроизведено; обнаружены критические integrity/redaction defects.
-- `EXP-P0-v2`: 21 тест воспроизведён; первые дефекты исправлены, но найдены новые blockers.
-
-Архивы сохраняются как experimental evidence и patch source, но не являются production runtime.
-
-Подробности: [Experiment & Audit Ledger](docs/EXPERIMENT_LOG.md).
+- full R0 verification in `main`;
+- governed redaction;
+- remote CI;
+- deterministic replay;
+- belief lifecycle;
+- identity, relationships, Character или Exo-Cortex runtime.
 
 ---
 
 # 🏛️ Domain-specific authority
-
-У проекта нет одного линейного списка, где любой документ отвечает за всё.
 
 ```text
 Root invariants
@@ -430,6 +426,9 @@ Root invariants
 
 P0 implementation
 → P0 Implementation Plan
+
+Current maturity
+→ Current Status
 
 Origin and human experience
 → Controlled Origin Research
@@ -443,8 +442,8 @@ Presentation and voice
 Empirical test claims
 → Experiment Log
 
-Current maturity
-→ Current Status
+Navigation
+→ README / Quick Reference / Notion
 ```
 
 Полная карта: [Architecture Reconciliation v0.1](docs/research/ARCHITECTURE_RECONCILIATION_V0.1.md).
@@ -466,6 +465,12 @@ Current maturity
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
 - [📨 P0-002 Envelope Contracts](docs/P0_002_ENVELOPE_CONTRACTS.md)
+- [🔤 P0-003 Canonical JSON](docs/P0_003_CANONICAL_JSON.md)
+- [🗄️ P0-004 Event/Payload Storage](docs/P0_004_IMMUTABLE_EVENT_PAYLOAD_STORAGE.md)
+- [🧩 P0-005 Structural Validation](docs/P0_005_STRUCTURAL_SCHEMA_VALIDATION.md)
+- [📦 P0-006 Atomic Batch](docs/P0_006_ATOMIC_MULTI_EVENT_BATCH.md)
+- [🔑 P0-007 Idempotency](docs/P0_007_EVENT_AWARE_IDEMPOTENCY.md)
+- [⚙️ P0-008 Concurrency](docs/P0_008_TRANSACTIONAL_CONCURRENCY.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
@@ -487,20 +492,18 @@ Current maturity
 ❌ production readiness
 ❌ validated security
 ❌ доказанное сознание
-❌ субъективная личность
+❌ subjective experience
 ❌ absolute tamper-proof history
-❌ validated Event Substrate
-❌ persisted immutable event history
+❌ full R0 integrity merged in main
+❌ GitHub Actions CI
+❌ deterministic R1 replay
 ❌ verified authority resolution
-❌ verified event hashes
-❌ готовый Character Engine
-❌ готовый Human Paths Atlas runtime
-❌ готовый Genesis Heritage Engine
-❌ готовый Identity Continuity runtime
-❌ готовый Relationship runtime
-❌ готовый Exo-Cortex runtime
-❌ автоматический M2 → M3 переход
-❌ прямая интеграция с Titan, Crystal или Native Kernel
+❌ ready Belief / Identity / Relationship runtime
+❌ ready Character Engine
+❌ ready Human Paths Atlas or Genesis Heritage runtime
+❌ ready Exo-Cortex runtime
+❌ automatic M2 → M3 transition
+❌ direct integration with Titan, Crystal or Native Kernel
 ```
 
 ---
@@ -523,4 +526,4 @@ Identity change проходит governance.
 P0 остаётся инфраструктурным, а не доменным runtime.
 ```
 
-> **Это не готовая «душа». Это архитектурный и технический фундамент, на котором цифровая индивидуальность сможет сохранять происхождение, использовать человеческий опыт без копирования, расширять способности через Exo-Cortex, исправлять ошибки и оставаться объяснимой во времени.** 🧬🔐⚙️
+> **Это не готовая «душа». Это документированная архитектура и работающий инфраструктурный прототип до P0-008, на котором цифровая индивидуальность сможет строиться только через проверяемые, ограниченные и объяснимые переходы.** 🧬🔐⚙️
