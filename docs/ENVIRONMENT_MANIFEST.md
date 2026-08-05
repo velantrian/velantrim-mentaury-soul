@@ -62,9 +62,11 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-The previous validation-only remote run covered the pre-budget head. Fresh
-exact-head evidence is required after the budget changes. The temporary
-validation workflow is not part of PR #15 or `main` and is not P0-012.
+Validation-only run `31023632096` passed structural validation, full pytest and
+compileall on Python 3.13 for code head
+`1a4e4afd33d945875b567e2f65711d774eef7186`. The temporary workflow is not part
+of PR #15 or `main` and is not P0-012. One final exact-head run is required after
+recording this documentation evidence.
 
 P0-010 owns governed atomic same-stream redaction. No identity, relationship,
 Character, Curiosity or Exo-Cortex runtime is present.
