@@ -1,16 +1,17 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации:       2026-08-05
-Репозиторий:         velantrian/velantrim-mentaury-soul
-Authoritative ref:   GitHub main
-Current main head:   8d1fe4c4b2f274376383ab33ba5d04d787a3f244
+Дата фиксации:                  2026-08-05
+Репозиторий:                    velantrian/velantrim-mentaury-soul
+Authoritative ref:              GitHub main
+Verified implementation base:  8d1fe4c4b2f274376383ab33ba5d04d787a3f244 · P0-008
 
 CANON_V0.1_FROZEN
 P0-001…P0-008_IMPLEMENTED_IN_MAIN
 P0-008_LOCAL_VALIDATION_PASS
 P0-009_OPEN_PR_15_NOT_MERGED
 P0-010…P0-015_NOT_IMPLEMENTED
+PR_16_DOCUMENTATION_ONLY_STATUS_SYNC
 GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -52,7 +53,7 @@ Current maturity authority
 | P0-007 Event-Aware Idempotency | ✅ Implemented | replay receipt ≠ integrity verification |
 | P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking ≠ distributed consensus |
 
-Последняя локальная валидация принятого `main` после P0-008:
+Последняя локальная валидация принятого implementation baseline после P0-008:
 
 ```text
 python3 scripts/validate.py  → PASS
@@ -105,7 +106,7 @@ Title:    P0-009: add full R0 integrity verification
 Branch:   agent/p0-r0-integrity
 State:    OPEN
 Merged:   NO
-Main:     UNCHANGED
+Main:     UNCHANGED AT P0-008 IMPLEMENTATION LEVEL
 ```
 
 В ветке PR заявлены:
@@ -144,7 +145,7 @@ P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
 P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 ```
 
-На 2026-08-05 не существует принятых PR #16, #17 или #18 для этих milestones.
+Для P0-010…P0-015 нет принятого implementation PR. Текущий **PR #16** является только documentation/status synchronization и **не реализует P0-010**. PR #17 и PR #18 на момент проверки отсутствуют.
 
 ---
 
