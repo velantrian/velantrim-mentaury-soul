@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,12 @@ from mentaury.storage import (
     StoreNotInitializedError,
     VersionConflictError,
 )
-from mentaury.validation import EventSchemaDefinition, ObjectSpec, SchemaRegistry
+from mentaury.validation import (
+    EventSchemaDefinition,
+    ObjectSpec,
+    SchemaRegistry,
+    SchemaValidationError,
+)
 
 
 def registry() -> SchemaRegistry:
@@ -217,18 +223,8 @@ def test_single_event_append_rejects_incomplete_batch_without_writes() -> None:
 def test_schema_rejection_occurs_before_any_write() -> None:
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
-        unknown = EventEnvelope(
-            **{
-                field: getattr(event(), field)
-                for field in event().__dataclass_fields__
-            }
-        )
-        # Dataclass reconstruction above is intentionally avoided for mutation;
-        # use replace through the standard dataclasses API.
-        from dataclasses import replace
-
-        unknown = replace(unknown, event_type="UNKNOWN")
-        with pytest.raises(Exception):
+        unknown = replace(event(), event_type="UNKNOWN")
+        with pytest.raises(SchemaValidationError):
             store.append_one(
                 unknown,
                 {"statement": "alpha"},
@@ -236,6 +232,7 @@ def test_schema_rejection_occurs_before_any_write() -> None:
             )
         assert store.list_stream("belief:B-204") == ()
         assert store.load_payload("PAYLOAD-1") is None
+        assert store.load_stream_meta("belief:B-204").event_count == 0
 
 
 def test_database_persists_across_explicit_reopen(tmp_path: Path) -> None:
