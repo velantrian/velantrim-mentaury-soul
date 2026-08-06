@@ -25,7 +25,7 @@ mentaury = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "scripts"]
 addopts = "-q --strict-config --strict-markers"
 
 [tool.coverage.run]
