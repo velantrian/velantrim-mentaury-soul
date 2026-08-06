@@ -520,14 +520,22 @@ def test_decide_acceptance_never_breaks_reducer_projection(
 ) -> None:
     """Whole-lattice invariant: decide()-accepted events must always project.
 
-    For every ``BeliefStatus`` in the lattice, an ``ATTACH_EVIDENCE`` or
-    ``REGISTER_CONTRADICTION`` command that ``BeliefLifecycle.decide()``
-    accepts must be safely projectable by ``BeliefReducer.apply()`` without
-    raising. This is the general form of the P0-014/P0-015 boundary bug found
-    during audit (terminal statuses were checked in the reducer but not in
-    the lifecycle decision layer for two of the three mutating command
-    types). Keeping this matrix test alive prevents a future status or
-    command addition from silently reopening the same lifecycle/reducer gap.
+    For every ``BeliefStatus`` in the lattice and every mutating command that
+    operates on an *existing* belief (``ATTACH_EVIDENCE``,
+    ``REGISTER_CONTRADICTION``, ``REVISE_BELIEF``), a command that
+    ``BeliefLifecycle.decide()`` accepts must be safely projectable by
+    ``BeliefReducer.apply()`` without raising. This is the general form of
+    the P0-014/P0-015 boundary bug found during audit (terminal statuses
+    were checked in the reducer but not in the lifecycle decision layer for
+    two of the three mutating command types). Keeping this matrix test alive
+    prevents a future status or command addition from silently reopening the
+    same lifecycle/reducer gap.
+
+    ``CREATE_BELIEF`` is intentionally excluded: its precondition is an
+    *empty* projection (``revision == 0``), so it does not fit this
+    existing-belief status matrix, and it is already covered directly by
+    ``test_create_belief_starts_at_hypothesis_revision_one`` and
+    ``test_duplicate_create_is_rejected``.
     """
 
     state = _state_with_status(status)
@@ -563,6 +571,30 @@ def test_decide_acceptance_never_breaks_reducer_projection(
             contradiction_decision.domain_events[0],
             6,
             f"EVT-MATRIX-CONTRADICTION-{status.value}",
+        )
+
+    revise_decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": state["revision"],
+                "new_statement": f"Matrix-generated revision for {status.value}.",
+                "new_status": BeliefStatus.PROVISIONAL.value,
+                "reason": "matrix-generated revision candidate",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=5,
+        ),
+        state,
+    )
+    if revise_decision.accepted:
+        _apply(
+            state,
+            revise_decision.domain_events[0],
+            6,
+            f"EVT-MATRIX-REVISE-{status.value}",
         )
 
 
