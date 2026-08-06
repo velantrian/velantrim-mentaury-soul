@@ -1,9 +1,12 @@
 # 🔁 P0-013 — R1 Deterministic Replay
 
 ```text
-Status: FINAL CANDIDATE · EXACT-HEAD CI REQUIRED
+Status: MERGED · MAIN PUSH VALIDATED · POST-MERGE SYNCED
 Base: main@dda1604253a49f0d88c77d01491a44cc3f09fe53
-Hardened lineage through: 4cfa6d8714bfa3a889e7b95c44cf2824345a1251
+Final tested head: d5be2702f71a800c6d171a2c4cbea2cd449a2e64
+Merge SHA: cd069e97200d6381806642a438ec2bc64b71571e
+PR run: 31087648122 · PASS
+Main push run: 31087777833 · PASS
 Scope: neutral replay framework only
 P0-014 belief lifecycle: NOT INCLUDED
 Snapshot persistence: NOT INCLUDED
@@ -193,8 +196,9 @@ temporary files            → removed from final diff
 ```
 
 Earlier read-snapshot run `31087337711` proved the WAL concurrent-append prefix
-contract with `185 passed`. The final owner-authored candidate must pass retained
-`Mentaury CI` on its exact immutable head before merge.
+contract with `185 passed`. The owner-authored final head passed retained `Mentaury CI` in run
+`31087648122`; the squash merge passed again on exact `main` SHA
+`cd069e97200d6381806642a438ec2bc64b71571e` in run `31087777833`.
 
 ## ⚖️ Preserved boundaries
 
@@ -222,6 +226,25 @@ R1 verifies deterministic state reconstruction for one declared reducer and one
 R0-verified stream. It does not establish cross-stream transaction semantics,
 snapshot signing, distributed consensus, deployment compatibility or user-data
 retention policy.
+
+
+## ✅ Final merge checkpoint
+
+```text
+Merged PR                #27
+Final tested PR head     d5be2702f71a800c6d171a2c4cbea2cd449a2e64
+Merge SHA                cd069e97200d6381806642a438ec2bc64b71571e
+PR retained CI run       31087648122 · PASS
+Main retained CI run     31087777833 · PASS
+CPython                  3.13.14
+Full pytest              186 passed on both revisions
+Validator / compileall   PASS
+Exact-head audit         4872928159
+```
+
+The final diff contained only the replay contracts, engine, exports, replay test
+matrix and this specification. No snapshot persistence, domain lifecycle,
+background replay worker or runtime integration was introduced.
 
 ## ➡️ Next controlled milestone
 
