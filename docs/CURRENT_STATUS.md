@@ -408,4 +408,13 @@ Precondition: close the same-operator review gap above — require either a
   with merge-blocking authority, at minimum for any change touching
   src/mentaury/beliefs, src/mentaury/evidence or src/mentaury/replay —
   before authorizing further runtime wiring
+Precondition: author and get independently reviewed a dedicated Capability
+  Lease resolution specification (docs-only, like Controlled Origin and
+  Identity Continuity before it) before any domain runtime is authorized to
+  treat AuthorityRef.capability_lease_id as a validated permission grant. As
+  implemented through P0-015, capability_lease_id is recorded and
+  cross-checked for equality between linked records (e.g. redaction ↔
+  evidence linkage) but is never resolved against a lease registry, so it
+  currently carries no enforceable authority — see "AuthorityRef ≠ validated
+  capability lease" below.
 ```
