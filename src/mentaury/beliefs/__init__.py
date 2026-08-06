@@ -1,4 +1,4 @@
-"""P0-014 minimal evidence-referenced belief lifecycle."""
+"""P0-014/P0-015 evidence-referenced belief lifecycle."""
 
 from .contracts import (
     ATTACH_EVIDENCE,
@@ -20,6 +20,8 @@ from .contracts import (
     EvidenceSide,
     belief_stream_id,
 )
+from .evidence_gate import EvidenceGatedBeliefLifecycle
+from .gated_reducer import EvidenceGatedBeliefReducer
 from .lifecycle import BeliefLifecycle
 from .reducer import BeliefReducer, BeliefReducerError
 from .schemas import belief_schema_definitions
@@ -44,6 +46,8 @@ __all__ = [
     "BeliefRejectionCode",
     "BeliefStatus",
     "ClaimType",
+    "EvidenceGatedBeliefLifecycle",
+    "EvidenceGatedBeliefReducer",
     "EvidenceSide",
     "belief_schema_definitions",
     "belief_stream_id",
