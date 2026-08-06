@@ -363,6 +363,8 @@ class R1ReplayVerifier:
             snapshot_state_hash=snapshot_state.state_hash,
             tail_state_hash=tail.state.state_hash,
             failure=None,
+            verified_through_stream_version=len(events),
+            verified_through_event_hash=expected_tail_hash,
         )
 
     def _run(
@@ -381,8 +383,11 @@ class R1ReplayVerifier:
         checkpoint = state if checkpoint_version == 0 else None
 
         try:
-            self._state_budget.require_state_size(len(state.canonical_bytes))
-            self._state_budget.require_total_state_size(total_state_bytes)
+            _require_state_budget(
+                self._state_budget,
+                len(state.canonical_bytes),
+                total_state_bytes,
+            )
             self._budget.require_event_count(len(events))
         except ResourceBudgetExceeded as exc:
             raise _ReplayAborted(
@@ -440,12 +445,11 @@ class R1ReplayVerifier:
                 payload = _decode_payload(stream_id, event, payload_bytes)
                 state = self._apply_twice(stream_id, state, event, payload)
                 try:
-                    self._state_budget.require_state_size(
-                        len(state.canonical_bytes)
-                    )
                     total_state_bytes += len(state.canonical_bytes)
-                    self._state_budget.require_total_state_size(
-                        total_state_bytes
+                    _require_state_budget(
+                        self._state_budget,
+                        len(state.canonical_bytes),
+                        total_state_bytes,
                     )
                 except ResourceBudgetExceeded as exc:
                     raise _ReplayAborted(
@@ -578,8 +582,11 @@ class R1ReplayVerifier:
         total_state_bytes: int,
     ) -> ReplayFailure | None:
         try:
-            self._state_budget.require_state_size(len(state.canonical_bytes))
-            self._state_budget.require_total_state_size(total_state_bytes)
+            _require_state_budget(
+                self._state_budget,
+                len(state.canonical_bytes),
+                total_state_bytes,
+            )
         except ResourceBudgetExceeded as exc:
             return ReplayFailure(
                 ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED,
@@ -614,6 +621,25 @@ class R1ReplayVerifier:
             snapshot_state_hash=snapshot_state_hash,
             tail_state_hash=tail_state_hash,
             failure=failure,
+        )
+
+
+def _require_state_budget(
+    budget: ReplayStateBudget,
+    state_bytes: int,
+    total_state_bytes: int,
+) -> None:
+    if state_bytes > budget.max_state_bytes:
+        raise ResourceBudgetExceeded(
+            "replay_state_bytes",
+            budget.max_state_bytes,
+            state_bytes,
+        )
+    if total_state_bytes > budget.max_total_state_bytes:
+        raise ResourceBudgetExceeded(
+            "replay_total_state_bytes",
+            budget.max_total_state_bytes,
+            total_state_bytes,
         )
 
 

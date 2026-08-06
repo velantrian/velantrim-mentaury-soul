@@ -153,7 +153,7 @@ P0-013 adds no unbounded scan, background worker or automatic startup replay.
 
 ## 🧪 Executable matrix
 
-The P0-013 tests cover:
+The P0-013 suite contains **21 replay tests** covering:
 
 - full replay equals snapshot + tail;
 - genesis and empty-stream snapshots;
@@ -183,6 +183,10 @@ R1 PASS ≠ authority validation
 R1 PASS ≠ P0-014 belief lifecycle
 R1 PASS ≠ domain runtime authorization
 ```
+
+A successful report records the exact captured stream version and tail event
+hash so callers do not confuse a verified immutable prefix with an open-ended
+claim about future appends.
 
 R1 verifies deterministic state reconstruction for one declared reducer and one
 R0-verified stream. It does not establish cross-stream transaction semantics,

@@ -328,6 +328,8 @@ def test_full_replay_equals_snapshot_plus_tail() -> None:
         assert report.applied_events == 2
         assert report.full_state_hash == expected_hash
         assert report.tail_state_hash == expected_hash
+        assert report.verified_through_stream_version == 3
+        assert report.verified_through_event_hash == store.list_stream(STREAM_ID)[-1].event_hash
         assert report.failure is None
 
 

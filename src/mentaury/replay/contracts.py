@@ -14,7 +14,6 @@ from mentaury.contracts.primitives import (
     require_non_empty,
     require_non_negative,
 )
-from mentaury.storage.budget import ResourceBudgetExceeded
 
 
 @runtime_checkable
@@ -59,22 +58,6 @@ class ReplayStateBudget:
         if self.max_total_state_bytes < self.max_state_bytes:
             raise ValueError(
                 "max_total_state_bytes must be >= max_state_bytes"
-            )
-
-    def require_state_size(self, observed: int) -> None:
-        if observed > self.max_state_bytes:
-            raise ResourceBudgetExceeded(
-                "replay_state_bytes",
-                self.max_state_bytes,
-                observed,
-            )
-
-    def require_total_state_size(self, observed: int) -> None:
-        if observed > self.max_total_state_bytes:
-            raise ResourceBudgetExceeded(
-                "replay_total_state_bytes",
-                self.max_total_state_bytes,
-                observed,
             )
 
 
@@ -158,3 +141,5 @@ class R1ReplayReport:
     snapshot_state_hash: str | None
     tail_state_hash: str | None
     failure: ReplayFailure | None
+    verified_through_stream_version: int = 0
+    verified_through_event_hash: str | None = None
