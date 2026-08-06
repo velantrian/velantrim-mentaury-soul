@@ -30,7 +30,7 @@ jobs:
           text = path.read_text(encoding="utf-8")
           replacements = {
               "    TargetEventNotFoundError,\n    VerificationBudget,": "    TargetEventNotFoundError,\n    TargetPayloadMissingError,\n    VerificationBudget,",
-              "        assert store.list_stream(\"stream:A\") == store.list_stream(\"stream:A\")\n        assert len(store.list_stream(\"stream:A\")) == 1": "        stream_a = store.list_stream(\"stream:A\")\n        assert [event.event_id for event in stream_a] == [\"EVT-1\"]\n        assert store.list_stream(\"stream:B\") == []",
+              "        assert store.list_stream(\"stream:A\") == store.list_stream(\"stream:A\")\n        assert len(store.list_stream(\"stream:A\")) == 1": "        stream_a = store.list_stream(\"stream:A\")\n        assert [event.event_id for event in stream_a] == [\"EVT-1\"]\n        assert store.list_stream(\"stream:B\") == ()",
               "        with pytest.raises(Exception, match=\"already absent\"):": "        with pytest.raises(TargetPayloadMissingError, match=\"already absent\"):",
           }
           for old, new in replacements.items():
