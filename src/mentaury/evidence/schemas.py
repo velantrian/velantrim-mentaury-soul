@@ -9,6 +9,7 @@ from mentaury.validation import (
     IntegerSpec,
     ObjectSpec,
     StringSpec,
+    sha256_digest_spec,
 )
 
 from .contracts import (
@@ -55,7 +56,7 @@ def _record_spec() -> ObjectSpec:
             "side": StringSpec(min_length=1),
             "source_group": StringSpec(min_length=1),
             "provenance_ref": StringSpec(min_length=1),
-            "content_digest": StringSpec(min_length=71),
+            "content_digest": sha256_digest_spec(),
             "observed_at": StringSpec(min_length=1),
             "reliability_milli": IntegerSpec(minimum=0, maximum=1000),
             "relevance_milli": IntegerSpec(minimum=0, maximum=1000),
@@ -84,18 +85,18 @@ def _receipt_spec() -> ObjectSpec:
             "belief_id": StringSpec(min_length=1),
             "belief_revision": IntegerSpec(minimum=1),
             "claim_type": StringSpec(min_length=1),
-            "statement_digest": StringSpec(min_length=71),
+            "statement_digest": sha256_digest_spec(),
             "evaluated_at": StringSpec(min_length=1),
             "policy_id": StringSpec(min_length=1),
-            "policy_digest": StringSpec(min_length=71),
-            "evidence_set_digest": StringSpec(min_length=71),
+            "policy_digest": sha256_digest_spec(),
+            "evidence_set_digest": sha256_digest_spec(),
             "outcome": StringSpec(min_length=1),
             "qualifying_for_refs": _strings(),
             "qualifying_against_refs": _strings(),
             "source_groups_for": _strings(),
             "source_groups_against": _strings(),
             "rejected_refs": _strings(),
-            "receipt_digest": StringSpec(min_length=71),
+            "receipt_digest": sha256_digest_spec(),
         },
         required=frozenset(
             {

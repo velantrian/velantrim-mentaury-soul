@@ -9,6 +9,7 @@ from typing import Final
 
 from mentaury.beliefs.contracts import ClaimType, EvidenceSide
 from mentaury.contracts import PendingEvent, canonical_timestamp
+from mentaury.validation import SHA256_DIGEST_PATTERN
 
 EVIDENCE_GATE_PROFILE: Final[str] = "MENTAURY_EVIDENCE_GATE_V1"
 APPLY_EVIDENCE_GATE: Final[str] = "APPLY_EVIDENCE_GATE"
@@ -17,7 +18,9 @@ BELIEF_EVIDENCE_GATED_SCHEMA: Final[str] = "belief-evidence-gated/v1"
 EVIDENCE_GATE_REJECTED: Final[str] = "EVIDENCE_GATE_REJECTED"
 EVIDENCE_GATE_DECISION_SCHEMA: Final[str] = "evidence-gate-decision/v1"
 
-_SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
+# Shared with mentaury.validation.sha256_digest_spec() so the schema-admission
+# boundary and this domain-object construction boundary cannot drift apart.
+_SHA256_RE = re.compile(f"{SHA256_DIGEST_PATTERN}\\Z")
 
 
 class EvidenceGateOutcome(StrEnum):

@@ -2,19 +2,46 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Final, TypeAlias
 
+#: Canonical lowercase sha256 content-address pattern, e.g. ``sha256:<64 hex>``.
+#: Shared with ``mentaury.evidence.contracts`` so the schema-admission
+#: boundary and the domain-object construction boundary cannot drift apart.
+SHA256_DIGEST_PATTERN: Final[str] = r"sha256:[0-9a-f]{64}"
+
 
 @dataclass(frozen=True, slots=True)
 class StringSpec:
     min_length: int = 0
+    pattern: str | None = None
 
     def __post_init__(self) -> None:
         if isinstance(self.min_length, bool) or self.min_length < 0:
             raise ValueError("min_length must be a non-negative integer")
+        if self.pattern is not None:
+            if not isinstance(self.pattern, str) or not self.pattern:
+                raise ValueError("pattern must be a non-empty string")
+            try:
+                re.compile(self.pattern)
+            except re.error as exc:
+                raise ValueError(
+                    f"pattern is not a valid regular expression: {exc}"
+                ) from exc
+
+
+def sha256_digest_spec(*, min_length: int = 71) -> StringSpec:
+    """Structural spec for a canonical lowercase sha256 digest string.
+
+    ``min_length`` defaults to the exact length of ``sha256:`` plus 64 hex
+    characters so a malformed digest fails fast on length before the (also
+    enforced) pattern check.
+    """
+
+    return StringSpec(min_length=min_length, pattern=SHA256_DIGEST_PATTERN)
 
 
 @dataclass(frozen=True, slots=True)

@@ -21,6 +21,7 @@ class ValidationCode(StrEnum):
     CYCLIC_VALUE = "CYCLIC_VALUE"
     ARRAY_TOO_SHORT = "ARRAY_TOO_SHORT"
     STRING_TOO_SHORT = "STRING_TOO_SHORT"
+    STRING_PATTERN_MISMATCH = "STRING_PATTERN_MISMATCH"
 
 
 @dataclass(frozen=True, slots=True)
