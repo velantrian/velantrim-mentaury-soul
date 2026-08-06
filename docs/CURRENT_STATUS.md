@@ -397,24 +397,49 @@ Self-audit passing ≠ absence of cross-PR boundary regressions
 Documented gap ≠ closed gap
 ```
 
+# 📋 Audit recommendations pending owner decision (2026-08-06)
+
+The governance gap above surfaced two candidate policy changes. An external
+review of the audit PR correctly pushed back on an earlier draft of this
+section: an audit may *propose* governance changes, but it must not silently
+write them into this authoritative status document as binding project law
+without the repository owner's explicit decision — doing so would itself be
+exactly the kind of unreviewed, self-asserted authority change the Bounded
+Authority invariant exists to prevent. Neither item below is adopted policy.
+Both are pending owner approval.
+
+- **Recommended:** require either a second human reviewer or a distinct,
+  non-same-operator automated reviewer with merge-blocking authority, at
+  minimum for changes touching `src/mentaury/beliefs`, `src/mentaury/evidence`
+  or `src/mentaury/replay`.
+- **Recommended:** author and get independently reviewed a dedicated
+  Capability Lease resolution specification (docs-only, like Controlled
+  Origin and Identity Continuity before it) before any domain runtime is
+  authorized to treat `AuthorityRef.capability_lease_id` as a validated
+  permission grant. As implemented through P0-015, `capability_lease_id` is
+  recorded and cross-checked for equality between linked records (e.g.
+  redaction ↔ evidence linkage) but is never resolved against a lease
+  registry, so it currently carries no enforceable authority.
+
+Open questions this audit does not resolve, left for the owner:
+
+```text
+Should review be merge-blocking, or advisory?
+Which directories/paths actually require independent approval?
+Does a second AI reviewer count as independent, or is a human required?
+What is the fallback if no independent reviewer is available?
+Does this apply to emergency security fixes?
+Who has authority to lift the requirement once (if ever) adopted?
+```
+
+Pending owner approval.
+
+---
+
 # 🏁 Следующее действие
 
 ```text
 POST-P0 ROADMAP REVIEW
 Status: NOT YET AUTHORIZED
 Precondition: define the next bounded milestone, threat model, authority boundary, resource budgets and rollback/replay criteria before adding runtime wiring
-Precondition: close the same-operator review gap above — require either a
-  second human reviewer or a distinct, non-same-operator automated reviewer
-  with merge-blocking authority, at minimum for any change touching
-  src/mentaury/beliefs, src/mentaury/evidence or src/mentaury/replay —
-  before authorizing further runtime wiring
-Precondition: author and get independently reviewed a dedicated Capability
-  Lease resolution specification (docs-only, like Controlled Origin and
-  Identity Continuity before it) before any domain runtime is authorized to
-  treat AuthorityRef.capability_lease_id as a validated permission grant. As
-  implemented through P0-015, capability_lease_id is recorded and
-  cross-checked for equality between linked records (e.g. redaction ↔
-  evidence linkage) but is never resolved against a lease registry, so it
-  currently carries no enforceable authority — see "AuthorityRef ≠ validated
-  capability lease" below.
 ```
