@@ -1,0 +1,51 @@
+name: Temporary P0-015 audit hardening
+
+on:
+  push:
+    branches:
+      - agent/p0-015-evidence-gate
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-cleanup:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/p0-015-evidence-gate
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+      - name: Apply audit hardening
+        run: python scripts/temporary_harden_p0_015.py
+      - name: Install locked toolchain
+        run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip install --no-build-isolation --no-deps -e .
+          python -m pip check
+      - name: Validate hardened candidate
+        run: |
+          python scripts/validate.py
+          python -m pytest
+          python -m compileall -q src tests scripts
+      - name: Commit tested tree without temporary files
+        run: |
+          rm scripts/temporary_harden_p0_015.py
+          rm .github/workflows/temporary-p0-015-hardening.yml
+          git config user.name 'Velantrim GitHub Actions'
+          git config user.email 'actions@users.noreply.github.com'
+          git add -A -- \
+            src/mentaury/evidence/contracts.py \
+            src/mentaury/evidence/gate.py \
+            src/mentaury/evidence/__init__.py \
+            src/mentaury/beliefs/evidence_gate.py \
+            src/mentaury/beliefs/gated_reducer.py \
+            tests/test_evidence_gate.py \
+            docs/P0_015_EVIDENCE_GATE.md \
+            scripts/temporary_harden_p0_015.py \
+            .github/workflows/temporary-p0-015-hardening.yml
+          git commit -m 'fix(evidence): fail closed on mixed and oversized evidence'
+          git push origin HEAD:agent/p0-015-evidence-gate
