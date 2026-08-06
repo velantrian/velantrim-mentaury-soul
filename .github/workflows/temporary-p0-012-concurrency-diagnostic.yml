@@ -1,0 +1,35 @@
+name: Temporary P0-012 concurrency diagnostic
+
+on:
+  push:
+    branches:
+      - agent/p0-012-permanent-ci
+    paths:
+      - scripts/temporary_diagnose_concurrency.py
+      - .github/workflows/temporary-p0-012-concurrency-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+
+      - name: Install locked tools and package
+        run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip install --no-build-isolation --no-deps -e .
+
+      - name: Run 100 contention trials
+        run: python scripts/temporary_diagnose_concurrency.py
