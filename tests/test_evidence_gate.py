@@ -53,7 +53,7 @@ from mentaury.replay import (
     make_replay_snapshot,
 )
 from mentaury.storage import SQLiteEventPayloadStore, VerificationBudget
-from mentaury.validation import SchemaRegistry
+from mentaury.validation import SchemaRegistry, ValidationCode
 
 BELIEF_ID = "belief-gate-001"
 STREAM_ID = belief_stream_id(BELIEF_ID)
@@ -792,6 +792,90 @@ def test_gate_schemas_are_strict_and_registered() -> None:
     registry.validate_pending_event(accepted.domain_events[0])
     assert rejected.audit_event is not None
     registry.validate_pending_event(rejected.audit_event)
+
+
+def _gate_registry() -> SchemaRegistry:
+    return SchemaRegistry(
+        (*belief_schema_definitions(), *evidence_gate_schema_definitions())
+    )
+
+
+def _gated_event_payload() -> dict[str, object]:
+    """A real BELIEF_EVIDENCE_GATED payload produced by the actual P0-015
+    decision path (not a hand-built synthetic payload), used to prove that
+    the sha256 pattern check in evidence_gate_schema_definitions() is wired
+    to the fields real callers actually populate.
+    """
+
+    state = _support_state()
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(
+        _gate_command(state, records), state
+    )
+    assert decision.accepted
+    return dict(decision.domain_events[0].payload)
+
+
+def _gated_pending(payload: dict[str, object]) -> PendingEvent:
+    return PendingEvent(BELIEF_EVIDENCE_GATED, "belief-evidence-gated/v1", True, payload)
+
+
+def test_real_gated_event_payload_passes_schema_admission() -> None:
+    payload = _gated_event_payload()
+    assert _gate_registry().validate_pending_event(_gated_pending(payload)) == ()
+
+
+# (label, malformed digest value, expected validation code). Length is
+# checked before pattern in mentaury.validation.validator, so a too-short
+# digest fails on STRING_TOO_SHORT rather than STRING_PATTERN_MISMATCH; every
+# other malformation preserves the required length but violates the sha256
+# shape, so it must fail on STRING_PATTERN_MISMATCH.
+_MALFORMED_DIGEST_VARIANTS = (
+    ("uppercase_hex", "sha256:" + "F" * 64, ValidationCode.STRING_PATTERN_MISMATCH),
+    ("wrong_prefix", "sha512:" + "a" * 64, ValidationCode.STRING_PATTERN_MISMATCH),
+    ("non_hex_characters", "sha256:" + "g" * 64, ValidationCode.STRING_PATTERN_MISMATCH),
+    ("too_short_63_hex_chars", "sha256:" + "a" * 63, ValidationCode.STRING_TOO_SHORT),
+    ("too_long_65_hex_chars", "sha256:" + "a" * 65, ValidationCode.STRING_PATTERN_MISMATCH),
+    ("trailing_newline", "sha256:" + "a" * 64 + "\n", ValidationCode.STRING_PATTERN_MISMATCH),
+    ("trailing_whitespace", "sha256:" + "a" * 64 + " ", ValidationCode.STRING_PATTERN_MISMATCH),
+    ("extra_suffix", "sha256:" + "a" * 64 + "-extra", ValidationCode.STRING_PATTERN_MISMATCH),
+)
+
+
+@pytest.mark.parametrize("label,malformed,expected_code", _MALFORMED_DIGEST_VARIANTS)
+def test_belief_evidence_gated_schema_rejects_malformed_record_content_digest(
+    label: str, malformed: str, expected_code: ValidationCode
+) -> None:
+    payload = _gated_event_payload()
+    records = [dict(record) for record in payload["records"]]
+    records[0] = {**records[0], "content_digest": malformed}
+    payload["records"] = records
+
+    issues = _gate_registry().validate_pending_event(_gated_pending(payload))
+
+    assert {issue.code for issue in issues} == {expected_code}, label
+    assert issues[0].path == "$.records[0].content_digest"
+
+
+@pytest.mark.parametrize(
+    "receipt_digest_field",
+    ["statement_digest", "policy_digest", "evidence_set_digest", "receipt_digest"],
+)
+def test_belief_evidence_gated_schema_rejects_malformed_receipt_digest_fields(
+    receipt_digest_field: str,
+) -> None:
+    payload = _gated_event_payload()
+    receipt = dict(payload["receipt"])
+    receipt[receipt_digest_field] = "sha256:" + "F" * 64
+    payload["receipt"] = receipt
+
+    issues = _gate_registry().validate_pending_event(_gated_pending(payload))
+
+    assert {issue.code for issue in issues} == {ValidationCode.STRING_PATTERN_MISMATCH}
+    assert issues[0].path == f"$.receipt.{receipt_digest_field}"
 
 
 def test_evidence_gate_event_is_r1_replay_compatible() -> None:

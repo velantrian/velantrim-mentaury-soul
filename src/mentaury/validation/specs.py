@@ -33,15 +33,18 @@ class StringSpec:
                 ) from exc
 
 
-def sha256_digest_spec(*, min_length: int = 71) -> StringSpec:
+def sha256_digest_spec() -> StringSpec:
     """Structural spec for a canonical lowercase sha256 digest string.
 
-    ``min_length`` defaults to the exact length of ``sha256:`` plus 64 hex
-    characters so a malformed digest fails fast on length before the (also
-    enforced) pattern check.
+    ``min_length`` is not configurable: the pattern already fixes the exact
+    shape (``sha256:`` plus 64 lowercase hex characters), so a caller-supplied
+    ``min_length`` could only ever create an internally inconsistent spec
+    (e.g. a length bound the pattern could never satisfy). The fixed length
+    check still runs before the pattern check purely as a cheap fail-fast
+    path, not as an independently tunable constraint.
     """
 
-    return StringSpec(min_length=min_length, pattern=SHA256_DIGEST_PATTERN)
+    return StringSpec(min_length=len("sha256:") + 64, pattern=SHA256_DIGEST_PATTERN)
 
 
 @dataclass(frozen=True, slots=True)
