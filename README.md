@@ -12,10 +12,10 @@ IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
 ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
 ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
-P0-001…P0-011_IMPLEMENTED_IN_MAIN
-P0-011_FINAL_EXACT_HEAD_VALIDATION_PASS
-P0-012…P0-015_NOT_IMPLEMENTED
-PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
+P0-001…P0-012_IMPLEMENTED_IN_MAIN
+P0-012_PERMANENT_CI_PR_AND_MAIN_VALIDATION_PASS
+P0-013…P0-015_NOT_IMPLEMENTED
+PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 
@@ -114,7 +114,7 @@ Identity Continuity:
 │   ├── P0-009 trusted commit + full R0 ✅
 │   ├── P0-010 redaction ✅
 │   ├── P0-011 adversarial suite ✅
-│   ├── P0-012 permanent CI
+│   ├── P0-012 permanent CI ✅
 │   ├── P0-013 replay
 │   ├── P0-014 belief lifecycle
 │   └── P0-015 Evidence Gate
@@ -245,6 +245,7 @@ P0-008 → controlled concurrent writers
 P0-009 → trusted write sealing + bounded full R0 integrity
 P0-010 → atomic same-stream redaction + complete governed-evidence linkage
 P0-011 → adversarial integrity gate + request-bound idempotency receipts
+P0-012 → permanent read-only exact-revision GitHub Actions CI
 ```
 
 ## 🔗 P0-009
@@ -280,8 +281,7 @@ Compileall            → PASS
 # 🗺️ Текущая последовательность
 
 ```text
-P0-001…P0-011 ✅
-→ P0-012 Permanent GitHub Actions CI
+P0-001…P0-012 ✅
 → P0-013 R1 Deterministic Replay
 → P0-014 Minimal Belief Lifecycle
 → P0-015 Evidence Gate
@@ -421,6 +421,7 @@ Navigation
 - [🔗 P0-009 Trusted Commit + R0](docs/P0_009_R0_INTEGRITY.md)
 - [🗑️ P0-010 Atomic Same-Stream Redaction](docs/P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
 - [🧨 P0-011 Adversarial Integrity Suite](docs/P0_011_ADVERSARIAL_INTEGRITY_SUITE.md)
+- [⚙️ P0-012 Permanent GitHub Actions CI](docs/P0_012_PERMANENT_CI.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
@@ -444,8 +445,6 @@ Navigation
 ❌ доказанное сознание
 ❌ subjective experience
 ❌ absolute tamper-proof history
-❌ governed payload redaction
-❌ permanent GitHub Actions CI
 ❌ deterministic R1 replay
 ❌ verified authority resolution
 ❌ ready Belief / Identity / Relationship runtime
@@ -460,4 +459,4 @@ Navigation
 
 # 🏁 Главный критерий
 
-> **Mentaury уже имеет подробную архитектуру цифровой индивидуальности и работающий инфраструктурный P0-фундамент до P0-009. Identity, beliefs, relationships, Character и Exo-Cortex пока остаются документированными, но не реализованными runtime-областями.** 🧬🔐⚙️
+> **Mentaury уже имеет подробную архитектуру цифровой индивидуальности и работающий инфраструктурный P0-фундамент до P0-012. Identity, beliefs, relationships, Character и Exo-Cortex пока остаются документированными, но не реализованными runtime-областями.** 🧬🔐⚙️
