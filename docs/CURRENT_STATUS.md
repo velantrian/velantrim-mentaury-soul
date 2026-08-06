@@ -4,12 +4,12 @@
 Дата фиксации:                  2026-08-06
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  cd069e97200d6381806642a438ec2bc64b71571e
+Verified implementation head:  d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
 
 CANON_V0.1_FROZEN
-P0-001…P0-013_IMPLEMENTED_IN_MAIN
-P0-013_R1_PR_AND_MAIN_VALIDATION_PASS
-P0-014…P0-015_NOT_IMPLEMENTED
+P0-001…P0-015_IMPLEMENTED_IN_MAIN
+P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
+P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -53,6 +53,8 @@ Current maturity authority
 | P0-011 Adversarial Integrity Suite | ✅ Implemented | adversarial PASS ≠ total-database authenticity |
 | P0-012 Permanent GitHub Actions CI | ✅ Implemented | green CI ≠ branch protection or runtime safety |
 | P0-013 R1 Deterministic Replay | ✅ Implemented | deterministic replay ≠ epistemic truth |
+| P0-014 Minimal Belief Lifecycle | ✅ Implemented | belief status ≠ truth or runtime authority |
+| P0-015 Deterministic Evidence Gate | ✅ Implemented | gate receipt ≠ externally verified fact |
 
 ---
 
@@ -263,12 +265,81 @@ without claiming independent external approval.
 
 ---
 
-# 🔴 Не реализовано
+# ✅ P0-014 — Minimal Belief Lifecycle
 
 ```text
-P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
-P0-015 Evidence Gate Report            → NOT IMPLEMENTED
+PR:                  #29
+Final tested head:   fe3ae74d4ef92fc06ab1bee4def88066ded402a5
+Merge SHA:           3ff90816b8d095987a8adcdc2cb633c128877212
+PR workflow run:     31090898077
+Main push run:       31091006506
+Python:              CPython 3.13.14
+Full pytest:         208 passed on PR and main
+Review:              exact-head audit 4873291547
 ```
+
+Реализовано:
+
+- strict belief-domain and non-state decision schemas;
+- pure create, evidence-attach, contradiction and revision decisions;
+- immutable revision, evidence and contradiction history;
+- shared lifecycle/reducer status policy and terminal supersession;
+- fail-closed direct-event policy enforcement;
+- explicit separation of stream CAS version and belief revision;
+- R1-compatible projection where audit events do not mutate domain state;
+- `supported` and `contradicted` reserved for P0-015.
+
+```text
+Belief projection ≠ truth
+AuthorityRef ≠ validated capability lease
+P0-014 merged ≠ domain runtime authorization
+```
+
+---
+
+# ✅ P0-015 — Deterministic Evidence Gate
+
+```text
+PR:                  #30
+Final tested head:   71acd7410c5080e4ac3245b53534b512b871bae5
+Merge SHA:           d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
+Audit hardening run: 31093091082
+PR workflow run:     31093258104
+Main push run:       31093382362
+Python:              CPython 3.13.14
+Full pytest:         232 passed on PR and main
+Review:              exact-head two-pass audit 4873644214
+```
+
+Реализовано:
+
+- immutable evidence records and closed approved-policy registry;
+- deterministic content-addressed receipts bound to belief, revision, statement, policy, time and complete evidence set;
+- complete record coverage, freshness, revocation, quality and 256-record budget;
+- content/provenance uniqueness and source-group independence controls;
+- fail-closed conflict when qualifying evidence exists on both sides;
+- shipped policy limited to classified contextual claims;
+- pure gate decisions and non-state rejection audits;
+- reducer v2 that binds stream/time/state semantics and recomputes the full receipt during R1 replay;
+- adversarial receipt, policy, record, ordering, time, stream and status tests.
+
+```text
+Evidence Gate receipt ≠ objective truth
+Evidence record ≠ externally authenticated source
+P0-015 merged ≠ M3 update, autonomous learning or runtime authority
+```
+
+---
+
+# ✅ P0 implementation line complete
+
+```text
+P0-001…P0-015 → IMPLEMENTED, MERGED AND RETAINED-CI VALIDATED
+```
+
+This closes the current P0 implementation plan. It does not authorize a
+long-running agent, domain service, M3 mutation path, tool execution or external
+action boundary.
 
 ---
 
@@ -298,15 +369,15 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 # 🗺️ Контролируемая последовательность
 
 ```text
-P0-001…P0-013 ✅ merged in main
-→ P0-014 minimal belief lifecycle
-→ P0-015 Evidence Gate report
+P0-001…P0-015 ✅ merged and validated in main
+→ define a separate post-P0 roadmap before additional implementation
+→ preserve DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
 # 🏁 Следующее действие
 
 ```text
-P0-014 MINIMAL BELIEF LIFECYCLE
-Status: NOT IMPLEMENTED
-Precondition: define evidence-referenced belief commands/events, deterministic lifecycle transitions and R1-compatible projection state without granting truth or identity authority
+POST-P0 ROADMAP REVIEW
+Status: NOT YET AUTHORIZED
+Precondition: define the next bounded milestone, threat model, authority boundary, resource budgets and rollback/replay criteria before adding runtime wiring
 ```

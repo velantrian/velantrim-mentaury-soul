@@ -1,9 +1,10 @@
 # ⚖️ P0-015 — Deterministic Evidence Gate
 
 ```text
-Status: FINAL VALIDATED PR CANDIDATE
+Status: MERGED IN MAIN · PR AND MAIN CI PASS
 Base: main@3ff90816b8d095987a8adcdc2cb633c128877212
-Validated implementation head: 246b7ad9e64f8c70777baf0f12202899747eb5be
+Final tested head: 71acd7410c5080e4ac3245b53534b512b871bae5
+Merge SHA: d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
 Scope: governed M2 belief status gate
 M3 identity writes: NOT AUTHORIZED
 Domain runtime wiring: NOT AUTHORIZED
@@ -183,18 +184,23 @@ R1 full replay ↔ snapshot-tail equivalence
 
 ```text
 Audit hardening run: 31093091082
-Validated head:      246b7ad9e64f8c70777baf0f12202899747eb5be
+PR workflow run:     31093258104
+Main push run:       31093382362
+Final tested head:   71acd7410c5080e4ac3245b53534b512b871bae5
+Merge SHA:           d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
 Python:              CPython 3.13.14
 Structural validator: PASS
-Full pytest:         232 passed
+Full pytest:         232 passed on PR and main
 Compileall:          PASS
 Final target diff:   9 files
 Temporary files:     absent
+Review threads:      0
+Review:              4873644214
 ```
 
-The retained read-only `Mentaury CI` must still pass the final owner-authored PR
-head before merge. The validation checkpoint records the implementation proof;
-it is not a substitute for the retained exact-head gate.
+The retained read-only `Mentaury CI` passed both the final owner-authored PR
+head and the resulting merge SHA. This validates the repository contract; it
+does not authenticate external evidence or authorize runtime deployment.
 
 ## ⚖️ Preserved boundaries
 

@@ -1,8 +1,9 @@
 # 🧠 P0-014 — Minimal Belief Lifecycle
 
 ```text
-Status: IMPLEMENTATION PR
-Base: main@024deeec456549584273c79ccfc5e1442d480add
+Status: MERGED IN MAIN · PR AND MAIN CI PASS
+Implementation base: main@024deeec456549584273c79ccfc5e1442d480add
+Merge SHA: 3ff90816b8d095987a8adcdc2cb633c128877212
 Scope: minimal M2 belief lifecycle only
 P0-015 Evidence Gate: NOT INCLUDED
 M3 identity writes: NOT AUTHORIZED
@@ -209,32 +210,22 @@ P0-014 ≠ autonomous learning
 P0-014 ≠ domain runtime authorization
 ```
 
-## 🧪 Required validation
+## ✅ Validation evidence
 
 ```text
-retained Mentaury CI on exact PR head
-CPython 3.13.x
-locked install + pip check
-structural validator
-complete pytest
-compileall
-exact diff audit
-unresolved review threads = 0
+PR:                  #29
+Final tested head:   fe3ae74d4ef92fc06ab1bee4def88066ded402a5
+Merge SHA:           3ff90816b8d095987a8adcdc2cb633c128877212
+PR workflow run:     31090898077
+Main push run:       31091006506
+Python:              CPython 3.13.14
+Full pytest:         208 passed on PR and main
+Compileall:          PASS
+Changed files:       7 intended files
+Review threads:      0
+Review:              4873291547
 ```
 
-The test matrix must cover accepted lifecycle transitions, duplicate and unknown
-reference rejection, contradiction state, immutable revision history, terminal
-supersession, strict event/audit schemas and P0-013 replay compatibility.
-
-## ➡️ Next controlled milestone
-
-After P0-014 is merged, passes retained CI on `main`, and documentation/Notion
-are synchronized:
-
-```text
-P0-015 → Evidence Gate
-```
-
-P0-015 may restrict `supported` and revision decisions based on governed evidence
-policy, but must not rewrite P0-014 history or grant direct truth/identity
-authority.
+P0-015 was subsequently implemented as a separate reviewed milestone. P0-014
+history and reducer-v1 boundaries remain unchanged; the gated reducer is a new
+versioned profile rather than a rewrite of prior events.
