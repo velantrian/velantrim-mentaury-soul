@@ -1,8 +1,11 @@
 # 🧨 P0-011 — Adversarial Integrity Suite
 
 ```text
-Status: READY FOR FINAL REVIEW
+Status: MERGED · POST-MERGE SYNCED
 Base: main@d05319cdcae0eb6421c6ad60649fb8ed57feba08
+Final tested head: c21fe2503a31a73e1fe17e89dc92841ed35a65f3
+Merge SHA: 5640bd6ce650818c731e09391434ac12a0aec5e6
+Validation run: 31084297081 · CPython 3.13.14 · 163 passed
 Scope: P0-011 only
 P0-012 permanent GitHub Actions: NOT INCLUDED
 R1 replay / belief lifecycle: NOT INCLUDED
@@ -115,14 +118,16 @@ CPython 3.13.x
 python scripts/validate.py
 full pytest
 python -m compileall -q src tests scripts
-independent final-head review
+two-pass exact-head audit completed
+automated external review unavailable because code-review quota was exhausted
 temporary validation workflow absent from final diff
 ```
 
-The production and test tree passed these commands in temporary validation run
-`31083981202` with CPython `3.13.14` and `163 passed`. A final exact-head proof
-must include this synchronized specification and remove its temporary workflow
-before merge.
+The synchronized final tree passed these commands in temporary exact-head run
+`31084297081` with CPython `3.13.14` and `163 passed`; the workflow removed
+itself before merge. Automated external review could not run because the
+connected code-review quota was exhausted, so review `4872555946` records the
+two-pass exact-head audit without claiming independent approval.
 
 ## ➡️ Next controlled milestone
 
