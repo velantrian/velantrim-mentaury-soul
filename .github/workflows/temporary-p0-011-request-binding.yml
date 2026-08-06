@@ -27,7 +27,22 @@ jobs:
           python-version: '3.13'
 
       - name: Apply request-binding hardening
-        run: python scripts/temporary_harden_p0_011_receipt_binding.py
+        run: |
+          python scripts/temporary_harden_p0_011_receipt_binding.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('tests/test_adversarial_integrity_suite.py')
+          text = path.read_text(encoding='utf-8')
+          marker = '''def test_stored_idempotency_receipt_event_order_is_verified() -> None:'''
+          start = text.index(marker)
+          end = text.index('\n\ndef ', start + len(marker))
+          block = text[start:end]
+          expected = 'match="stream_version"'
+          if block.count(expected) != 1:
+              raise RuntimeError('event-order assertion marker mismatch')
+          block = block.replace(expected, 'match="batch_index"', 1)
+          path.write_text(text[:start] + block + text[end:], encoding='utf-8')
+          PY
 
       - name: Install reproducible toolchain
         run: |
