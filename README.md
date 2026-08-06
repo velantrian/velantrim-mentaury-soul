@@ -3,7 +3,7 @@
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
 ```text
-Status snapshot: 2026-08-05
+Status snapshot: 2026-08-06
 
 VISION · RESEARCH
 CANON_V0.1_FROZEN
@@ -12,9 +12,8 @@ IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
 ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
 ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
-P0-001…P0-009_IMPLEMENTED_IN_MAIN
-P0-009_FINAL_EXACT_HEAD_VALIDATION_PASS
-P0-010_NEXT_NOT_IMPLEMENTED
+P0-001…P0-010_IMPLEMENTED_IN_MAIN
+P0-010_FINAL_EXACT_HEAD_VALIDATION_PASS
 P0-011…P0-015_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
@@ -113,7 +112,7 @@ Identity Continuity:
 │   ├── P0-007 idempotency ✅
 │   ├── P0-008 concurrency ✅
 │   ├── P0-009 trusted commit + full R0 ✅
-│   ├── P0-010 redaction ⏭️
+│   ├── P0-010 redaction ✅
 │   ├── P0-011 adversarial suite
 │   ├── P0-012 permanent CI
 │   ├── P0-013 replay
@@ -244,6 +243,7 @@ P0-006 → atomic ordered event batches
 P0-007 → semantic idempotency
 P0-008 → controlled concurrent writers
 P0-009 → trusted write sealing + bounded full R0 integrity
+P0-010 → atomic same-stream redaction + complete governed-evidence linkage
 ```
 
 ## 🔗 P0-009
@@ -279,8 +279,7 @@ Compileall            → PASS
 # 🗺️ Текущая последовательность
 
 ```text
-P0-001…P0-009 ✅
-→ P0-010 Atomic Same-Stream Redaction ⏭️
+P0-001…P0-010 ✅
 → P0-011 Adversarial Integrity Suite
 → P0-012 Permanent GitHub Actions CI
 → P0-013 R1 Deterministic Replay
@@ -420,6 +419,7 @@ Navigation
 - [🧬 Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - [🛠️ P0 Implementation Plan v0.3](docs/MENTAURY_P0_IMPLEMENTATION_PLAN.md)
 - [🔗 P0-009 Trusted Commit + R0](docs/P0_009_R0_INTEGRITY.md)
+- [🗑️ P0-010 Atomic Same-Stream Redaction](docs/P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
