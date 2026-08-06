@@ -1,15 +1,14 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации:                  2026-08-05
+Дата фиксации:                  2026-08-06
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
+Verified implementation head:  7f78dd2c7db45206f293f0278a51033474db4918
 
 CANON_V0.1_FROZEN
-P0-001…P0-009_IMPLEMENTED_IN_MAIN
-P0-009_FINAL_EXACT_HEAD_VALIDATION_PASS
-P0-010_NEXT_NOT_IMPLEMENTED
+P0-001…P0-010_IMPLEMENTED_IN_MAIN
+P0-010_FINAL_EXACT_HEAD_VALIDATION_PASS
 P0-011…P0-015_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
 DOMAIN_RUNTIME_NOT_AUTHORIZED
@@ -50,6 +49,7 @@ Current maturity authority
 | P0-007 Event-Aware Idempotency | ✅ Implemented | replay receipt ≠ integrity verification |
 | P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking ≠ distributed consensus |
 | P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |
+| P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal ≠ event-provenance deletion |
 
 ---
 
@@ -103,10 +103,44 @@ R0 PASS ≠ R1 replay equivalence
 
 ---
 
+# ✅ P0-010 — Atomic Same-Stream Redaction
+
+Merged PR:
+
+```text
+PR:                #19
+Final tested head: e141e31f60f7a9aee78642fe3fe3b44570ced733
+Merge SHA:         7f78dd2c7db45206f293f0278a51033474db4918
+Validation run:    31074885346
+Python:            CPython 3.13.14
+Full pytest:       144 passed
+Review:            Copilot 9/9 files, 0 new comments
+```
+
+Реализовано:
+
+- immutable schema-v4 `redactions` evidence;
+- one-transaction payload removal, audit append, `stream_meta` update and linkage write;
+- preservation of the immutable target event row and original hash chain;
+- complete R0 verification of redaction row → target event → audit event → canonical audit payload;
+- fail-closed handling for forged, missing, cross-stream or inconsistent evidence;
+- caller-supplied `VerificationBudget` applied before linked audit-payload decoding;
+- authority-scoped semantic idempotency and deterministic rollback behavior;
+- focused concurrency and adversarial regression coverage.
+
+```text
+Governed redaction ≠ epistemic truth
+Payload removal ≠ event-provenance deletion
+SQLite deletion ≠ backup-wide erasure proof
+R0 PASS ≠ R1 replay equivalence
+P0-010 merged ≠ domain consent/privacy runtime
+```
+
+---
+
 # 🔴 Не реализовано
 
 ```text
-P0-010 Atomic Same-Stream Redaction    → NEXT · NOT IMPLEMENTED
 P0-011 Adversarial Integrity Suite     → NOT IMPLEMENTED
 P0-012 Permanent GitHub Actions CI     → NOT IMPLEMENTED
 P0-013 R1 Deterministic Replay         → NOT IMPLEMENTED
@@ -142,8 +176,7 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 # 🗺️ Контролируемая последовательность
 
 ```text
-P0-001…P0-009 ✅ merged in main
-→ P0-010 atomic same-stream redaction
+P0-001…P0-010 ✅ merged in main
 → P0-011 adversarial integrity suite
 → P0-012 permanent GitHub Actions CI
 → P0-013 R1 deterministic replay
@@ -154,7 +187,7 @@ P0-001…P0-009 ✅ merged in main
 # 🏁 Следующее действие
 
 ```text
-P0-010 ATOMIC SAME-STREAM REDACTION
+P0-011 ADVERSARIAL INTEGRITY SUITE
 Status: NOT IMPLEMENTED
-Precondition: preserve immutable event history and R0-valid redaction evidence
+Precondition: combine tampering, migration, concurrency, redaction and resource-boundary proofs into one controlled matrix
 ```
