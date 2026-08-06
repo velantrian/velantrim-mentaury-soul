@@ -75,14 +75,11 @@ body_start = text.index("        reducer_error =", method_start)
 method_end = text.index("    def _run(\n", body_start)
 body = text[body_start:method_end]
 lines = body.splitlines(keepends=True)
-for line in lines:
-    if line.strip() and not line.startswith("            "):
-        raise RuntimeError(f"unexpected private-method indentation: {line!r}")
-normalized = "".join(
-    line[4:] if line.strip() else line
-    for line in lines
-)
-text = text[:body_start] + normalized + text[method_end:]
+if all(not line.strip() or line.startswith("            ") for line in lines):
+    body = "".join(line[4:] if line.strip() else line for line in lines)
+elif not all(not line.strip() or line.startswith("        ") for line in lines):
+    raise RuntimeError("unexpected private-method indentation")
+text = text[:body_start] + body + text[method_end:]
 engine.write_text(text, encoding="utf-8")
 
 
