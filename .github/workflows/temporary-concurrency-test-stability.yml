@@ -1,0 +1,60 @@
+name: Temporary concurrency-test stability
+
+on:
+  push:
+    branches:
+      - fix/concurrency-test-retry-budget
+    paths:
+      - scripts/temporary_stabilize_concurrency_tests.py
+      - .github/workflows/temporary-concurrency-test-stability.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: fix/concurrency-test-retry-budget
+          fetch-depth: 0
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+
+      - name: Apply test-harness stabilization
+        run: python scripts/temporary_stabilize_concurrency_tests.py
+
+      - name: Install locked toolchain
+        run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip install --no-build-isolation --no-deps -e .
+
+      - name: Stress changed-semantics contention
+        run: |
+          for iteration in $(seq 1 100); do
+            python -m pytest -q \
+              tests/test_concurrency.py::test_concurrent_same_key_changed_semantics_conflicts
+          done
+
+      - name: Validate full repository
+        run: |
+          python scripts/validate.py
+          python -m pytest
+          python -m compileall -q src tests scripts
+
+      - name: Commit tested test-only result
+        run: |
+          rm scripts/temporary_stabilize_concurrency_tests.py
+          rm .github/workflows/temporary-concurrency-test-stability.yml
+          git config user.name 'Velantrim GitHub Actions'
+          git config user.email 'actions@users.noreply.github.com'
+          git add tests/test_concurrency.py \
+                  scripts/temporary_stabilize_concurrency_tests.py \
+                  .github/workflows/temporary-concurrency-test-stability.yml
+          git commit -m 'test(concurrency): stabilize bounded lock contention'
+          git push origin HEAD:fix/concurrency-test-retry-budget
