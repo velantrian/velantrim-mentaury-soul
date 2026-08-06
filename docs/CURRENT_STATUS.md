@@ -374,10 +374,38 @@ P0-001…P0-015 ✅ merged and validated in main
 → preserve DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
+# 🔍 Governance gap identified by audit (2026-08-06)
+
+Every merged PR from P0-001 through P0-015 was authored, self-reviewed and
+merged by the same operator account (`velantrian`). Starting with PR #27,
+review text has honestly disclosed this: "This is a same-operator audit, not
+an independent third-party approval" (PR #30), and "Automated external code
+review remained unavailable because the connected review quota was
+exhausted" (PR #27, #29). This transparency is good, but the gap itself is
+unresolved, and it already produced a real defect: a P0-014/P0-015 boundary
+bug where `BeliefLifecycle.decide()` accepted `ATTACH_EVIDENCE` and
+`REGISTER_CONTRADICTION` commands against an already Evidence Gate-owned
+(`supported`/`contradicted`) belief, while `BeliefReducer.apply()` correctly
+rejected the same event — a decision/reducer boundary mismatch that the
+same-operator review across two adjacent same-day PRs did not catch. Fixed
+under this audit with a matching lifecycle-side rejection and a whole-status
+matrix regression test; see the belief lifecycle module history for detail.
+
+```text
+Same-operator review ≠ independent third-party approval
+Self-audit passing ≠ absence of cross-PR boundary regressions
+Documented gap ≠ closed gap
+```
+
 # 🏁 Следующее действие
 
 ```text
 POST-P0 ROADMAP REVIEW
 Status: NOT YET AUTHORIZED
 Precondition: define the next bounded milestone, threat model, authority boundary, resource budgets and rollback/replay criteria before adding runtime wiring
+Precondition: close the same-operator review gap above — require either a
+  second human reviewer or a distinct, non-same-operator automated reviewer
+  with merge-blocking authority, at minimum for any change touching
+  src/mentaury/beliefs, src/mentaury/evidence or src/mentaury/replay —
+  before authorizing further runtime wiring
 ```
