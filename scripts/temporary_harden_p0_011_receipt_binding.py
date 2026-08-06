@@ -140,8 +140,8 @@ new_function = '''def _verify_stored_receipt(
                 "payload_digest",
             ),
             (
-                row["initiator_type"] == request.command.issuer.type
-                and row["initiator_id"] == request.command.issuer.id,
+                row["initiator_type"] == request.command.issuer.actor_type
+                and row["initiator_id"] == request.command.issuer.actor_id,
                 "initiator",
             ),
             (
