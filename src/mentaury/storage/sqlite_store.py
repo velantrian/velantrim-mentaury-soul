@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -29,9 +30,11 @@ from .budget import VerificationBudget
 from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
+    StoreBusyError,
     VersionConflictError,
     begin_immediate,
     commit_with_retry,
+    is_busy_error,
     is_stream_version_conflict,
 )
 from .sealing import (
@@ -48,7 +51,7 @@ from .stream_meta import (
     update_stream_meta,
 )
 
-SCHEMA_VERSION: Final[int] = 3
+SCHEMA_VERSION: Final[int] = 4
 MINIMUM_SQLITE_VERSION: Final[tuple[int, int, int]] = (3, 37, 0)
 
 
@@ -196,6 +199,39 @@ FROM events AS e
 GROUP BY e.stream_id
 """
 
+_CREATE_REDACTIONS_STATEMENTS: Final[tuple[str, ...]] = (
+    """
+    CREATE TABLE redactions (
+        target_event_id TEXT PRIMARY KEY NOT NULL,
+        idempotency_key TEXT NOT NULL,
+        fingerprint TEXT NOT NULL,
+        target_stream_id TEXT NOT NULL,
+        target_payload_ref TEXT NOT NULL,
+        audit_event_id TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        capability_lease_id TEXT NOT NULL,
+        capability_revision INTEGER NOT NULL CHECK (capability_revision >= 0),
+        redacted_at TEXT NOT NULL,
+        UNIQUE(idempotency_key)
+    ) STRICT
+    """,
+    "CREATE INDEX redactions_by_stream ON redactions(target_stream_id)",
+    """
+    CREATE TRIGGER redactions_are_immutable_on_update
+    BEFORE UPDATE ON redactions
+    BEGIN
+        SELECT RAISE(ABORT, 'redaction records cannot be updated');
+    END
+    """,
+    """
+    CREATE TRIGGER redactions_are_immutable_on_delete
+    BEFORE DELETE ON redactions
+    BEGIN
+        SELECT RAISE(ABORT, 'redaction records cannot be deleted');
+    END
+    """,
+)
+
 
 class SQLiteEventPayloadStore:
     """Replaceable first-profile adapter for trusted P0 storage primitives."""
@@ -309,6 +345,20 @@ class SQLiteEventPayloadStore:
                     self._connection.execute("ROLLBACK")
                 raise
             current = 3
+        if current == 3:
+            try:
+                begin_immediate(self._connection, self._busy_policy)
+                for statement in _CREATE_REDACTIONS_STATEMENTS:
+                    self._connection.execute(statement)
+                self._connection.execute(
+                    "UPDATE p0_schema_meta SET schema_version = 4 WHERE singleton = 1"
+                )
+                commit_with_retry(self._connection, self._busy_policy)
+            except Exception:
+                if self._connection.in_transaction:
+                    self._connection.execute("ROLLBACK")
+                raise
+            current = 4
         if current != SCHEMA_VERSION:
             raise StorageError("unsupported P0 storage schema version")
         try:
@@ -318,18 +368,43 @@ class SQLiteEventPayloadStore:
             self._connection.execute(
                 "SELECT stream_id FROM stream_meta LIMIT 0"
             )
+            self._connection.execute(
+                "SELECT target_event_id FROM redactions LIMIT 0"
+            )
         except sqlite3.OperationalError as exc:
             raise StorageError("incomplete P0 storage schema") from exc
 
     def _require_initialized(self) -> None:
-        try:
-            row = self._connection.execute(
-                "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
-            ).fetchone()
-        except sqlite3.OperationalError as exc:
-            raise StoreNotInitializedError(
-                "storage schema must be initialized explicitly"
-            ) from exc
+        """Read the schema marker, retrying transient write-lock contention.
+
+        A concurrent writer's held ``BEGIN IMMEDIATE`` can make this plain read
+        fail with ``database is locked``. That is contention, not a missing
+        schema, so it is retried under the same bounded policy as other locked
+        operations and reported as ``StoreBusyError`` on exhaustion instead of
+        being misreported as an uninitialized store.
+        """
+
+        last_busy_error: sqlite3.OperationalError | None = None
+        for attempt in range(1, self._busy_policy.max_attempts + 1):
+            try:
+                row = self._connection.execute(
+                    "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
+                ).fetchone()
+                break
+            except sqlite3.OperationalError as exc:
+                if not is_busy_error(exc):
+                    raise StoreNotInitializedError(
+                        "storage schema must be initialized explicitly"
+                    ) from exc
+                last_busy_error = exc
+                if (
+                    attempt < self._busy_policy.max_attempts
+                    and self._busy_policy.backoff_seconds
+                ):
+                    time.sleep(self._busy_policy.backoff_seconds)
+        else:
+            assert last_busy_error is not None
+            raise StoreBusyError(self._busy_policy.max_attempts, last_busy_error)
         if row is None or row["schema_version"] != SCHEMA_VERSION:
             raise StoreNotInitializedError("unsupported or missing storage schema")
 
