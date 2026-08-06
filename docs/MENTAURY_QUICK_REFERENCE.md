@@ -2,8 +2,8 @@
 
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
-Дата:       2026-08-05
-Синхронно:  GitHub main after merged PR #14
+Дата:       2026-08-06
+Синхронно:  GitHub main after merged PR #31 (P0-015 status sync)
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -56,11 +56,10 @@ IDENTITY_CONTINUITY_RESEARCH_V0.1_DOCS_ONLY
 CHARACTER_AND_PRESENCE_V0.1_PRESENTATION_ONLY
 ARCHITECTURE_RECONCILIATION_V0.1_COMPLETED
 ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
-P0-001…P0-008_IMPLEMENTED_IN_MAIN
-P0-008_LOCAL_VALIDATION_PASS
-P0-009_OPEN_PR_15_NOT_MERGED
-P0-010…P0-015_NOT_IMPLEMENTED
-GITHUB_ACTIONS_NOT_PRESENT
+P0-001…P0-015_IMPLEMENTED_IN_MAIN
+P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
+P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
+PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
@@ -68,13 +67,16 @@ RUNTIME_NOT_VALIDATED
 Последний принятый milestone:
 
 ```text
-P0-008 TRANSACTIONAL CONCURRENCY
+P0-015 DETERMINISTIC EVIDENCE GATE
 ```
 
 Следующее действие:
 
 ```text
-review → correct → validate → decide merge for P0-009 PR #15
+POST-P0 ROADMAP REVIEW — NOT YET AUTHORIZED
+precondition: define the next bounded milestone, threat model, authority
+boundary, resource budgets and rollback/replay criteria before adding any
+runtime wiring
 ```
 
 ---
@@ -92,20 +94,21 @@ Architecture Reconciliation ✅
 → P0-006 atomic multi-event batch ✅
 → P0-007 event-aware idempotency ✅
 → P0-008 transactional concurrency ✅
-→ P0-009 R0 integrity 🟡 open PR
-→ P0-010 redaction 🔴
-→ P0-011 adversarial integrity suite 🔴
-→ P0-012 GitHub Actions CI 🔴
-→ P0-013 R1 replay 🔴
-→ P0-014 minimal belief lifecycle 🔴
-→ P0-015 Evidence Gate 🔴
+→ P0-009 R0 integrity ✅
+→ P0-010 redaction ✅
+→ P0-011 adversarial integrity suite ✅
+→ P0-012 GitHub Actions CI ✅
+→ P0-013 R1 replay ✅
+→ P0-014 minimal belief lifecycle ✅
+→ P0-015 Evidence Gate ✅
+→ post-P0 roadmap 🟡 not yet authorized
 ```
 
 ```text
-P0-008 implemented
-≠ full R0 integrity
-≠ validated Event Substrate
+P0-001…P0-015 implemented
 ≠ domain runtime authorized
+≠ Belief / Identity / Relationship / Character runtime
+≠ epistemic or objective truth
 ```
 
 ---
@@ -434,28 +437,75 @@ VERSION_CONFLICT
 two-connection race tests
 ```
 
-Последняя принятая локальная проверка:
+### P0-009 — Trusted Commit + Full R0 Integrity ✅
+
+```text
+mandatory SchemaRegistry admission for production writes
+canonical payload bytes shared by validation, hashing and persistence
+transactional payload/previous/event hash allocation
+fail-closed populated v2→v3 migration
+caller-supplied VerificationBudget
+exact-one OneOfSpec semantics
+```
+
+### P0-010 — Atomic Same-Stream Redaction ✅
+
+```text
+immutable schema-v4 redactions evidence
+one-transaction payload removal + audit + linkage
+complete R0 verification of redaction ↔ target ↔ audit linkage
+authority-scoped semantic idempotency
+```
+
+### P0-011 — Adversarial Integrity Suite ✅
+
+```text
+19 adversarial attack families across R0, redaction, idempotency
+forged/malformed/noncanonical payload and chain detection
+controlled IdempotencyReceiptIntegrityError
+```
+
+### P0-012 — Permanent GitHub Actions CI ✅
+
+```text
+retained .github/workflows/ci.yml on pull_request + push to main
+pinned actions, persist-credentials: false
+validator + full pytest + compileall on every PR/push
+```
+
+### P0-013 — R1 Deterministic Replay ✅
+
+```text
+neutral versioned ReplayReducer + ReplaySnapshot + ReplayStateBudget
+one SQLite read snapshot across R0, capture and replay
+full-replay ↔ snapshot-tail equivalence, dual transition execution
+fail-closed state-affecting redaction boundary
+```
+
+### P0-014 — Minimal Belief Lifecycle ✅
+
+```text
+pure create / attach-evidence / register-contradiction / revise decisions
+shared lifecycle/reducer status policy and terminal supersession
+supported / contradicted reserved for the P0-015 Evidence Gate
+```
+
+### P0-015 — Deterministic Evidence Gate ✅
+
+```text
+immutable evidence records + closed approved-policy registry
+content-addressed receipts bound to belief, revision, statement, policy, time
+fail-closed conflict when qualifying evidence exists on both sides
+reducer v2 recomputes and replay-verifies the full receipt
+```
+
+Последняя принятая проверка на `main` (после P0-015, PR #30):
 
 ```text
 validator  → PASS
-pytest     → 74 passed
+pytest     → 232 passed
 compileall → PASS
-CI         → NOT PRESENT
-```
-
-### P0-009 — R0 Integrity 🟡
-
-```text
-PR #15 exists
-state: OPEN
-merged: NO
-local branch validation claimed: 88 tests
-```
-
-### P0-010…P0-015 🔴
-
-```text
-NOT IMPLEMENTED
+CI         → Mentaury CI, permanent, green on PR and main
 ```
 
 ---
@@ -495,18 +545,19 @@ Navigation
 Проект пока не заявляет:
 
 - production readiness;
-- validated security;
+- validated security certification;
 - доказанное сознание;
 - субъективные эмоции;
 - absolute tamper-proof history;
-- full R0 integrity merged in `main`;
-- remote GitHub Actions CI;
-- deterministic R1 replay;
-- verified authority resolution;
+- verified authority resolution (AuthorityRef ≠ validated capability lease);
 - готовый Belief, Identity или Relationship runtime;
 - готовый Exo-Cortex runtime;
 - готовый Character Engine;
+- automatic M2 → M3 transition;
 - прямую интеграцию с Titan, Crystal или Native Kernel.
+
+P0-001…P0-015 (full R0 integrity, permanent GitHub Actions CI, deterministic
+R1 replay) уже реализованы и смержены в `main` — см. раздел 3.
 
 ---
 
@@ -525,6 +576,13 @@ Navigation
 - [📦 P0-006 Atomic Batch](P0_006_ATOMIC_MULTI_EVENT_BATCH.md)
 - [🔑 P0-007 Idempotency](P0_007_EVENT_AWARE_IDEMPOTENCY.md)
 - [⚙️ P0-008 Concurrency](P0_008_TRANSACTIONAL_CONCURRENCY.md)
+- [🔗 P0-009 Trusted Commit + R0](P0_009_R0_INTEGRITY.md)
+- [🗑️ P0-010 Atomic Same-Stream Redaction](P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
+- [🧨 P0-011 Adversarial Integrity Suite](P0_011_ADVERSARIAL_INTEGRITY_SUITE.md)
+- [⚙️ P0-012 Permanent GitHub Actions CI](P0_012_PERMANENT_CI.md)
+- [🔁 P0-013 R1 Deterministic Replay](P0_013_R1_DETERMINISTIC_REPLAY.md)
+- [🧠 P0-014 Minimal Belief Lifecycle](P0_014_MINIMAL_BELIEF_LIFECYCLE.md)
+- [⚖️ P0-015 Deterministic Evidence Gate](P0_015_EVIDENCE_GATE.md)
 - [🧱 Environment Manifest](ENVIRONMENT_MANIFEST.md)
 - [🔬 Controlled Origin Research v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🪞 Identity & Relational Research v0.1](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
@@ -536,4 +594,4 @@ Navigation
 
 ## 🏁 One-Line Summary
 
-> **Mentaury уже имеет подробную архитектуру цифровой индивидуальности и работающий инфраструктурный P0-прототип до P0-008. Identity, beliefs, relationships, Character и Exo-Cortex пока остаются документированными, но не реализованными runtime-областями.**
+> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Identity, Character, Exo-Cortex и остальной domain runtime пока остаются документированными, но не реализованными runtime-областями.**

@@ -47,6 +47,9 @@ jobs:
       - name: Validate repository structure
         run: python scripts/validate.py
 
+      - name: Check derived-status documentation freshness
+        run: python scripts/check_doc_freshness.py
+
       - name: Run complete test suite
         run: python -m pytest
 

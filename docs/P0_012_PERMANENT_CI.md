@@ -77,6 +77,7 @@ Python resolves to CPython 3.13.x
 locked dependency installation succeeds
 pip check succeeds
 python scripts/validate.py succeeds
+python scripts/check_doc_freshness.py succeeds
 full pytest succeeds
 compileall succeeds
 ```
@@ -124,6 +125,18 @@ Permissions              contents: read · metadata: read
 Both runs checked out the exact named revision. The merged workflow is retained
 in `main`; no temporary validation workflow is required for subsequent PRs.
 Branch-protection enforcement remains a separate repository-setting decision.
+
+## 🔎 Post-merge audit addition (doc freshness gate)
+
+The 2026-08-06 audit found `docs/MENTAURY_QUICK_REFERENCE.md` and
+`docs/ENVIRONMENT_MANIFEST.md` several P0 milestones behind
+`docs/CURRENT_STATUS.md`. Rather than only fixing that one drift by hand, the
+retained workflow gained one additional read-only step, `python
+scripts/check_doc_freshness.py`, that fails closed whenever either derived
+document's declared milestone range falls behind the highest `✅ Implemented`
+row in `docs/CURRENT_STATUS.md`. This preserves the original P0-012 security
+and reproducibility boundary above unchanged: no secrets, no writes, no new
+dependencies, no change to the pinned action commits.
 
 ## ➡️ Next controlled milestone
 

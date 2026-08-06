@@ -197,13 +197,23 @@ payload-store failure rollback
 
 ---
 
-# 🏁 Current Decision
+# 🏁 Decision at the time of EXP-P0-v1/v2 (superseded)
+
+> ⚠️ **Устарело.** Блок ниже фиксирует решение на момент экспериментов
+> EXP-P0-v1/v2, когда `main` действительно был documentation-only. С тех пор
+> `agent/p0-event-substrate-v3` был реализован и смержен (PR #6, P0-001), и
+> вся линия P0-001…P0-015 реализована и валидирована в `main`. Этот блок
+> сохранён как исторический протокол, а не переписан, в соответствии с
+> собственным принципом проекта "Continuity with Correctability" (ошибки и
+> устаревшие записи исправляются новыми версиями, а не скрытой перезаписью
+> прошлого). За актуальным статусом всегда обращайтесь к
+> [`CURRENT_STATUS.md`](CURRENT_STATUS.md).
 
 ```text
-NEXT IMPLEMENTATION:
+NEXT IMPLEMENTATION (as of EXP-P0-v1/v2):
 agent/p0-event-substrate-v3
 
-CURRENT MAIN:
+CURRENT MAIN (as of EXP-P0-v1/v2):
 documentation-only
 
 R1 ALLOWED:
