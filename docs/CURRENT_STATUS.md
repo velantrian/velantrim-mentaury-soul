@@ -4,13 +4,13 @@
 Дата фиксации:                  2026-08-06
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  5640bd6ce650818c731e09391434ac12a0aec5e6
+Verified implementation head:  a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
 
 CANON_V0.1_FROZEN
-P0-001…P0-011_IMPLEMENTED_IN_MAIN
-P0-011_FINAL_EXACT_HEAD_VALIDATION_PASS
-P0-012…P0-015_NOT_IMPLEMENTED
-PERMANENT_GITHUB_ACTIONS_NOT_PRESENT
+P0-001…P0-012_IMPLEMENTED_IN_MAIN
+P0-012_PERMANENT_CI_PR_AND_MAIN_VALIDATION_PASS
+P0-013…P0-015_NOT_IMPLEMENTED
+PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
@@ -51,6 +51,7 @@ Current maturity authority
 | P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |
 | P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal ≠ event-provenance deletion |
 | P0-011 Adversarial Integrity Suite | ✅ Implemented | adversarial PASS ≠ total-database authenticity |
+| P0-012 Permanent GitHub Actions CI | ✅ Implemented | green CI ≠ branch protection or runtime safety |
 
 ---
 
@@ -176,10 +177,47 @@ P0-011 merged ≠ R1 replay
 
 ---
 
+
+# ✅ P0-012 — Permanent GitHub Actions CI
+
+Merged PR and retained workflow:
+
+```text
+PR:                  #25
+Final tested head:   49d752285e4c1c3fdb59382e916e32e9862d5f89
+Merge SHA:           a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
+PR workflow run:     31085542227
+Main push run:       31085727308
+Python:              CPython 3.13.14
+Full pytest:         163 passed on PR and main
+Token permissions:  contents: read · metadata: read
+```
+
+Реализовано:
+
+- retained `.github/workflows/ci.yml` on pull requests and pushes to `main`;
+- explicit immutable PR-head or push-SHA checkout;
+- `persist-credentials: false`;
+- full commit-SHA pins for checkout and Python setup actions;
+- locked development-tool installation and `pip check`;
+- structural validator, complete pytest and compileall;
+- concurrency cancellation and bounded job timeout;
+- no secrets, artifacts, deployments or repository writes.
+
+```text
+Green CI ≠ epistemic truth
+Green CI ≠ authority approval
+P0-012 ≠ branch-protection enforcement
+GitHub-hosted runner ≠ production substrate
+P0-012 merged ≠ R1 deterministic replay
+P0-012 merged ≠ domain runtime authorization
+```
+
+---
+
 # 🔴 Не реализовано
 
 ```text
-P0-012 Permanent GitHub Actions CI     → NOT IMPLEMENTED
 P0-013 R1 Deterministic Replay         → NOT IMPLEMENTED
 P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
 P0-015 Evidence Gate Report            → NOT IMPLEMENTED
@@ -213,8 +251,7 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 # 🗺️ Контролируемая последовательность
 
 ```text
-P0-001…P0-011 ✅ merged in main
-→ P0-012 permanent GitHub Actions CI
+P0-001…P0-012 ✅ merged in main
 → P0-013 R1 deterministic replay
 → P0-014 minimal belief lifecycle
 → P0-015 Evidence Gate report
@@ -223,7 +260,7 @@ P0-001…P0-011 ✅ merged in main
 # 🏁 Следующее действие
 
 ```text
-P0-012 PERMANENT GITHUB ACTIONS CI
+P0-013 R1 DETERMINISTIC REPLAY
 Status: NOT IMPLEMENTED
-Precondition: retain the proven Python 3.13 validator + full pytest + compileall commands as read-only pull-request and main gates
+Precondition: define deterministic projection input/output contracts and replay-equivalence evidence without treating R0 PASS as state equivalence
 ```

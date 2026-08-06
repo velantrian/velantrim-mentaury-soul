@@ -1,8 +1,12 @@
 # ⚙️ P0-012 — Permanent GitHub Actions CI
 
 ```text
-Status: IMPLEMENTATION PR
+Status: MERGED · MAIN PUSH VALIDATED · POST-MERGE SYNCED
 Base: main@2a6938b2a71d56f608b52c761a6f39849f844385
+Final tested head: 49d752285e4c1c3fdb59382e916e32e9862d5f89
+Merge SHA: a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
+PR run: 31085542227 · PASS
+Main push run: 31085727308 · PASS
 Scope: retained repository validation only
 P0-013 R1 replay: NOT INCLUDED
 Domain runtime: NOT AUTHORIZED
@@ -101,6 +105,25 @@ P0-012 ≠ domain runtime authorization
 P0-012 validates the exact repository revision selected by the workflow. It
 does not protect against compromised GitHub infrastructure, a malicious action
 pin, a coherent rewrite of all trust anchors or production configuration drift.
+
+
+## ✅ Final merge checkpoint
+
+```text
+Merged PR                #25
+Final tested PR head     49d752285e4c1c3fdb59382e916e32e9862d5f89
+Merge SHA                a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
+PR retained CI run       31085542227 · PASS
+Main retained CI run     31085727308 · PASS
+CPython                  3.13.14
+Full pytest              163 passed on both revisions
+Validator / compileall   PASS
+Permissions              contents: read · metadata: read
+```
+
+Both runs checked out the exact named revision. The merged workflow is retained
+in `main`; no temporary validation workflow is required for subsequent PRs.
+Branch-protection enforcement remains a separate repository-setting decision.
 
 ## ➡️ Next controlled milestone
 
