@@ -9,6 +9,9 @@ from datetime import datetime, timezone
 from mentaury.beliefs.contracts import ClaimType, EvidenceSide
 from mentaury.contracts import canonical_json_bytes, canonical_timestamp
 
+MAX_EVIDENCE_RECORDS = 256
+
+
 from .contracts import (
     EVIDENCE_GATE_PROFILE,
     EvidenceGateOutcome,
@@ -73,6 +76,10 @@ class EvidenceGate:
             not isinstance(record, EvidenceRecord) for record in snapshotted
         ):
             raise TypeError("records must contain EvidenceRecord values")
+        if len(snapshotted) > MAX_EVIDENCE_RECORDS:
+            raise EvidenceGateError(
+                f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} records"
+            )
         by_ref: dict[str, EvidenceRecord] = {}
         content_digests: set[str] = set()
         provenance_refs: set[str] = set()
@@ -142,7 +149,9 @@ class EvidenceGate:
         groups_against = sorted({record.source_group for record in qualified_against})
         passes_for = len(groups_for) >= policy.minimum_source_groups_for
         passes_against = len(groups_against) >= policy.minimum_source_groups_against
-        if passes_for and passes_against:
+        has_for = bool(groups_for)
+        has_against = bool(groups_against)
+        if has_for and has_against:
             outcome = EvidenceGateOutcome.CONFLICT
         elif passes_for:
             outcome = EvidenceGateOutcome.SUPPORTED

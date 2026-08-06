@@ -188,7 +188,7 @@ class EvidenceGatePolicyRegistry:
 
 P0_015_CONTEXTUAL_POLICY: Final[EvidenceGatePolicy] = EvidenceGatePolicy(
     policy_id="mentaury-evidence-contextual-v1",
-    allowed_claim_types=(ClaimType.CONTEXTUAL, ClaimType.UNSPECIFIED),
+    allowed_claim_types=(ClaimType.CONTEXTUAL,),
     minimum_source_groups_for=2,
     minimum_source_groups_against=2,
     minimum_reliability_milli=800,

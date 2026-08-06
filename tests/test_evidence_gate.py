@@ -35,6 +35,7 @@ from mentaury.evidence import (
     APPLY_EVIDENCE_GATE,
     BELIEF_EVIDENCE_GATED,
     EVIDENCE_GATE_REJECTED,
+    MAX_EVIDENCE_RECORDS,
     EvidenceGate,
     EvidenceGateError,
     EvidenceGateOutcome,
@@ -121,7 +122,7 @@ def _apply(reducer, state, pending: PendingEvent, version: int, event_id: str):
 
 def _policy(**changes: int) -> EvidenceGatePolicy:
     values: dict[str, object] = {
-        "allowed_claim_types": (ClaimType.CONTEXTUAL, ClaimType.UNSPECIFIED),
+        "allowed_claim_types": (ClaimType.CONTEXTUAL,),
         "minimum_source_groups_for": 2,
         "minimum_source_groups_against": 2,
         "minimum_reliability_milli": 800,
@@ -893,3 +894,92 @@ def test_evidence_gate_event_is_r1_replay_compatible() -> None:
         assert report.applied_events == 4
         assert report.verified_through_stream_version == 4
         assert report.full_state_hash is not None
+
+
+
+def test_mixed_qualifying_evidence_fails_closed_as_conflict() -> None:
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:for-a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:for-b"),
+        _record("evidence:against:1", EvidenceSide.AGAINST, "source:against-a"),
+    )
+    receipt = EvidenceGate().evaluate(
+        belief_id=BELIEF_ID,
+        belief_revision=1,
+        claim_type=ClaimType.CONTEXTUAL,
+        statement="A contextual claim with credible opposition.",
+        evidence_for=("evidence:for:1", "evidence:for:2"),
+        evidence_against=("evidence:against:1",),
+        records=records,
+        policy=P0_015_CONTEXTUAL_POLICY,
+        evaluated_at=EVALUATED_AT,
+    )
+
+    assert receipt.outcome is EvidenceGateOutcome.CONFLICT
+    assert receipt.source_groups_for == ("source:for-a", "source:for-b")
+    assert receipt.source_groups_against == ("source:against-a",)
+
+
+def test_unspecified_claims_require_classification_before_gate() -> None:
+    state = _support_state(ClaimType.UNSPECIFIED)
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(
+        _gate_command(state, records), state
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.CLAIM_TYPE_NOT_ALLOWED
+    assert decision.audit_event is not None
+    assert not decision.audit_event.affects_domain_state
+
+
+def test_gate_enforces_record_budget() -> None:
+    refs = tuple(f"evidence:for:{index}" for index in range(MAX_EVIDENCE_RECORDS + 1))
+    records = tuple(
+        _record(ref, EvidenceSide.FOR, f"source:{index}")
+        for index, ref in enumerate(refs)
+    )
+
+    with pytest.raises(EvidenceGateError, match="at most"):
+        EvidenceGate().evaluate(
+            belief_id=BELIEF_ID,
+            belief_revision=1,
+            claim_type=ClaimType.CONTEXTUAL,
+            statement="Oversized evidence set.",
+            evidence_for=refs,
+            evidence_against=(),
+            records=records,
+            policy=P0_015_CONTEXTUAL_POLICY,
+            evaluated_at=EVALUATED_AT,
+        )
+
+
+def test_reducer_binds_gate_event_to_stream_and_state_flag() -> None:
+    state = _support_state()
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(
+        _gate_command(state, records), state
+    )
+    assert decision.accepted
+    pending = decision.domain_events[0]
+    event = _event(pending, 4, "EVT-GATE-BOUNDARY")
+    gated_reducer = EvidenceGatedBeliefReducer()
+
+    with pytest.raises(BeliefReducerError, match="stream_id"):
+        gated_reducer.apply(
+            state,
+            replace(event, stream_id="belief:another-belief"),
+            pending.payload,
+        )
+    with pytest.raises(BeliefReducerError, match="affect domain state"):
+        gated_reducer.apply(
+            state,
+            replace(event, affects_domain_state=False),
+            pending.payload,
+        )

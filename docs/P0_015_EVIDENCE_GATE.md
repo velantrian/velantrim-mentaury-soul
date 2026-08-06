@@ -42,15 +42,17 @@ P0-015 ships one deliberately narrow profile:
 
 ```text
 mentaury-evidence-contextual-v1
-allowed claim types: contextual, unspecified
+allowed claim types: contextual
 minimum independent source groups: 2 per side
 minimum reliability: 800 / 1000
 minimum relevance: 800 / 1000
 maximum age: 86400 seconds
+maximum records per evaluation: 256
 ```
 
-Causal, statistical, universal and existential claims remain ungated until a
-separate reviewed policy defines the necessary method-specific requirements.
+Unspecified, causal, statistical, universal and existential claims remain ungated
+until the claim is classified and a separate reviewed policy defines the
+necessary method-specific requirements.
 This prevents a generic source-count rule from pretending to validate every
 claim type.
 
@@ -98,10 +100,10 @@ concern.
 ## 🧾 Outcomes
 
 ```text
-for side passes, against does not  → supported
-against side passes, for does not  → contradicted
-both sides pass                     → conflict, no state mutation
-neither side passes                 → inconclusive, no state mutation
+for side passes, no qualifying against evidence     → supported
+against side passes, no qualifying for evidence     → contradicted
+both sides contain qualifying evidence               → conflict, no state mutation
+neither side reaches its threshold                   → inconclusive, no state mutation
 ```
 
 Additional belief constraints:
@@ -157,6 +159,8 @@ order-independent receipt
 low-quality / stale / revoked exclusion
 future evidence rejection
 source-group deduplication
+mixed qualifying evidence fails closed as conflict
+record-count budget
 duplicate content/provenance rejection
 cross-side source-group rejection
 conflict and inconclusive audits

@@ -35,6 +35,8 @@ class EvidenceGatedBeliefLifecycle:
         gate: EvidenceGate | None = None,
         policies: EvidenceGatePolicyRegistry = DEFAULT_EVIDENCE_GATE_POLICIES,
     ) -> None:
+        if gate is not None and not isinstance(gate, EvidenceGate):
+            raise TypeError("gate must be an EvidenceGate or None")
         if not isinstance(policies, EvidenceGatePolicyRegistry):
             raise TypeError("policies must be an EvidenceGatePolicyRegistry")
         self._gate = gate or EvidenceGate()

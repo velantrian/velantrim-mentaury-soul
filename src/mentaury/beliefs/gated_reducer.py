@@ -18,7 +18,7 @@ from mentaury.evidence import (
     records_from_value,
 )
 
-from .contracts import BeliefStatus, ClaimType
+from .contracts import BeliefStatus, ClaimType, belief_stream_id
 from .reducer import BeliefReducer, BeliefReducerError
 
 
@@ -36,6 +36,8 @@ class EvidenceGatedBeliefReducer(BeliefReducer):
         gate: EvidenceGate | None = None,
         policies: EvidenceGatePolicyRegistry = DEFAULT_EVIDENCE_GATE_POLICIES,
     ) -> None:
+        if gate is not None and not isinstance(gate, EvidenceGate):
+            raise TypeError("gate must be an EvidenceGate or None")
         if not isinstance(policies, EvidenceGatePolicyRegistry):
             raise TypeError("policies must be an EvidenceGatePolicyRegistry")
         self._gate = gate or EvidenceGate()
@@ -61,6 +63,10 @@ class EvidenceGatedBeliefReducer(BeliefReducer):
         payload: FrozenPayload,
     ) -> Mapping[str, object]:
         belief_id = _state_string(state, "belief_id")
+        if event.stream_id != belief_stream_id(belief_id):
+            raise BeliefReducerError("gate event stream_id does not match belief")
+        if not event.affects_domain_state:
+            raise BeliefReducerError("gate event must affect domain state")
         if _payload_string(payload, "belief_id") != belief_id:
             raise BeliefReducerError("gate event belief_id does not match projection")
         current_revision = _state_integer(state, "revision")

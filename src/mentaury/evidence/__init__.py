@@ -17,7 +17,13 @@ from .contracts import (
     EvidenceGateRejectionCode,
     EvidenceRecord,
 )
-from .gate import EvidenceGate, EvidenceGateError, policy_from_value, records_from_value
+from .gate import (
+    MAX_EVIDENCE_RECORDS,
+    EvidenceGate,
+    EvidenceGateError,
+    policy_from_value,
+    records_from_value,
+)
 from .schemas import evidence_gate_schema_definitions
 
 __all__ = [
@@ -29,6 +35,7 @@ __all__ = [
     "EVIDENCE_GATE_PROFILE",
     "EVIDENCE_GATE_REJECTED",
     "P0_015_CONTEXTUAL_POLICY",
+    "MAX_EVIDENCE_RECORDS",
     "EvidenceGate",
     "EvidenceGateDecision",
     "EvidenceGateError",
