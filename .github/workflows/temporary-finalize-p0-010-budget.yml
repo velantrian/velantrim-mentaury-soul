@@ -33,35 +33,17 @@ jobs:
           integrity_path = Path("src/mentaury/storage/integrity.py")
           integrity = integrity_path.read_text(encoding="utf-8")
           integrity = integrity.replace("import json\nimport sqlite3\n", "import json\n", 1)
-
-          old = '''        audit_payload = self._store.load_payload(audit_event.payload_ref)
-          if audit_payload is None:
-              return self._event_fail(
-                  target_event,
-                  checked,
-                  IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
-                  "redaction audit payload material is missing",
-              )
-          try:
-              decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
-          '''
-          new = '''        audit_payload = self._store.load_payload(audit_event.payload_ref)
-          if audit_payload is None:
-              return self._event_fail(
-                  target_event,
-                  checked,
-                  IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
-                  "redaction audit payload material is missing",
-              )
-          try:
-              self._budget.require_payload_size(len(audit_payload.payload_bytes))
-          except ResourceBudgetExceeded as exc:
-              return self._event_budget_fail(target_event, checked, exc)
-          try:
-              decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
-          '''
+          old = "        try:\n            decoded = json.loads(audit_payload.payload_bytes.decode(\"utf-8\"))"
+          new = (
+              "        try:\n"
+              "            self._budget.require_payload_size(len(audit_payload.payload_bytes))\n"
+              "        except ResourceBudgetExceeded as exc:\n"
+              "            return self._event_budget_fail(target_event, checked, exc)\n"
+              "        try:\n"
+              "            decoded = json.loads(audit_payload.payload_bytes.decode(\"utf-8\"))"
+          )
           if integrity.count(old) != 1:
-              raise SystemExit("expected audit-payload insertion point exactly once")
+              raise SystemExit("expected unique audit-payload decode marker")
           integrity_path.write_text(integrity.replace(old, new, 1), encoding="utf-8")
 
           test_path = Path("tests/test_redaction_evidence_linkage.py")
