@@ -1,8 +1,9 @@
 # ⚖️ P0-015 — Deterministic Evidence Gate
 
 ```text
-Status: IMPLEMENTATION PR
+Status: FINAL VALIDATED PR CANDIDATE
 Base: main@3ff90816b8d095987a8adcdc2cb633c128877212
+Validated implementation head: 246b7ad9e64f8c70777baf0f12202899747eb5be
 Scope: governed M2 belief status gate
 M3 identity writes: NOT AUTHORIZED
 Domain runtime wiring: NOT AUTHORIZED
@@ -52,9 +53,8 @@ maximum records per evaluation: 256
 
 Unspecified, causal, statistical, universal and existential claims remain ungated
 until the claim is classified and a separate reviewed policy defines the
-necessary method-specific requirements.
-This prevents a generic source-count rule from pretending to validate every
-claim type.
+necessary method-specific requirements. This prevents a generic source-count
+rule from pretending to validate every claim type.
 
 ## 📦 Evidence record
 
@@ -100,10 +100,10 @@ concern.
 ## 🧾 Outcomes
 
 ```text
-for side passes, no qualifying against evidence     → supported
-against side passes, no qualifying for evidence     → contradicted
-both sides contain qualifying evidence               → conflict, no state mutation
-neither side reaches its threshold                   → inconclusive, no state mutation
+for side passes, no qualifying against evidence  → supported
+against side passes, no qualifying for evidence  → contradicted
+both sides contain qualifying evidence            → conflict, no state mutation
+neither side reaches its threshold                → inconclusive, no state mutation
 ```
 
 Additional belief constraints:
@@ -139,8 +139,8 @@ receipt digest
 `EvidenceGatedBeliefReducer` v2 does not trust the stored receipt. During replay
 it independently:
 
-1. checks belief, revision, statement, claim type and prior status;
-2. binds `evaluated_at` to the event's `occurred_at`;
+1. checks belief, stream, revision, statement, claim type and prior status;
+2. requires a state-affecting event and binds `evaluated_at` to `occurred_at`;
 3. requires the exact approved policy profile;
 4. requires canonical sorted records with exact fields;
 5. recomputes the gate from the current projection and embedded records;
@@ -149,9 +149,10 @@ it independently:
 8. applies the terminal status and preserves receipt digests in history.
 
 A forged receipt, modified threshold, incomplete record set, reordered event
-record list, time rebinding or mismatched status fails closed as a reducer error.
+record list, time rebinding, stream mismatch or mismatched status fails closed as
+a reducer error.
 
-## 🧪 Required adversarial matrix
+## 🧪 Executable adversarial matrix
 
 ```text
 exact complete evidence set
@@ -165,17 +166,35 @@ duplicate content/provenance rejection
 cross-side source-group rejection
 conflict and inconclusive audits
 unapproved policy rejection
-unsupported claim-type rejection
+unsupported and unspecified claim-type rejection
 hidden command-field rejection
 open-contradiction boundaries
 receipt tampering
 policy tampering
 record omission and reordering
 time rebinding
+stream and state-affecting binding
 direct-event status mismatch
 strict schemas
-R1 full replay
+R1 full replay ↔ snapshot-tail equivalence
 ```
+
+## ✅ Validation checkpoint
+
+```text
+Audit hardening run: 31093091082
+Validated head:      246b7ad9e64f8c70777baf0f12202899747eb5be
+Python:              CPython 3.13.14
+Structural validator: PASS
+Full pytest:         232 passed
+Compileall:          PASS
+Final target diff:   9 files
+Temporary files:     absent
+```
+
+The retained read-only `Mentaury CI` must still pass the final owner-authored PR
+head before merge. The validation checkpoint records the implementation proof;
+it is not a substitute for the retained exact-head gate.
 
 ## ⚖️ Preserved boundaries
 
