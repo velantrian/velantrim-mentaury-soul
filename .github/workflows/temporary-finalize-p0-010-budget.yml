@@ -1,0 +1,117 @@
+name: Temporary finalize P0-010 budget guard
+
+on:
+  push:
+    branches:
+      - claude/p0-redaction-integrity-kdaps9
+
+permissions:
+  contents: write
+
+jobs:
+  patch-test-commit:
+    if: ${{ !contains(github.event.head_commit.message, '[budget-patched]') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/p0-redaction-integrity-kdaps9
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Apply focused budget guard and regression test
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          integrity_path = Path("src/mentaury/storage/integrity.py")
+          integrity = integrity_path.read_text(encoding="utf-8")
+          integrity = integrity.replace("import json\nimport sqlite3\n", "import json\n", 1)
+
+          old = '''        audit_payload = self._store.load_payload(audit_event.payload_ref)
+          if audit_payload is None:
+              return self._event_fail(
+                  target_event,
+                  checked,
+                  IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
+                  "redaction audit payload material is missing",
+              )
+          try:
+              decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
+          '''
+          new = '''        audit_payload = self._store.load_payload(audit_event.payload_ref)
+          if audit_payload is None:
+              return self._event_fail(
+                  target_event,
+                  checked,
+                  IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
+                  "redaction audit payload material is missing",
+              )
+          try:
+              self._budget.require_payload_size(len(audit_payload.payload_bytes))
+          except ResourceBudgetExceeded as exc:
+              return self._event_budget_fail(target_event, checked, exc)
+          try:
+              decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
+          '''
+          if integrity.count(old) != 1:
+              raise SystemExit("expected audit-payload insertion point exactly once")
+          integrity_path.write_text(integrity.replace(old, new, 1), encoding="utf-8")
+
+          test_path = Path("tests/test_redaction_evidence_linkage.py")
+          tests = test_path.read_text(encoding="utf-8")
+          marker = "def test_r0_applies_payload_budget_before_decoding_linked_audit_payload"
+          if marker not in tests:
+              tests += '''
+
+
+def test_r0_applies_payload_budget_before_decoding_linked_audit_payload() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        _append_target(store)
+        _apply_redaction(store)
+
+        report = R0IntegrityVerifier(
+            store,
+            _registry(),
+            VerificationBudget(
+                max_events=100,
+                max_payload_bytes=1,
+                max_total_payload_bytes=1,
+            ),
+        ).verify_stream("test:stream")
+
+        assert not report.ok
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.RESOURCE_BUDGET_EXCEEDED
+        assert report.failure.event_id == "EVT-1"
+        assert "payload_bytes" in report.failure.message
+'''
+              test_path.write_text(tests, encoding="utf-8")
+          PY
+
+      - name: Install development tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.lock
+          python -m pip install -e .
+
+      - name: Validate exact patched tree
+        run: |
+          python scripts/validate.py
+          python -m pytest
+          python -m compileall -q src tests scripts
+
+      - name: Commit tested patch to PR branch
+        shell: bash
+        run: |
+          git config user.name "Velantrim GitHub Actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add src/mentaury/storage/integrity.py tests/test_redaction_evidence_linkage.py
+          git commit -m "fix(integrity): enforce audit payload budget [budget-patched]"
+          git push origin HEAD:claude/p0-redaction-integrity-kdaps9
