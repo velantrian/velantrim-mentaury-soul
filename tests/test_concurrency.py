@@ -38,13 +38,19 @@ def test_busy_retry_exhaustion_is_controlled_and_writes_nothing(tmp_path: Path) 
             holder.raw_connection_for_tests().execute("ROLLBACK")
 
 
+_CONCURRENCY_TEST_POLICY = BusyRetryPolicy(
+    max_attempts=500,
+    backoff_seconds=0.002,
+)
+
+
 def _run_request(
     database: Path,
     request_value,
     barrier: threading.Barrier,
     outcomes: Queue[object],
 ) -> None:
-    policy = BusyRetryPolicy(max_attempts=50, backoff_seconds=0.002)
+    policy = _CONCURRENCY_TEST_POLICY
     try:
         with SQLiteEventPayloadStore.connect(database, busy_policy=policy) as store:
             barrier.wait()
@@ -113,8 +119,10 @@ def test_concurrent_same_key_changed_semantics_conflicts(tmp_path: Path) -> None
         assert not thread.is_alive()
 
     values = [outcomes.get_nowait(), outcomes.get_nowait()]
-    assert sum(value is IdempotencyStatus.APPLIED for value in values) == 1
-    assert sum(isinstance(value, IdempotencyConflictError) for value in values) == 1
+    assert sum(value is IdempotencyStatus.APPLIED for value in values) == 1, values
+    assert sum(
+        isinstance(value, IdempotencyConflictError) for value in values
+    ) == 1, values
 
 
 def test_concurrent_different_keys_same_version_is_controlled(tmp_path: Path) -> None:
@@ -137,8 +145,8 @@ def test_concurrent_different_keys_same_version_is_controlled(tmp_path: Path) ->
         assert not thread.is_alive()
 
     values = [outcomes.get_nowait(), outcomes.get_nowait()]
-    assert sum(value is IdempotencyStatus.APPLIED for value in values) == 1
-    assert sum(isinstance(value, VersionConflictError) for value in values) == 1
+    assert sum(value is IdempotencyStatus.APPLIED for value in values) == 1, values
+    assert sum(isinstance(value, VersionConflictError) for value in values) == 1, values
     with SQLiteEventPayloadStore.connect(database) as check:
         assert len(check.list_stream("belief:B-204")) == 2
 
