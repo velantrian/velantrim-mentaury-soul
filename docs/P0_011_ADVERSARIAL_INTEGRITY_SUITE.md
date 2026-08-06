@@ -1,7 +1,7 @@
 # 🧨 P0-011 — Adversarial Integrity Suite
 
 ```text
-Status: DRAFT IMPLEMENTATION
+Status: READY FOR FINAL REVIEW
 Base: main@d05319cdcae0eb6421c6ad60649fb8ed57feba08
 Scope: P0-011 only
 P0-012 permanent GitHub Actions: NOT INCLUDED
@@ -40,6 +40,14 @@ operator error or an offline database rewrite.
 | `ADV-IDEM-002` | reference a nonexistent event from a replay receipt | controlled receipt-integrity error |
 | `ADV-IDEM-003` | reverse receipt event order | controlled receipt-integrity error |
 | `ADV-IDEM-004` | forge receipt version span | controlled receipt-integrity error |
+| `ADV-IDEM-005` | redirect a receipt to another stream | controlled request-binding error |
+| `ADV-IDEM-006` | forge the receipt's first stream version | controlled request-binding error |
+| `ADV-IDEM-007` | corrupt the stored batch shape | controlled request-binding error |
+| `ADV-IDEM-008` | alter immutable event semantics or payload digest | controlled request-binding error |
+
+The executable gate therefore contains **19 adversarial cases**: six R0 chain
+and payload attacks, five governed-redaction attacks and eight idempotency
+receipt attacks.
 
 ## 🔗 Stored idempotency receipt hardening
 
@@ -78,6 +86,7 @@ The suite asserts the first security-relevant failure. Examples:
 - a recomputed `event_hash` cannot conceal a wrong `previous_hash`;
 - audit payload decoding cannot occur successfully when UTF-8 is invalid;
 - redaction linkage is checked before the deleted target is accepted;
+- reversed receipt IDs fail first on batch position before later version checks;
 - a matching idempotency fingerprint cannot authorize a forged replay receipt.
 
 Failure ordering is diagnostic policy, not epistemic truth.
@@ -87,6 +96,7 @@ Failure ordering is diagnostic policy, not epistemic truth.
 ```text
 Adversarial R0 PASS ≠ cryptographic authenticity against a total database rewrite
 Trigger removal in tests ≠ production mutation API
+Idempotency receipt verification ≠ full R0 verification
 Idempotency receipt verification ≠ authority validation
 P0-011 ≠ permanent CI
 P0-011 ≠ R1 deterministic replay
@@ -108,6 +118,11 @@ python -m compileall -q src tests scripts
 independent final-head review
 temporary validation workflow absent from final diff
 ```
+
+The production and test tree passed these commands in temporary validation run
+`31083981202` with CPython `3.13.14` and `163 passed`. A final exact-head proof
+must include this synchronized specification and remove its temporary workflow
+before merge.
 
 ## ➡️ Next controlled milestone
 
