@@ -216,6 +216,10 @@ class BeliefReducer:
 
         new_statement = _string(payload, "new_statement")
         new_status = _enum_value(BeliefStatus, payload, "new_status")
+        if new_status is BeliefStatus.SUPPORTED:
+            raise BeliefReducerError(
+                "supported status requires a future Evidence Gate receipt"
+            )
         history = [dict(item) for item in _objects(state, "history")]
         history.append(
             {

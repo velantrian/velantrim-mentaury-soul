@@ -349,6 +349,14 @@ class BeliefLifecycle:
                 f"{sorted(unknown_contradictions)!r}",
             )
         current_status = _status(state)
+        if new_status is BeliefStatus.SUPPORTED:
+            return self._reject(
+                command,
+                belief_id,
+                state,
+                BeliefRejectionCode.EVIDENCE_GATE_REQUIRED,
+                "supported status requires the separately reviewed P0-015 Evidence Gate",
+            )
         if new_status != current_status and new_status not in _ALLOWED_TRANSITIONS[current_status]:
             return self._reject(
                 command,
@@ -430,6 +438,12 @@ class BeliefLifecycle:
         message: str,
     ) -> BeliefDecision:
         current_revision = _revision(state)
+        requested_revision = command.payload.get("expected_revision", 0)
+        if isinstance(requested_revision, bool) or not isinstance(
+            requested_revision,
+            int,
+        ) or requested_revision < 0:
+            requested_revision = 0
         event_type = (
             BELIEF_REVISION_REJECTED
             if command.command_type == REVISE_BELIEF
@@ -445,8 +459,9 @@ class BeliefLifecycle:
                 "belief_id": belief_id,
                 "rejection_code": code.value,
                 "message": message,
-                "expected_revision": command.expected_stream_version,
-                "current_revision": current_revision,
+                "expected_stream_version": command.expected_stream_version,
+                "current_belief_revision": current_revision,
+                "requested_belief_revision": requested_revision,
             },
         )
         return BeliefDecision(False, (), audit, code, message)

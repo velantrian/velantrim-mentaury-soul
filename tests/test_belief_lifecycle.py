@@ -373,7 +373,7 @@ def test_revision_preserves_history_and_marks_contradiction_addressed() -> None:
                 "belief_id": BELIEF_ID,
                 "expected_revision": 1,
                 "new_statement": "At standard pressure, pure water boils near 100°C.",
-                "new_status": BeliefStatus.SUPPORTED.value,
+                "new_status": BeliefStatus.PROVISIONAL.value,
                 "reason": "scope clarified",
                 "evidence_refs": ["evidence:for:1"],
                 "addressed_contradiction_ids": ["contradiction:1"],
@@ -387,7 +387,7 @@ def test_revision_preserves_history_and_marks_contradiction_addressed() -> None:
     projected = _apply(state, revision.domain_events[0], 4, "EVT-REVISED")
 
     assert projected["revision"] == 2
-    assert projected["status"] == BeliefStatus.SUPPORTED.value
+    assert projected["status"] == BeliefStatus.PROVISIONAL.value
     assert len(projected["history"]) == 2
     assert projected["contradictions"][0]["addressed_in_revision"] == 2
 
@@ -483,3 +483,84 @@ def test_belief_projection_is_r1_compatible_and_skips_rejection_audit() -> None:
         assert report.checked_events == 3
         assert report.applied_events == 2
         assert report.verified_through_stream_version == 3
+
+
+
+def test_supported_status_requires_future_evidence_gate() -> None:
+    state = _state_with_evidence()
+    decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 1,
+                "new_statement": "Structurally supported claim.",
+                "new_status": BeliefStatus.SUPPORTED.value,
+                "reason": "attached reference is not yet governed evidence",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=2,
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_REQUIRED
+    assert decision.audit_event is not None
+    assert not decision.audit_event.affects_domain_state
+
+
+def test_reducer_rejects_supported_revision_without_gate_receipt() -> None:
+    state = _state_with_evidence()
+    pending = PendingEvent(
+        "BELIEF_REVISED",
+        "belief-revised/v1",
+        True,
+        {
+            "belief_id": BELIEF_ID,
+            "previous_revision": 1,
+            "new_revision": 2,
+            "previous_statement": state["statement"],
+            "new_statement": "Unsupported direct committed revision.",
+            "previous_status": state["status"],
+            "new_status": BeliefStatus.SUPPORTED.value,
+            "reason": "forged direct event",
+            "evidence_refs": ["evidence:for:1"],
+            "addressed_contradiction_ids": [],
+        },
+    )
+
+    with pytest.raises(
+        Exception,
+        match="Evidence Gate",
+    ):
+        _apply(state, pending, 3, "EVT-FORGED-SUPPORTED")
+
+
+def test_rejection_audit_distinguishes_stream_and_belief_revisions() -> None:
+    state = _state_with_evidence()
+    decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 99,
+                "new_statement": "Revised claim",
+                "new_status": BeliefStatus.PROVISIONAL.value,
+                "reason": "stale belief revision",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=17,
+            command_id="CMD-REVISION-AUDIT-FIELDS",
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.audit_event is not None
+    payload = decision.audit_event.payload
+    assert payload["expected_stream_version"] == 17
+    assert payload["current_belief_revision"] == 1
+    assert payload["requested_belief_revision"] == 99

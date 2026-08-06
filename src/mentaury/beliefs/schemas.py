@@ -134,8 +134,9 @@ def belief_schema_definitions() -> tuple[EventSchemaDefinition, ...]:
                         "belief_id": StringSpec(min_length=1),
                         "rejection_code": StringSpec(min_length=1),
                         "message": StringSpec(min_length=1),
-                        "expected_revision": IntegerSpec(minimum=0),
-                        "current_revision": IntegerSpec(minimum=0),
+                        "expected_stream_version": IntegerSpec(minimum=0),
+                        "current_belief_revision": IntegerSpec(minimum=0),
+                        "requested_belief_revision": IntegerSpec(minimum=0),
                     },
                     required=frozenset(
                         {
@@ -144,8 +145,9 @@ def belief_schema_definitions() -> tuple[EventSchemaDefinition, ...]:
                             "belief_id",
                             "rejection_code",
                             "message",
-                            "expected_revision",
-                            "current_revision",
+                            "expected_stream_version",
+                            "current_belief_revision",
+                            "requested_belief_revision",
                         }
                     ),
                 ),

@@ -95,6 +95,11 @@ The pure lifecycle does not persist audit events automatically. The caller must
 make a separate explicit append decision. Therefore a rejected command cannot
 silently mutate domain state.
 
+Audit payloads distinguish three concurrency concepts rather than conflating
+them: `expected_stream_version` from the storage CAS envelope,
+`current_belief_revision` from the projection and
+`requested_belief_revision` from a revision command payload.
+
 ## 🧠 Status model
 
 ```text
@@ -106,6 +111,10 @@ contradicted
 unresolved
 superseded
 ```
+
+`supported` exists in the shared status vocabulary but is deliberately unreachable
+in P0-014. Both the lifecycle decision and reducer reject a direct transition to
+`supported` until P0-015 defines a governed Evidence Gate receipt and event contract.
 
 `superseded` is terminal for this minimal lifecycle. A later lifecycle may add a
 separate reactivation event only through a new reviewed specification.
@@ -131,6 +140,10 @@ It does **not** verify:
 - contradiction strength;
 - minimum evidence thresholds;
 - whether a belief deserves `supported` status.
+
+P0-014 therefore rejects `supported` through `EVIDENCE_GATE_REQUIRED`; a caller
+cannot bypass this by appending a direct `BELIEF_REVISED` event because the v1
+reducer rejects the same transition without a future gate receipt.
 
 Those controls belong to **P0-015 Evidence Gate**. Therefore:
 
