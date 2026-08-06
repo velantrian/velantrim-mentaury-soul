@@ -1,0 +1,75 @@
+"""Temporary exact-string patcher for the P0-010 post-merge docs sync."""
+from pathlib import Path
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    if text.count(old) != 1:
+        raise SystemExit(f"{label}: expected one occurrence: {old!r}")
+    return text.replace(old, new, 1)
+
+
+status_path = Path("docs/CURRENT_STATUS.md")
+status = status_path.read_text(encoding="utf-8")
+for old, new in [
+    ("Дата фиксации:                  2026-08-05", "Дата фиксации:                  2026-08-06"),
+    ("Verified implementation head:  08c0e8b5b33aeaa283de4d9ece1f65669d09afd2", "Verified implementation head:  7f78dd2c7db45206f293f0278a51033474db4918"),
+    ("P0-001…P0-009_IMPLEMENTED_IN_MAIN\nP0-009_FINAL_EXACT_HEAD_VALIDATION_PASS\nP0-010_NEXT_NOT_IMPLEMENTED", "P0-001…P0-010_IMPLEMENTED_IN_MAIN\nP0-010_FINAL_EXACT_HEAD_VALIDATION_PASS"),
+    ("| P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |", "| P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |\n| P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal ≠ event-provenance deletion |"),
+    ("# 🔴 Не реализовано\n\n```text\nP0-010 Atomic Same-Stream Redaction    → NEXT · NOT IMPLEMENTED\nP0-011 Adversarial Integrity Suite", "# 🔴 Не реализовано\n\n```text\nP0-011 Adversarial Integrity Suite"),
+    ("P0-001…P0-009 ✅ merged in main\n→ P0-010 atomic same-stream redaction\n→ P0-011 adversarial integrity suite", "P0-001…P0-010 ✅ merged in main\n→ P0-011 adversarial integrity suite"),
+    ("P0-010 ATOMIC SAME-STREAM REDACTION\nStatus: NOT IMPLEMENTED\nPrecondition: preserve immutable event history and R0-valid redaction evidence", "P0-011 ADVERSARIAL INTEGRITY SUITE\nStatus: NOT IMPLEMENTED\nPrecondition: combine tampering, migration, concurrency, redaction and resource-boundary proofs into one controlled matrix"),
+]:
+    status = replace_once(status, old, new, "CURRENT_STATUS")
+
+anchor = "---\n\n# 🔴 Не реализовано"
+p010 = """---
+
+# ✅ P0-010 — Atomic Same-Stream Redaction
+
+Merged PR:
+
+```text
+PR:                #19
+Final tested head: e141e31f60f7a9aee78642fe3fe3b44570ced733
+Merge SHA:         7f78dd2c7db45206f293f0278a51033474db4918
+Validation run:    31074885346
+Python:            CPython 3.13.14
+Full pytest:       144 passed
+Review:            Copilot 9/9 files, 0 new comments
+```
+
+Реализовано:
+
+- immutable schema-v4 `redactions` evidence;
+- one-transaction payload removal, audit append, `stream_meta` update and linkage write;
+- preservation of the immutable target event row and original hash chain;
+- complete R0 verification of redaction row → target event → audit event → canonical audit payload;
+- fail-closed handling for forged, missing, cross-stream or inconsistent evidence;
+- caller-supplied `VerificationBudget` applied before linked audit-payload decoding;
+- authority-scoped semantic idempotency and deterministic rollback behavior;
+- focused concurrency and adversarial regression coverage.
+
+```text
+Governed redaction ≠ epistemic truth
+Payload removal ≠ event-provenance deletion
+SQLite deletion ≠ backup-wide erasure proof
+R0 PASS ≠ R1 replay equivalence
+P0-010 merged ≠ domain consent/privacy runtime
+```
+
+"""
+status = replace_once(status, anchor, p010 + anchor, "CURRENT_STATUS anchor")
+status_path.write_text(status, encoding="utf-8")
+
+readme_path = Path("README.md")
+readme = readme_path.read_text(encoding="utf-8")
+for old, new in [
+    ("Status snapshot: 2026-08-05", "Status snapshot: 2026-08-06"),
+    ("P0-001…P0-009_IMPLEMENTED_IN_MAIN\nP0-009_FINAL_EXACT_HEAD_VALIDATION_PASS\nP0-010_NEXT_NOT_IMPLEMENTED", "P0-001…P0-010_IMPLEMENTED_IN_MAIN\nP0-010_FINAL_EXACT_HEAD_VALIDATION_PASS"),
+    ("│   ├── P0-010 redaction ⏭️", "│   ├── P0-010 redaction ✅"),
+    ("P0-009 → trusted write sealing + bounded full R0 integrity", "P0-009 → trusted write sealing + bounded full R0 integrity\nP0-010 → atomic same-stream redaction + complete governed-evidence linkage"),
+    ("P0-001…P0-009 ✅\n→ P0-010 Atomic Same-Stream Redaction ⏭️\n→ P0-011 Adversarial Integrity Suite", "P0-001…P0-010 ✅\n→ P0-011 Adversarial Integrity Suite"),
+    ("- [🔗 P0-009 Trusted Commit + R0](docs/P0_009_R0_INTEGRITY.md)", "- [🔗 P0-009 Trusted Commit + R0](docs/P0_009_R0_INTEGRITY.md)\n- [🗑️ P0-010 Atomic Same-Stream Redaction](docs/P0_010_ATOMIC_SAME_STREAM_REDACTION.md)"),
+]:
+    readme = replace_once(readme, old, new, "README")
+readme_path.write_text(readme, encoding="utf-8")
