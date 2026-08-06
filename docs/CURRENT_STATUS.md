@@ -4,12 +4,12 @@
 Дата фиксации:                  2026-08-06
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
+Verified implementation head:  cd069e97200d6381806642a438ec2bc64b71571e
 
 CANON_V0.1_FROZEN
-P0-001…P0-012_IMPLEMENTED_IN_MAIN
-P0-012_PERMANENT_CI_PR_AND_MAIN_VALIDATION_PASS
-P0-013…P0-015_NOT_IMPLEMENTED
+P0-001…P0-013_IMPLEMENTED_IN_MAIN
+P0-013_R1_PR_AND_MAIN_VALIDATION_PASS
+P0-014…P0-015_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -52,6 +52,7 @@ Current maturity authority
 | P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal ≠ event-provenance deletion |
 | P0-011 Adversarial Integrity Suite | ✅ Implemented | adversarial PASS ≠ total-database authenticity |
 | P0-012 Permanent GitHub Actions CI | ✅ Implemented | green CI ≠ branch protection or runtime safety |
+| P0-013 R1 Deterministic Replay | ✅ Implemented | deterministic replay ≠ epistemic truth |
 
 ---
 
@@ -215,10 +216,56 @@ P0-012 merged ≠ domain runtime authorization
 
 ---
 
+
+# ✅ P0-013 — R1 Deterministic Replay
+
+Merged PR and retained workflow evidence:
+
+```text
+PR:                  #27
+Final tested head:   d5be2702f71a800c6d171a2c4cbea2cd449a2e64
+Merge SHA:           cd069e97200d6381806642a438ec2bc64b71571e
+PR workflow run:     31087648122
+Main push run:       31087777833
+Python:              CPython 3.13.14
+Full pytest:         186 passed on PR and main
+Review:              exact-head two-pass audit 4872928159
+```
+
+Реализовано:
+
+- neutral versioned `ReplayReducer`, immutable `ReplaySnapshot`, `ReplayStateBudget` and `R1ReplayReport`;
+- bounded R0 prerequisite and domain-separated canonical projection-state hash;
+- one SQLite read snapshot across R0, event capture, metadata, payload reads and replay;
+- fail-closed refusal to certify outer uncommitted transactions;
+- exact verified-prefix version and tail-event-hash reporting under concurrent append;
+- snapshot reducer/stream/version/anchor/hash verification;
+- full-replay checkpoint equality before snapshot-tail replay;
+- replay-time canonical payload and immutable digest verification;
+- fail-closed state-affecting redaction boundary;
+- immutable reducer inputs and dual transition execution;
+- observable nondeterminism, input reuse, reducer exception and invalid-state rejection;
+- caller-supplied event/payload and projection-state resource budgets;
+- 23 replay-specific tests within the permanent 186-test suite.
+
+```text
+R1 PASS ≠ epistemic truth
+R1 PASS ≠ reducer semantic correctness
+R1 PASS ≠ hidden-side-effect proof
+R1 PASS ≠ snapshot persistence authorization
+P0-013 merged ≠ P0-014 belief lifecycle
+P0-013 merged ≠ domain runtime authorization
+```
+
+Automated external code review remained unavailable because the connected review
+quota was exhausted. Review `4872928159` records a second-pass exact-head audit
+without claiming independent external approval.
+
+---
+
 # 🔴 Не реализовано
 
 ```text
-P0-013 R1 Deterministic Replay         → NOT IMPLEMENTED
 P0-014 Minimal Belief Lifecycle        → NOT IMPLEMENTED
 P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 ```
@@ -251,8 +298,7 @@ P0-015 Evidence Gate Report            → NOT IMPLEMENTED
 # 🗺️ Контролируемая последовательность
 
 ```text
-P0-001…P0-012 ✅ merged in main
-→ P0-013 R1 deterministic replay
+P0-001…P0-013 ✅ merged in main
 → P0-014 minimal belief lifecycle
 → P0-015 Evidence Gate report
 ```
@@ -260,7 +306,7 @@ P0-001…P0-012 ✅ merged in main
 # 🏁 Следующее действие
 
 ```text
-P0-013 R1 DETERMINISTIC REPLAY
+P0-014 MINIMAL BELIEF LIFECYCLE
 Status: NOT IMPLEMENTED
-Precondition: define deterministic projection input/output contracts and replay-equivalence evidence without treating R0 PASS as state equivalence
+Precondition: define evidence-referenced belief commands/events, deterministic lifecycle transitions and R1-compatible projection state without granting truth or identity authority
 ```
