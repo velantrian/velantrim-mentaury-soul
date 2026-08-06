@@ -21,6 +21,7 @@ from mentaury.storage import (
     SQLiteEventPayloadStore,
     TargetAlreadyRedactedError,
     TargetEventNotFoundError,
+    TargetPayloadMissingError,
     VerificationBudget,
     VersionConflictError,
     redaction_fingerprint,
@@ -208,8 +209,9 @@ def test_cross_stream_redaction_is_rejected_and_payload_untouched() -> None:
         with pytest.raises(CrossStreamRedactionError):
             executor(store).redact(request)
         assert store.load_payload("PAYLOAD-EVT-1") is not None
-        assert store.list_stream("stream:A") == store.list_stream("stream:A")
-        assert len(store.list_stream("stream:A")) == 1
+        stream_a = store.list_stream("stream:A")
+        assert [event.event_id for event in stream_a] == ["EVT-1"]
+        assert store.list_stream("stream:B") == ()
 
 
 def test_missing_target_event_is_rejected() -> None:
@@ -391,7 +393,7 @@ def test_target_payload_already_absent_is_rejected_defensively() -> None:
         store.raw_connection_for_tests().execute(
             "DELETE FROM event_payloads WHERE payload_ref = 'PAYLOAD-EVT-1'"
         )
-        with pytest.raises(Exception, match="already absent"):
+        with pytest.raises(TargetPayloadMissingError, match="already absent"):
             executor(store).redact(redaction_request())
         count = store.raw_connection_for_tests().execute(
             "SELECT COUNT(*) FROM redactions"
