@@ -14,6 +14,7 @@ from mentaury.beliefs import (
     REVISE_BELIEF,
     BeliefLifecycle,
     BeliefReducer,
+    BeliefReducerError,
     BeliefRejectionCode,
     BeliefStatus,
     ClaimType,
@@ -532,7 +533,7 @@ def test_reducer_rejects_supported_revision_without_gate_receipt() -> None:
     )
 
     with pytest.raises(
-        Exception,
+        BeliefReducerError,
         match="Evidence Gate",
     ):
         _apply(state, pending, 3, "EVT-FORGED-SUPPORTED")
@@ -564,3 +565,125 @@ def test_rejection_audit_distinguishes_stream_and_belief_revisions() -> None:
     assert payload["expected_stream_version"] == 17
     assert payload["current_belief_revision"] == 1
     assert payload["requested_belief_revision"] == 99
+
+
+
+def test_contradicted_status_requires_future_evidence_gate() -> None:
+    state = _state_with_evidence()
+    decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 1,
+                "new_statement": "Claim rejected by stronger evidence.",
+                "new_status": BeliefStatus.CONTRADICTED.value,
+                "reason": "epistemic status requires gate",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=2,
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_REQUIRED
+
+
+def test_leaving_contested_requires_addressing_all_open_contradictions() -> None:
+    state = _state_with_evidence()
+    contradiction = BeliefLifecycle().decide(
+        _command(
+            REGISTER_CONTRADICTION,
+            {
+                "belief_id": BELIEF_ID,
+                "contradiction_id": "contradiction:open",
+                "statement": "Context remains disputed.",
+                "evidence_refs": ["evidence:for:1"],
+            },
+            expected_stream_version=2,
+        ),
+        state,
+    )
+    assert contradiction.accepted
+    state = _apply(state, contradiction.domain_events[0], 3, "EVT-OPEN-CONTRADICTION")
+
+    decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 1,
+                "new_statement": "Prematurely cleared claim.",
+                "new_status": BeliefStatus.PROVISIONAL.value,
+                "reason": "attempted contradiction bypass",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=3,
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.UNKNOWN_CONTRADICTION
+
+
+def test_reducer_enforces_terminal_and_transition_policy_on_direct_events() -> None:
+    state = _state_with_evidence()
+    supersede = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 1,
+                "new_statement": "Terminal replacement.",
+                "new_status": BeliefStatus.SUPERSEDED.value,
+                "reason": "replacement",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=2,
+        ),
+        state,
+    )
+    assert supersede.accepted
+    state = _apply(state, supersede.domain_events[0], 3, "EVT-DIRECT-TERMINAL")
+    direct_evidence = PendingEvent(
+        "EVIDENCE_ATTACHED",
+        "evidence-attached/v1",
+        True,
+        {
+            "belief_id": BELIEF_ID,
+            "evidence_ref": "evidence:after-terminal",
+            "side": EvidenceSide.FOR.value,
+        },
+    )
+
+    with pytest.raises(BeliefReducerError, match="terminal"):
+        _apply(state, direct_evidence, 4, "EVT-AFTER-TERMINAL")
+
+
+def test_reducer_rejects_direct_no_effect_revision() -> None:
+    state = _state_with_evidence()
+    pending = PendingEvent(
+        "BELIEF_REVISED",
+        "belief-revised/v1",
+        True,
+        {
+            "belief_id": BELIEF_ID,
+            "previous_revision": 1,
+            "new_revision": 2,
+            "previous_statement": state["statement"],
+            "new_statement": state["statement"],
+            "previous_status": state["status"],
+            "new_status": state["status"],
+            "reason": "direct no-op",
+            "evidence_refs": ["evidence:for:1"],
+            "addressed_contradiction_ids": [],
+        },
+    )
+
+    with pytest.raises(BeliefReducerError, match="no effect"):
+        _apply(state, pending, 3, "EVT-DIRECT-NOOP")

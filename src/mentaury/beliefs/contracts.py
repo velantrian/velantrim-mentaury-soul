@@ -54,6 +54,60 @@ class EvidenceSide(StrEnum):
     AGAINST = "against"
 
 
+_P0_014_ALLOWED_TRANSITIONS: dict[BeliefStatus, frozenset[BeliefStatus]] = {
+    BeliefStatus.HYPOTHESIS: frozenset(
+        {
+            BeliefStatus.PROVISIONAL,
+            BeliefStatus.CONTESTED,
+            BeliefStatus.UNRESOLVED,
+            BeliefStatus.SUPERSEDED,
+        }
+    ),
+    BeliefStatus.PROVISIONAL: frozenset(
+        {
+            BeliefStatus.CONTESTED,
+            BeliefStatus.UNRESOLVED,
+            BeliefStatus.SUPERSEDED,
+        }
+    ),
+    BeliefStatus.CONTESTED: frozenset(
+        {
+            BeliefStatus.PROVISIONAL,
+            BeliefStatus.UNRESOLVED,
+            BeliefStatus.SUPERSEDED,
+        }
+    ),
+    BeliefStatus.UNRESOLVED: frozenset(
+        {
+            BeliefStatus.HYPOTHESIS,
+            BeliefStatus.PROVISIONAL,
+            BeliefStatus.CONTESTED,
+            BeliefStatus.SUPERSEDED,
+        }
+    ),
+    BeliefStatus.SUPPORTED: frozenset(),
+    BeliefStatus.CONTRADICTED: frozenset(),
+    BeliefStatus.SUPERSEDED: frozenset(),
+}
+
+
+def belief_status_requires_evidence_gate(status: BeliefStatus) -> bool:
+    return status in {BeliefStatus.SUPPORTED, BeliefStatus.CONTRADICTED}
+
+
+def belief_status_transition_allowed(
+    current: BeliefStatus,
+    requested: BeliefStatus,
+) -> bool:
+    if current in {
+        BeliefStatus.SUPPORTED,
+        BeliefStatus.CONTRADICTED,
+        BeliefStatus.SUPERSEDED,
+    }:
+        return False
+    return requested is current or requested in _P0_014_ALLOWED_TRANSITIONS[current]
+
+
 class BeliefRejectionCode(StrEnum):
     INVALID_COMMAND = "INVALID_COMMAND"
     TARGET_STREAM_MISMATCH = "TARGET_STREAM_MISMATCH"

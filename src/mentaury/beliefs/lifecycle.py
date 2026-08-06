@@ -27,67 +27,11 @@ from .contracts import (
     BeliefStatus,
     ClaimType,
     EvidenceSide,
+    belief_status_requires_evidence_gate,
+    belief_status_transition_allowed,
     belief_stream_id,
 )
 
-
-_ALLOWED_TRANSITIONS: dict[BeliefStatus, frozenset[BeliefStatus]] = {
-    BeliefStatus.HYPOTHESIS: frozenset(
-        {
-            BeliefStatus.PROVISIONAL,
-            BeliefStatus.SUPPORTED,
-            BeliefStatus.CONTESTED,
-            BeliefStatus.CONTRADICTED,
-            BeliefStatus.UNRESOLVED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.PROVISIONAL: frozenset(
-        {
-            BeliefStatus.SUPPORTED,
-            BeliefStatus.CONTESTED,
-            BeliefStatus.CONTRADICTED,
-            BeliefStatus.UNRESOLVED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.SUPPORTED: frozenset(
-        {
-            BeliefStatus.PROVISIONAL,
-            BeliefStatus.CONTESTED,
-            BeliefStatus.CONTRADICTED,
-            BeliefStatus.UNRESOLVED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.CONTESTED: frozenset(
-        {
-            BeliefStatus.PROVISIONAL,
-            BeliefStatus.SUPPORTED,
-            BeliefStatus.CONTRADICTED,
-            BeliefStatus.UNRESOLVED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.CONTRADICTED: frozenset(
-        {
-            BeliefStatus.PROVISIONAL,
-            BeliefStatus.UNRESOLVED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.UNRESOLVED: frozenset(
-        {
-            BeliefStatus.HYPOTHESIS,
-            BeliefStatus.PROVISIONAL,
-            BeliefStatus.SUPPORTED,
-            BeliefStatus.CONTESTED,
-            BeliefStatus.CONTRADICTED,
-            BeliefStatus.SUPERSEDED,
-        }
-    ),
-    BeliefStatus.SUPERSEDED: frozenset(),
-}
 
 
 class BeliefLifecycle:
@@ -332,9 +276,15 @@ class BeliefLifecycle:
                 BeliefRejectionCode.UNKNOWN_EVIDENCE_REF,
                 f"revision references unattached evidence: {sorted(unknown_evidence)!r}",
             )
+        contradiction_objects = _object_sequence(state.get("contradictions"))
         known_contradictions = {
             str(item["contradiction_id"])
-            for item in _object_sequence(state.get("contradictions"))
+            for item in contradiction_objects
+        }
+        open_contradictions = {
+            str(item["contradiction_id"])
+            for item in contradiction_objects
+            if item.get("addressed_in_revision") is None
         }
         unknown_contradictions = set(contradiction_ids).difference(
             known_contradictions
@@ -349,21 +299,34 @@ class BeliefLifecycle:
                 f"{sorted(unknown_contradictions)!r}",
             )
         current_status = _status(state)
-        if new_status is BeliefStatus.SUPPORTED:
+        if belief_status_requires_evidence_gate(new_status):
             return self._reject(
                 command,
                 belief_id,
                 state,
                 BeliefRejectionCode.EVIDENCE_GATE_REQUIRED,
-                "supported status requires the separately reviewed P0-015 Evidence Gate",
+                f"{new_status.value} status requires the separately reviewed "
+                "P0-015 Evidence Gate",
             )
-        if new_status != current_status and new_status not in _ALLOWED_TRANSITIONS[current_status]:
+        if not belief_status_transition_allowed(current_status, new_status):
             return self._reject(
                 command,
                 belief_id,
                 state,
                 BeliefRejectionCode.INVALID_STATUS_TRANSITION,
                 f"transition {current_status.value} → {new_status.value} is not allowed",
+            )
+        if (
+            current_status is BeliefStatus.CONTESTED
+            and new_status not in {BeliefStatus.CONTESTED, BeliefStatus.UNRESOLVED}
+            and not open_contradictions.issubset(set(contradiction_ids))
+        ):
+            return self._reject(
+                command,
+                belief_id,
+                state,
+                BeliefRejectionCode.UNKNOWN_CONTRADICTION,
+                "leaving contested status requires addressing every open contradiction",
             )
         if (
             new_statement == state.get("statement")

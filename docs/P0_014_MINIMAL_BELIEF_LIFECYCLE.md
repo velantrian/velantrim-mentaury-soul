@@ -72,7 +72,9 @@ history[]
 ```
 
 Revisions never erase earlier statement/status history. Addressed
-contradictions remain visible with the revision that addressed them.
+contradictions remain visible with the revision that addressed them. Leaving
+`contested` for a non-contested/non-unresolved status requires every open
+contradiction to be explicitly addressed by that revision.
 
 ## 🧾 Audit decisions
 
@@ -112,9 +114,10 @@ unresolved
 superseded
 ```
 
-`supported` exists in the shared status vocabulary but is deliberately unreachable
-in P0-014. Both the lifecycle decision and reducer reject a direct transition to
-`supported` until P0-015 defines a governed Evidence Gate receipt and event contract.
+`supported` and `contradicted` exist in the shared status vocabulary but are
+deliberately unreachable in P0-014. Both the lifecycle decision and reducer reject
+a direct transition to either status until P0-015 defines a governed Evidence
+Gate receipt and event contract.
 
 `superseded` is terminal for this minimal lifecycle. A later lifecycle may add a
 separate reactivation event only through a new reviewed specification.
@@ -141,9 +144,10 @@ It does **not** verify:
 - minimum evidence thresholds;
 - whether a belief deserves `supported` status.
 
-P0-014 therefore rejects `supported` through `EVIDENCE_GATE_REQUIRED`; a caller
-cannot bypass this by appending a direct `BELIEF_REVISED` event because the v1
-reducer rejects the same transition without a future gate receipt.
+P0-014 therefore rejects `supported` and `contradicted` through
+`EVIDENCE_GATE_REQUIRED`; a caller cannot bypass this by appending a direct
+`BELIEF_REVISED` event because the v1 reducer enforces the same status, terminal,
+open-contradiction and no-effect policy.
 
 Those controls belong to **P0-015 Evidence Gate**. Therefore:
 

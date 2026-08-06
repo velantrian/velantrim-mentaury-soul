@@ -19,6 +19,8 @@ from .contracts import (
     BeliefStatus,
     ClaimType,
     EvidenceSide,
+    belief_status_requires_evidence_gate,
+    belief_status_transition_allowed,
 )
 
 
@@ -117,6 +119,7 @@ class BeliefReducer:
         payload: FrozenPayload,
     ) -> Mapping[str, object]:
         _require_existing(state, payload)
+        _require_non_terminal(state)
         evidence_ref = _string(payload, "evidence_ref")
         side = _enum_value(EvidenceSide, payload, "side")
         evidence_for = list(_strings(state, "evidence_for"))
@@ -139,6 +142,7 @@ class BeliefReducer:
         payload: FrozenPayload,
     ) -> Mapping[str, object]:
         _require_existing(state, payload)
+        _require_non_terminal(state)
         contradiction_id = _string(payload, "contradiction_id")
         evidence_refs = list(_strings(payload, "evidence_refs"))
         attached = set(_strings(state, "evidence_for")) | set(
@@ -196,6 +200,7 @@ class BeliefReducer:
             raise BeliefReducerError("previous_statement does not match projection")
         if previous_status.value != _string(state, "status"):
             raise BeliefReducerError("previous_status does not match projection")
+        _require_non_terminal(state)
 
         evidence_refs = list(_strings(payload, "evidence_refs"))
         attached = set(_strings(state, "evidence_for")) | set(
@@ -208,6 +213,11 @@ class BeliefReducer:
         addressed = set(_strings(payload, "addressed_contradiction_ids"))
         contradictions = [dict(item) for item in _objects(state, "contradictions")]
         known = {str(item["contradiction_id"]) for item in contradictions}
+        open_contradictions = {
+            str(item["contradiction_id"])
+            for item in contradictions
+            if item["addressed_in_revision"] is None
+        }
         if not addressed.issubset(known):
             raise BeliefReducerError("revision references unknown contradiction")
         for item in contradictions:
@@ -216,10 +226,28 @@ class BeliefReducer:
 
         new_statement = _string(payload, "new_statement")
         new_status = _enum_value(BeliefStatus, payload, "new_status")
-        if new_status is BeliefStatus.SUPPORTED:
+        if belief_status_requires_evidence_gate(new_status):
             raise BeliefReducerError(
-                "supported status requires a future Evidence Gate receipt"
+                f"{new_status.value} status requires a future Evidence Gate receipt"
             )
+        if not belief_status_transition_allowed(previous_status, new_status):
+            raise BeliefReducerError(
+                f"transition {previous_status.value} → {new_status.value} is not allowed"
+            )
+        if (
+            previous_status is BeliefStatus.CONTESTED
+            and new_status not in {BeliefStatus.CONTESTED, BeliefStatus.UNRESOLVED}
+            and not open_contradictions.issubset(addressed)
+        ):
+            raise BeliefReducerError(
+                "leaving contested status requires addressing every open contradiction"
+            )
+        if (
+            new_statement == previous_statement
+            and new_status is previous_status
+            and not addressed
+        ):
+            raise BeliefReducerError("belief revision has no effect")
         history = [dict(item) for item in _objects(state, "history")]
         history.append(
             {
@@ -239,6 +267,16 @@ class BeliefReducer:
             revision=new_revision,
             contradictions=contradictions,
             history=history,
+        )
+
+
+def _require_non_terminal(state: FrozenPayload) -> None:
+    status = BeliefStatus(_string(state, "status"))
+    if status is BeliefStatus.SUPERSEDED:
+        raise BeliefReducerError("superseded belief is terminal")
+    if belief_status_requires_evidence_gate(status):
+        raise BeliefReducerError(
+            "P0-014 cannot continue from an Evidence Gate-owned status"
         )
 
 
