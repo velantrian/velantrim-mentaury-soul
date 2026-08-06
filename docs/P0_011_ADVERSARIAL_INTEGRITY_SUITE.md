@@ -54,11 +54,18 @@ event_ids_json
 ├── non-empty unique string IDs
 └── count equals [first_stream_version..last_stream_version]
 
+receipt ↔ fingerprinted request
+├── stream matches command target
+├── first version follows expected version
+└── event count matches pending batch
+
 each referenced event
 ├── exists
-├── batch_id matches
-├── stream_id matches
-└── stream_version matches receipt order
+├── batch ID, index and size match
+├── stream and version order match
+├── type, schema and state-affecting flag match
+├── payload digest matches canonical proposed payload
+└── initiator and authority match the command
 ```
 
 A corrupted receipt raises `IdempotencyReceiptIntegrityError`. No replacement

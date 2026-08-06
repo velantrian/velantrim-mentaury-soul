@@ -573,7 +573,7 @@ def test_stored_idempotency_receipt_event_order_is_verified() -> None:
 
         with pytest.raises(
             IdempotencyReceiptIntegrityError,
-            match="stream_version",
+            match="batch_index",
         ):
             appender.append(request)
 
@@ -589,5 +589,78 @@ def test_stored_idempotency_receipt_version_span_is_verified() -> None:
         with pytest.raises(
             IdempotencyReceiptIntegrityError,
             match="version span",
+        ):
+            appender.append(request)
+
+
+
+def test_stored_receipt_cannot_redirect_to_another_stream() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        appender = SQLiteIdempotentBatchAppender(store, _registry())
+        request = _idempotent_request()
+        appender.append(request)
+        _corrupt_idempotency_record(store, "stream_id = 'other:stream'")
+
+        with pytest.raises(
+            IdempotencyReceiptIntegrityError,
+            match="target_stream",
+        ):
+            appender.append(request)
+
+
+def test_stored_receipt_must_start_after_expected_version() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        appender = SQLiteIdempotentBatchAppender(store, _registry())
+        request = _idempotent_request()
+        appender.append(request)
+        _corrupt_idempotency_record(
+            store,
+            "first_stream_version = 2, last_stream_version = 3",
+        )
+
+        with pytest.raises(
+            IdempotencyReceiptIntegrityError,
+            match="command expectation",
+        ):
+            appender.append(request)
+
+
+def test_stored_receipt_verifies_full_batch_shape() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        appender = SQLiteIdempotentBatchAppender(store, _registry())
+        request = _idempotent_request()
+        appender.append(request)
+        connection = store.raw_connection_for_tests()
+        connection.execute("DROP TRIGGER events_are_immutable_on_update")
+        connection.execute(
+            "UPDATE events SET batch_size = 3 WHERE event_id = 'IDEMP-EVT-1'"
+        )
+
+        with pytest.raises(
+            IdempotencyReceiptIntegrityError,
+            match="batch_size",
+        ):
+            appender.append(request)
+
+
+def test_stored_receipt_verifies_fingerprinted_event_semantics() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        appender = SQLiteIdempotentBatchAppender(store, _registry())
+        request = _idempotent_request()
+        appender.append(request)
+        connection = store.raw_connection_for_tests()
+        connection.execute("DROP TRIGGER events_are_immutable_on_update")
+        connection.execute(
+            "UPDATE events SET payload_digest = 'sha256:forged' "
+            "WHERE event_id = 'IDEMP-EVT-1'"
+        )
+
+        with pytest.raises(
+            IdempotencyReceiptIntegrityError,
+            match="payload_digest",
         ):
             appender.append(request)

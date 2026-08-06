@@ -39,6 +39,7 @@ from .concurrency import (
     commit_with_retry,
     is_stream_version_conflict,
 )
+from .sealing import compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
 
 IDEMPOTENCY_PROFILE: Final[str] = "MENTAURY_IDEMPOTENCY_V1"
@@ -72,7 +73,7 @@ class IdempotencyConflictError(RuntimeError):
 
 
 class IdempotencyReceiptIntegrityError(RuntimeError):
-    "Raised when a stored ALREADY_APPLIED receipt is not ledger-backed."
+    """Raised when a stored ALREADY_APPLIED receipt is not ledger-backed."""
 
     def __init__(self, idempotency_key: str, detail: str) -> None:
         self.idempotency_key = idempotency_key
@@ -165,7 +166,7 @@ class SQLiteIdempotentBatchAppender:
                 _verify_stored_receipt(
                     connection,
                     receipt,
-                    request.command.idempotency_key,
+                    request,
                 )
                 commit_with_retry(connection, self._busy_policy)
                 return IdempotentAppendResult(
@@ -398,12 +399,40 @@ def _receipt_from_row(
 def _verify_stored_receipt(
     connection: sqlite3.Connection,
     receipt: BatchAppendReceipt,
-    idempotency_key: str,
+    request: IdempotentBatchRequest,
 ) -> None:
-    for offset, event_id in enumerate(receipt.event_ids):
+    idempotency_key = request.command.idempotency_key
+    expected_first_version = request.command.expected_stream_version + 1
+    if receipt.stream_id != request.command.target_stream:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored stream_id does not match command target_stream",
+        )
+    if receipt.first_stream_version != expected_first_version:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored first_stream_version does not follow the command expectation",
+        )
+    if len(receipt.event_ids) != len(request.pending_events):
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored event count does not match the fingerprinted pending batch",
+        )
+
+    expected_batch_size = len(receipt.event_ids)
+    for offset, (event_id, proposed) in enumerate(
+        zip(receipt.event_ids, request.pending_events, strict=True)
+    ):
         row = connection.execute(
-            "SELECT event_id, batch_id, stream_id, stream_version "
-            "FROM events WHERE event_id = ?",
+            """
+            SELECT event_id, batch_id, batch_index, batch_size,
+                   stream_id, stream_version, event_type, payload_schema,
+                   affects_domain_state, payload_digest,
+                   initiator_type, initiator_id,
+                   capability_lease_id, capability_revision
+            FROM events
+            WHERE event_id = ?
+            """,
             (event_id,),
         ).fetchone()
         if row is None:
@@ -413,18 +442,40 @@ def _verify_stored_receipt(
             )
 
         expected_version = receipt.first_stream_version + offset
-        if row["batch_id"] != receipt.batch_id:
-            raise IdempotencyReceiptIntegrityError(
-                idempotency_key,
-                f"event {event_id} batch_id does not match the stored receipt",
-            )
-        if row["stream_id"] != receipt.stream_id:
-            raise IdempotencyReceiptIntegrityError(
-                idempotency_key,
-                f"event {event_id} stream_id does not match the stored receipt",
-            )
-        if row["stream_version"] != expected_version:
-            raise IdempotencyReceiptIntegrityError(
-                idempotency_key,
-                f"event {event_id} stream_version does not match receipt order",
-            )
+        checks = (
+            (row["batch_id"] == receipt.batch_id, "batch_id"),
+            (row["batch_index"] == offset, "batch_index"),
+            (row["batch_size"] == expected_batch_size, "batch_size"),
+            (row["stream_id"] == receipt.stream_id, "stream_id"),
+            (row["stream_version"] == expected_version, "stream_version"),
+            (row["event_type"] == proposed.event_type, "event_type"),
+            (row["payload_schema"] == proposed.payload_schema, "payload_schema"),
+            (
+                bool(row["affects_domain_state"])
+                is proposed.affects_domain_state,
+                "affects_domain_state",
+            ),
+            (
+                row["payload_digest"]
+                == compute_payload_digest(canonical_json_bytes(proposed.payload)),
+                "payload_digest",
+            ),
+            (
+                row["initiator_type"] == request.command.issuer.actor_type
+                and row["initiator_id"] == request.command.issuer.actor_id,
+                "initiator",
+            ),
+            (
+                row["capability_lease_id"]
+                == request.command.authority.capability_lease_id
+                and row["capability_revision"]
+                == request.command.authority.capability_revision,
+                "authority",
+            ),
+        )
+        for matches, field in checks:
+            if not matches:
+                raise IdempotencyReceiptIntegrityError(
+                    idempotency_key,
+                    f"event {event_id} {field} does not match the fingerprinted request",
+                )
