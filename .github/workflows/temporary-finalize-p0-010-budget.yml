@@ -27,6 +27,7 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
+          import base64
           from pathlib import Path
 
           integrity_path = Path("src/mentaury/storage/integrity.py")
@@ -67,31 +68,7 @@ jobs:
           tests = test_path.read_text(encoding="utf-8")
           marker = "def test_r0_applies_payload_budget_before_decoding_linked_audit_payload"
           if marker not in tests:
-              tests += '''
-
-
-def test_r0_applies_payload_budget_before_decoding_linked_audit_payload() -> None:
-    with SQLiteEventPayloadStore.in_memory() as store:
-        store.initialize_schema()
-        _append_target(store)
-        _apply_redaction(store)
-
-        report = R0IntegrityVerifier(
-            store,
-            _registry(),
-            VerificationBudget(
-                max_events=100,
-                max_payload_bytes=1,
-                max_total_payload_bytes=1,
-            ),
-        ).verify_stream("test:stream")
-
-        assert not report.ok
-        assert report.failure is not None
-        assert report.failure.code is IntegrityCode.RESOURCE_BUDGET_EXCEEDED
-        assert report.failure.event_id == "EVT-1"
-        assert "payload_bytes" in report.failure.message
-'''
+              tests += base64.b64decode("CgoKZGVmIHRlc3RfcjBfYXBwbGllc19wYXlsb2FkX2J1ZGdldF9iZWZvcmVfZGVjb2RpbmdfbGlua2VkX2F1ZGl0X3BheWxvYWQoKSAtPiBOb25lOgogICAgd2l0aCBTUUxpdGVFdmVudFBheWxvYWRTdG9yZS5pbl9tZW1vcnkoKSBhcyBzdG9yZToKICAgICAgICBzdG9yZS5pbml0aWFsaXplX3NjaGVtYSgpCiAgICAgICAgX2FwcGVuZF90YXJnZXQoc3RvcmUpCiAgICAgICAgX2FwcGx5X3JlZGFjdGlvbihzdG9yZSkKCiAgICAgICAgcmVwb3J0ID0gUjBJbnRlZ3JpdHlWZXJpZmllcigKICAgICAgICAgICAgc3RvcmUsCiAgICAgICAgICAgIF9yZWdpc3RyeSgpLAogICAgICAgICAgICBWZXJpZmljYXRpb25CdWRnZXQoCiAgICAgICAgICAgICAgICBtYXhfZXZlbnRzPTEwMCwKICAgICAgICAgICAgICAgIG1heF9wYXlsb2FkX2J5dGVzPTEsCiAgICAgICAgICAgICAgICBtYXhfdG90YWxfcGF5bG9hZF9ieXRlcz0xLAogICAgICAgICAgICApLAogICAgICAgICkudmVyaWZ5X3N0cmVhbSgidGVzdDpzdHJlYW0iKQoKICAgICAgICBhc3NlcnQgbm90IHJlcG9ydC5vawogICAgICAgIGFzc2VydCByZXBvcnQuZmFpbHVyZSBpcyBub3QgTm9uZQogICAgICAgIGFzc2VydCByZXBvcnQuZmFpbHVyZS5jb2RlIGlzIEludGVncml0eUNvZGUuUkVTT1VSQ0VfQlVER0VUX0VYQ0VFREVECiAgICAgICAgYXNzZXJ0IHJlcG9ydC5mYWlsdXJlLmV2ZW50X2lkID09ICJFVlQtMSIKICAgICAgICBhc3NlcnQgInBheWxvYWRfYnl0ZXMiIGluIHJlcG9ydC5mYWlsdXJlLm1lc3NhZ2UK").decode("utf-8")
               test_path.write_text(tests, encoding="utf-8")
           PY
 
