@@ -39,6 +39,7 @@ from .concurrency import (
     commit_with_retry,
     is_stream_version_conflict,
 )
+from .sealing import compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
 
 IDEMPOTENCY_PROFILE: Final[str] = "MENTAURY_IDEMPOTENCY_V1"
@@ -68,6 +69,18 @@ class IdempotencyConflictError(RuntimeError):
         super().__init__(
             f"idempotency conflict for key {idempotency_key}: "
             f"stored {stored_fingerprint}, attempted {attempted_fingerprint}"
+        )
+
+
+class IdempotencyReceiptIntegrityError(RuntimeError):
+    """Raised when a stored ALREADY_APPLIED receipt is not ledger-backed."""
+
+    def __init__(self, idempotency_key: str, detail: str) -> None:
+        self.idempotency_key = idempotency_key
+        self.detail = detail
+        super().__init__(
+            f"invalid stored idempotency receipt for key "
+            f"{idempotency_key}: {detail}"
         )
 
 
@@ -146,7 +159,15 @@ class SQLiteIdempotentBatchAppender:
                         existing["fingerprint"],
                         fingerprint,
                     )
-                receipt = _receipt_from_row(existing)
+                receipt = _receipt_from_row(
+                    existing,
+                    request.command.idempotency_key,
+                )
+                _verify_stored_receipt(
+                    connection,
+                    receipt,
+                    request,
+                )
                 commit_with_retry(connection, self._busy_policy)
                 return IdempotentAppendResult(
                     IdempotencyStatus.ALREADY_APPLIED,
@@ -287,16 +308,174 @@ def _validate_request_alignment(
             )
 
 
-def _receipt_from_row(row: sqlite3.Row) -> BatchAppendReceipt:
-    raw_event_ids = json.loads(bytes(row["event_ids_json"]).decode("utf-8"))
-    if not isinstance(raw_event_ids, list) or any(
-        not isinstance(item, str) for item in raw_event_ids
+def _receipt_from_row(
+    row: sqlite3.Row,
+    idempotency_key: str,
+) -> BatchAppendReceipt:
+    try:
+        encoded_event_ids = bytes(row["event_ids_json"])
+        decoded_event_ids = json.loads(encoded_event_ids.decode("utf-8"))
+    except (TypeError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event_ids_json is not valid UTF-8 JSON",
+        ) from exc
+
+    if not isinstance(decoded_event_ids, list) or not decoded_event_ids:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event_ids_json must be a non-empty list",
+        )
+    if any(
+        not isinstance(event_id, str) or not event_id
+        for event_id in decoded_event_ids
     ):
-        raise RuntimeError("invalid stored idempotency receipt")
-    return BatchAppendReceipt(
-        batch_id=row["batch_id"],
-        stream_id=row["stream_id"],
-        event_ids=tuple(raw_event_ids),
-        first_stream_version=row["first_stream_version"],
-        last_stream_version=row["last_stream_version"],
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event_ids_json must contain non-empty strings",
+        )
+    if len(set(decoded_event_ids)) != len(decoded_event_ids):
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event_ids_json must not contain duplicate event IDs",
+        )
+    if canonical_json_bytes(decoded_event_ids) != encoded_event_ids:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event_ids_json must use canonical JSON encoding",
+        )
+
+    batch_id = row["batch_id"]
+    stream_id = row["stream_id"]
+    first_stream_version = row["first_stream_version"]
+    last_stream_version = row["last_stream_version"]
+    if not isinstance(batch_id, str) or not batch_id:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "batch_id must be a non-empty string",
+        )
+    if not isinstance(stream_id, str) or not stream_id:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stream_id must be a non-empty string",
+        )
+    if (
+        isinstance(first_stream_version, bool)
+        or not isinstance(first_stream_version, int)
+        or first_stream_version <= 0
+    ):
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "first_stream_version must be a positive integer",
+        )
+    if (
+        isinstance(last_stream_version, bool)
+        or not isinstance(last_stream_version, int)
+        or last_stream_version < first_stream_version
+    ):
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "last_stream_version must not precede first_stream_version",
+        )
+
+    receipt = BatchAppendReceipt(
+        batch_id=batch_id,
+        stream_id=stream_id,
+        event_ids=tuple(decoded_event_ids),
+        first_stream_version=first_stream_version,
+        last_stream_version=last_stream_version,
     )
+    expected_count = (
+        receipt.last_stream_version - receipt.first_stream_version + 1
+    )
+    if len(receipt.event_ids) != expected_count:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "event ID count does not match the stored version span",
+        )
+    return receipt
+
+
+def _verify_stored_receipt(
+    connection: sqlite3.Connection,
+    receipt: BatchAppendReceipt,
+    request: IdempotentBatchRequest,
+) -> None:
+    idempotency_key = request.command.idempotency_key
+    expected_first_version = request.command.expected_stream_version + 1
+    if receipt.stream_id != request.command.target_stream:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored stream_id does not match command target_stream",
+        )
+    if receipt.first_stream_version != expected_first_version:
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored first_stream_version does not follow the command expectation",
+        )
+    if len(receipt.event_ids) != len(request.pending_events):
+        raise IdempotencyReceiptIntegrityError(
+            idempotency_key,
+            "stored event count does not match the fingerprinted pending batch",
+        )
+
+    expected_batch_size = len(receipt.event_ids)
+    for offset, (event_id, proposed) in enumerate(
+        zip(receipt.event_ids, request.pending_events, strict=True)
+    ):
+        row = connection.execute(
+            """
+            SELECT event_id, batch_id, batch_index, batch_size,
+                   stream_id, stream_version, event_type, payload_schema,
+                   affects_domain_state, payload_digest,
+                   initiator_type, initiator_id,
+                   capability_lease_id, capability_revision
+            FROM events
+            WHERE event_id = ?
+            """,
+            (event_id,),
+        ).fetchone()
+        if row is None:
+            raise IdempotencyReceiptIntegrityError(
+                idempotency_key,
+                f"referenced event {event_id} does not exist",
+            )
+
+        expected_version = receipt.first_stream_version + offset
+        checks = (
+            (row["batch_id"] == receipt.batch_id, "batch_id"),
+            (row["batch_index"] == offset, "batch_index"),
+            (row["batch_size"] == expected_batch_size, "batch_size"),
+            (row["stream_id"] == receipt.stream_id, "stream_id"),
+            (row["stream_version"] == expected_version, "stream_version"),
+            (row["event_type"] == proposed.event_type, "event_type"),
+            (row["payload_schema"] == proposed.payload_schema, "payload_schema"),
+            (
+                bool(row["affects_domain_state"])
+                is proposed.affects_domain_state,
+                "affects_domain_state",
+            ),
+            (
+                row["payload_digest"]
+                == compute_payload_digest(canonical_json_bytes(proposed.payload)),
+                "payload_digest",
+            ),
+            (
+                row["initiator_type"] == request.command.issuer.actor_type
+                and row["initiator_id"] == request.command.issuer.actor_id,
+                "initiator",
+            ),
+            (
+                row["capability_lease_id"]
+                == request.command.authority.capability_lease_id
+                and row["capability_revision"]
+                == request.command.authority.capability_revision,
+                "authority",
+            ),
+        )
+        for matches, field in checks:
+            if not matches:
+                raise IdempotencyReceiptIntegrityError(
+                    idempotency_key,
+                    f"event {event_id} {field} does not match the fingerprinted request",
+                )
