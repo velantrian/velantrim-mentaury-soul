@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 from dataclasses import dataclass
 from enum import StrEnum
 
@@ -462,6 +461,10 @@ class R0IntegrityVerifier:
                 IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
                 "redaction audit payload material is missing",
             )
+        try:
+            self._budget.require_payload_size(len(audit_payload.payload_bytes))
+        except ResourceBudgetExceeded as exc:
+            return self._event_budget_fail(target_event, checked, exc)
         try:
             decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:

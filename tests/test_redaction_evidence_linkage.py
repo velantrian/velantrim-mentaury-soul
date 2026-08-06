@@ -351,3 +351,27 @@ def test_r0_rejects_mismatched_redaction_row(
         )
 
         _assert_failure(store, expected)
+
+
+
+def test_r0_applies_payload_budget_before_decoding_linked_audit_payload() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        _append_target(store)
+        _apply_redaction(store)
+
+        report = R0IntegrityVerifier(
+            store,
+            _registry(),
+            VerificationBudget(
+                max_events=100,
+                max_payload_bytes=1,
+                max_total_payload_bytes=1,
+            ),
+        ).verify_stream("test:stream")
+
+        assert not report.ok
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.RESOURCE_BUDGET_EXCEEDED
+        assert report.failure.event_id == "EVT-1"
+        assert "payload_bytes" in report.failure.message
