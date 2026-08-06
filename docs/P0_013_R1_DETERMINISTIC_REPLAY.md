@@ -3,7 +3,7 @@
 ```text
 Status: FINAL CANDIDATE · EXACT-HEAD CI REQUIRED
 Base: main@dda1604253a49f0d88c77d01491a44cc3f09fe53
-Hardened lineage through: e26d2045cd383e0e865a7e82e60566b63d8d6c92
+Hardened lineage through: 4cfa6d8714bfa3a889e7b95c44cf2824345a1251
 Scope: neutral replay framework only
 P0-014 belief lifecycle: NOT INCLUDED
 Snapshot persistence: NOT INCLUDED
@@ -177,21 +177,23 @@ The P0-013 suite contains **23 replay tests** covering:
 - stream-stability capture after R0;
 - replay-time payload digest verification.
 
-## ✅ Hardened validation checkpoint
+## ✅ Final hardening checkpoint
 
-Temporary self-cleaning run `31086784452` validated the production, test and
-specification tree through `e26d2045cd383e0e865a7e82e60566b63d8d6c92`:
+Temporary self-cleaning run `31087531349` validated the complete production,
+test and specification tree through
+`4cfa6d8714bfa3a889e7b95c44cf2824345a1251`:
 
 ```text
 CPython 3.13.14            → PASS
 locked install + pip check → PASS
 structural validator       → PASS
-full pytest                → 184 passed
+full pytest                → 186 passed
 compileall                 → PASS
 temporary files            → removed from final diff
 ```
 
-The final owner-authored documentation checkpoint must pass retained
+Earlier read-snapshot run `31087337711` proved the WAL concurrent-append prefix
+contract with `185 passed`. The final owner-authored candidate must pass retained
 `Mentaury CI` on its exact immutable head before merge.
 
 ## ⚖️ Preserved boundaries
