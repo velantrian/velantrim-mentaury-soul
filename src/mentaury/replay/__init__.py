@@ -6,6 +6,7 @@ from .contracts import (
     ReplayFailureCode,
     ReplayReducer,
     ReplaySnapshot,
+    ReplayStateBudget,
 )
 from .engine import (
     R1ReplayVerifier,
@@ -20,6 +21,7 @@ __all__ = [
     "ReplayFailureCode",
     "ReplayReducer",
     "ReplaySnapshot",
+    "ReplayStateBudget",
     "compute_replay_state_hash",
     "make_replay_snapshot",
 ]

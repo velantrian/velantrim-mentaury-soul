@@ -18,6 +18,7 @@ from mentaury.storage import (
     ResourceBudgetExceeded,
     SQLiteEventPayloadStore,
     VerificationBudget,
+    compute_payload_digest,
 )
 from mentaury.storage.stream_meta import GENESIS_HASH
 from mentaury.validation import SchemaRegistry
@@ -28,6 +29,7 @@ from .contracts import (
     ReplayFailureCode,
     ReplayReducer,
     ReplaySnapshot,
+    ReplayStateBudget,
 )
 
 
@@ -91,6 +93,7 @@ class R1ReplayVerifier:
         store: SQLiteEventPayloadStore,
         registry: SchemaRegistry,
         budget: VerificationBudget,
+        state_budget: ReplayStateBudget,
         reducer: ReplayReducer,
     ) -> None:
         if not isinstance(store, SQLiteEventPayloadStore):
@@ -99,9 +102,12 @@ class R1ReplayVerifier:
             raise TypeError("registry must be a SchemaRegistry")
         if not isinstance(budget, VerificationBudget):
             raise TypeError("budget must be a VerificationBudget")
+        if not isinstance(state_budget, ReplayStateBudget):
+            raise TypeError("state_budget must be a ReplayStateBudget")
         self._store = store
         self._registry = registry
         self._budget = budget
+        self._state_budget = state_budget
         self._reducer = reducer
 
     def verify_stream(
@@ -154,6 +160,27 @@ class R1ReplayVerifier:
             )
 
         events = self._store.list_stream(stream_id)
+        stream_meta = self._store.load_stream_meta(stream_id)
+        expected_tail_hash = events[-1].event_hash if events else GENESIS_HASH
+        if (
+            len(events) != r0_report.checked_events
+            or stream_meta.event_count != len(events)
+            or stream_meta.current_version != len(events)
+            or stream_meta.last_event_hash != expected_tail_hash
+        ):
+            return self._failed_report(
+                stream_id,
+                reducer_id,
+                reducer_version,
+                snapshot.through_stream_version,
+                ReplayFailure(
+                    ReplayFailureCode.STREAM_CHANGED_DURING_VERIFICATION,
+                    stream_id,
+                    "stream changed between R0 verification and replay capture",
+                ),
+                checked_events=r0_report.checked_events,
+            )
+
         metadata_failure = self._validate_snapshot_metadata(
             stream_id,
             snapshot,
@@ -183,6 +210,20 @@ class R1ReplayVerifier:
                     stream_id,
                     f"snapshot state is not canonical: {exc}",
                 ),
+            )
+        snapshot_budget_failure = self._state_budget_failure(
+            stream_id,
+            snapshot_state,
+            len(snapshot_state.canonical_bytes),
+        )
+        if snapshot_budget_failure is not None:
+            return self._failed_report(
+                stream_id,
+                reducer_id,
+                reducer_version,
+                snapshot.through_stream_version,
+                snapshot_budget_failure,
+                snapshot_state_hash=snapshot_state.state_hash,
             )
         if snapshot_state.state_hash != snapshot.state_hash:
             return self._failed_report(
@@ -214,6 +255,20 @@ class R1ReplayVerifier:
                     stream_id,
                     f"invalid initial reducer state: {exc}",
                 ),
+            )
+
+        initial_budget_failure = self._state_budget_failure(
+            stream_id,
+            initial_state,
+            len(initial_state.canonical_bytes),
+        )
+        if initial_budget_failure is not None:
+            return self._failed_report(
+                stream_id,
+                reducer_id,
+                reducer_version,
+                snapshot.through_stream_version,
+                initial_budget_failure,
             )
 
         try:
@@ -322,9 +377,12 @@ class R1ReplayVerifier:
         checked = 0
         applied = 0
         total_payload_bytes = 0
+        total_state_bytes = len(state.canonical_bytes)
         checkpoint = state if checkpoint_version == 0 else None
 
         try:
+            self._state_budget.require_state_size(len(state.canonical_bytes))
+            self._state_budget.require_total_state_size(total_state_bytes)
             self._budget.require_event_count(len(events))
         except ResourceBudgetExceeded as exc:
             raise _ReplayAborted(
@@ -381,6 +439,24 @@ class R1ReplayVerifier:
 
                 payload = _decode_payload(stream_id, event, payload_bytes)
                 state = self._apply_twice(stream_id, state, event, payload)
+                try:
+                    self._state_budget.require_state_size(
+                        len(state.canonical_bytes)
+                    )
+                    total_state_bytes += len(state.canonical_bytes)
+                    self._state_budget.require_total_state_size(
+                        total_state_bytes
+                    )
+                except ResourceBudgetExceeded as exc:
+                    raise _ReplayAborted(
+                        ReplayFailure(
+                            ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED,
+                            stream_id,
+                            str(exc),
+                            event.event_id,
+                            event.stream_version,
+                        )
+                    ) from exc
                 applied += 1
 
             if checkpoint_version == event.stream_version:
@@ -492,6 +568,23 @@ class R1ReplayVerifier:
                 ReplayFailureCode.SNAPSHOT_ANCHOR_MISMATCH,
                 stream_id,
                 "snapshot event-hash anchor does not match verified history",
+            )
+        return None
+
+    def _state_budget_failure(
+        self,
+        stream_id: str,
+        state: _NormalizedState,
+        total_state_bytes: int,
+    ) -> ReplayFailure | None:
+        try:
+            self._state_budget.require_state_size(len(state.canonical_bytes))
+            self._state_budget.require_total_state_size(total_state_bytes)
+        except ResourceBudgetExceeded as exc:
+            return ReplayFailure(
+                ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED,
+                stream_id,
+                str(exc),
             )
         return None
 
@@ -618,6 +711,16 @@ def _decode_payload(
                 ReplayFailureCode.PAYLOAD_NOT_CANONICAL,
                 stream_id,
                 "payload bytes do not use canonical JSON encoding",
+                event.event_id,
+                event.stream_version,
+            )
+        )
+    if compute_payload_digest(payload_bytes) != event.payload_digest:
+        raise _ReplayAborted(
+            ReplayFailure(
+                ReplayFailureCode.PAYLOAD_DIGEST_MISMATCH,
+                stream_id,
+                "payload digest changed after R0 verification",
                 event.event_id,
                 event.stream_version,
             )

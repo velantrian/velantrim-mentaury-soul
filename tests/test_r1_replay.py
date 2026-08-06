@@ -17,6 +17,7 @@ from mentaury.replay import (
     R1ReplayVerifier,
     ReplayFailureCode,
     ReplaySnapshot,
+    ReplayStateBudget,
     compute_replay_state_hash,
     make_replay_snapshot,
 )
@@ -263,16 +264,29 @@ def _append_unknown_domain(
     )
 
 
+def _state_budget(
+    *,
+    max_state_bytes: int = 10_000,
+    max_total_state_bytes: int = 100_000,
+) -> ReplayStateBudget:
+    return ReplayStateBudget(
+        max_state_bytes=max_state_bytes,
+        max_total_state_bytes=max_total_state_bytes,
+    )
+
+
 def _verifier(
     store: SQLiteEventPayloadStore,
     reducer=None,
     *,
     budget: VerificationBudget | None = None,
+    state_budget: ReplayStateBudget | None = None,
 ) -> R1ReplayVerifier:
     return R1ReplayVerifier(
         store,
         _registry(),
         budget or _budget(),
+        state_budget or _state_budget(),
         reducer or CounterReducer(),
     )
 
@@ -647,3 +661,54 @@ def test_r0_resource_budget_failure_prevents_replay() -> None:
         ).verify_stream(STREAM_ID, _snapshot_after_first(first))
 
         assert _failure_code(report) is ReplayFailureCode.R0_PREREQUISITE_FAILED
+
+
+class ExpandingReducer(CounterReducer):
+    def apply(self, state, event, payload) -> Mapping[str, object]:
+        return {
+            "total": state["total"],
+            "event_ids": list(state["event_ids"]),
+            "padding": "x" * 1_000,
+        }
+
+
+def test_reducer_state_size_budget_is_enforced() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        _append_counter(store, "EVT-1", 1, 1)
+        snapshot = make_replay_snapshot(
+            reducer_id=CounterReducer.reducer_id,
+            reducer_version=CounterReducer.reducer_version,
+            stream_id=STREAM_ID,
+            through_stream_version=0,
+            through_event_hash=GENESIS_HASH,
+            state={"total": 0, "event_ids": []},
+        )
+
+        report = _verifier(
+            store,
+            ExpandingReducer(),
+            state_budget=_state_budget(max_state_bytes=200),
+        ).verify_stream(STREAM_ID, snapshot)
+
+        assert _failure_code(report) is ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED
+
+
+def test_snapshot_state_size_budget_is_enforced_before_replay() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        snapshot = make_replay_snapshot(
+            reducer_id=CounterReducer.reducer_id,
+            reducer_version=CounterReducer.reducer_version,
+            stream_id=STREAM_ID,
+            through_stream_version=0,
+            through_event_hash=GENESIS_HASH,
+            state={"total": 0, "event_ids": [], "padding": "x" * 1_000},
+        )
+
+        report = _verifier(
+            store,
+            state_budget=_state_budget(max_state_bytes=200),
+        ).verify_stream(STREAM_ID, snapshot)
+
+        assert _failure_code(report) is ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED

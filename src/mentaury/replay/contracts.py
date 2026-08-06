@@ -14,6 +14,7 @@ from mentaury.contracts.primitives import (
     require_non_empty,
     require_non_negative,
 )
+from mentaury.storage.budget import ResourceBudgetExceeded
 
 
 @runtime_checkable
@@ -41,6 +42,40 @@ class ReplayReducer(Protocol):
         payload: FrozenPayload,
     ) -> Mapping[str, object]:
         """Return the next state without mutating the immutable inputs."""
+
+
+@dataclass(frozen=True, slots=True)
+class ReplayStateBudget:
+    """Caller-supplied canonical state-size limits for each replay path."""
+
+    max_state_bytes: int
+    max_total_state_bytes: int
+
+    def __post_init__(self) -> None:
+        for field_name in ("max_state_bytes", "max_total_state_bytes"):
+            value = getattr(self, field_name)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+                raise ValueError(f"{field_name} must be a positive integer")
+        if self.max_total_state_bytes < self.max_state_bytes:
+            raise ValueError(
+                "max_total_state_bytes must be >= max_state_bytes"
+            )
+
+    def require_state_size(self, observed: int) -> None:
+        if observed > self.max_state_bytes:
+            raise ResourceBudgetExceeded(
+                "replay_state_bytes",
+                self.max_state_bytes,
+                observed,
+            )
+
+    def require_total_state_size(self, observed: int) -> None:
+        if observed > self.max_total_state_bytes:
+            raise ResourceBudgetExceeded(
+                "replay_total_state_bytes",
+                self.max_total_state_bytes,
+                observed,
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -84,6 +119,8 @@ class ReplayFailureCode(StrEnum):
     PAYLOAD_UNAVAILABLE = "PAYLOAD_UNAVAILABLE"
     PAYLOAD_DECODE_ERROR = "PAYLOAD_DECODE_ERROR"
     PAYLOAD_NOT_CANONICAL = "PAYLOAD_NOT_CANONICAL"
+    PAYLOAD_DIGEST_MISMATCH = "PAYLOAD_DIGEST_MISMATCH"
+    STREAM_CHANGED_DURING_VERIFICATION = "STREAM_CHANGED_DURING_VERIFICATION"
     REDUCER_ERROR = "REDUCER_ERROR"
     REDUCER_REUSED_INPUT = "REDUCER_REUSED_INPUT"
     REDUCER_NONDETERMINISTIC = "REDUCER_NONDETERMINISTIC"

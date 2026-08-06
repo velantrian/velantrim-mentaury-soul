@@ -81,12 +81,14 @@ R1 performs:
 
 1. validate reducer identity, version and supported schema declarations;
 2. run bounded R0 verification on the complete stream;
-3. verify snapshot reducer, stream, version and event-hash anchor;
-4. recompute the snapshot state hash;
-5. replay the complete stream from a canonical initial state;
-6. compare the supplied snapshot state with the full-replay checkpoint state;
-7. replay the tail from the supplied snapshot;
-8. compare canonical final bytes and state hashes.
+3. capture the same verified event count/tail metadata before replay;
+4. verify snapshot reducer, stream, version and event-hash anchor;
+5. recompute the snapshot state hash and apply state-size bounds;
+6. replay the complete stream from a canonical bounded initial state;
+7. recheck each replayed payload digest against its immutable envelope;
+8. compare the supplied snapshot state with the full-replay checkpoint state;
+9. replay the tail from the supplied snapshot;
+10. compare canonical final bytes and state hashes.
 
 R0 failure stops R1. R1 does not reinterpret an R0 failure.
 
@@ -141,7 +143,12 @@ The caller supplies `VerificationBudget` limits for:
 - one payload size;
 - total payload material per replay path.
 
-Full replay and snapshot-tail replay each operate under the declared bound.
+The caller also supplies `ReplayStateBudget` limits for:
+
+- one canonical projection state;
+- cumulative canonical state material produced per replay path.
+
+Full replay and snapshot-tail replay each operate under the declared bounds.
 P0-013 adds no unbounded scan, background worker or automatic startup replay.
 
 ## 🧪 Executable matrix
@@ -161,7 +168,9 @@ The P0-013 tests cover:
 - invalid initial state and malformed reducer contract;
 - R0 prerequisite failure;
 - governed redaction with unavailable state payload;
-- explicit resource-budget failure.
+- explicit event/payload and reducer-state resource-budget failure;
+- stream-stability capture after R0;
+- replay-time payload digest verification.
 
 ## ⚖️ Preserved boundaries
 
