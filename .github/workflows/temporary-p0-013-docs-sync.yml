@@ -1,0 +1,42 @@
+name: Temporary P0-013 docs sync
+
+on:
+  push:
+    branches:
+      - docs/p0-013-post-merge-sync
+    paths:
+      - .github/workflows/temporary-p0-013-docs-sync.yml
+      - scripts/temporary_sync_p0_013_status.py
+
+permissions:
+  contents: write
+
+jobs:
+  patch-cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: docs/p0-013-post-merge-sync
+          fetch-depth: 0
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+
+      - name: Apply factual status sync
+        run: python scripts/temporary_sync_p0_013_status.py
+
+      - name: Commit docs-only result and remove temporary files
+        run: |
+          rm scripts/temporary_sync_p0_013_status.py
+          rm .github/workflows/temporary-p0-013-docs-sync.yml
+          git config user.name 'Velantrim GitHub Actions'
+          git config user.email 'actions@users.noreply.github.com'
+          git add README.md docs/CURRENT_STATUS.md docs/P0_013_R1_DETERMINISTIC_REPLAY.md \
+                  scripts/temporary_sync_p0_013_status.py \
+                  .github/workflows/temporary-p0-013-docs-sync.yml
+          git commit -m 'docs(status): record merged P0-013 milestone'
+          git push origin HEAD:docs/p0-013-post-merge-sync
