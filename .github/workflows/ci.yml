@@ -22,9 +22,9 @@ jobs:
   validate:
     name: Python 3.13 · validator · pytest · compileall
     runs-on: ubuntu-latest
-    # Queue wait counts toward this budget on GitHub-hosted runners; 15 minutes
-    # was too tight during runner shortages (run 31117774729 never picked up a
-    # runner and was cancelled with zero steps executed).
+    # Applies after a runner is assigned. When GitHub-hosted runners are
+    # unavailable (platform outage or queue saturation), jobs can sit in
+    # "queued" with runner_id=0 and be cancelled before any step runs.
     timeout-minutes: 30
 
     steps:
