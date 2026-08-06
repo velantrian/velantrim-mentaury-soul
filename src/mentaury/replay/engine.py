@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
-from collections.abc import Iterator
-from collections.abc import Mapping
 from dataclasses import dataclass
 
 from mentaury.contracts import (
@@ -121,6 +120,25 @@ class R1ReplayVerifier:
             raise ValueError("stream_id must be a non-empty string")
         if not isinstance(snapshot, ReplaySnapshot):
             raise TypeError("snapshot must be a ReplaySnapshot")
+        if self._store._connection.in_transaction:
+            reducer_id = getattr(self._reducer, "reducer_id", "<invalid>")
+            reducer_version = getattr(
+                self._reducer,
+                "reducer_version",
+                "<invalid>",
+            )
+            return self._failed_report(
+                stream_id,
+                str(reducer_id),
+                str(reducer_version),
+                snapshot.through_stream_version,
+                ReplayFailure(
+                    ReplayFailureCode.ACTIVE_TRANSACTION,
+                    stream_id,
+                    "R1 verification requires an autocommit connection; "
+                    "uncommitted state cannot be certified",
+                ),
+            )
 
         with _sqlite_read_snapshot(self._store):
             return self._verify_stream_in_snapshot(stream_id, snapshot)

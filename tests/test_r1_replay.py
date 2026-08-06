@@ -758,3 +758,25 @@ def test_r1_uses_one_sqlite_read_snapshot_for_concurrent_append(
         assert report.verified_through_stream_version == 1
         assert report.verified_through_event_hash == first.event_hash
         assert len(original_list_stream(STREAM_ID)) == 2
+
+
+
+def test_r1_refuses_uncommitted_connection_state() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        snapshot = make_replay_snapshot(
+            reducer_id=CounterReducer.reducer_id,
+            reducer_version=CounterReducer.reducer_version,
+            stream_id=STREAM_ID,
+            through_stream_version=0,
+            through_event_hash=GENESIS_HASH,
+            state={"total": 0, "event_ids": []},
+        )
+        connection = store.raw_connection_for_tests()
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            report = _verifier(store).verify_stream(STREAM_ID, snapshot)
+        finally:
+            connection.execute("ROLLBACK")
+
+        assert _failure_code(report) is ReplayFailureCode.ACTIVE_TRANSACTION

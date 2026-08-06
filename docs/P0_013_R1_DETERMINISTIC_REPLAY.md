@@ -155,7 +155,7 @@ P0-013 adds no unbounded scan, background worker or automatic startup replay.
 
 ## 🧪 Executable matrix
 
-The P0-013 suite contains **22 replay tests** covering:
+The P0-013 suite contains **23 replay tests** covering:
 
 - full replay equals snapshot + tail;
 - genesis and empty-stream snapshots;
@@ -173,6 +173,7 @@ The P0-013 suite contains **22 replay tests** covering:
 - explicit event/payload and reducer-state resource-budget failure;
 - one SQLite read snapshot across R0, event capture and payload replay;
 - concurrent append semantics with an explicitly reported verified prefix;
+- refusal to certify an outer uncommitted transaction;
 - stream-stability capture after R0;
 - replay-time payload digest verification.
 
@@ -204,6 +205,10 @@ R1 PASS ≠ authority validation
 R1 PASS ≠ P0-014 belief lifecycle
 R1 PASS ≠ domain runtime authorization
 ```
+
+R1 refuses to start while the store connection is already inside an outer
+transaction: uncommitted state may later roll back and cannot receive a durable
+verification report.
 
 All R0, event, metadata and payload reads occur under one SQLite read snapshot.
 A concurrent append after that snapshot may complete in WAL mode, but it is not
