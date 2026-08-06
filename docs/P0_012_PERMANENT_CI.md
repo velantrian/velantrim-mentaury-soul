@@ -15,7 +15,7 @@ retained, read-only GitHub Actions workflow. It makes repository integrity
 checks automatic on every pull request and every push to `main`.
 
 ```text
-checkout
+exact PR head SHA / exact push SHA
 → Python 3.13
 → locked development dependencies
 → editable package without dependency re-resolution
@@ -25,11 +25,18 @@ checkout
 → compileall
 ```
 
+Pull-request runs explicitly check out `github.event.pull_request.head.sha`.
+Push and manual runs check out `github.sha`. The job therefore validates a
+named immutable revision rather than relying on GitHub's synthetic PR merge ref.
+Mergeability against the current base remains a separate GitHub property, and
+the merged `main` revision must pass its own push-triggered run.
+
 ## 🔒 Security and reproducibility boundary
 
 The workflow uses:
 
 - top-level `permissions: contents: read`;
+- explicit immutable revision checkout;
 - `persist-credentials: false` during checkout;
 - no repository, issue, pull-request, package or deployment writes;
 - no secrets;
@@ -61,6 +68,7 @@ The retained workflow must prove itself on its own pull request:
 
 ```text
 GitHub parses and schedules .github/workflows/ci.yml
+checked-out revision equals the current PR head
 Python resolves to CPython 3.13.x
 locked dependency installation succeeds
 pip check succeeds
@@ -78,15 +86,16 @@ is not executed through a separate privileged workflow.
 Green CI ≠ epistemic truth
 Green CI ≠ authority approval
 Green CI ≠ runtime safety proof
+Exact PR-head PASS ≠ automatic proof of conflict-free merge
 GitHub-hosted runner ≠ production substrate
 Locked Python dev tools ≠ fully reproducible operating-system image
 P0-012 ≠ R1 deterministic replay
 P0-012 ≠ domain runtime authorization
 ```
 
-P0-012 validates the repository state presented to the workflow. It does not
-protect against compromised GitHub infrastructure, a malicious action pin, a
-coherent rewrite of all trust anchors or production configuration drift.
+P0-012 validates the exact repository revision selected by the workflow. It
+does not protect against compromised GitHub infrastructure, a malicious action
+pin, a coherent rewrite of all trust anchors or production configuration drift.
 
 ## ➡️ Next controlled milestone
 
