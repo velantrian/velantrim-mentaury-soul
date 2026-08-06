@@ -187,11 +187,18 @@ Controlled rejection codes include:
 
 - invalid command or stream target;
 - duplicate creation/evidence/contradiction;
-- missing belief or terminal superseded belief;
+- missing belief, terminal superseded belief, or terminal Evidence
+  Gate-owned belief (`supported`/`contradicted`);
 - unknown evidence/contradiction references;
 - revision conflict;
 - invalid status transition;
 - no-effect revision.
+
+`ATTACH_EVIDENCE`, `REGISTER_CONTRADICTION` and `REVISE_BELIEF` all reject with
+`EVIDENCE_GATE_OWNED_BELIEF` once a belief has reached `supported` or
+`contradicted`, mirroring the P0-015 reducer boundary so a `decide()`
+acceptance can never produce an event that the reducer later refuses to
+project.
 
 A rejection is not an exception from ordinary lifecycle policy. Malformed
 projection state or reducer history remains an invariant error and fails closed.

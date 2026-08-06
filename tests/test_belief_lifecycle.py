@@ -154,6 +154,23 @@ def _state_with_evidence():
     return _apply(state, decision.domain_events[0], 2, "EVT-EVIDENCE-FOR")
 
 
+def _state_with_status(status: BeliefStatus):
+    """Build a belief projection pinned at an arbitrary status.
+
+    This does not go through the real P0-015 Evidence Gate; it directly
+    overrides the projected status the way a hand-built forged event would,
+    which is the same pattern already used by the reducer-level tests below
+    (e.g. ``test_reducer_rejects_supported_revision_without_gate_receipt``).
+    It lets lifecycle-boundary tests exercise every ``BeliefStatus`` without
+    needing the evidence-gate machinery.
+    """
+
+    state = _state_with_evidence()
+    plain = dict(state)
+    plain["status"] = status.value
+    return freeze_payload(plain)
+
+
 def test_create_belief_starts_at_hypothesis_revision_one() -> None:
     decision = BeliefLifecycle().decide(_create_command(), _empty_state())
 
@@ -421,6 +438,132 @@ def test_superseded_belief_is_terminal() -> None:
 
     assert not decision.accepted
     assert decision.rejection_code is BeliefRejectionCode.TERMINAL_BELIEF
+
+
+@pytest.mark.parametrize("status", [BeliefStatus.SUPPORTED, BeliefStatus.CONTRADICTED])
+def test_attach_evidence_rejected_when_belief_is_evidence_gate_owned(
+    status: BeliefStatus,
+) -> None:
+    """Regression guard: decide() must mirror the reducer's terminal check.
+
+    Before this fix, ``BeliefLifecycle._require_mutable`` only rejected
+    ``superseded`` beliefs, so ``ATTACH_EVIDENCE`` against an already
+    ``supported``/``contradicted`` (Evidence Gate-owned) belief was wrongly
+    accepted and produced a ``PendingEvent`` that ``BeliefReducer.apply()``
+    would later refuse to project.
+    """
+
+    state = _state_with_status(status)
+    decision = BeliefLifecycle().decide(
+        _attach_command("evidence:after-gate", version=3),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF
+    assert decision.audit_event is not None
+    assert not decision.audit_event.affects_domain_state
+
+
+@pytest.mark.parametrize("status", [BeliefStatus.SUPPORTED, BeliefStatus.CONTRADICTED])
+def test_register_contradiction_rejected_when_belief_is_evidence_gate_owned(
+    status: BeliefStatus,
+) -> None:
+    state = _state_with_status(status)
+    decision = BeliefLifecycle().decide(
+        _command(
+            REGISTER_CONTRADICTION,
+            {
+                "belief_id": BELIEF_ID,
+                "contradiction_id": "contradiction:after-gate",
+                "statement": "Attempted contradiction after the gate decided.",
+                "evidence_refs": ["evidence:for:1"],
+            },
+            expected_stream_version=3,
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF
+
+
+@pytest.mark.parametrize("status", [BeliefStatus.SUPPORTED, BeliefStatus.CONTRADICTED])
+def test_revise_belief_rejected_when_belief_is_evidence_gate_owned(
+    status: BeliefStatus,
+) -> None:
+    state = _state_with_status(status)
+    decision = BeliefLifecycle().decide(
+        _command(
+            REVISE_BELIEF,
+            {
+                "belief_id": BELIEF_ID,
+                "expected_revision": 1,
+                "new_statement": "Attempted revision after the gate decided.",
+                "new_status": BeliefStatus.PROVISIONAL.value,
+                "reason": "attempted bypass of evidence-gate ownership",
+                "evidence_refs": ["evidence:for:1"],
+                "addressed_contradiction_ids": [],
+            },
+            expected_stream_version=3,
+        ),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF
+
+
+@pytest.mark.parametrize("status", list(BeliefStatus))
+def test_decide_acceptance_never_breaks_reducer_projection(
+    status: BeliefStatus,
+) -> None:
+    """Whole-lattice invariant: decide()-accepted events must always project.
+
+    For every ``BeliefStatus`` in the lattice, an ``ATTACH_EVIDENCE`` or
+    ``REGISTER_CONTRADICTION`` command that ``BeliefLifecycle.decide()``
+    accepts must be safely projectable by ``BeliefReducer.apply()`` without
+    raising. This is the general form of the P0-014/P0-015 boundary bug found
+    during audit (terminal statuses were checked in the reducer but not in
+    the lifecycle decision layer for two of the three mutating command
+    types). Keeping this matrix test alive prevents a future status or
+    command addition from silently reopening the same lifecycle/reducer gap.
+    """
+
+    state = _state_with_status(status)
+
+    attach_decision = BeliefLifecycle().decide(
+        _attach_command("evidence:matrix:attach", version=5),
+        state,
+    )
+    if attach_decision.accepted:
+        _apply(
+            state,
+            attach_decision.domain_events[0],
+            6,
+            f"EVT-MATRIX-ATTACH-{status.value}",
+        )
+
+    contradiction_decision = BeliefLifecycle().decide(
+        _command(
+            REGISTER_CONTRADICTION,
+            {
+                "belief_id": BELIEF_ID,
+                "contradiction_id": f"contradiction:matrix:{status.value}",
+                "statement": "Matrix-generated contradiction candidate.",
+                "evidence_refs": ["evidence:for:1"],
+            },
+            expected_stream_version=5,
+        ),
+        state,
+    )
+    if contradiction_decision.accepted:
+        _apply(
+            state,
+            contradiction_decision.domain_events[0],
+            6,
+            f"EVT-MATRIX-CONTRADICTION-{status.value}",
+        )
 
 
 def test_schema_registry_accepts_domain_and_audit_events() -> None:
