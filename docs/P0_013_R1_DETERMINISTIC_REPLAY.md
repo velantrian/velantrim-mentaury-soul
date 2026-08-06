@@ -81,15 +81,16 @@ SHA-256("MENTAURY_R1_STATE_V1\0" || canonical_state_bytes)
 R1 performs:
 
 1. validate reducer identity, version and supported schema declarations;
-2. run bounded R0 verification on the complete stream;
-3. capture the same verified event count/tail metadata before replay;
-4. verify snapshot reducer, stream, version and event-hash anchor;
-5. recompute the snapshot state hash and apply state-size bounds;
-6. replay the complete stream from a canonical bounded initial state;
-7. recheck each replayed payload digest against its immutable envelope;
-8. compare the supplied snapshot state with the full-replay checkpoint state;
-9. replay the tail from the supplied snapshot;
-10. compare canonical final bytes and state hashes.
+2. open one SQLite read snapshot for all verification reads;
+3. run bounded R0 verification on the complete stream inside that snapshot;
+4. capture the same verified event count/tail metadata before replay;
+5. verify snapshot reducer, stream, version and event-hash anchor;
+6. recompute the snapshot state hash and apply state-size bounds;
+7. replay the complete stream from a canonical bounded initial state;
+8. recheck each replayed payload digest against its immutable envelope;
+9. compare the supplied snapshot state with the full-replay checkpoint state;
+10. replay the tail from the supplied snapshot;
+11. compare canonical final bytes and state hashes.
 
 R0 failure stops R1. R1 does not reinterpret an R0 failure.
 
@@ -154,7 +155,7 @@ P0-013 adds no unbounded scan, background worker or automatic startup replay.
 
 ## 🧪 Executable matrix
 
-The P0-013 suite contains **21 replay tests** covering:
+The P0-013 suite contains **22 replay tests** covering:
 
 - full replay equals snapshot + tail;
 - genesis and empty-stream snapshots;
@@ -170,6 +171,8 @@ The P0-013 suite contains **21 replay tests** covering:
 - R0 prerequisite failure;
 - governed redaction with unavailable state payload;
 - explicit event/payload and reducer-state resource-budget failure;
+- one SQLite read snapshot across R0, event capture and payload replay;
+- concurrent append semantics with an explicitly reported verified prefix;
 - stream-stability capture after R0;
 - replay-time payload digest verification.
 
@@ -202,9 +205,11 @@ R1 PASS ≠ P0-014 belief lifecycle
 R1 PASS ≠ domain runtime authorization
 ```
 
-A successful report records the exact captured stream version and tail event
-hash so callers do not confuse a verified immutable prefix with an open-ended
-claim about future appends.
+All R0, event, metadata and payload reads occur under one SQLite read snapshot.
+A concurrent append after that snapshot may complete in WAL mode, but it is not
+silently included. A successful report records the exact captured stream version
+and tail event hash so callers do not confuse a verified immutable prefix with an
+open-ended claim about future appends.
 
 R1 verifies deterministic state reconstruction for one declared reducer and one
 R0-verified stream. It does not establish cross-stream transaction semantics,

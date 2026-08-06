@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from contextlib import contextmanager
+from collections.abc import Iterator
 from collections.abc import Mapping
 from dataclasses import dataclass
 
@@ -120,252 +122,260 @@ class R1ReplayVerifier:
         if not isinstance(snapshot, ReplaySnapshot):
             raise TypeError("snapshot must be a ReplaySnapshot")
 
-        reducer_error = _validate_reducer(self._reducer)
-        reducer_id = getattr(self._reducer, "reducer_id", "<invalid>")
-        reducer_version = getattr(self._reducer, "reducer_version", "<invalid>")
-        if reducer_error is not None:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.INVALID_REDUCER,
+        with _sqlite_read_snapshot(self._store):
+            return self._verify_stream_in_snapshot(stream_id, snapshot)
+
+    def _verify_stream_in_snapshot(
+        self,
+        stream_id: str,
+        snapshot: ReplaySnapshot,
+    ) -> R1ReplayReport:
+            reducer_error = _validate_reducer(self._reducer)
+            reducer_id = getattr(self._reducer, "reducer_id", "<invalid>")
+            reducer_version = getattr(self._reducer, "reducer_version", "<invalid>")
+            if reducer_error is not None:
+                return self._failed_report(
                     stream_id,
-                    reducer_error,
-                ),
-            )
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.INVALID_REDUCER,
+                        stream_id,
+                        reducer_error,
+                    ),
+                )
 
-        r0_report = R0IntegrityVerifier(
-            self._store,
-            self._registry,
-            self._budget,
-        ).verify_stream(stream_id)
-        if not r0_report.ok:
-            assert r0_report.failure is not None
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.R0_PREREQUISITE_FAILED,
+            r0_report = R0IntegrityVerifier(
+                self._store,
+                self._registry,
+                self._budget,
+            ).verify_stream(stream_id)
+            if not r0_report.ok:
+                assert r0_report.failure is not None
+                return self._failed_report(
                     stream_id,
-                    "R0 prerequisite failed: "
-                    f"{r0_report.failure.code}: {r0_report.failure.message}",
-                    r0_report.failure.event_id,
-                    r0_report.failure.stream_version,
-                ),
-                checked_events=r0_report.checked_events,
-            )
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.R0_PREREQUISITE_FAILED,
+                        stream_id,
+                        "R0 prerequisite failed: "
+                        f"{r0_report.failure.code}: {r0_report.failure.message}",
+                        r0_report.failure.event_id,
+                        r0_report.failure.stream_version,
+                    ),
+                    checked_events=r0_report.checked_events,
+                )
 
-        events = self._store.list_stream(stream_id)
-        stream_meta = self._store.load_stream_meta(stream_id)
-        expected_tail_hash = events[-1].event_hash if events else GENESIS_HASH
-        if (
-            len(events) != r0_report.checked_events
-            or stream_meta.event_count != len(events)
-            or stream_meta.current_version != len(events)
-            or stream_meta.last_event_hash != expected_tail_hash
-        ):
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.STREAM_CHANGED_DURING_VERIFICATION,
+            events = self._store.list_stream(stream_id)
+            stream_meta = self._store.load_stream_meta(stream_id)
+            expected_tail_hash = events[-1].event_hash if events else GENESIS_HASH
+            if (
+                len(events) != r0_report.checked_events
+                or stream_meta.event_count != len(events)
+                or stream_meta.current_version != len(events)
+                or stream_meta.last_event_hash != expected_tail_hash
+            ):
+                return self._failed_report(
                     stream_id,
-                    "stream changed between R0 verification and replay capture",
-                ),
-                checked_events=r0_report.checked_events,
-            )
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.STREAM_CHANGED_DURING_VERIFICATION,
+                        stream_id,
+                        "stream changed between R0 verification and replay capture",
+                    ),
+                    checked_events=r0_report.checked_events,
+                )
 
-        metadata_failure = self._validate_snapshot_metadata(
-            stream_id,
-            snapshot,
-            events,
-            reducer_id,
-            reducer_version,
-        )
-        if metadata_failure is not None:
-            return self._failed_report(
+            metadata_failure = self._validate_snapshot_metadata(
                 stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                metadata_failure,
-            )
-
-        try:
-            snapshot_state = _normalize_state(snapshot.state, "snapshot state")
-        except (CanonicalJSONError, TypeError, ValueError) as exc:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.SNAPSHOT_STATE_HASH_MISMATCH,
-                    stream_id,
-                    f"snapshot state is not canonical: {exc}",
-                ),
-            )
-        snapshot_budget_failure = self._state_budget_failure(
-            stream_id,
-            snapshot_state,
-            len(snapshot_state.canonical_bytes),
-        )
-        if snapshot_budget_failure is not None:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                snapshot_budget_failure,
-                snapshot_state_hash=snapshot_state.state_hash,
-            )
-        if snapshot_state.state_hash != snapshot.state_hash:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.SNAPSHOT_STATE_HASH_MISMATCH,
-                    stream_id,
-                    "snapshot state_hash does not match canonical state",
-                ),
-                snapshot_state_hash=snapshot_state.state_hash,
-            )
-
-        try:
-            initial_state = _normalize_state(
-                self._reducer.initial_state(),
-                "initial reducer state",
-            )
-        except Exception as exc:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.INVALID_INITIAL_STATE,
-                    stream_id,
-                    f"invalid initial reducer state: {exc}",
-                ),
-            )
-
-        initial_budget_failure = self._state_budget_failure(
-            stream_id,
-            initial_state,
-            len(initial_state.canonical_bytes),
-        )
-        if initial_budget_failure is not None:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                initial_budget_failure,
-            )
-
-        try:
-            full = self._run(
-                stream_id,
+                snapshot,
                 events,
-                initial_state,
-                checkpoint_version=snapshot.through_stream_version,
-            )
-        except _ReplayAborted as exc:
-            return self._failed_report(
-                stream_id,
                 reducer_id,
                 reducer_version,
-                snapshot.through_stream_version,
-                exc.failure,
             )
-
-        assert full.checkpoint_state is not None
-        if (
-            full.checkpoint_state.state_hash != snapshot.state_hash
-            or full.checkpoint_state.canonical_bytes
-            != snapshot_state.canonical_bytes
-        ):
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.SNAPSHOT_STATE_MISMATCH,
+            if metadata_failure is not None:
+                return self._failed_report(
                     stream_id,
-                    "snapshot state does not equal full replay at its checkpoint",
-                ),
-                checked_events=full.checked_events,
-                applied_events=full.applied_events,
-                full_state_hash=full.state.state_hash,
-                snapshot_state_hash=snapshot_state.state_hash,
-            )
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    metadata_failure,
+                )
 
-        tail_events = events[snapshot.through_stream_version :]
-        try:
-            tail = self._run(
+            try:
+                snapshot_state = _normalize_state(snapshot.state, "snapshot state")
+            except (CanonicalJSONError, TypeError, ValueError) as exc:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.SNAPSHOT_STATE_HASH_MISMATCH,
+                        stream_id,
+                        f"snapshot state is not canonical: {exc}",
+                    ),
+                )
+            snapshot_budget_failure = self._state_budget_failure(
                 stream_id,
-                tail_events,
                 snapshot_state,
-                checkpoint_version=None,
+                len(snapshot_state.canonical_bytes),
             )
-        except _ReplayAborted as exc:
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                exc.failure,
-                checked_events=full.checked_events,
-                applied_events=full.applied_events,
-                full_state_hash=full.state.state_hash,
-                snapshot_state_hash=snapshot_state.state_hash,
-            )
-
-        if (
-            tail.state.state_hash != full.state.state_hash
-            or tail.state.canonical_bytes != full.state.canonical_bytes
-        ):
-            return self._failed_report(
-                stream_id,
-                reducer_id,
-                reducer_version,
-                snapshot.through_stream_version,
-                ReplayFailure(
-                    ReplayFailureCode.FINAL_STATE_MISMATCH,
+            if snapshot_budget_failure is not None:
+                return self._failed_report(
                     stream_id,
-                    "snapshot + tail state does not equal full replay state",
-                ),
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    snapshot_budget_failure,
+                    snapshot_state_hash=snapshot_state.state_hash,
+                )
+            if snapshot_state.state_hash != snapshot.state_hash:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.SNAPSHOT_STATE_HASH_MISMATCH,
+                        stream_id,
+                        "snapshot state_hash does not match canonical state",
+                    ),
+                    snapshot_state_hash=snapshot_state.state_hash,
+                )
+
+            try:
+                initial_state = _normalize_state(
+                    self._reducer.initial_state(),
+                    "initial reducer state",
+                )
+            except Exception as exc:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.INVALID_INITIAL_STATE,
+                        stream_id,
+                        f"invalid initial reducer state: {exc}",
+                    ),
+                )
+
+            initial_budget_failure = self._state_budget_failure(
+                stream_id,
+                initial_state,
+                len(initial_state.canonical_bytes),
+            )
+            if initial_budget_failure is not None:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    initial_budget_failure,
+                )
+
+            try:
+                full = self._run(
+                    stream_id,
+                    events,
+                    initial_state,
+                    checkpoint_version=snapshot.through_stream_version,
+                )
+            except _ReplayAborted as exc:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    exc.failure,
+                )
+
+            assert full.checkpoint_state is not None
+            if (
+                full.checkpoint_state.state_hash != snapshot.state_hash
+                or full.checkpoint_state.canonical_bytes
+                != snapshot_state.canonical_bytes
+            ):
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.SNAPSHOT_STATE_MISMATCH,
+                        stream_id,
+                        "snapshot state does not equal full replay at its checkpoint",
+                    ),
+                    checked_events=full.checked_events,
+                    applied_events=full.applied_events,
+                    full_state_hash=full.state.state_hash,
+                    snapshot_state_hash=snapshot_state.state_hash,
+                )
+
+            tail_events = events[snapshot.through_stream_version :]
+            try:
+                tail = self._run(
+                    stream_id,
+                    tail_events,
+                    snapshot_state,
+                    checkpoint_version=None,
+                )
+            except _ReplayAborted as exc:
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    exc.failure,
+                    checked_events=full.checked_events,
+                    applied_events=full.applied_events,
+                    full_state_hash=full.state.state_hash,
+                    snapshot_state_hash=snapshot_state.state_hash,
+                )
+
+            if (
+                tail.state.state_hash != full.state.state_hash
+                or tail.state.canonical_bytes != full.state.canonical_bytes
+            ):
+                return self._failed_report(
+                    stream_id,
+                    reducer_id,
+                    reducer_version,
+                    snapshot.through_stream_version,
+                    ReplayFailure(
+                        ReplayFailureCode.FINAL_STATE_MISMATCH,
+                        stream_id,
+                        "snapshot + tail state does not equal full replay state",
+                    ),
+                    checked_events=full.checked_events,
+                    applied_events=full.applied_events,
+                    full_state_hash=full.state.state_hash,
+                    snapshot_state_hash=snapshot_state.state_hash,
+                    tail_state_hash=tail.state.state_hash,
+                )
+
+            return R1ReplayReport(
+                stream_id=stream_id,
+                reducer_id=reducer_id,
+                reducer_version=reducer_version,
+                ok=True,
                 checked_events=full.checked_events,
                 applied_events=full.applied_events,
+                snapshot_through_version=snapshot.through_stream_version,
                 full_state_hash=full.state.state_hash,
                 snapshot_state_hash=snapshot_state.state_hash,
                 tail_state_hash=tail.state.state_hash,
+                failure=None,
+                verified_through_stream_version=len(events),
+                verified_through_event_hash=expected_tail_hash,
             )
-
-        return R1ReplayReport(
-            stream_id=stream_id,
-            reducer_id=reducer_id,
-            reducer_version=reducer_version,
-            ok=True,
-            checked_events=full.checked_events,
-            applied_events=full.applied_events,
-            snapshot_through_version=snapshot.through_stream_version,
-            full_state_hash=full.state.state_hash,
-            snapshot_state_hash=snapshot_state.state_hash,
-            tail_state_hash=tail.state.state_hash,
-            failure=None,
-            verified_through_stream_version=len(events),
-            verified_through_event_hash=expected_tail_hash,
-        )
 
     def _run(
         self,
@@ -622,6 +632,25 @@ class R1ReplayVerifier:
             tail_state_hash=tail_state_hash,
             failure=failure,
         )
+
+
+@contextmanager
+def _sqlite_read_snapshot(
+    store: SQLiteEventPayloadStore,
+) -> Iterator[None]:
+    """Hold one SQLite snapshot across R0, capture and replay reads."""
+
+    connection = store._connection
+    savepoint = "mentaury_r1_read_snapshot"
+    connection.execute(f"SAVEPOINT {savepoint}")
+    try:
+        yield
+    except BaseException:
+        connection.execute(f"ROLLBACK TO {savepoint}")
+        connection.execute(f"RELEASE {savepoint}")
+        raise
+    else:
+        connection.execute(f"RELEASE {savepoint}")
 
 
 def _require_state_budget(

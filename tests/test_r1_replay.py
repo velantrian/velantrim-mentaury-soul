@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -714,3 +715,46 @@ def test_snapshot_state_size_budget_is_enforced_before_replay() -> None:
         ).verify_stream(STREAM_ID, snapshot)
 
         assert _failure_code(report) is ReplayFailureCode.RESOURCE_BUDGET_EXCEEDED
+
+
+
+def test_r1_uses_one_sqlite_read_snapshot_for_concurrent_append(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    database = tmp_path / "r1-read-snapshot.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as setup:
+        setup.raw_connection_for_tests().execute("PRAGMA journal_mode = WAL")
+        setup.initialize_schema()
+        first = _append_counter(setup, "EVT-1", 1, 2)
+
+    with (
+        SQLiteEventPayloadStore.connect(database) as reader,
+        SQLiteEventPayloadStore.connect(database) as writer,
+    ):
+        reader.raw_connection_for_tests().execute("PRAGMA journal_mode = WAL")
+        writer.raw_connection_for_tests().execute("PRAGMA journal_mode = WAL")
+        original_list_stream = reader.list_stream
+        calls = 0
+
+        def append_between_r0_count_and_event_capture(stream_id: str):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                _append_counter(writer, "EVT-2", 2, 5)
+            return original_list_stream(stream_id)
+
+        monkeypatch.setattr(
+            reader,
+            "list_stream",
+            append_between_r0_count_and_event_capture,
+        )
+        report = _verifier(reader).verify_stream(
+            STREAM_ID,
+            _snapshot_after_first(first),
+        )
+
+        assert report.ok
+        assert report.verified_through_stream_version == 1
+        assert report.verified_through_event_hash == first.event_hash
+        assert len(original_list_stream(STREAM_ID)) == 2
