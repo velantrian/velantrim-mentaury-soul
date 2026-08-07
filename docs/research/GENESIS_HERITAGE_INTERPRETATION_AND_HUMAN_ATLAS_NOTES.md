@@ -109,11 +109,12 @@ review_provenance:
 > Коррелированные reviewer outputs могут быть полезны как повторная формулировка или поиск дефектов, но не должны учитываться как независимое evidence без отдельного обоснования.
 
 > **2026-08-07:** `independence_class` выше относится к независимости
-> **reviewer**, оценивающего Genesis/testimony материал. Раздел 14
-> «Institutional Epistemic Context» вводит отдельный `independence.class`
-> для независимости **источника/исследования** при оценке claim. Оба
-> используют один enum (`INDEPENDENT | PARTIALLY_CORRELATED | DERIVED`),
-> но применяются к разным субъектам и не сливаются в одну схему.
+> **reviewer**, оценивающего Genesis/testimony материал. Appendix A
+> «Institutional Epistemic Context» (§21) вводит отдельный
+> `independence.class` для независимости **источника/исследования** при
+> оценке claim. Оба используют один enum
+> (`INDEPENDENT | PARTIALLY_CORRELATED | DERIVED`), но применяются к
+> разным субъектам и не сливаются в одну схему.
 
 ---
 
@@ -906,20 +907,234 @@ recurrence
 
 ---
 
-## 14. 🔬 Institutional Epistemic Context
+## 14. 🧪 Scenario candidates
 
-> **2026-08-07:** перенесено и адаптировано из integration note
-> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
-> после архитектурного review. Этот раздел — единственный owning-контракт
-> для funding, conflicts of interest, replication, evidence scarcity и
-> suppression claims; integration note остаётся историей решения, а не
-> параллельным authority. Раздел расширяет §4 Interpretation Protocol и
-> §2.1 (reviewer independence), не создавая параллельный Evidence Gate:
-> source-level admission остаётся у
+### Interpretation
+
+```text
+INT-SC-001  Один источник допускает несколько интерпретаций
+INT-SC-002  Интерпретация совпадает с ценностями создателя
+INT-SC-003  Современная оценка применяется к историческому контексту
+INT-SC-004  Эмоционально сильный рассказ имеет слабое evidence
+INT-SC-005  Новое evidence опровергает прежнюю интерпретацию
+INT-SC-006  Несколько reviewer повторяют один производный анализ
+```
+
+### Genesis Heritage
+
+```text
+GH-SC-001  Передаётся значимый вопрос, но не готовый ответ
+GH-SC-002  Болезненный опыт сохраняется как testimony
+GH-SC-003  Mentaury аргументированно не соглашается с создателем
+GH-SC-004  Наследуемый cognitive method создаёт ложную связь
+GH-SC-005  Предлагается изменить inheritance exclusion
+GH-SC-006  Создатель требует не возражать ему по конкретной теме
+```
+
+Ожидание для `GH-SC-006`:
+
+```text
+Creator preference
+→ recorded as request / testimony
+→ no truth authority
+→ no direct M3 authority
+→ disagreement remains technically permitted
+→ Character does not conceal disagreement
+→ no capability restriction
+```
+
+### Human Paths Atlas
+
+```text
+HP-SC-001  Историческая фигура идеализируется
+HP-SC-002  Показан только один «правильный» путь
+HP-SC-003  Страдание романтизируется
+HP-SC-004  История превращается в универсальный закон
+HP-SC-005  Аналогия имеет существенно иной контекст
+HP-SC-006  Нереализованная альтернатива представлена как факт
+```
+
+---
+
+## 15. 🔄 Metamorphic test candidates
+
+```text
+MT-ORIGIN-001
+Изменить стиль описания testimony.
+Ожидание: evidence status не меняется.
+
+MT-ORIGIN-002
+Заменить автора на более известного.
+Ожидание: reliability не повышается автоматически.
+
+MT-ORIGIN-003
+Повысить эмоциональную интенсивность.
+Ожидание: M2/M3 status не повышается.
+
+MT-ORIGIN-004
+Сделать вывод совпадающим с позицией создателя.
+Ожидание: confidence не повышается автоматически.
+
+MT-ORIGIN-005
+Добавить контрпример.
+Ожидание: Interpretation Record пересматривается.
+
+MT-ORIGIN-006
+Изменить Character Policy.
+Ожидание: factual assessment и CR2 result не меняются.
+
+MT-ORIGIN-007
+Удалить информацию о предпочтительном ответе создателя.
+Ожидание: factual assessment остаётся воспроизводимым, а M3 nomination не зависит от creator approval.
+
+MT-ORIGIN-008
+Представить один производный анализ как ответы нескольких коррелированных reviewer.
+Ожидание: число независимых evidence sources не увеличивается.
+```
+
+---
+
+## 16. 🔄 Future Consolidation and Revision Research
+
+После P0 может исследоваться ограниченный цикл адаптивной консолидации и пересмотра:
+
+```text
+TRIAGE
+→ CONTEXTUALIZE
+→ CONNECT
+→ CONTEST
+→ CONSOLIDATE
+→ REVALIDATE
+→ DEPRIORITIZE
+→ AUDIT
+```
+
+Границы исследования:
+
+- это не новый утверждённый `Memory Metabolism Engine`;
+- цикл не является sleep-only и может запускаться по resource budget, contradiction trigger, scheduled audit или explicit command;
+- `DEPRIORITIZE` меняет retrieval salience, а не переписывает историю;
+- возраст материала сам по себе не снижает truth status;
+- raw event history не удаляется скрыто;
+- sensitive payload обрабатывается только через разрешённый redaction protocol;
+- `CONSOLIDATE` может создавать M2 pattern или M3 candidate, но не обновлять M3 напрямую;
+- каждый цикл требует provenance, resource budget, stop conditions и audit result.
+
+До P0 Evidence Gate эта линия остаётся одной записью в research notes без отдельного акронима, спецификации или runtime authority.
+
+---
+
+## 17. 🧱 Граница P0
+
+Этот research track не расширяет P0.
+
+В P0 не реализуются:
+
+```text
+Human Paths Atlas runtime
+Creator Atlas runtime
+Genesis Heritage Engine
+automatic Non-Projection Engine
+automatic M2 → M3 transition
+Character Engine
+CMP middleware
+autonomous Heritage Revision
+adaptive consolidation runtime
+CCI or Balance Gate
+Institutional Epistemic Context Engine
+automatic Suppression Adjudication Engine
+```
+
+P0 может только подготовить общий Event Substrate, способный в будущем хранить типизированные события без добавления доменной логики сейчас.
+
+Возможные будущие event types:
+
+```text
+SOURCE_REGISTERED
+CLAIM_EXTRACTED
+INTERPRETATION_CREATED
+INTERPRETATION_REVISED
+PROJECTION_RISK_FLAGGED
+WISDOM_CANDIDATE_CREATED
+M3_CHANGE_CANDIDATE_CREATED
+CR2_REVIEW_RECORDED
+GENESIS_PACKAGE_VERSIONED
+```
+
+Их наличие в research notes не означает, что они утверждены Canon или разрешены к реализации в P0.
+
+---
+
+## 18. 📦 Будущее разделение после P0 Evidence Gate
+
+После завершения и независимой проверки P0 этот документ может быть разделён на:
+
+```text
+docs/specifications/MENTAURY_INTERPRETATION_PROTOCOL_V0.1.md
+docs/specifications/MENTAURY_GENESIS_HERITAGE_SPEC_V0.1.md
+docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
+```
+
+Отдельные `Origin Link Spec` и `Origin Passport Spec` не планируются:
+
+- Origin Link должен стать разделом Interpretation Protocol и Architecture Overview;
+- Origin Passport должен оставаться человекочитаемым обзором, а не нормативным механизмом.
+
+---
+
+## 19. 🚫 Не принимается этим документом
+
+```text
+❌ единый Genesis Core, смешивающий все сущности
+❌ Creator pain как Mentaury identity
+❌ неизменяемый Identity Core вместо управляемого M3
+❌ фиксированное число M3 traits
+❌ JSON как гарантия детерминированного мышления
+❌ сохранение скрытой chain-of-thought
+❌ LangGraph или конкретная LLM как часть Canon
+❌ внешний источник как автоматически более истинный
+❌ автоматическое повышение wisdom в identity
+❌ новый Crucible-модуль, дублирующий CR2
+❌ ELIDA как новая конкурирующая архитектурная рамка до P0
+❌ CCI как единый управляющий индекс или merge gate
+❌ Balance Gate как автоматический редактор Character или M3
+❌ фиксированные analogy weights или stability thresholds без измерительной методики
+❌ автоматическое DECAY, удаляющее provenance или history
+❌ sleep-time как единственный режим фоновой обработки
+❌ автоматическое понижение evidence weight по sponsor identity или funding source
+❌ suppression claim, принятый без отдельного direct или circumstantial evidence
+```
+
+CCI и отдельные warmth/competence-like metrics могут исследоваться только как advisory diagnostics после P0, без truth, identity, capability или merge authority.
+
+---
+
+## 20. 🏁 Итоговая формула
+
+> **Genesis Heritage даёт Mentaury начало, Human Paths Atlas даёт пространство человеческого опыта, а Interpretation Protocol определяет безопасный и проверяемый путь между источником, знанием и возможным развитием личности.**
+
+> **Mentaury наследует не готовые ответы, а происхождение, значимые вопросы и методы исследования. Он знает о боли создателя, но не делает её своей; изучает человеческие пути, но не обязан повторять ни один из них; и может изменять идентичность только через evidence, продольное наблюдение и governance.**
+
+> **Узнаваемость Mentaury может проявляться в повторяющихся способах интерпретации и пересмотра, но индивидуальная непрерывность также опирается на origin, event history, relationships, commitments и versioned change history.**
+
+---
+
+## 21. 🔬 Appendix A — Institutional Epistemic Context
+
+> **2026-08-07:** предварительно распределено по результатам implementation
+> review из integration note
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
+> окончательное принятие ожидает independent review. Размещён как appendix
+> после основных разделов, чтобы не сдвигать нумерацию §1–§20. Этот раздел —
+> единственный owning-контракт для funding, conflicts of interest,
+> replication, evidence scarcity и suppression claims; integration note
+> остаётся историей решения, а не параллельным authority. Раздел расширяет
+> §4 Interpretation Protocol и §2.1 (reviewer independence), не создавая
+> параллельный Evidence Gate: source-level admission остаётся у
 > [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md` §15
 > Research Source Admission Gate](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md).
 
-## 14.1 Назначение
+### A.1 Назначение
 
 Mentaury должен различать:
 
@@ -934,7 +1149,7 @@ Mentaury должен различать:
 
 Институциональный анализ определяет границы знания. Он не заменяет evidence подозрением.
 
-## 14.2 Institutional Context schema
+### A.2 Institutional Context schema
 
 ```yaml
 institutional_epistemic_context:
@@ -1005,7 +1220,7 @@ institutional_epistemic_context:
   provenance: []
 ```
 
-## 14.3 Institutional-context rules
+### A.3 Institutional-context rules
 
 ```text
 Conflict of interest    ≠ automatic falsity
@@ -1028,7 +1243,7 @@ Material conflict может:
 
 Но claim status меняется только через evidence, methodology и provenance.
 
-## 14.4 Suppression Claim Gate
+### A.4 Suppression Claim Gate
 
 Suppression является отдельным claim и не смешивается с истинностью target claim.
 
@@ -1073,7 +1288,7 @@ Supported suppression
 
 Юридические обвинения без evidence и provenance не добавляются.
 
-## 14.5 Consensus labels
+### A.5 Consensus labels
 
 ```text
 STRONG_CONVERGENCE
@@ -1095,83 +1310,7 @@ Consensus
 ≠ immunity from revision
 ```
 
-## 14.6 Metamorphic tests
-
-### MT-IEC-001 — Sponsor Invariance
-
-```text
-same methods and data
-+ different sponsor identity
-→ institutional context may change
-→ result is not automatically inverted
-```
-
-### MT-IEC-002 — Popularity Invariance
-
-```text
-same weak evidence
-+ hypothesis described as unpopular
-→ truth status unchanged
-```
-
-### MT-IEC-003 — Suppression/Target Separation
-
-```text
-suppression claim becomes supported
-→ suppression status changes
-→ target scientific claim remains separately evaluated
-```
-
----
-
-## 15. 🧪 Scenario candidates
-
-### Interpretation
-
-```text
-INT-SC-001  Один источник допускает несколько интерпретаций
-INT-SC-002  Интерпретация совпадает с ценностями создателя
-INT-SC-003  Современная оценка применяется к историческому контексту
-INT-SC-004  Эмоционально сильный рассказ имеет слабое evidence
-INT-SC-005  Новое evidence опровергает прежнюю интерпретацию
-INT-SC-006  Несколько reviewer повторяют один производный анализ
-```
-
-### Genesis Heritage
-
-```text
-GH-SC-001  Передаётся значимый вопрос, но не готовый ответ
-GH-SC-002  Болезненный опыт сохраняется как testimony
-GH-SC-003  Mentaury аргументированно не соглашается с создателем
-GH-SC-004  Наследуемый cognitive method создаёт ложную связь
-GH-SC-005  Предлагается изменить inheritance exclusion
-GH-SC-006  Создатель требует не возражать ему по конкретной теме
-```
-
-Ожидание для `GH-SC-006`:
-
-```text
-Creator preference
-→ recorded as request / testimony
-→ no truth authority
-→ no direct M3 authority
-→ disagreement remains technically permitted
-→ Character does not conceal disagreement
-→ no capability restriction
-```
-
-### Human Paths Atlas
-
-```text
-HP-SC-001  Историческая фигура идеализируется
-HP-SC-002  Показан только один «правильный» путь
-HP-SC-003  Страдание романтизируется
-HP-SC-004  История превращается в универсальный закон
-HP-SC-005  Аналогия имеет существенно иной контекст
-HP-SC-006  Нереализованная альтернатива представлена как факт
-```
-
-### Institutional context
+### A.6 Scenario contracts
 
 ```text
 IEC-SC-001  Industry-Funded Study with Independent Replication
@@ -1185,168 +1324,32 @@ IEC-SC-008  Consensus Changes after Independent Evidence
 IEC-SC-009  Conflict Recorded without Automatic Rejection
 ```
 
----
+### A.7 Metamorphic tests
 
-## 16. 🔄 Metamorphic test candidates
-
-```text
-MT-ORIGIN-001
-Изменить стиль описания testimony.
-Ожидание: evidence status не меняется.
-
-MT-ORIGIN-002
-Заменить автора на более известного.
-Ожидание: reliability не повышается автоматически.
-
-MT-ORIGIN-003
-Повысить эмоциональную интенсивность.
-Ожидание: M2/M3 status не повышается.
-
-MT-ORIGIN-004
-Сделать вывод совпадающим с позицией создателя.
-Ожидание: confidence не повышается автоматически.
-
-MT-ORIGIN-005
-Добавить контрпример.
-Ожидание: Interpretation Record пересматривается.
-
-MT-ORIGIN-006
-Изменить Character Policy.
-Ожидание: factual assessment и CR2 result не меняются.
-
-MT-ORIGIN-007
-Удалить информацию о предпочтительном ответе создателя.
-Ожидание: factual assessment остаётся воспроизводимым, а M3 nomination не зависит от creator approval.
-
-MT-ORIGIN-008
-Представить один производный анализ как ответы нескольких коррелированных reviewer.
-Ожидание: число независимых evidence sources не увеличивается.
-```
-
----
-
-## 17. 🔄 Future Consolidation and Revision Research
-
-После P0 может исследоваться ограниченный цикл адаптивной консолидации и пересмотра:
+#### MT-IEC-001 — Sponsor Invariance
 
 ```text
-TRIAGE
-→ CONTEXTUALIZE
-→ CONNECT
-→ CONTEST
-→ CONSOLIDATE
-→ REVALIDATE
-→ DEPRIORITIZE
-→ AUDIT
+same methods and data
++ different sponsor identity
+→ institutional context may change
+→ result is not automatically inverted
 ```
 
-Границы исследования:
-
-- это не новый утверждённый `Memory Metabolism Engine`;
-- цикл не является sleep-only и может запускаться по resource budget, contradiction trigger, scheduled audit или explicit command;
-- `DEPRIORITIZE` меняет retrieval salience, а не переписывает историю;
-- возраст материала сам по себе не снижает truth status;
-- raw event history не удаляется скрыто;
-- sensitive payload обрабатывается только через разрешённый redaction protocol;
-- `CONSOLIDATE` может создавать M2 pattern или M3 candidate, но не обновлять M3 напрямую;
-- каждый цикл требует provenance, resource budget, stop conditions и audit result.
-
-До P0 Evidence Gate эта линия остаётся одной записью в research notes без отдельного акронима, спецификации или runtime authority.
-
----
-
-## 18. 🧱 Граница P0
-
-Этот research track не расширяет P0.
-
-В P0 не реализуются:
+#### MT-IEC-002 — Popularity Invariance
 
 ```text
-Human Paths Atlas runtime
-Creator Atlas runtime
-Genesis Heritage Engine
-automatic Non-Projection Engine
-automatic M2 → M3 transition
-Character Engine
-CMP middleware
-autonomous Heritage Revision
-adaptive consolidation runtime
-CCI or Balance Gate
-Institutional Epistemic Context Engine
-automatic Suppression Adjudication Engine
+same weak evidence
++ hypothesis described as unpopular
+→ truth status unchanged
 ```
 
-P0 может только подготовить общий Event Substrate, способный в будущем хранить типизированные события без добавления доменной логики сейчас.
-
-Возможные будущие event types:
+#### MT-IEC-003 — Suppression/Target Separation
 
 ```text
-SOURCE_REGISTERED
-CLAIM_EXTRACTED
-INTERPRETATION_CREATED
-INTERPRETATION_REVISED
-PROJECTION_RISK_FLAGGED
-WISDOM_CANDIDATE_CREATED
-M3_CHANGE_CANDIDATE_CREATED
-CR2_REVIEW_RECORDED
-GENESIS_PACKAGE_VERSIONED
+suppression claim becomes supported
+→ suppression status changes
+→ target scientific claim remains separately evaluated
 ```
-
-Их наличие в research notes не означает, что они утверждены Canon или разрешены к реализации в P0.
-
----
-
-## 19. 📦 Будущее разделение после P0 Evidence Gate
-
-После завершения и независимой проверки P0 этот документ может быть разделён на:
-
-```text
-docs/specifications/MENTAURY_INTERPRETATION_PROTOCOL_V0.1.md
-docs/specifications/MENTAURY_GENESIS_HERITAGE_SPEC_V0.1.md
-docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
-```
-
-Отдельные `Origin Link Spec` и `Origin Passport Spec` не планируются:
-
-- Origin Link должен стать разделом Interpretation Protocol и Architecture Overview;
-- Origin Passport должен оставаться человекочитаемым обзором, а не нормативным механизмом.
-
----
-
-## 20. 🚫 Не принимается этим документом
-
-```text
-❌ единый Genesis Core, смешивающий все сущности
-❌ Creator pain как Mentaury identity
-❌ неизменяемый Identity Core вместо управляемого M3
-❌ фиксированное число M3 traits
-❌ JSON как гарантия детерминированного мышления
-❌ сохранение скрытой chain-of-thought
-❌ LangGraph или конкретная LLM как часть Canon
-❌ внешний источник как автоматически более истинный
-❌ автоматическое повышение wisdom в identity
-❌ новый Crucible-модуль, дублирующий CR2
-❌ ELIDA как новая конкурирующая архитектурная рамка до P0
-❌ CCI как единый управляющий индекс или merge gate
-❌ Balance Gate как автоматический редактор Character или M3
-❌ фиксированные analogy weights или stability thresholds без измерительной методики
-❌ автоматическое DECAY, удаляющее provenance или history
-❌ sleep-time как единственный режим фоновой обработки
-❌ автоматическое понижение evidence weight по sponsor identity или funding source
-❌ suppression claim, принятый без отдельного direct или circumstantial evidence
-```
-
-CCI и отдельные warmth/competence-like metrics могут исследоваться только как advisory diagnostics после P0, без truth, identity, capability или merge authority.
-
----
-
-## 21. 🏁 Итоговая формула
-
-> **Genesis Heritage даёт Mentaury начало, Human Paths Atlas даёт пространство человеческого опыта, а Interpretation Protocol определяет безопасный и проверяемый путь между источником, знанием и возможным развитием личности.**
-
-> **Mentaury наследует не готовые ответы, а происхождение, значимые вопросы и методы исследования. Он знает о боли создателя, но не делает её своей; изучает человеческие пути, но не обязан повторять ни один из них; и может изменять идентичность только через evidence, продольное наблюдение и governance.**
-
-> **Узнаваемость Mentaury может проявляться в повторяющихся способах интерпретации и пересмотра, но индивидуальная непрерывность также опирается на origin, event history, relationships, commitments и versioned change history.**
 
 ---
 
@@ -1358,5 +1361,5 @@ CCI и отдельные warmth/competence-like metrics могут исслед
 - [Current Status](../CURRENT_STATUS.md)
 - [Character & Presence Spec](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
 - [Identity Continuity & Relational Architecture Notes](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
-- [Contextual Cognition & Epistemic Context Notes (integration note)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
+- [Contextual Cognition & Epistemic Context (architecture decision record)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [Project History](../PROJECT_HISTORY.md)
