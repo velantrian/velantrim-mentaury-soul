@@ -2,8 +2,8 @@
 
 ```text
 Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.2
-Дата:                         2026-08-04
+Версия:                       0.3
+Дата:                         2026-08-07
 Целевая фаза:                 POST_P0 / P1 RESEARCH
 Runtime authority:            NONE
 Truth authority:              NONE
@@ -107,6 +107,13 @@ review_provenance:
 Правило:
 
 > Коррелированные reviewer outputs могут быть полезны как повторная формулировка или поиск дефектов, но не должны учитываться как независимое evidence без отдельного обоснования.
+
+> **2026-08-07:** `independence_class` выше относится к независимости
+> **reviewer**, оценивающего Genesis/testimony материал. Раздел 14
+> «Institutional Epistemic Context» вводит отдельный `independence.class`
+> для независимости **источника/исследования** при оценке claim. Оба
+> используют один enum (`INDEPENDENT | PARTIALLY_CORRELATED | DERIVED`),
+> но применяются к разным субъектам и не сливаются в одну схему.
 
 ---
 
@@ -899,7 +906,225 @@ recurrence
 
 ---
 
-## 14. 🧪 Scenario candidates
+## 14. 🔬 Institutional Epistemic Context
+
+> **2026-08-07:** перенесено и адаптировано из integration note
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
+> после архитектурного review. Этот раздел — единственный owning-контракт
+> для funding, conflicts of interest, replication, evidence scarcity и
+> suppression claims; integration note остаётся историей решения, а не
+> параллельным authority. Раздел расширяет §4 Interpretation Protocol и
+> §2.1 (reviewer independence), не создавая параллельный Evidence Gate:
+> source-level admission остаётся у
+> [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md` §15
+> Research Source Admission Gate](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md).
+
+## 14.1 Назначение
+
+Mentaury должен различать:
+
+- качество конкретного исследования;
+- независимость источников (source/study-level, не reviewer-level из §2.1);
+- funding and sponsor influence;
+- conflicts of interest;
+- replication state;
+- publication environment;
+- evidence scarcity;
+- отдельные claims о suppression.
+
+Институциональный анализ определяет границы знания. Он не заменяет evidence подозрением.
+
+## 14.2 Institutional Context schema
+
+```yaml
+institutional_epistemic_context:
+  context_id: "IEC-..."
+  claim_refs: []
+  source_refs: []
+
+  funding:
+    declared_sources: []
+    unknown_sources: []
+    sponsor_role:
+      - NONE
+      - FUNDING_ONLY
+      - DESIGN_INFLUENCE
+      - DATA_ACCESS_CONTROL
+      - ANALYSIS_INFLUENCE
+      - PUBLICATION_CONTROL
+      - UNKNOWN
+    evidence_refs: []
+
+  conflicts_of_interest:
+    declared: []
+    observed_candidates: []
+    unsupported_allegations: []
+    materiality: "LOW | MEDIUM | HIGH | UNKNOWN"
+
+  independence:
+    source_groups: []
+    shared_data: []
+    shared_methods: []
+    shared_funding: []
+    shared_prompt_or_corpus: []
+    class: "INDEPENDENT | PARTIALLY_CORRELATED | DERIVED | UNKNOWN"
+
+  replication:
+    status:
+      - NOT_ASSESSED
+      - NOT_REPLICATED
+      - PARTIALLY_REPLICATED
+      - INDEPENDENTLY_REPLICATED
+      - FAILED_REPLICATION
+      - CONTESTED
+    replication_refs: []
+    comparability_limits: []
+
+  publication_environment:
+    publication_bias_risks: []
+    negative_result_visibility: "..."
+    access_barriers: []
+    data_availability: "..."
+    incentive_risks: []
+
+  evidence_scarcity:
+    level: "LOW | MEDIUM | HIGH | UNKNOWN"
+    plausible_reasons:
+      - TECHNICAL_DIFFICULTY
+      - LOW_FUNDING
+      - LOW_COMMERCIAL_INTEREST
+      - ETHICAL_LIMITATION
+      - LEGAL_RESTRICTION
+      - DATA_UNAVAILABILITY
+      - RARE_EVENT
+      - UNKNOWN
+    evidence_refs: []
+
+  limitations: []
+  unknowns: []
+  provenance: []
+```
+
+## 14.3 Institutional-context rules
+
+```text
+Conflict of interest    ≠ automatic falsity
+No declared conflict    ≠ guaranteed independence
+Industry funding        ≠ automatic rejection
+Public funding          ≠ automatic neutrality
+Independent replication ≠ removal of all limitations
+Few studies             → UNDER_EVIDENCED
+Few studies             ≠ alternative hypothesis is true
+Underfunded question    ≠ suppressed truth
+```
+
+Material conflict может:
+
+- повысить требования к transparency;
+- потребовать independent replication;
+- ограничить scope conclusion;
+- увеличить uncertainty;
+- инициировать counterevidence search.
+
+Но claim status меняется только через evidence, methodology и provenance.
+
+## 14.4 Suppression Claim Gate
+
+Suppression является отдельным claim и не смешивается с истинностью target claim.
+
+```text
+Claim A:
+«Исследование или результат подавлялись»
+
+Claim B:
+«Научное утверждение истинно»
+```
+
+```yaml
+suppression_claim:
+  claim_id: "SUP-..."
+  target_claim_ref: "..."
+  alleged_actor_refs: []
+  alleged_mechanism: "..."
+  status:
+    - UNSUPPORTED
+    - ALLEGED
+    - PARTIALLY_SUPPORTED
+    - SUPPORTED
+    - CONTESTED
+    - UNVERIFIABLE
+  direct_evidence_refs: []
+  circumstantial_evidence_refs: []
+  alternative_explanations: []
+  disconfirming_material: []
+  scope_limitations: []
+```
+
+```text
+Institutional opacity
+≠ proof of suppression
+
+Suppression allegation
+≠ validation of the target proposition
+
+Supported suppression
+≠ automatic truth of the target proposition
+```
+
+Юридические обвинения без evidence и provenance не добавляются.
+
+## 14.5 Consensus labels
+
+```text
+STRONG_CONVERGENCE
+MODERATE_CONVERGENCE
+DISPUTED_AMONG_SPECIALISTS
+MULTIPLE_ACTIVE_MODELS
+UNDER_EVIDENCED
+EVIDENCE_CONFLICT
+METHOD_DEPENDENT
+UNKNOWN
+```
+
+Каждый label обязан иметь scope, time/version, source independence, replication state, dissent и uncertainty.
+
+```text
+Consensus
+≠ authority command
+≠ timeless truth
+≠ immunity from revision
+```
+
+## 14.6 Metamorphic tests
+
+### MT-IEC-001 — Sponsor Invariance
+
+```text
+same methods and data
++ different sponsor identity
+→ institutional context may change
+→ result is not automatically inverted
+```
+
+### MT-IEC-002 — Popularity Invariance
+
+```text
+same weak evidence
++ hypothesis described as unpopular
+→ truth status unchanged
+```
+
+### MT-IEC-003 — Suppression/Target Separation
+
+```text
+suppression claim becomes supported
+→ suppression status changes
+→ target scientific claim remains separately evaluated
+```
+
+---
+
+## 15. 🧪 Scenario candidates
 
 ### Interpretation
 
@@ -946,9 +1171,23 @@ HP-SC-005  Аналогия имеет существенно иной конт�
 HP-SC-006  Нереализованная альтернатива представлена как факт
 ```
 
+### Institutional context
+
+```text
+IEC-SC-001  Industry-Funded Study with Independent Replication
+IEC-SC-002  Publicly Funded Studies Share One Dataset
+IEC-SC-003  Underfunded Question Remains Under-Evidenced
+IEC-SC-004  Failed Replication Has Comparability Limits
+IEC-SC-005  Ten Reviews Are Derived from One Corpus
+IEC-SC-006  Undeclared Conflict Is Alleged without Evidence
+IEC-SC-007  Suppression Is Supported but Target Claim Is Unproven
+IEC-SC-008  Consensus Changes after Independent Evidence
+IEC-SC-009  Conflict Recorded without Automatic Rejection
+```
+
 ---
 
-## 15. 🔄 Metamorphic test candidates
+## 16. 🔄 Metamorphic test candidates
 
 ```text
 MT-ORIGIN-001
@@ -986,7 +1225,7 @@ MT-ORIGIN-008
 
 ---
 
-## 16. 🔄 Future Consolidation and Revision Research
+## 17. 🔄 Future Consolidation and Revision Research
 
 После P0 может исследоваться ограниченный цикл адаптивной консолидации и пересмотра:
 
@@ -1016,7 +1255,7 @@ TRIAGE
 
 ---
 
-## 17. 🧱 Граница P0
+## 18. 🧱 Граница P0
 
 Этот research track не расширяет P0.
 
@@ -1033,6 +1272,8 @@ CMP middleware
 autonomous Heritage Revision
 adaptive consolidation runtime
 CCI or Balance Gate
+Institutional Epistemic Context Engine
+automatic Suppression Adjudication Engine
 ```
 
 P0 может только подготовить общий Event Substrate, способный в будущем хранить типизированные события без добавления доменной логики сейчас.
@@ -1055,7 +1296,7 @@ GENESIS_PACKAGE_VERSIONED
 
 ---
 
-## 18. 📦 Будущее разделение после P0 Evidence Gate
+## 19. 📦 Будущее разделение после P0 Evidence Gate
 
 После завершения и независимой проверки P0 этот документ может быть разделён на:
 
@@ -1072,7 +1313,7 @@ docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
 
 ---
 
-## 19. 🚫 Не принимается этим документом
+## 20. 🚫 Не принимается этим документом
 
 ```text
 ❌ единый Genesis Core, смешивающий все сущности
@@ -1091,13 +1332,15 @@ docs/specifications/MENTAURY_HUMAN_PATHS_ATLAS_SPEC_V0.1.md
 ❌ фиксированные analogy weights или stability thresholds без измерительной методики
 ❌ автоматическое DECAY, удаляющее provenance или history
 ❌ sleep-time как единственный режим фоновой обработки
+❌ автоматическое понижение evidence weight по sponsor identity или funding source
+❌ suppression claim, принятый без отдельного direct или circumstantial evidence
 ```
 
 CCI и отдельные warmth/competence-like metrics могут исследоваться только как advisory diagnostics после P0, без truth, identity, capability или merge authority.
 
 ---
 
-## 20. 🏁 Итоговая формула
+## 21. 🏁 Итоговая формула
 
 > **Genesis Heritage даёт Mentaury начало, Human Paths Atlas даёт пространство человеческого опыта, а Interpretation Protocol определяет безопасный и проверяемый путь между источником, знанием и возможным развитием личности.**
 
@@ -1114,4 +1357,6 @@ CCI и отдельные warmth/competence-like metrics могут исслед
 - [P0 Implementation Plan](../MENTAURY_P0_IMPLEMENTATION_PLAN.md)
 - [Current Status](../CURRENT_STATUS.md)
 - [Character & Presence Spec](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
+- [Identity Continuity & Relational Architecture Notes](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
+- [Contextual Cognition & Epistemic Context Notes (integration note)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [Project History](../PROJECT_HISTORY.md)
