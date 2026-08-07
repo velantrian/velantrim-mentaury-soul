@@ -84,7 +84,12 @@ Opaque authority reference
 ❌ direct or indirect M3 write
 ❌ operator override inside resolve()
 ❌ Canon modification
+❌ proving registry-snapshot authenticity inside resolve()
 ```
+
+The resolver may validate the internal structure and digest of a supplied record,
+but registry-snapshot provenance and authenticity remain a separate caller-side
+boundary.
 
 ---
 
@@ -132,12 +137,12 @@ action_intent:
 
 resolution_budget:
   max_registry_lookups: 1
-  max_canonical_bytes: 65536
-  max_scope_items: 256
+  max_canonical_bytes: "caller-supplied positive integer"
+  max_scope_items: "caller-supplied positive integer"
 ```
 
-The concrete numeric ceilings remain reviewable before implementation GO, but
-the units and fail-closed semantics are normative.
+The concrete upper ceilings remain reviewable before implementation GO, but the
+units, absence of ambient defaults and fail-closed semantics are normative.
 
 ---
 
@@ -183,6 +188,10 @@ one lease_id has exactly one live-head revision in a snapshot
 purpose_id is an exact identifier, not free-form semantic text
 data_scope contains typed exact identifiers
 allowed_operations and allowed_side_effects use explicit closed sets
+allowed_operations are unique and sorted by operation identifier
+data_scope entries are unique and sorted by (kind, identifier)
+allowed_side_effects are unique and sorted by side-effect identifier
+requested set-like fields follow the same unique/sorted admission rules
 expires_at MUST be present
 not_before MUST be earlier than expires_at
 delegation_allowed MUST default false
@@ -191,6 +200,9 @@ identity_authority MUST equal NONE
 direct_m3_write MUST equal false
 revoked_at MUST be non-null iff the record is REVOKED
 ```
+
+The schema owns set normalization by rejecting duplicates and non-canonical
+ordering. `MENTAURY_CANONICAL_JSON_V1` itself does not reorder arrays.
 
 ### 4.2 Exact digest domain
 
@@ -213,7 +225,8 @@ Rules:
 ```text
 Unicode normalization follows MENTAURY_CANONICAL_JSON_V1: NONE
 Timestamp canonicalization follows P0-003: RFC3339 UTC Z
-Arrays remain ordered unless the schema explicitly admits them as set-like
+Schema-admitted set-like arrays are already unique and sorted
+Other arrays remain ordered
 A stored digest string is never trusted without recomputation
 ```
 
@@ -329,31 +342,34 @@ non-authoritative diagnostics, but they may not change the primary result.
 |---:|---|---|
 | 1 | request shape / required fields admitted | `REQUEST_INVALID` |
 | 2 | budget object present | `BUDGET_MISSING` |
-| 3 | budget ceilings non-negative and sufficient for required operation | `BUDGET_EXHAUSTED` |
+| 3 | budget fields are admitted, non-negative and allow one exact lookup | `BUDGET_EXHAUSTED` |
 | 4 | registry snapshot available | `REGISTRY_UNAVAILABLE` |
 | 5 | exact `lease_id` exists | `UNKNOWN_LEASE` |
 | 6 | snapshot has one valid live head and `AuthorityRef.revision` equals it | `REVISION_MISMATCH` |
-| 7 | exact record fits canonical-byte budget and recomputed digest matches | `LEASE_DIGEST_MISMATCH` or `BUDGET_EXHAUSTED` |
-| 8 | record invariants / supersession chain / schema are valid | `LEASE_CONTRACT_VIOLATION` |
-| 9 | revoked state or non-null `revoked_at` | `LEASE_REVOKED` |
-| 10 | materialized or derived expiry | `LEASE_EXPIRED` |
-| 11 | status is exactly ACTIVE | `LEASE_NOT_ACTIVE` |
-| 12 | `evaluated_at >= not_before` | `NOT_YET_VALID` |
-| 13 | exact `purpose_id` equality | `PURPOSE_MISMATCH` |
-| 14 | exact operation membership | `OPERATION_NOT_ALLOWED` |
-| 15 | scope item count fits budget and requested typed set is subset of allowed typed set | `BUDGET_EXHAUSTED` or `DATA_SCOPE_VIOLATION` |
-| 16 | requested side effects are an exact subset of allowed side effects | `SIDE_EFFECT_NOT_ALLOWED` |
-| 17 | all checks pass | `ALLOW` |
+| 7 | exact record canonical bytes fit `max_canonical_bytes` | `BUDGET_EXHAUSTED` |
+| 8 | recomputed digest equals stored `content_digest` | `LEASE_DIGEST_MISMATCH` |
+| 9 | record invariants / supersession chain / schema are valid | `LEASE_CONTRACT_VIOLATION` |
+| 10 | revoked state or non-null `revoked_at` | `LEASE_REVOKED` |
+| 11 | materialized or derived expiry | `LEASE_EXPIRED` |
+| 12 | status is exactly ACTIVE | `LEASE_NOT_ACTIVE` |
+| 13 | `evaluated_at >= not_before` | `NOT_YET_VALID` |
+| 14 | exact `purpose_id` equality | `PURPOSE_MISMATCH` |
+| 15 | exact operation membership | `OPERATION_NOT_ALLOWED` |
+| 16 | requested and allowed scope counts fit `max_scope_items` | `BUDGET_EXHAUSTED` |
+| 17 | requested typed scope is a subset of allowed typed scope | `DATA_SCOPE_VIOLATION` |
+| 18 | requested side effects are a subset of allowed side effects | `SIDE_EFFECT_NOT_ALLOWED` |
+| 19 | all checks pass | `ALLOW` |
 
 Clarifications:
 
 ```text
-REGISTRY_UNAVAILABLE ≠ UNKNOWN_LEASE
-BUDGET_MISSING ≠ BUDGET_EXHAUSTED
-revision ahead or behind live head → REVISION_MISMATCH
-purpose compatibility in v0.1 = exact identifier equality
-scope compatibility in v0.1 = exact typed-set containment
-wildcards, hierarchy expansion and semantic similarity are forbidden
+Every row has exactly one primary result.
+REGISTRY_UNAVAILABLE ≠ UNKNOWN_LEASE.
+BUDGET_MISSING ≠ BUDGET_EXHAUSTED.
+Revision ahead or behind live head → REVISION_MISMATCH.
+Purpose compatibility in v0.1 = exact identifier equality.
+Scope compatibility in v0.1 = exact typed-set containment.
+Wildcards, hierarchy expansion and semantic similarity are forbidden.
 ```
 
 ---
