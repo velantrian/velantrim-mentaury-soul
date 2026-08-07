@@ -66,7 +66,7 @@ PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
-CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_DRAFT_PENDING_REVIEW
+CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
 ```
 
 ```text
@@ -95,13 +95,16 @@ next:    independent review + docs freeze; no src/ resolver without owner GO
 **Research side-track** (не execution roadmap, не второй milestone):
 
 ```text
-Contextual Cognition & Epistemic Context — PR #36, DRAFT
+Contextual Cognition & Epistemic Context — PR #36 MERGED
 Contracts:  Communication Adaptation, Cognitive Requirement Profile,
             Institutional Epistemic Context
-Status:     DRAFTED · PENDING INDEPENDENT RE-REVIEW · NOT MERGED
+Status:     ADOPTED · DOCS_ONLY · NOT IMPLEMENTED
+Review:     round 2 PASS · owner accepted
+Merge:      850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Main CI:    31179202276 · 277 passed
 Owners:     Character Spec §6.4 · Identity Continuity §20 ·
             Genesis Heritage §21 Appendix A
-next:       independent review round 2; no runtime, no P1-001 change
+Boundary:   no runtime authority; P1-001 priority unchanged
 ```
 
 ---

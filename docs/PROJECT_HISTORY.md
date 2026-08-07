@@ -331,3 +331,25 @@ Command
 → история через Event Substrate
 → проверка через adversarial tests
 ```
+
+---
+
+## 2026-08-07 — PR #36 Contextual Cognition contracts adopted
+
+PR #36 integrated three bounded docs-only research contracts into their owning documents:
+
+- Contextual Communication Adaptation → Character & Presence;
+- Cognitive Requirement Profile → Identity Continuity;
+- Institutional Epistemic Context → Genesis Heritage.
+
+Independent review round 1 found unsafe tool-ordering, duplicated normative definitions, duplicate IDs, status drift and unnecessary section renumbering. The branch was corrected so that capability/scope/privacy checks precede authorized execution, the integration note became a Decision Record, IDs have one normative owner, and P1-001 remains the first execution milestone.
+
+```text
+Review round 2: PASS · 4882842702
+Source head:    2c38fd78da8dd06a8baa468b6ae4387279644214
+Merge commit:   850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Main CI:        31179202276 · 277 passed
+Status:         ADOPTED · DOCS_ONLY · NOT IMPLEMENTED
+```
+
+No runtime, Canon, M3, capability resolver or Action Gate authority was added.

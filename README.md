@@ -22,7 +22,7 @@ PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
-CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_DRAFT_PENDING_REVIEW
+CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
 
 First implementation profile: Python 3.13 + standard-library SQLite
 ```
@@ -136,8 +136,8 @@ Identity Continuity:
 │   └── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED · first milestone
 │
 ├── 🧭 Research side-tracks — docs-only, no execution priority
-│   └── Contextual Cognition & Epistemic Context 🟡 DRAFT · PENDING INDEPENDENT REVIEW
-│       (distributed into Character / Identity / Genesis Heritage)
+│   └── Contextual Cognition & Epistemic Context ✅ ADOPTED · DOCS_ONLY · NOT IMPLEMENTED
+│       PR #36 merged · independent review round 2 PASS · no execution priority
 │
 ├── 🧠 Memory & Belief — minimal M2 contracts implemented; runtime absent
 │   ├── M0 working

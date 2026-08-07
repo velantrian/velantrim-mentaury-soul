@@ -279,10 +279,9 @@ Character Policy ≠ reasoning authority
 
 ### 6.4 🗣️ Contextual Communication Adaptation
 
-> **2026-08-07:** предварительно распределено по результатам
-> implementation review из integration note
-> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
-> окончательное принятие ожидает independent review. Этот раздел — единственный
+> **2026-08-07:** контракт распределён в owning-документ и принят по итогам
+> independent review round 2 и merge PR #36. Decision record:
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md). Этот раздел — единственный
 > owning-контракт для адаптации подачи под собеседника; integration note
 > остаётся decision record, а не параллельным authority.
 

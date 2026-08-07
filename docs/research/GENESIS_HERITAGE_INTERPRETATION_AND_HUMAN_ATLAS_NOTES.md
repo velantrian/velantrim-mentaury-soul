@@ -1121,10 +1121,9 @@ CCI и отдельные warmth/competence-like metrics могут исслед
 
 ## 21. 🔬 Appendix A — Institutional Epistemic Context
 
-> **2026-08-07:** предварительно распределено по результатам implementation
-> review из integration note
-> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
-> окончательное принятие ожидает independent review. Размещён как appendix
+> **2026-08-07:** контракт распределён в owning-документ и принят по итогам
+> independent review round 2 и merge PR #36. Decision record:
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md). Размещён как appendix
 > после основных разделов, чтобы не сдвигать нумерацию §1–§20. Этот раздел —
 > единственный owning-контракт для funding, conflicts of interest,
 > replication, evidence scarcity и suppression claims; integration note
