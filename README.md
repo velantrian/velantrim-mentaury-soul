@@ -3,7 +3,7 @@
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
 ```text
-Status snapshot: 2026-08-06
+Status snapshot: 2026-08-07
 
 VISION · RESEARCH
 CANON_V0.1_FROZEN
@@ -15,8 +15,12 @@ ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
 P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
+POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
+P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
+GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
+CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 
 First implementation profile: Python 3.13 + standard-library SQLite
@@ -118,6 +122,10 @@ Identity Continuity:
 │   ├── P0-013 replay ✅
 │   ├── P0-014 belief lifecycle ✅
 │   └── P0-015 Evidence Gate ✅
+│
+├── 🗺️ Post-P0 — docs-only
+│   ├── Roadmap v0.1 ✅ adopted
+│   └── P1-001 Capability Lease Resolution 🟡 docs · not implemented
 │
 ├── 🧠 Memory & Belief — minimal M2 contracts implemented; runtime absent
 │   ├── M0 working
@@ -285,8 +293,10 @@ Compileall            → PASS
 
 ```text
 P0-001…P0-015 ✅ merged and validated in main
-→ next work requires a separately reviewed post-P0 roadmap
+→ Post-P0 Roadmap v0.1 ✅ adopted (docs-only)
+→ P1-001 Capability Lease Resolution 🟡 docs-only · NOT IMPLEMENTED
 → domain runtime remains NOT AUTHORIZED
+→ capability lease resolver remains NOT AUTHORIZED
 ```
 
 ---
@@ -427,6 +437,8 @@ Navigation
 - [🔁 P0-013 R1 Deterministic Replay](docs/P0_013_R1_DETERMINISTIC_REPLAY.md)
 - [🧠 P0-014 Minimal Belief Lifecycle](docs/P0_014_MINIMAL_BELIEF_LIFECYCLE.md)
 - [⚖️ P0-015 Deterministic Evidence Gate](docs/P0_015_EVIDENCE_GATE.md)
+- [🗺️ Post-P0 Roadmap v0.1](docs/research/POST_P0_ROADMAP_V0.1.md)
+- [🔐 Capability Lease Resolution Notes v0.1](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
@@ -464,4 +476,4 @@ Navigation
 
 # 🏁 Главный критерий
 
-> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Это инженерный фундамент: полноценные Memory/Identity/Relationship runtime, authority resolution, Character и Exo-Cortex остаются не авторизованными runtime-областями.** 🧬🔐⚙️
+> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015. Post-P0 Roadmap v0.1 принят (docs-only); P1-001 Capability Lease Resolution — docs-only и не implemented. Memory/Identity/Relationship runtime, lease resolver, Character и Exo-Cortex остаются не авторизованными.** 🧬🔐⚙️
