@@ -18,6 +18,7 @@ P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
 POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
 P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
+CONTEXTUAL_COGNITION_RESEARCH_DOCS_ONLY_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
@@ -125,7 +126,8 @@ Identity Continuity:
 │
 ├── 🗺️ Post-P0 — docs-only
 │   ├── Roadmap v0.1 ✅ adopted
-│   └── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED
+│   ├── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED
+│   └── Contextual Cognition research 🟡 docs · NOT IMPLEMENTED
 │
 ├── 🧠 Memory & Belief — minimal M2 contracts implemented; runtime absent
 │   ├── M0 working
@@ -439,6 +441,7 @@ Navigation
 - [⚖️ P0-015 Deterministic Evidence Gate](docs/P0_015_EVIDENCE_GATE.md)
 - [🗺️ Post-P0 Roadmap v0.1](docs/research/POST_P0_ROADMAP_V0.1.md)
 - [🔐 Capability Lease Resolution Notes v0.1](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [🧭 Contextual Cognition & Epistemic Context Notes (integration note)](docs/research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research

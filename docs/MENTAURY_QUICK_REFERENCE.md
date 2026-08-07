@@ -62,10 +62,23 @@ P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
 POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
 P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
+CONTEXTUAL_COGNITION_RESEARCH_DOCS_ONLY_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
+```
+
+Contextual cognition research (Communication Adaptation, Cognitive
+Requirement Profile, Institutional Epistemic Context — distributed into
+Character Spec, Identity Continuity Notes and Genesis Heritage Notes):
+
+```text
+Contextual cognition research
+→ DOCS_ONLY
+→ NOT IMPLEMENTED
+→ NO RUNTIME AUTHORITY
+→ P1-001 PRIORITY UNCHANGED
 ```
 
 Последний принятый **implemented** milestone:
@@ -210,6 +223,10 @@ Method ≠ Conclusion
 
 **Статус:** `DOCS_ONLY`; ingestion/runtime не реализован.
 
+Institutional Epistemic Context (funding, conflicts of interest,
+replication, suppression claims) расширяет этот track; conflict of
+interest ≠ automatic falsity, suppression claim ≠ target claim proof.
+
 ---
 
 ## 9. 🪞 Identity Continuity
@@ -242,6 +259,10 @@ capabilities / consent / current relationships
 ```
 
 **Статус:** `DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY`; runtime отсутствует.
+
+Cognitive Requirement Profile (task classification, methods/tools/budgets
+per task, composable, не personality mode) — часть этого research-track;
+`Profile ≠ Identity`.
 
 ---
 
@@ -368,6 +389,10 @@ Character Policy
 ```
 
 **Статус:** Character Engine не реализован.
+
+Contextual Communication Adaptation (адаптация лексики/глубины под
+собеседника, без изменения claims/confidence/evidence) — часть Voice
+Contract; `Communication Adaptation ≠ reasoning authority`.
 
 ---
 
@@ -592,6 +617,7 @@ R1 replay) уже реализованы и смержены в `main` — см.
 - [⚖️ P0-015 Deterministic Evidence Gate](P0_015_EVIDENCE_GATE.md)
 - [🗺️ Post-P0 Roadmap v0.1](research/POST_P0_ROADMAP_V0.1.md)
 - [🔐 Capability Lease Resolution Notes v0.1](research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [🧭 Contextual Cognition & Epistemic Context Notes (integration note)](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [🧱 Environment Manifest](ENVIRONMENT_MANIFEST.md)
 - [🔬 Controlled Origin Research v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🪞 Identity & Relational Research v0.1](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
