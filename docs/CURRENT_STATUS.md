@@ -5,6 +5,7 @@
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
 Verified implementation head:  0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
+Authoritative documentation head: 850cfe439c3bedd6a2bd4e806e9912283ed5be32
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -15,6 +16,10 @@ POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
 P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
 POST_P0_OWNER_PATH_MERGED_PR_34
+CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
+CONTEXTUAL_COGNITION_PR_36_MERGED
+CONTEXTUAL_COGNITION_REVIEW_ROUND_2_PASS
+CONTEXTUAL_COGNITION_MAIN_CI_31179202276_PASS_277_TESTS
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
@@ -38,6 +43,33 @@ Notion / README / Quick Reference
 
 Current maturity authority
 = this file + verified GitHub main state
+```
+
+---
+
+# 🧭 Contextual Cognition & Epistemic Context — принятый docs-only research track
+
+```text
+PR:             #36 · MERGED
+Source head:    2c38fd78da8dd06a8baa468b6ae4387279644214
+Review round 2: PASS · review 4882842702
+Merge commit:   850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Main CI:        31179202276 · success · 277 passed
+Status:         ADOPTED · DOCS_ONLY · NOT IMPLEMENTED
+Runtime:        NOT AUTHORIZED
+P1-001:         PRIORITY UNCHANGED
+```
+
+Owning contracts:
+
+- Contextual Communication Adaptation → Character & Presence §6.4;
+- Cognitive Requirement Profile → Identity Continuity §20;
+- Institutional Epistemic Context → Genesis Heritage §21 Appendix A.
+
+```text
+Docs adopted ≠ runtime implemented
+Research presence ≠ roadmap priority
+Tool planning ≠ tool authorization ≠ tool execution
 ```
 
 ---

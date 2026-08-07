@@ -3,7 +3,7 @@
 ```text
 Статус:                       ARCHITECTURE_DECISION_RECORD · INTEGRATION_HISTORY
                                NON_AUTHORITATIVE_INDEX · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.4
+Версия:                       0.5
 Дата:                         2026-08-07
 Runtime authority:            NONE
 Truth authority:              NONE
@@ -152,13 +152,13 @@ PR remains DRAFT until owner/independent-reviewer acceptance
 
 | Contract | Owning document (exact section) | Draft status | Independent review | Runtime |
 |---|---|---|---|---|
-| Contextual Communication Adaptation | [`MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md`](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md) §6.4, §10 (CCA-SC-001…007), §11 (MT-CCA-001…002) | DRAFTED | CHANGES_ADDRESSED / PENDING RE-REVIEW | NOT AUTHORIZED |
-| Cognitive Requirement Profile | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §20, §16.9 (CRP-SC-001…008) | DRAFTED | CHANGES_ADDRESSED / PENDING RE-REVIEW | NOT AUTHORIZED |
-| Institutional Epistemic Context | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) §21 Appendix A (IEC-SC-001…009, MT-IEC-001…003) | DRAFTED | CHANGES_ADDRESSED / PENDING RE-REVIEW | NOT AUTHORIZED |
+| Contextual Communication Adaptation | [`MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md`](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md) §6.4, §10 (CCA-SC-001…007), §11 (MT-CCA-001…002) | ADOPTED · DOCS_ONLY | REVIEWED · OWNER ACCEPTED · MERGED | NOT AUTHORIZED |
+| Cognitive Requirement Profile | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §20, §16.9 (CRP-SC-001…008) | ADOPTED · DOCS_ONLY | REVIEWED · OWNER ACCEPTED · MERGED | NOT AUTHORIZED |
+| Institutional Epistemic Context | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) §21 Appendix A (IEC-SC-001…009, MT-IEC-001…003) | ADOPTED · DOCS_ONLY | REVIEWED · OWNER ACCEPTED · MERGED | NOT AUTHORIZED |
 
-Статус становится `REVIEWED · READY_FOR_OWNER_ACCEPTANCE` только после
-успешного повторного independent review, и `ADOPTED` — только после
-merge PR #36 в `main`. До тех пор он остаётся `DRAFTED`.
+Independent review round 2 завершён без архитектурных блокеров.
+Owner принял изменения merge PR #36; три контракта имеют статус
+`ADOPTED · DOCS_ONLY · NOT IMPLEMENTED`. Это не authorizes runtime.
 
 ---
 
@@ -209,11 +209,13 @@ Review round 1: CHANGES_REQUIRED (pipeline ordering, decision-record
                  conversion, ID duplication, Genesis renumbering,
                  "after review" wording, README milestone separation)
 Fixes applied:  see §6 above
-Review round 2: PENDING (this document reflects the state after fixes,
-                 before re-review)
+Review round 2: PASS · review 4882842702 · exact head 2c38fd78da8d
+Owner acceptance: merge PR #36
+Merge commit:    850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Main CI:         31179202276 · success · 277 passed
 ```
 
-PR остаётся **draft** и **не смержен**.
+PR #36 **смержен** в `main`; merge commit `850cfe439c3bedd6a2bd4e806e9912283ed5be32`.
 
 ---
 
@@ -256,8 +258,8 @@ Runtime prototype  ≠ production authorization
 
 ## 12. 📚 Notion sync policy
 
-Notion **не синхронизируется** как current architecture до merge PR #36 и
-успешного independent review.
+После успешного independent review и merge PR #36 Notion должен быть
+синхронизирован из authoritative GitHub `main` после post-merge status sync.
 
 ```text
 GitHub main → authoritative technical contract
@@ -296,5 +298,5 @@ Institutional Epistemic Context
 This document
 → DECISION RECORD, not a normative specification
 → DOCS_ONLY · NO RUNTIME AUTHORITY · P1-001 PRIORITY UNCHANGED
-→ PR #36 remains DRAFT, not merged, Notion not synchronized
+→ PR #36 MERGED · docs-only contracts adopted · Notion sync authorized after status sync
 ```
