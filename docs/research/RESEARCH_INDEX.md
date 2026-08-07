@@ -78,6 +78,27 @@ resolver implementation before explicit owner GO
 | [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md) | historical architecture decision support | retained reference | NONE |
 | [`ARCHITECTURE_READINESS_REVIEW_V0.1.md`](ARCHITECTURE_READINESS_REVIEW_V0.1.md) | historical readiness review | retained reference | NONE |
 | [`CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md`](CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md) | evidence receipt | historical verification record | NONE |
+| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external research input | preserved docs-only notes; no execution authority | NOT AUTHORIZED |
+
+---
+
+## 2.1. 🔗 External research input
+
+Эти документы фиксируют внешние идеи как research input. Они не являются
+execution milestones и не авторизуют интеграцию.
+
+| Document | External source | Disposition | Runtime |
+|---|---|---|---|
+| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | `velantrim-native-kernel` (via preservation PR #43) | PRESERVED · DOCS_ONLY · NON_CANONICAL | NOT AUTHORIZED |
+
+```text
+External research input
+≠ Native Kernel integration
+≠ shared runtime
+≠ authority transfer
+≠ automatic M2/M3 promotion
+≠ change to P1-001 priority
+```
 
 ---
 
