@@ -2,11 +2,12 @@
 
 ```text
 Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Main SHA:           0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
+Main SHA:           1d3af6f0946e596529b9d40315a83cd3573918db
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
 Storage schema:     v4
+Dev toolchain pin:  pytest==9.1.1 (requirements-dev.lock; PR #40)
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
@@ -40,6 +41,9 @@ P0-015 deterministic Evidence Gate
 post-P0-015 audit hardening (PR #32; not a new P0 milestone)
 Post-P0 Roadmap v0.1 adopted (docs-only; PR #34; not a P1 implementation)
 P1-001 Capability Lease Resolution notes (docs-only; NOT IMPLEMENTED; PR #34)
+security pin pytest 9.1.1 (PR #40; post-hoc review issue #42 still open)
+Native Kernel external research input preserved (docs-only; PR #43; NOT PROMOTED)
+storage/graph future profile candidates captured (docs-only; NOT SELECTED)
 ```
 
 ## P0-009 implementation boundary
@@ -91,4 +95,6 @@ minimal, evidence-gated belief lifecycle. PR #32 closed a post-merge
 lifecycle/reducer boundary gap, hardened digest schema admission, and added
 a derived-doc freshness CI gate. No identity, relationship, Character,
 Curiosity or Exo-Cortex runtime is present, and none of the P0 milestones
-authorize one.
+authorize one. PostgreSQL and graph engines (Graphiti, LadybugDB, etc.) remain
+captured future profile candidates only; see
+`docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`.

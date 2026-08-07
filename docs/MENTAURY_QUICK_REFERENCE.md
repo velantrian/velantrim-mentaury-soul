@@ -3,7 +3,7 @@
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
 Дата:       2026-08-07
-Синхронно:  GitHub main@0e29c9ebc9c9f2ab9a228a32899e9db8021923c1 after merged PR #34 (post-P0 governance + roadmap + lease notes)
+Синхронно:  GitHub main@1d3af6f0946e596529b9d40315a83cd3573918db after merged PR #40 (pytest 9.1.1) and PR #43 (Native Kernel research preserve); open PR #38 head 3dd8859d52782576e811f46888d7c8b53df74fad
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -67,6 +67,12 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
+SECURITY_PYTEST_9_1_1_MERGED_PR_40
+NATIVE_KERNEL_INPUT_PRESERVED_PR_43
+BRANCH_CLEANUP_COMPLETED_ISSUE_41
+PR_38_OPEN_AWAITING_QUALIFYING_APPROVAL
+POST_HOC_SECURITY_REVIEW_ISSUE_42_OPEN
+STORAGE_GRAPH_PROFILE_CANDIDATES_CAPTURED_DOCS_ONLY
 ```
 
 ```text
@@ -74,6 +80,19 @@ Research presence
 ≠ roadmap priority
 ≠ runtime authorization
 ≠ implementation milestone
+```
+
+Checkpoint markers:
+
+```text
+FINAL_MAIN_1d3af6f0946e596529b9d40315a83cd3573918db
+FINAL_CI_31214550093
+PR_38_HEAD_3dd8859d52782576e811f46888d7c8b53df74fad
+PR_38_CI_31214573368
+NATIVE_KERNEL_INPUT_PRESERVED
+PYTEST_9_1_1_ON_MAIN
+BRANCH_CLEANUP_COMPLETED
+CURRENT_STATUS_SYNC_ISSUE_44
 ```
 
 Последний принятый **implemented** milestone:
@@ -89,7 +108,10 @@ P0-015 DETERMINISTIC EVIDENCE GATE
 P1-001 Capability Lease Resolution — DOCS_ONLY · NOT IMPLEMENTED
 roadmap: docs/research/POST_P0_ROADMAP_V0.1.md (adopted)
 notes:   docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
-next:    independent review + docs freeze; no src/ resolver without owner GO
+open PR: #38 · head 3dd8859… · CI 31214573368 success · qualifying APPROVED = 0
+next:    distinct trusted reviewer APPROVED review + docs freeze;
+         no src/ resolver without owner GO;
+         do not merge PR #38 on self-review / Cursor / Copilot / Codex COMMENT
 ```
 
 **Research side-track** (не execution roadmap, не второй milestone):
@@ -105,6 +127,26 @@ Main CI:    31179202276 · 277 passed
 Owners:     Character Spec §6.4 · Identity Continuity §20 ·
             Genesis Heritage §21 Appendix A
 Boundary:   no runtime authority; P1-001 priority unchanged
+```
+
+**Preserved external research input** (не execution milestone):
+
+```text
+Native Kernel research-input notes — PR #43 MERGED
+File:       docs/research/NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md
+Status:     PRESERVED · DOCS_ONLY · NON_CANONICAL · NOT PROMOTED
+Merge:      1d3af6f0946e596529b9d40315a83cd3573918db
+Main CI:    31214550093 · 277 passed
+Boundary:   no Native Kernel integration / shared runtime / M3 write
+```
+
+**Captured future profile candidates** (не selection, не wiring):
+
+```text
+docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md
+PostgreSQL:            CAPTURED · NOT SELECTED
+Graphiti / LadybugDB:  CAPTURED · NOT SELECTED
+Current profile:       Python + SQLite retained
 ```
 
 ---

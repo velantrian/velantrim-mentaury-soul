@@ -4,8 +4,10 @@
 Дата фиксации:                  2026-08-07
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
+Verified GitHub main head:     1d3af6f0946e596529b9d40315a83cd3573918db
+Verified implementation head:  1d3af6f0946e596529b9d40315a83cd3573918db
 Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Main CI after PR #43:          31214550093 · success · 277 passed
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -20,6 +22,11 @@ CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
 CONTEXTUAL_COGNITION_PR_36_MERGED
 CONTEXTUAL_COGNITION_REVIEW_ROUND_2_PASS
 CONTEXTUAL_COGNITION_MAIN_CI_31179202276_PASS_277_TESTS
+SECURITY_PYTEST_9_1_1_MERGED_PR_40
+NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
+BRANCH_CLEANUP_COMPLETED_ISSUE_41
+PR_38_OPEN_AWAITING_QUALIFYING_APPROVAL
+POST_HOC_SECURITY_REVIEW_ISSUE_42_OPEN
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
@@ -566,14 +573,129 @@ Green CI ≠ domain runtime GO
 
 ---
 
+# 🔐 Security maintenance — PR #40 (merged)
+
+```text
+PR:                  #40 · MERGED
+Change:              requirements-dev.lock · pytest 9.0.2 → 9.1.1
+PR head:             7591461a299dac68681ad78fac2ef53a6526a9d8
+Merge SHA:           e55b83bc150f06598dd33c05cd73c158ff8e625c
+PR exact-head CI:    31212821469 · success · 277 passed
+Main CI after merge: 31213079708 · success · 277 passed
+Runtime dependencies: EMPTY (unchanged)
+Post-hoc review:     issue #42 · OPEN · due 2026-08-14
+```
+
+```text
+Security pin upgraded ≠ independent post-hoc review complete
+Cursor/bot CI verification ≠ distinct reviewer approval
+Emergency carve-out ≠ relaxation of PR #38 review policy
+```
+
+---
+
+# 🧬 Native Kernel external research input — PR #43 (merged)
+
+```text
+PR:             #43 · MERGED
+Merge SHA:      1d3af6f0946e596529b9d40315a83cd3573918db
+Main CI:        31214550093 · success · 277 passed
+File:           docs/research/NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md
+Disposition:    PRESERVED · DOCS_ONLY · NON_CANONICAL · RESEARCH_NOTES
+Promotion:      NOT PROMOTED
+Runtime:        NONE
+Truth:          NONE
+Capability:     NONE
+P1-001:         PRIORITY UNCHANGED
+```
+
+```text
+External research input preserved
+≠ Native Kernel integration
+≠ shared runtime
+≠ authority transfer
+≠ automatic M2/M3 promotion
+```
+
+---
+
+# 🧹 Branch cleanup — issue #41 (completed)
+
+```text
+Issue:     #41 · CLOSED · completed
+Deleted:   agent/p0-012-permanent-ci
+           claude/p0-redaction-integrity-kdaps9
+           validation/p0-009-1a4e4af
+           validation/p0-009-a5327e6
+           validation/p0-009-final-6f8ff16
+           validation/p0-010-linkage-f6f341
+           claude/audit-relationships-6866cw
+Remaining: main
+           agent/research-index-p1-001-hardening   # open PR #38
+```
+
+Claude preserve-first branch deleted only after PR #43 merge (condition A).
+
+---
+
+# 📂 Open docs hardening — PR #38 (not merged)
+
+```text
+PR:                   #38 · OPEN · MERGEABLE
+Branch:               agent/research-index-p1-001-hardening
+Exact head:           3dd8859d52782576e811f46888d7c8b53df74fad
+Exact-head CI:        31214573368 · success · 277 passed
+Scope:                docs/research only (Research Index, lease notes, roadmap)
+Qualifying APPROVED:  0
+Blocker:              distinct trusted GitHub identity required
+Ops issue:            #39 · branch protection still not enforced
+```
+
+```text
+OPEN PR ≠ implemented in main
+self-review ≠ independent approval
+Cursor / Copilot / Codex COMMENT ≠ APPROVED review
+COMMENTED review ≠ APPROVED review
+P1-001 remains DOCS_ONLY · NOT IMPLEMENTED until merge + owner GO for src/
+```
+
+---
+
+# 🌱 Captured future profile candidates (docs-only)
+
+Authoritative capture note:
+
+[`docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md)
+
+```text
+Current reference profile:  Python + SQLite
+PostgreSQL:                 CAPTURED · NOT SELECTED · future storage profile candidate
+Graph engines
+(Graphiti / LadybugDB / …): CAPTURED · NOT SELECTED · future relationship-index candidates
+Selection:                  NOT MADE
+Runtime wiring:             FORBIDDEN in this checkpoint
+P1-001 priority:            UNCHANGED
+```
+
+```text
+Candidate named ≠ profile adopted
+Powerful database ≠ Canon requirement
+Graph product mentioned ≠ relationship runtime authorized
+```
+
+---
+
 # 🏁 Следующее действие
 
 ```text
 P1-001 Capability Lease Resolution
-Status:              DOCS_ONLY · NOT IMPLEMENTED · MERGED IN MAIN (PR #34)
+Status:              DOCS_ONLY · NOT IMPLEMENTED
+Baseline docs:       merged in main via PR #34
+Hardening PR:        #38 OPEN · head 3dd8859… · awaiting qualifying APPROVED
 Roadmap:             POST_P0_ROADMAP_V0.1 adopted
-Docs:                research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
-Next concrete step:  independent review + docs freeze of lease notes
-Ops follow-up:       mirror independent-review policy in GitHub branch protection
-Forbidden until GO:  src/ lease registry, resolve(), Action Gate, domain runtime
+Next concrete step:  independent exact-head review of PR #38, then docs freeze
+Ops follow-up:       issue #39 — add second trusted reviewer + branch protection
+Security follow-up:  issue #42 — post-hoc review of PR #40 by 2026-08-14
+Forbidden until GO:  src/ lease registry, resolve(), Action Gate, domain runtime,
+                     PostgreSQL/Graph runtime wiring, Native Kernel integration
 ```
