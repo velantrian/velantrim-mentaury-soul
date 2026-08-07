@@ -5,7 +5,7 @@
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
 Verified implementation head:  0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
-Authoritative documentation head: 850cfe439c3bedd6a2bd4e806e9912283ed5be32
+Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
