@@ -2,7 +2,7 @@
 
 ```text
 Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Main SHA:           d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
+Main SHA:           e15864e7837b2c12e7574b55678340c25e15c003
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
@@ -37,6 +37,7 @@ P0-012 permanent read-only GitHub Actions CI
 P0-013 R1 deterministic replay
 P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
+post-P0-015 audit hardening (PR #32; not a new P0 milestone)
 ```
 
 ## P0-009 implementation boundary
@@ -84,6 +85,8 @@ merged separately in P0-012 (PR #25, `.github/workflows/ci.yml`) and now runs
 the same three checks on every pull request and push to `main`.
 
 P0-010 added governed atomic same-stream redaction. P0-014/P0-015 added a
-minimal, evidence-gated belief lifecycle. No identity, relationship,
-Character, Curiosity or Exo-Cortex runtime is present, and none of the P0
-milestones authorize one.
+minimal, evidence-gated belief lifecycle. PR #32 closed a post-merge
+lifecycle/reducer boundary gap, hardened digest schema admission, and added
+a derived-doc freshness CI gate. No identity, relationship, Character,
+Curiosity or Exo-Cortex runtime is present, and none of the P0 milestones
+authorize one.

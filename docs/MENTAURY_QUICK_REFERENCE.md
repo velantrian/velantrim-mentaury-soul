@@ -2,8 +2,8 @@
 
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
-Дата:       2026-08-06
-Синхронно:  GitHub main after merged PR #31 (P0-015 status sync)
+Дата:       2026-08-07
+Синхронно:  GitHub main after merged PR #32 (post-P0-015 audit hardening)
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -499,13 +499,13 @@ fail-closed conflict when qualifying evidence exists on both sides
 reducer v2 recomputes and replay-verifies the full receipt
 ```
 
-Последняя принятая проверка на `main` (после P0-015, PR #30):
+Последняя принятая проверка на `main` (после audit hardening, PR #32):
 
 ```text
 validator  → PASS
-pytest     → 232 passed
+pytest     → 277 passed
 compileall → PASS
-CI         → Mentaury CI, permanent, green on PR and main
+CI         → Mentaury CI, permanent, green on main (run 31150100906)
 ```
 
 ---
