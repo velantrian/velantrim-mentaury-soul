@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from decimal import Decimal
 
@@ -66,6 +67,14 @@ def _validate(
                     ValidationCode.STRING_TOO_SHORT,
                     path,
                     f"minimum length is {spec.min_length}",
+                )
+            ]
+        if spec.pattern is not None and re.fullmatch(spec.pattern, value) is None:
+            return [
+                _issue(
+                    ValidationCode.STRING_PATTERN_MISMATCH,
+                    path,
+                    f"value does not match required pattern {spec.pattern!r}",
                 )
             ]
         return []

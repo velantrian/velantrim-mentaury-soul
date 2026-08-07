@@ -22,7 +22,10 @@ jobs:
   validate:
     name: Python 3.13 · validator · pytest · compileall
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Applies after a runner is assigned. When GitHub-hosted runners are
+    # unavailable (platform outage or queue saturation), jobs can sit in
+    # "queued" with runner_id=0 and be cancelled before any step runs.
+    timeout-minutes: 30
 
     steps:
       - name: Check out exact repository revision
@@ -46,6 +49,9 @@ jobs:
 
       - name: Validate repository structure
         run: python scripts/validate.py
+
+      - name: Check derived-status documentation freshness
+        run: python scripts/check_doc_freshness.py
 
       - name: Run complete test suite
         run: python -m pytest

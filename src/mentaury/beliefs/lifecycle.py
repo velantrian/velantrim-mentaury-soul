@@ -382,13 +382,23 @@ class BeliefLifecycle:
                 BeliefRejectionCode.INVALID_COMMAND,
                 "state belief_id does not match command",
             )
-        if _status(state) is BeliefStatus.SUPERSEDED:
+        current_status = _status(state)
+        if current_status is BeliefStatus.SUPERSEDED:
             return self._reject(
                 command,
                 belief_id,
                 state,
                 BeliefRejectionCode.TERMINAL_BELIEF,
                 "superseded belief is terminal",
+            )
+        if belief_status_requires_evidence_gate(current_status):
+            return self._reject(
+                command,
+                belief_id,
+                state,
+                BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF,
+                f"{current_status.value} belief is owned by the P0-015 Evidence "
+                "Gate and is terminal for this lifecycle",
             )
         return None
 

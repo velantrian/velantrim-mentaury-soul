@@ -1,18 +1,23 @@
 # 🧱 P0 Environment Manifest
 
 ```text
-Status:             P0-009 IMPLEMENTED IN MAIN
-Main SHA:           08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
+Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
+Main SHA:           d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
-Storage schema:     v3
+Storage schema:     v4
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
-Permanent CI:       NOT PRESENT
+Permanent CI:       PRESENT AND VALIDATED (.github/workflows/ci.yml)
 ```
+
+This manifest historically documented only the P0-009 baseline. It is now
+kept in sync with `docs/CURRENT_STATUS.md`, the authoritative source for
+per-milestone PR numbers, merge SHAs and validation evidence; see that file
+for P0-010…P0-015 detail.
 
 ## Accepted baseline in `main`
 
@@ -26,6 +31,12 @@ P0-006 atomic multi-event batch
 P0-007 semantic idempotency
 P0-008 controlled SQLite concurrency
 P0-009 trusted commit boundary + bounded R0 integrity
+P0-010 atomic same-stream redaction (storage schema v4)
+P0-011 adversarial integrity suite
+P0-012 permanent read-only GitHub Actions CI
+P0-013 R1 deterministic replay
+P0-014 minimal evidence-referenced belief lifecycle
+P0-015 deterministic Evidence Gate
 ```
 
 ## P0-009 implementation boundary
@@ -66,9 +77,13 @@ python3 -m compileall -q src tests scripts
 
 Final validation-only run `31023788916` passed Python setup, locked dependency
 installation, structural validation, full pytest and compileall against exact PR
-head `6f8ff1663e161e554c8d4610f1692187c2129b45`.
+head `6f8ff1663e161e554c8d4610f1692187c2129b45` for P0-009.
 
-The temporary workflow was not part of PR #15 or `main` and is not P0-012.
+That temporary workflow was not part of PR #15 or `main`. Permanent CI was
+merged separately in P0-012 (PR #25, `.github/workflows/ci.yml`) and now runs
+the same three checks on every pull request and push to `main`.
 
-P0-010 owns governed atomic same-stream redaction. No identity, relationship,
-Character, Curiosity or Exo-Cortex runtime is present.
+P0-010 added governed atomic same-stream redaction. P0-014/P0-015 added a
+minimal, evidence-gated belief lifecycle. No identity, relationship,
+Character, Curiosity or Exo-Cortex runtime is present, and none of the P0
+milestones authorize one.

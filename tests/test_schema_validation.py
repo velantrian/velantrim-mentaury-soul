@@ -23,6 +23,7 @@ from mentaury.validation import (
     SchemaValidationError,
     StringSpec,
     ValidationCode,
+    sha256_digest_spec,
 )
 
 
@@ -214,6 +215,64 @@ def test_require_raises_stable_issue_collection() -> None:
         )
     assert len(captured.value.issues) >= 3
     assert "MISSING_REQUIRED_FIELD" in str(captured.value)
+
+
+def test_string_spec_rejects_invalid_pattern_at_construction() -> None:
+    with pytest.raises(ValueError, match="valid regular expression"):
+        StringSpec(pattern="(unterminated")
+    with pytest.raises(ValueError, match="non-empty string"):
+        StringSpec(pattern="")
+
+
+def _digest_registry() -> SchemaRegistry:
+    return SchemaRegistry(
+        [
+            EventSchemaDefinition(
+                event_type="DIGEST_EVENT",
+                payload_schema="digest-event/v1",
+                affects_domain_state=True,
+                payload=ObjectSpec(
+                    {"content_digest": sha256_digest_spec()},
+                    required=frozenset({"content_digest"}),
+                ),
+            )
+        ]
+    )
+
+
+def _digest_event(content_digest: object) -> PendingEvent:
+    return PendingEvent(
+        event_type="DIGEST_EVENT",
+        payload_schema="digest-event/v1",
+        affects_domain_state=True,
+        payload={"content_digest": content_digest},
+    )
+
+
+def test_sha256_digest_spec_accepts_a_canonical_digest() -> None:
+    valid = "sha256:" + "a" * 64
+    assert _digest_registry().validate_pending_event(_digest_event(valid)) == ()
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    [
+        "sha256:" + "z" * 64,
+        "sha256:" + "A" * 64,
+        "SHA256:" + "a" * 64,
+    ],
+)
+def test_sha256_digest_spec_rejects_malformed_digest_at_schema_admission(
+    malformed: str,
+) -> None:
+    issues = _digest_registry().validate_pending_event(_digest_event(malformed))
+    assert codes(issues) == {ValidationCode.STRING_PATTERN_MISMATCH}
+
+
+def test_sha256_digest_spec_still_enforces_minimum_length_first() -> None:
+    too_short = "sha256:abc"
+    issues = _digest_registry().validate_pending_event(_digest_event(too_short))
+    assert codes(issues) == {ValidationCode.STRING_TOO_SHORT}
 
 
 def test_cyclic_external_payload_is_rejected() -> None:
