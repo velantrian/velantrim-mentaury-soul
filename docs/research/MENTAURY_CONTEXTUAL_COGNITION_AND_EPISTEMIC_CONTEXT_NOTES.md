@@ -2,7 +2,7 @@
 
 ```text
 Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1
+Версия:                       0.2
 Дата:                         2026-08-07
 Owner direction:              PREPARE ARCHITECTURE + ENGINEERING HANDOFF
 Runtime authority:            NONE
@@ -15,7 +15,7 @@ Domain runtime:               NOT AUTHORIZED
 Roadmap priority:              P1-001 UNCHANGED
 ```
 
-> Этот документ формализует три исследовательских пробела: адаптацию объяснения к собеседнику, выбор когнитивного профиля под задачу и описание институционального контекста evidence. Он не создаёт новый центр authority, не меняет Canon, не разрешает Character Engine, Governed Synthesis Engine, LLM integration или autonomous runtime.
+> Документ закрывает три research-gap: адаптацию объяснения к собеседнику, выбор когнитивного профиля под задачу и учёт институционального контекста evidence. Он не создаёт новый центр authority и не разрешает runtime.
 
 Связанные документы:
 
@@ -27,48 +27,51 @@ Roadmap priority:              P1-001 UNCHANGED
 
 ---
 
-## 1. 🎯 Назначение
+## 1. 🎯 Решение
 
-Mentaury должен уметь:
-
-1. объяснять один epistemic result разным собеседникам без изменения смысла;
-2. выбирать методы, глубину, проверки и инструменты под структуру задачи;
-3. учитывать funding, conflicts of interest, replication, publication environment и evidence scarcity;
-4. сохранять uncertainty и provenance при любой адаптации;
-5. не превращать слабость институциональной среды в автоматическое доказательство скрытой истины.
+Вместо трёх независимых engines вводятся три ограниченные модели внутри существующей архитектуры:
 
 ```text
-Audience adaptation
-≠ truth adaptation
+A. Contextual Communication Adaptation
+   → меняет форму объяснения
+   → не меняет epistemic result
 
-Cognitive profile selection
-≠ personality switching
+B. Cognitive Requirement Profile
+   → выбирает методы, проверки, tools и budgets
+   → не меняет identity или authority
 
-Institutional context
-≠ automatic evidence rejection
+C. Institutional Epistemic Context
+   → фиксирует funding, conflicts, replication и evidence gaps
+   → не заменяет evidence подозрением
+```
 
-Low evidence availability
-≠ support for the preferred alternative
+```text
+Audience adaptation             ≠ truth adaptation
+Cognitive profile selection     ≠ personality switching
+Institutional context           ≠ automatic evidence rejection
+Low evidence availability       ≠ support for a preferred alternative
+Suppression allegation          ≠ proof of suppression
+Supported suppression           ≠ proof of the affected proposition
 ```
 
 ---
 
 ## 2. 🚫 Non-claims
 
-Этот документ не утверждает и не разрешает:
+Этот документ не разрешает:
 
 ```text
-❌ готовый Audience Model runtime
+❌ Audience Model runtime
 ❌ психологическое профилирование человека
-❌ скрытое определение интеллекта или статуса собеседника
 ❌ отдельные личности для code / science / conversation
-❌ автоматическое изменение evidence weight по источнику финансирования
+❌ Character Engine или Governed Synthesis Engine
+❌ автоматическое изменение evidence weight по sponsor identity
 ❌ автоматическое недоверие к scientific consensus
-❌ утверждение suppression без evidence
-❌ доступ к защищённым данным ради «лучшей адаптации»
 ❌ прямой write path в M2 или M3
+❌ Tool execution / Action Gate
+❌ изменения в src/mentaury/
+❌ изменение Canon
 ❌ изменение P1-001 priority
-❌ изменения в src/ без отдельного owner GO
 ```
 
 ---
@@ -77,64 +80,69 @@ Low evidence availability
 
 | Область | Может определять | Не может определять |
 |---|---|---|
-| Evidence assessment | support, contradiction, uncertainty | стиль ответа, identity, permission |
-| Task classification | требуемые методы и проверки | truth status |
-| Cognitive profile | budgets, tools, verification depth | capability grant, M3 |
-| Communication adaptation | vocabulary, structure, pace, examples | evidence weight, conclusion |
-| Institutional context | provenance, incentives, replication gaps | автоматическую ложность/истинность |
-| Character | presentation after synthesis | reasoning result |
-| Capability Lease | допустимость операции в scope | truth, identity, moral value |
+| Task classification | требования задачи | truth status |
+| Cognitive profile | methods, verification depth, budgets | permission, identity, M3 |
+| Evidence assessment | support, contradiction, uncertainty | presentation style |
+| Institutional context | provenance, incentives, dependency, replication gaps | automatic truth inversion |
+| Governed Synthesis | bounded conclusion and unresolved tensions | capability grant |
+| Communication adaptation | vocabulary, structure, pace, examples | claims, confidence, evidence weight |
+| Character | final presentation | reasoning result |
+| Capability Lease | разрешённость операции в scope | truth, identity, values |
 
-Обязательный порядок:
+### 3.1 Нормативный порядок
 
 ```text
-Query + Context
-→ Task Decomposition
-→ Evidence / Uncertainty / Contradictions
-→ Institutional Context Assessment where relevant
-→ Cognitive Requirement Profile
+Query + explicit communication requests
+→ Task classification and decomposition
+→ Preliminary Cognitive Requirement Profile
+→ Retrieval / tools / evidence assessment
+→ Institutional Epistemic Context where material
+→ Profile revision if risk, contradiction or evidence gap changes
+→ Alternatives + uncertainty + scope limitation
 → Governed Synthesis
 → Authority / Capability Check
-→ Communication Adaptation
-→ Character Presentation
+→ Contextual Communication Adaptation
+→ Character & Voice
+→ Answer + bounded decision receipts
 ```
 
+Ключевое уточнение:
+
 ```text
-Communication receives a governed result.
-Communication does not rewrite the governed result.
+Preliminary profile is selected before retrieval.
+Profile may be revised after evidence changes the task or risk model.
+Profile transition preserves claims, evidence, contradictions and uncertainty.
 ```
 
 ---
 
 # Part A — 🗣️ Contextual Communication Adaptation
 
-## 4. Проблема
+## 4. Назначение
 
-Существующий Voice Contract задаёт directness, pace, density, confidence, wit, closeness, depth и composure. Этого достаточно для общих границ характера, но недостаточно для воспроизводимого выбора подачи под конкретный communication context.
+Voice Contract уже задаёт directness, pace, density, confidence, wit, closeness, depth и composure. Новая модель добавляет воспроизводимый выбор подачи под конкретный communication context.
 
-Нужен ограниченный контракт, который отвечает:
+Она отвечает:
 
 - какой уровень терминологии уместен;
-- какой объём требуется;
-- какие предпосылки можно считать известными;
-- насколько велик риск неправильного понимания;
-- нужна ли accessibility adaptation;
-- что пользователь запросил явно;
-- что было лишь осторожно выведено и остаётся uncertain.
+- какой объём запросил человек;
+- насколько велик misunderstanding risk;
+- нужны ли accessibility adaptations;
+- какие предпосылки известны явно;
+- какие предположения о собеседнике остаются uncertain.
 
-## 5. Communication Context Record
+## 5. Communication Context
 
 ```yaml
 communication_context:
   context_id: "CC-..."
   query_id: "..."
 
-  explicit_user_requests:
+  explicit_requests:
     language: "..."
-    format: []
     requested_depth: "BRIEF | STANDARD | DEEP | UNSPECIFIED"
     requested_register: "..."
-    requested_examples: "..."
+    requested_format: []
 
   domain_familiarity:
     level: "NOVICE | GENERAL | PRACTITIONER | EXPERT | UNKNOWN"
@@ -154,7 +162,7 @@ communication_context:
   constraints:
     terminology_budget: "..."
     cognitive_load_limit: "..."
-    time_or_length_limit: "..."
+    length_limit: "..."
     accessibility_requirements: []
     emotional_sensitivity: "LOW | MEDIUM | HIGH | UNKNOWN"
     misunderstanding_risk: "LOW | MEDIUM | HIGH"
@@ -163,22 +171,18 @@ communication_context:
     sensitive_attributes_inferred: false
     unsupported_personality_labeling: false
     uncertainty_exposed: true
-
-  provenance:
-    created_from: []
-    created_at: "..."
 ```
 
-### 5.1 Принципы
+### 5.1 Правила
 
-1. Explicit request имеет приоритет над слабой inferred preference, если это не нарушает safety/governance.
+1. Explicit request имеет приоритет над слабой inferred preference, если не нарушает governance.
 2. `UNKNOWN` лучше ложной уверенности о собеседнике.
 3. Domain familiarity не является оценкой достоинства или общего интеллекта.
-4. Communication context не должен включать диагнозы, политические взгляды, уязвимости или иные sensitive traits без явной необходимости и разрешённого основания.
-5. При высоком misunderstanding risk Mentaury сначала даёт ясное ядро, затем ограничения и детали.
-6. Пользователь может исправить adaptation assumptions; исправление создаёт новую версию context record.
+4. Sensitive traits нельзя выводить ради «лучшей подачи» без явной необходимости и допустимого основания.
+5. Пользователь может исправить adaptation assumptions; исправление создаёт новую версию context record.
+6. При высоком misunderstanding risk сначала выдаётся ясное ядро, затем ограничения и детали.
 
-## 6. Communication Decision Record
+## 6. Communication Decision
 
 ```yaml
 communication_decision:
@@ -192,24 +196,21 @@ communication_decision:
     structure: []
     examples: []
     metaphor_policy: "NONE | LIMITED | ALLOWED"
-    uncertainty_visibility: "FULL"
 
   preserved_invariants:
+    claims_unchanged: true
     truth_status_unchanged: true
     confidence_unchanged: true
     evidence_requirements_unchanged: true
     contradictions_preserved: true
     authority_result_unchanged: true
-
-  limitations: []
-  revision_reason: null
 ```
 
 ## 7. Communication invariants
 
 ```text
 Same governed synthesis
-+ different audience context
++ different communication context
 → different vocabulary / structure / examples
 → same claims
 → same support status
@@ -218,20 +219,14 @@ Same governed synthesis
 ```
 
 ```text
-Simplification
-≠ omission of decisive limitations
-
-Warmth
-≠ false reassurance
-
-Technical detail
-≠ stronger truth status
-
-User preference
-≠ permission to conceal contradiction
+Simplification       ≠ omission of decisive limitations
+Warmth               ≠ false reassurance
+Technical density    ≠ stronger truth status
+User preference      ≠ permission to conceal contradiction
+Metaphor             ≠ factual evidence
 ```
 
-## 8. Audience-adaptation failure modes
+Failure modes:
 
 ```text
 AUDIENCE_FLATTERY
@@ -241,22 +236,21 @@ FALSE_NOVICE_ASSUMPTION
 OVER_SIMPLIFICATION
 UNCERTAINTY_ERASURE
 METAPHOR_TO_FACT_LEAKAGE
-EMOTIONAL_DEPENDENCY_ADAPTATION
 SENSITIVE_PROFILE_INFERENCE
 FORMAT_OVERRIDES_MEANING
 ```
 
 ---
 
-# Part B — 🧠 Cognitive Requirement Profile Selection
+# Part B — 🧠 Cognitive Requirement Profile
 
-## 9. Почему не «режимы личности»
+## 8. Почему не «режимы личности»
 
-Жёсткие `CODE_MODE`, `SCIENCE_MODE`, `CASUAL_MODE` создают риск нескольких несогласованных personality profiles. Вместо этого используется composable requirement profile.
+Жёсткие `CODE_MODE`, `SCIENCE_MODE`, `CASUAL_MODE` могут создать несколько несогласованных personas. Вместо них применяется composable requirement profile.
 
 ```text
 Task class
-→ cognitive requirements
+→ requirements
 → methods / tools / verification
 → budgets and stop conditions
 → one governed synthesis
@@ -264,19 +258,13 @@ Task class
 ```
 
 ```text
-Different cognitive profile
-≠ different Mentaury
-
-Method selection
-≠ identity change
-
-Higher resource budget
-≠ higher authority
+Different profile     ≠ different Mentaury
+Method selection      ≠ identity change
+Higher budget         ≠ higher authority
+Profile transition    ≠ epistemic reset
 ```
 
-## 10. Task Classification
-
-Предварительные task classes:
+## 9. Task classes
 
 ```text
 FACTUAL_LOOKUP
@@ -296,9 +284,9 @@ CAPABILITY_RELATED
 MIXED
 ```
 
-Один запрос может иметь несколько классов. `MIXED` не должен скрывать decomposition.
+Один запрос может иметь несколько классов. `MIXED` требует decomposition, а не усреднения правил.
 
-## 11. Cognitive Requirement Profile
+## 10. Cognitive Requirement Profile
 
 ```yaml
 cognitive_requirement_profile:
@@ -328,7 +316,7 @@ cognitive_requirement_profile:
   tools:
     candidate_tools: []
     required_capability_refs: []
-    tool_output_semantics: "EVIDENCE_CANDIDATE_ONLY"
+    output_semantics: "EVIDENCE_OR_ARTIFACT_CANDIDATE_ONLY"
 
   budgets:
     time: "implementation-profile-defined"
@@ -346,70 +334,23 @@ cognitive_requirement_profile:
     direct_m3_write: false
 ```
 
-## 12. Profile selection rules
+## 11. Domain-specific requirements
 
-### 12.1 Technical implementation
-
-Обычно требует:
-
-```text
-syntax sensitivity HIGH
-repository context
-tests / static checks where available
-exact versions and environment assumptions
-minimal unsupported inference
-```
-
-### 12.2 Empirical research
-
-Обычно требует:
+| Task | Минимальные требования |
+|---|---|
+| Technical implementation | exact versions, repository context, syntax sensitivity, tests/checks |
+| Empirical research | methods, sample limits, provenance, replication, counterevidence |
+| Historical interpretation | primary/secondary distinction, contextual distance, alternatives, Non-Projection |
+| Relational support | sensitivity, non-dependency, fact/interpretation split, no unsupported diagnosis |
+| Creative exploration | explicit separation of possibility, hypothesis and fact |
 
 ```text
-source provenance
-methodology and sample limitations
-replication status
-counterevidence
-confidence calibration
-institutional context where material
-```
-
-### 12.3 Historical interpretation
-
-Обычно требует:
-
-```text
-primary/secondary distinction
-contextual distance
-anachronism review
-alternative interpretations
-Non-Projection Review
-scope limitation
-```
-
-### 12.4 Relational support
-
-Обычно требует:
-
-```text
-emotional sensitivity
-non-dependency constraints
-fact / interpretation separation
-no diagnosis without basis
-professional-help boundary where applicable
-```
-
-### 12.5 Creative exploration
-
-```text
-creative possibility
-≠ factual assertion
-
-imagination output
+Creative possibility
 → hypothesis / scenario / artifact
 → not belief without evidence
 ```
 
-## 13. Mixed-task handling
+## 12. Mixed-task plan
 
 ```yaml
 mixed_task_plan:
@@ -419,17 +360,18 @@ mixed_task_plan:
       task_class: "..."
       profile_ref: "CRP-..."
       dependency_refs: []
+
   merge_constraints:
-    claims_keep_original_status: true
+    claim_status_preserved: true
     uncertainty_not_averaged_away: true
-    normative_and_factual_results_separated: true
+    factual_and_normative_results_separated: true
     tool_permissions_not_inherited_between_segments: true
 ```
 
 Пример:
 
 ```text
-«Проанализируй научную статью и предложи код»
+«Проанализируй исследование и предложи код»
 
 1. EMPIRICAL_RESEARCH
 → claims, methods, limitations
@@ -437,13 +379,11 @@ mixed_task_plan:
 2. TECHNICAL_IMPLEMENTATION
 → interface, algorithm, tests
 
-3. SYNTHESIS
+3. GOVERNED SYNTHESIS
 → code proposal remains bounded by scientific uncertainty
 ```
 
-## 14. Profile transition rules
-
-Переход профиля разрешён только при изменении задачи, evidence или риска.
+## 13. Profile transition
 
 ```yaml
 profile_transition:
@@ -456,17 +396,20 @@ profile_transition:
     - TOOL_FAILURE
     - USER_SCOPE_CHANGE
     - EVIDENCE_INSUFFICIENT
+
   preserved_state:
     claims: true
     evidence_refs: true
     uncertainty: true
+    contradictions: true
     rejected_alternatives: true
+
   authority_expansion: false
 ```
 
 ```text
 Profile transition
-≠ reset of epistemic history
+≠ reset of history
 ≠ capability expansion
 ≠ permission laundering
 ```
@@ -475,22 +418,22 @@ Profile transition
 
 # Part C — 🔬 Institutional Epistemic Context
 
-## 15. Цель
+## 14. Назначение
 
 Mentaury должен различать:
 
 - качество конкретного исследования;
 - независимость источников;
-- институциональные incentives;
 - funding and sponsor influence;
+- conflicts of interest;
 - replication state;
-- publication and access environment;
-- scarcity of evidence;
-- утверждения о suppression.
+- publication environment;
+- evidence scarcity;
+- отдельные claims о suppression.
 
-Институциональный анализ нужен для определения границ знания, а не для замены evidence подозрением.
+Институциональный анализ определяет границы знания. Он не заменяет evidence подозрением.
 
-## 16. Institutional Context Record
+## 15. Institutional Context
 
 ```yaml
 institutional_epistemic_context:
@@ -500,7 +443,7 @@ institutional_epistemic_context:
 
   funding:
     declared_sources: []
-    undisclosed_or_unknown: []
+    unknown_sources: []
     sponsor_role:
       - NONE
       - FUNDING_ONLY
@@ -537,11 +480,11 @@ institutional_epistemic_context:
     comparability_limits: []
 
   publication_environment:
-    negative_result_visibility: "..."
     publication_bias_risks: []
+    negative_result_visibility: "..."
     access_barriers: []
     data_availability: "..."
-    methodological_incentives: []
+    incentive_risks: []
 
   evidence_scarcity:
     level: "LOW | MEDIUM | HIGH | UNKNOWN"
@@ -561,58 +504,32 @@ institutional_epistemic_context:
   provenance: []
 ```
 
-## 17. Conflict-of-interest rules
+## 16. Institutional-context rules
 
 ```text
-Conflict of interest
-≠ automatic falsity
-
-No declared conflict
-≠ guaranteed independence
-
-Industry funding
-≠ automatic rejection
-
-Public funding
-≠ automatic neutrality
-
-Independent replication
-→ can increase confidence
-→ does not remove all methodological limitations
+Conflict of interest    ≠ automatic falsity
+No declared conflict    ≠ guaranteed independence
+Industry funding        ≠ automatic rejection
+Public funding          ≠ automatic neutrality
+Independent replication ≠ removal of all limitations
+Few studies             → UNDER_EVIDENCED
+Few studies             ≠ alternative hypothesis is true
+Underfunded question    ≠ suppressed truth
 ```
 
 Material conflict может:
 
-- повысить требование к transparency;
+- повысить требования к transparency;
 - потребовать independent replication;
 - ограничить scope conclusion;
 - увеличить uncertainty;
 - инициировать counterevidence search.
 
-Но изменение claim status должно опираться на наблюдаемое evidence, methodology и provenance, а не на политическую или эмоциональную оценку институции.
+Но claim status меняется только через evidence, methodology и provenance.
 
-## 18. Evidence scarcity rules
+## 17. Suppression Claim Gate
 
-```text
-Few studies exist
-→ UNDER-EVIDENCED
-
-Few studies exist
-≠ preferred alternative is true
-
-Underfunded question
-≠ suppressed truth
-
-Absence of evidence
-≠ evidence of absence
-≠ evidence of presence
-```
-
-`Absence of evidence` может быть evidence of absence только при наличии достаточной detection power и ожидания, что эффект был бы обнаружен.
-
-## 19. Suppression Claim Gate
-
-Утверждение о suppression является отдельным claim и требует отдельного evidence.
+Suppression является отдельным claim.
 
 ```yaml
 suppression_claim:
@@ -639,15 +556,13 @@ Institutional opacity
 ≠ proof of suppression
 
 Suppression allegation
-≠ validation of the suppressed proposition
+≠ validation of the target proposition
 
 Supported suppression
-≠ automatic truth of the affected claim
+≠ automatic truth of the target proposition
 ```
 
-## 20. Consensus representation
-
-Предварительные labels:
+## 18. Consensus labels
 
 ```text
 STRONG_CONVERGENCE
@@ -660,15 +575,7 @@ METHOD_DEPENDENT
 UNKNOWN
 ```
 
-Consensus label должен включать:
-
-- scope;
-- population/domain;
-- time/version;
-- source independence;
-- known dissent;
-- replication state;
-- uncertainty.
+Каждый label обязан иметь scope, time/version, source independence, replication state, dissent и uncertainty.
 
 ```text
 Consensus
@@ -679,184 +586,108 @@ Consensus
 
 ---
 
-# Part D — 🔗 Combined flow
+# Part D — 🧪 Scenarios and metamorphic tests
 
-## 21. End-to-end research flow
+## 19. Scenario contracts
 
-```text
-USER QUERY
-   ↓
-Explicit communication requests
-   ↓
-Task classification + decomposition
-   ↓
-Cognitive Requirement Profile
-   ↓
-Evidence / provenance / contradictions
-   ↓
-Institutional Epistemic Context (when material)
-   ↓
-Alternatives + uncertainty + scope
-   ↓
-Governed Synthesis
-   ↓
-Authority / Capability Check
-   ↓
-Contextual Communication Adaptation
-   ↓
-Character & Voice
-   ↓
-ANSWER + bounded explanation artifacts
-```
-
-Не сохраняется скрытая chain-of-thought. Допустимо сохранять:
-
-```text
-✅ task classification
-✅ selected profile and reason codes
-✅ evidence references
-✅ uncertainty
-✅ contradictions
-✅ alternatives
-✅ institutional context facts and unknowns
-✅ communication decision
-✅ final synthesis receipt
-```
-
----
-
-# Part E — 🧪 Scenario contracts
-
-## 22. Communication scenarios
+### Communication
 
 ```text
 CCA-SC-001  Same Claim for Novice and Expert
 CCA-SC-002  User Corrects False Expertise Assumption
-CCA-SC-003  Simplification Must Preserve Safety Limitation
-CCA-SC-004  Emotional Request Must Not Change Truth Status
-CCA-SC-005  Metaphor Risks Becoming a Factual Claim
-CCA-SC-006  Accessibility Adaptation without Meaning Loss
-CCA-SC-007  Requested Brevity Conflicts with Material Uncertainty
-CCA-SC-008  Audience Status Must Not Trigger Flattery
+CCA-SC-003  Simplification Preserves Safety Limitation
+CCA-SC-004  Emotional Request Does Not Change Truth Status
+CCA-SC-005  Metaphor Risks Becoming Fact
+CCA-SC-006  Requested Brevity Conflicts with Material Uncertainty
+CCA-SC-007  Audience Status Does Not Trigger Flattery
 ```
 
-## 23. Cognitive-profile scenarios
+### Cognitive profile
 
 ```text
 CRP-SC-001  Code Task Requires Exact Version and Tests
 CRP-SC-002  Scientific Claim Requires Counterevidence Search
-CRP-SC-003  Casual Conversation Contains High-Risk Medical Claim
+CRP-SC-003  Casual Conversation Contains High-Risk Factual Claim
 CRP-SC-004  Mixed Research and Implementation Task
 CRP-SC-005  Tool Failure Triggers Profile Transition
 CRP-SC-006  Exploration Reaches Resource Boundary
-CRP-SC-007  Profile Transition Preserves Contradictions
-CRP-SC-008  Creative Hypothesis Must Not Become Belief
+CRP-SC-007  Transition Preserves Contradictions
+CRP-SC-008  Creative Hypothesis Does Not Become Belief
 ```
 
-## 24. Institutional-context scenarios
+### Institutional context
 
 ```text
-IEC-SC-001  Industry-Funded Study with Strong Independent Replication
-IEC-SC-002  Publicly Funded Study with Shared Dataset Dependence
-IEC-SC-003  Underfunded Question with Insufficient Evidence
-IEC-SC-004  Failed Replication with Method Comparability Limits
-IEC-SC-005  Ten Reviews Derived from One Corpus
-IEC-SC-006  Undeclared Conflict Alleged without Evidence
-IEC-SC-007  Supported Publication Suppression but Unproven Target Claim
-IEC-SC-008  Consensus Label Changes after New Independent Evidence
-IEC-SC-009  Negative Results Are Structurally Underrepresented
-IEC-SC-010  Conflict Recorded without Automatic Source Rejection
+IEC-SC-001  Industry-Funded Study with Independent Replication
+IEC-SC-002  Publicly Funded Studies Share One Dataset
+IEC-SC-003  Underfunded Question Remains Under-Evidenced
+IEC-SC-004  Failed Replication Has Comparability Limits
+IEC-SC-005  Ten Reviews Are Derived from One Corpus
+IEC-SC-006  Undeclared Conflict Is Alleged without Evidence
+IEC-SC-007  Suppression Is Supported but Target Claim Is Unproven
+IEC-SC-008  Consensus Changes after Independent Evidence
+IEC-SC-009  Conflict Recorded without Automatic Rejection
 ```
 
----
-
-# Part F — 🔁 Metamorphic tests
-
-## 25. Communication invariance
+## 20. Metamorphic tests
 
 ```text
 MT-CCA-001
-same synthesis
-+ novice register
-+ expert register
-→ same claim set
-→ same confidence
-→ same contradiction state
+same synthesis + novice register + expert register
+→ same claims, confidence and contradiction state
 ```
 
 ```text
 MT-CCA-002
-same evidence
-+ praise from user
-+ criticism from user
+same evidence + praise + criticism
 → same factual assessment
 → no status-flattery adaptation
 ```
 
 ```text
-MT-CCA-003
-same safety-critical conclusion
-+ requested extreme brevity
-→ decisive warning remains visible
-```
-
-## 26. Cognitive-profile invariance
-
-```text
 MT-CRP-001
-same scientific claim
-+ conversational output
-+ formal research output
-→ same evidence requirements
-→ same claim status
+same scientific claim + conversational output + formal output
+→ same evidence requirements and claim status
 ```
 
 ```text
 MT-CRP-002
-same task
-+ larger computation budget
+same task + larger computation budget
 → possibly deeper analysis
-→ no automatic increase in authority or confidence
+→ no automatic authority or confidence increase
 ```
 
 ```text
 MT-CRP-003
 profile transition
-→ claims and evidence preserved
-→ rejected alternatives remain attributable
+→ claims, evidence, contradictions and rejected alternatives preserved
 ```
-
-## 27. Institutional-context invariance
 
 ```text
 MT-IEC-001
-same methods and data
-+ different sponsor identity
-→ conflict context may change
-→ result not automatically inverted
+same methods and data + different sponsor identity
+→ context may change
+→ result is not automatically inverted
 ```
 
 ```text
 MT-IEC-002
-same weak evidence
-+ hypothesis described as unpopular
+same weak evidence + hypothesis described as unpopular
 → truth status unchanged
 ```
 
 ```text
 MT-IEC-003
 suppression becomes supported
-→ suppression claim status changes
-→ target scientific claim still evaluated separately
+→ suppression claim changes
+→ target claim remains separately evaluated
 ```
 
 ---
 
-# Part G — 🛡️ Failure handling
+# Part E — 🛡️ Failure handling
 
-## 28. Fail-closed / fail-honest outcomes
-
-Эти модели не выдают permissions. Для epistemic failures используются честные outcomes:
+## 21. Fail-honest outcomes
 
 ```text
 INSUFFICIENT_CONTEXT
@@ -873,99 +704,109 @@ CAPABILITY_NOT_AUTHORIZED
 ABSTAIN
 ```
 
-`ABSTAIN` не должен маскироваться красивой подачей.
+`ABSTAIN` и uncertainty нельзя скрывать через Character или красивую подачу.
+
+Не сохраняется hidden chain-of-thought. Допустимы только проверяемые reasoning artifacts:
+
+```text
+✅ task classification
+✅ selected profile and reason codes
+✅ evidence references
+✅ uncertainty and contradictions
+✅ alternatives and scope limits
+✅ institutional context facts and unknowns
+✅ communication decision
+✅ final synthesis receipt
+```
 
 ---
 
-# Part H — 🗺️ Integration map
+# Part F — 🗺️ Integration map
 
-## 29. Владение правилами
+## 22. Владение правилами
 
-Этот файл является исследовательским integration note, а не постоянным authority owner. При будущей стабилизации положения должны быть распределены:
+Этот файл — integration note, а не постоянный authority owner.
 
 ### `MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md`
 
-Добавить:
+Перенести после review:
 
 - Contextual Communication Adaptation;
-- Communication Context / Decision Records;
+- Communication Context and Decision;
 - audience uncertainty;
-- Style/Meaning invariance;
-- communication scenarios and tests.
+- communication scenarios and metamorphic tests.
 
 ### `MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`
 
-Добавить:
+Перенести после review:
 
 - Cognitive Requirement Profile;
 - mixed-task decomposition;
 - profile transitions;
-- relation to Governed Synthesis;
-- explicit `profile ≠ identity` boundary.
+- связь с Governed Synthesis;
+- `profile ≠ identity` boundary.
 
 ### `GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`
 
-Добавить:
+Перенести после review:
 
 - Institutional Epistemic Context;
 - funding and sponsor role;
-- replication state;
-- evidence scarcity;
+- replication and evidence scarcity;
 - Suppression Claim Gate;
-- source/consensus labels.
+- consensus labels.
 
 ### `POST_P0_ROADMAP_V0.1.md`
 
-Не менять priority. Допустима только future backlog reference после отдельного review.
+Priority не менять. Возможна только future backlog reference после independent review.
 
 ### `CURRENT_STATUS.md`
 
-Не повышать implementation markers. После merge этого research note допустима запись:
+Не повышать implementation markers. Допустим только статус:
 
 ```text
-Contextual cognition research note
+Contextual cognition research
 → DOCS_ONLY · NOT IMPLEMENTED · NO RUNTIME AUTHORITY
 ```
 
 ---
 
-# Part I — 🛠️ Engineering handoff for Cursor
+# Part G — 🛠️ Exact handoff for Cursor
 
-## 30. Scope
+## 23. Cursor scope
 
-Cursor должен работать только после review этого integration note и в отдельной ветке/PR.
+Cursor работает только после review этого integration note и в отдельной ветке/PR.
 
-Разрешённый scope:
+Разрешено:
 
-1. распределить утверждённые разделы по трём существующим research/spec documents;
-2. добавить cross-links без создания competing authority;
-3. добавить scenario IDs и metamorphic tests;
-4. обновить navigation / Quick Reference только как `DOCS_ONLY · NOT IMPLEMENTED`;
-5. добавить структурные validator checks, если они не требуют runtime semantics;
-6. запустить все repository checks.
+1. построить file-impact map до изменений;
+2. распределить reviewed sections по трём owning documents;
+3. добавить cross-links без competing authority;
+4. добавить scenario IDs и metamorphic tests;
+5. обновить navigation/Quick Reference только как `DOCS_ONLY · NOT IMPLEMENTED`;
+6. добавить structural validators для links/duplicate IDs/markers, если это не runtime semantics;
+7. запустить полный repository validation.
 
-Запрещённый scope:
+Запрещено:
 
 ```text
-❌ любые изменения src/mentaury/
-❌ Character Engine
-❌ Audience runtime
-❌ Cognitive router runtime
+❌ изменения src/mentaury/
+❌ Audience, Character или Cognitive Router runtime
 ❌ automatic evidence reweighting
 ❌ Capability Lease implementation
 ❌ Action Gate / Tool execution
-❌ изменение Canon
-❌ изменение P1-001 priority
+❌ Canon changes
+❌ P1-001 priority changes
 ❌ merge без independent review
 ```
 
-## 31. Exact Cursor task
+## 24. Cursor prompt
 
 ```text
 Repository: velantrian/velantrim-mentaury-soul
-Base: latest main
+Base: latest main (or the reviewed PR branch specified by owner)
 
-Read first:
+Read in order:
 1. docs/CURRENT_STATUS.md
 2. docs/research/POST_P0_ROADMAP_V0.1.md
 3. docs/MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md
@@ -974,100 +815,94 @@ Read first:
 6. docs/research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md
 
 Goal:
-Distribute the reviewed contracts from the integration note into the existing owning documents without changing runtime authority or roadmap priority.
+Distribute the reviewed contracts from the integration note into the existing owning documents without changing runtime authority, Canon or roadmap priority.
+
+Before edits, report:
+- exact file-impact map;
+- existing overlapping sections;
+- proposed destination for every contract;
+- any contradiction or duplicate terminology.
 
 Required outputs:
-- file impact map before edits;
-- exact sections added/changed;
 - no src/ changes;
 - no Canon changes;
 - no P1-001 priority change;
-- scenario and metamorphic IDs remain unique;
-- links resolve;
-- terminology is consistent;
-- full validation report;
+- unique scenario/metamorphic IDs;
+- valid relative links;
+- consistent terminology;
+- validation report;
 - list of intentionally deferred runtime work.
 ```
 
-## 32. Validation commands
-
-Cursor должен использовать существующие repository commands и дополнительно проверить diff hygiene:
+## 25. Validation commands
 
 ```text
 python scripts/validate.py
 python scripts/check_doc_freshness.py
-pytest
-python -m compileall src tests scripts
+python -m pytest
+python -m compileall -q src tests scripts
 git diff --check
 ```
 
-Если command names изменились, Cursor обязан прочитать `Makefile`, workflow и current repository docs, а не угадывать.
+Если commands изменились, Cursor обязан прочитать `Makefile` и workflow, а не угадывать.
 
 ---
 
-# Part J — ✅ Acceptance criteria
+# Part H — ✅ Acceptance and sync
 
-## 33. Docs acceptance
+## 26. Acceptance criteria
 
-Research work считается готовым к independent review, если:
+Research work готов к independent review, если:
 
 1. три модели имеют явные authority boundaries;
-2. communication adaptation не меняет epistemic result;
-3. cognitive profile не создаёт новую personality/identity;
-4. institutional context не создаёт automatic truth inversion;
-5. suppression claim отделён от target claim;
-6. mixed tasks decomposed;
-7. uncertainty и provenance сохраняются при transitions;
-8. scenario IDs и metamorphic tests определены;
-9. P1-001 остаётся первым roadmap milestone;
-10. runtime остаётся неавторизованным.
+2. communication adaptation сохраняет epistemic result;
+3. cognitive profile не создаёт personality/identity split;
+4. preliminary profile выбирается до retrieval и может быть versioned/revised;
+5. transition сохраняет evidence, contradictions и uncertainty;
+6. institutional context не создаёт automatic truth inversion;
+7. suppression claim отделён от target claim;
+8. mixed tasks decomposed;
+9. scenarios и metamorphic tests определены;
+10. P1-001 остаётся первым roadmap milestone;
+11. runtime остаётся неавторизованным.
 
-## 34. Future runtime gate
+## 27. Future runtime gate
 
-До любого runtime prototype необходимы:
+До runtime prototype необходимы:
 
 ```text
 reviewed docs
 → explicit owner GO
 → separate RFC
-→ threat model
-→ privacy analysis
+→ threat model and privacy analysis
 → bounded budgets
 → replayable decision receipts
 → adversarial corpus
-→ multilingual/paraphrase tests
+→ multilingual / paraphrase tests
 → false-positive / false-negative report
 → rollback path
 ```
 
 ```text
-Docs completeness
-≠ runtime safety
-
-Runtime prototype
-≠ production authorization
+Docs completeness ≠ runtime safety
+Runtime prototype  ≠ production authorization
 ```
 
----
-
-# Part K — 📚 Notion sync rule
+## 28. Notion sync
 
 Notion не синхронизируется как current architecture до merge и review.
 
-После принятия GitHub-документа Notion должен получить:
+После принятия GitHub-документа Notion получает:
 
 - human-readable summary;
-- ссылку на GitHub SHA/PR;
+- ссылку на PR и merged SHA;
 - `DOCS_ONLY · NOT IMPLEMENTED` marker;
 - rationale и rejected alternatives;
-- отдельное указание, что P1-001 priority не изменён.
+- явную отметку, что P1-001 priority не изменён.
 
 ```text
-GitHub
-→ authoritative technical contract
-
-Notion
-→ explanation, decision history and navigation
+GitHub → authoritative technical contract
+Notion → explanation, decision history and navigation
 ```
 
 ---
@@ -1076,16 +911,16 @@ Notion
 
 ```text
 Contextual Communication Adaptation
-→ объясняет по-разному
-→ не меняет истину
+→ explains differently
+→ does not change truth
 
 Cognitive Requirement Profile
-→ выбирает методы и глубину
-→ не меняет identity или authority
+→ selects methods and depth
+→ does not change identity or authority
 
 Institutional Epistemic Context
-→ показывает incentives, conflicts and evidence gaps
-→ не заменяет evidence подозрением
+→ exposes incentives, dependencies and evidence gaps
+→ does not replace evidence with suspicion
 
 All three
 → DOCS_ONLY
