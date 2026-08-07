@@ -1426,12 +1426,13 @@ PROJECT_HISTORY.md
 
 # 20. 🧠 Cognitive Requirement Profile
 
-> **2026-08-07:** перенесено и адаптировано из integration note
-> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
-> после архитектурного review. Этот раздел — единственный owning-контракт
-> для выбора методов, глубины проверки, tools и budgets под конкретную
-> задачу; integration note остаётся историей решения, а не параллельным
-> authority.
+> **2026-08-07:** предварительно распределено по результатам
+> implementation review из integration note
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
+> окончательное принятие ожидает independent review. Этот раздел — единственный
+> owning-контракт для выбора методов, глубины проверки, tools и budgets под
+> конкретную задачу; integration note остаётся decision record, а не
+> параллельным authority.
 
 ## 20.1 Почему не «режимы личности»
 
@@ -1476,28 +1477,58 @@ Class не определяет это различие, а Task Class опре�
 
 ## 20.3 Нормативный pipeline
 
+> **2026-08-07 (independent review fix):** предыдущая версия pipeline
+> допускала прочтение, при котором retrieval/tools применяются до
+> проверки полномочий. Это нарушало `Tool availability ≠ authorization
+> to use tool`. Planning инструментов, проверка полномочий и фактическое
+> исполнение теперь — три явно разделённых шага.
+
 ```text
 Query + explicit communication requirements
 → Task classification
 → Task decomposition
 → Preliminary Cognitive Requirement Profile
-→ Retrieval / tools / evidence
-→ Institutional Context where relevant
-→ Profile revision when task, risk or evidence changes
-→ Alternatives and uncertainty
+→ Retrieval / Tool Plan
+→ Capability Lease Check
+→ Scope Check
+→ Privacy / Consent Check
+→ Authorized Retrieval / Tool Execution
+→ Evidence Assessment
+→ Institutional Epistemic Context where material
+→ Profile Revision if task, risk or evidence changes
+→ Alternatives + uncertainty + scope limitation
 → Governed Synthesis
-→ Authority / Capability Check
-→ Communication Adaptation
+→ Final Output / Action Authority Check
+→ Contextual Communication Adaptation
 → Character & Voice
+→ Answer + bounded decision receipts
+```
+
+```text
+Planning a tool                 ≠ authorizing a tool
+Candidate tool                  ≠ permitted tool
+Capability reference            ≠ validated Capability Lease
+Retrieval authorization         ≠ external action authorization
+Profile transition              ≠ permission expansion
 ```
 
 ```text
 Preliminary Cognitive Requirement Profile
-→ выбирается до retrieval и tool use
+→ выбирается до Retrieval / Tool Plan
+
+Retrieval / Tool Plan
+→ только candidate tools; не исполняется до Capability Lease Check
+
+Capability Lease Check + Scope Check + Privacy / Consent Check
+→ обязательны до Authorized Retrieval / Tool Execution;
+   resolver сам не авторизован этим документом (см. P1-001
+   Capability Lease Resolution notes) — здесь фиксируется только
+   порядок шагов, а не реализация проверки
 
 Profile revision
 → допускается после обнаружения нового риска,
    противоречия, недостатка evidence или изменения scope
+→ не расширяет authorization_status уже denied/unverified tools
 ```
 
 ## 20.4 Task classes
@@ -1551,7 +1582,14 @@ cognitive_requirement_profile:
 
   tools:
     candidate_tools: []
-    required_capability_refs: []
+    requested_capability_refs: []
+    authorization_status:
+      - NOT_CHECKED
+      - AUTHORIZED
+      - DENIED
+      - UNVERIFIED
+    authorized_tools: []
+    denied_tools: []
     output_semantics: "EVIDENCE_OR_ARTIFACT_CANDIDATE_ONLY"
 
   budgets:
@@ -1572,6 +1610,15 @@ cognitive_requirement_profile:
 
 `exploration.profile` переиспользует профили Curiosity Policy (§13.1) —
 это не отдельная копия, а прямая ссылка на существующую политику.
+
+`requested_capability_refs` — это только *запрошенные* ссылки на
+capability lease, а не разрешение. Нельзя использовать
+`requested_capability_refs` так, будто наличие ссылки уже означает
+разрешение: инструмент переходит из `candidate_tools` в
+`authorized_tools` только после `Capability Lease Check` (§20.3) с
+результатом `AUTHORIZED`; до этого его `authorization_status` остаётся
+`NOT_CHECKED` или `UNVERIFIED`, и `Authorized Retrieval / Tool Execution`
+для него запрещён.
 
 ## 20.6 Domain-specific requirements
 
@@ -1801,6 +1848,6 @@ Prototype
 - [Current Status](../CURRENT_STATUS.md)
 - [Character & Presence Spec](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
 - [Genesis Heritage, Interpretation & Human Paths Atlas Notes](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
-- [Contextual Cognition & Epistemic Context Notes (integration note)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
+- [Contextual Cognition & Epistemic Context (architecture decision record)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [Problem and Purpose](../overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
 - [Project History](../PROJECT_HISTORY.md)
