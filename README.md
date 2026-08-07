@@ -18,13 +18,20 @@ P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
 POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
 P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
-CONTEXTUAL_COGNITION_RESEARCH_DOCS_ONLY_NOT_IMPLEMENTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
+CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_DRAFT_PENDING_REVIEW
 
 First implementation profile: Python 3.13 + standard-library SQLite
+```
+
+```text
+Research presence
+≠ roadmap priority
+≠ runtime authorization
+≠ implementation milestone
 ```
 
 **Важно:** Mentaury не заявляет о создании доказанного сознания, субъективного опыта или мистической души. Реализованные P0-milestones являются инфраструктурным фундаментом, а не готовой цифровой личностью.
@@ -124,10 +131,13 @@ Identity Continuity:
 │   ├── P0-014 belief lifecycle ✅
 │   └── P0-015 Evidence Gate ✅
 │
-├── 🗺️ Post-P0 — docs-only
+├── 🗺️ Post-P0 Execution Roadmap — docs-only
 │   ├── Roadmap v0.1 ✅ adopted
-│   ├── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED
-│   └── Contextual Cognition research 🟡 docs · NOT IMPLEMENTED
+│   └── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED · first milestone
+│
+├── 🧭 Research side-tracks — docs-only, no execution priority
+│   └── Contextual Cognition & Epistemic Context 🟡 DRAFT · PENDING INDEPENDENT REVIEW
+│       (distributed into Character / Identity / Genesis Heritage)
 │
 ├── 🧠 Memory & Belief — minimal M2 contracts implemented; runtime absent
 │   ├── M0 working
@@ -441,7 +451,7 @@ Navigation
 - [⚖️ P0-015 Deterministic Evidence Gate](docs/P0_015_EVIDENCE_GATE.md)
 - [🗺️ Post-P0 Roadmap v0.1](docs/research/POST_P0_ROADMAP_V0.1.md)
 - [🔐 Capability Lease Resolution Notes v0.1](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-- [🧭 Contextual Cognition & Epistemic Context Notes (integration note)](docs/research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
+- [🧭 Contextual Cognition & Epistemic Context (architecture decision record)](docs/research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [🧱 Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 ## Research
