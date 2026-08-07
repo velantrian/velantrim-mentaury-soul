@@ -29,7 +29,9 @@ NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
 STORAGE_GRAPH_PROFILE_CANDIDATES_CAPTURED_DOCS_ONLY
 
 First implementation profile: Python 3.13 + standard-library SQLite
-Future profile candidates (NOT SELECTED): PostgreSQL; graph indexes (Graphiti / LadybugDB / …)
+Future profile candidates (NOT SELECTED): PostgreSQL;
+  temporal context-graph framework candidate (Graphiti);
+  embedded graph database/index candidate (LadybugDB)
 ```
 
 ```text

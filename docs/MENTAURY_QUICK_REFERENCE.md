@@ -144,9 +144,10 @@ Boundary:   no Native Kernel integration / shared runtime / M3 write
 
 ```text
 docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md
-PostgreSQL:            CAPTURED · NOT SELECTED
-Graphiti / LadybugDB:  CAPTURED · NOT SELECTED
-Current profile:       Python + SQLite retained
+PostgreSQL:                                     CAPTURED · NOT SELECTED
+Temporal context-graph framework (Graphiti):    CAPTURED · NOT SELECTED
+Embedded graph database/index (LadybugDB):      CAPTURED · NOT SELECTED
+Current profile:                                Python + SQLite retained
 ```
 
 ---

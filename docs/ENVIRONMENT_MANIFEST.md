@@ -95,6 +95,7 @@ minimal, evidence-gated belief lifecycle. PR #32 closed a post-merge
 lifecycle/reducer boundary gap, hardened digest schema admission, and added
 a derived-doc freshness CI gate. No identity, relationship, Character,
 Curiosity or Exo-Cortex runtime is present, and none of the P0 milestones
-authorize one. PostgreSQL and graph engines (Graphiti, LadybugDB, etc.) remain
-captured future profile candidates only; see
+authorize one. PostgreSQL, the temporal context-graph framework candidate
+Graphiti, and the embedded graph database/index candidate LadybugDB remain
+captured future profile candidates only, each with distinct roles; see
 `docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`.

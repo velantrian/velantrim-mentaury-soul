@@ -19,6 +19,8 @@ P1-001 priority impact:       NONE
 > Этот документ фиксирует будущие кандидаты engineering profiles. Он не выбирает
 > PostgreSQL, Graphiti, LadybugDB или любой другой движок, не меняет Canon и не
 > авторизует runtime. Текущий reference profile остаётся `Python + SQLite`.
+> Graphiti и LadybugDB — это **разные классы продуктов**, а не взаимозаменяемые
+> синонимы «graph engine»: см. раздел 4 для точного разделения.
 
 ```text
 Candidate named ≠ adopted profile
@@ -41,7 +43,8 @@ Python + SQLite = replaceable first profile
 Возникли два естественных вопроса владельца:
 
 1. почему сейчас SQLite, а не PostgreSQL как более мощный main store;
-2. нужен ли graph layer (Graphiti, LadybugDB или аналог) для relationships.
+2. нужен ли graph layer — temporal context-graph framework вроде Graphiti или
+   embedded graph database вроде LadybugDB — для relationships.
 
 Ответ на текущем checkpoint: **не подключать**, а сохранить как `CAPTURED`
 кандидаты с явными non-claims и критериями будущего выбора.
@@ -110,32 +113,56 @@ PostgreSQL mentioned
 
 ---
 
-## 4. 🕸️ Graph engines — future relationship-index candidates
+## 4. 🕸️ Graph-related candidates — two distinct product classes
+
+Graphiti и LadybugDB **не однотипны** и не должны обобщаться под одной меткой
+«graph engine». Ниже — две отдельные карточки.
+
+### 4.1. 🕰️ Graphiti — temporal context-graph framework candidate
 
 ```text
-Research ID:     R-GRAPH-IDX-001
-Candidates:      Graphiti, LadybugDB, and unspecified future graph/index engines
-Disposition:     CAPTURED · NOT SELECTED
-Role if ever adopted: derived relationship index / projection candidate
+Research ID:          R-GRAPH-TEMPORAL-001
+Candidate:             Graphiti
+Product class:         temporal context-graph framework / engine
+Role:                  строит и запрашивает изменяющиеся во времени context graphs
+Disposition:           CAPTURED · NOT SELECTED
+Role if ever adopted:  derived temporal relationship/context projection candidate
+Authority over identity / M3: NONE
+```
+
+### 4.2. 🗄️ LadybugDB — embedded graph database candidate
+
+```text
+Research ID:          R-GRAPH-EMBEDDED-001
+Candidate:             LadybugDB
+Product class:         embedded property-graph database / DBMS
+Role:                  самостоятельный слой хранения и выполнения graph-запросов
+Disposition:           CAPTURED · NOT SELECTED
+Role if ever adopted:  alternative/derived storage+query layer candidate
 Authority over identity / M3: NONE
 ```
 
 ### Текущая правда репозитория
 
-- graph DB runtime в Mentaury **не подключён**;
+- ни temporal context-graph framework, ни embedded graph database в Mentaury
+  **не подключены**;
 - relationships/commitments остаются research (`DOCS_ONLY`);
 - упоминания graph edges в privacy/research notes ≠ выбранный graph product;
 - Native Kernel ADR-0006 и Mentaury relationship research могут позже
   информировать форму, но не импортируют чужой runtime.
 
-### Почему не подключать Graphiti / LadybugDB сейчас
+### Почему не подключать ни Graphiti, ни LadybugDB сейчас
 
 - relationship runtime и identity runtime ещё не авторизованы;
-- graph index — это derived surface (privacy, rebuild, redaction, consent);
+- framework для temporal context graphs (Graphiti) и embedded graph DBMS
+  (LadybugDB) решают разные задачи и требуют раздельной оценки, а не одного
+  решения «graph да/нет»;
+- graph index/store — это derived surface (privacy, rebuild, redaction,
+  consent);
 - ранний выбор vendor/engine закрепляет мастерскую раньше чертежа;
 - P1-001 (Capability Lease Resolution) остаётся первым execution milestone.
 
-### Что должно быть доказано до любого selection
+### Что должно быть доказано до любого selection (для каждого кандидата отдельно)
 
 ```text
 authoritative history remains source of truth
@@ -146,14 +173,24 @@ authoritative history remains source of truth
 + Non-Projection review
 + explicit owner RFC / ADR inside Mentaury
 + independent review
++ product-class-specific evaluation (framework vs DBMS have different
+  operational, deployment and threat surfaces)
 ```
 
 ### Explicit non-claims
 
 ```text
-Graphiti / LadybugDB named
+Graphiti named
 ≠ selected
+≠ same product class as LadybugDB
 ≠ relationship runtime authorized
+
+LadybugDB named
+≠ selected
+≠ same product class as Graphiti
+≠ relationship runtime authorized
+
+Either candidate named
 ≠ shared graph with Native Kernel / Titan / Crystal
 ≠ automatic M2/M3 write path
 ```
@@ -192,12 +229,13 @@ roadmap jump:      FORBIDDEN
 ## 6. 📌 Текущее решение
 
 ```text
-SQLite reference profile:     RETAINED
-PostgreSQL:                   CAPTURED · NOT SELECTED
-Graphiti / LadybugDB / other: CAPTURED · NOT SELECTED
-Runtime wiring:               NOT AUTHORIZED
-Execution milestone created:  NO
-P1-001 priority:              UNCHANGED
+SQLite reference profile:                    RETAINED
+PostgreSQL:                                  CAPTURED · NOT SELECTED
+Graphiti (temporal context-graph framework): CAPTURED · NOT SELECTED
+LadybugDB (embedded graph database):         CAPTURED · NOT SELECTED
+Runtime wiring:                              NOT AUTHORIZED
+Execution milestone created:                 NO
+P1-001 priority:                             UNCHANGED
 ```
 
 См. также:

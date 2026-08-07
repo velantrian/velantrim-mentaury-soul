@@ -668,13 +668,15 @@ Authoritative capture note:
 [`docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md)
 
 ```text
-Current reference profile:  Python + SQLite
-PostgreSQL:                 CAPTURED · NOT SELECTED · future storage profile candidate
-Graph engines
-(Graphiti / LadybugDB / …): CAPTURED · NOT SELECTED · future relationship-index candidates
-Selection:                  NOT MADE
-Runtime wiring:             FORBIDDEN in this checkpoint
-P1-001 priority:            UNCHANGED
+Current reference profile:            Python + SQLite
+PostgreSQL:                           CAPTURED · NOT SELECTED · future storage profile candidate
+Temporal context-graph framework
+candidate (Graphiti):                 CAPTURED · NOT SELECTED
+Embedded graph database/index
+candidate (LadybugDB):                CAPTURED · NOT SELECTED
+Selection:                            NOT MADE
+Runtime wiring:                       FORBIDDEN in this checkpoint
+P1-001 priority:                      UNCHANGED
 ```
 
 ```text
