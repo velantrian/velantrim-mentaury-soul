@@ -1,15 +1,16 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации:                  2026-08-06
+Дата фиксации:                  2026-08-07
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
+Verified implementation head:  e15864e7837b2c12e7574b55678340c25e15c003
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
 P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
+AUDIT_2026_08_06_HARDENING_MERGED_PR_32
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
@@ -340,6 +341,43 @@ P0-001…P0-015 → IMPLEMENTED, MERGED AND RETAINED-CI VALIDATED
 This closes the current P0 implementation plan. It does not authorize a
 long-running agent, domain service, M3 mutation path, tool execution or external
 action boundary.
+
+---
+
+# ✅ Post-P0-015 audit hardening — PR #32
+
+Merged PR:
+
+```text
+PR:                  #32
+Merge SHA:           e15864e7837b2c12e7574b55678340c25e15c003
+Main push run:       31150100906
+Python:              CPython 3.13.14
+Full pytest:         277 passed on main
+Scope:               hardening + derived-doc sync; no new P0 milestone
+```
+
+Реализовано после внешнего аудита линии P0-014/P0-015:
+
+- lifecycle/reducer invariant: `BeliefLifecycle.decide()` now rejects
+  `ATTACH_EVIDENCE` / `REGISTER_CONTRADICTION` / `REVISE_BELIEF` on Evidence
+  Gate-owned (`supported` / `contradicted`) beliefs via
+  `BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF`, matching
+  `BeliefReducer.apply()`;
+- structural `StringSpec.pattern` + shared `sha256_digest_spec()` for all
+  Evidence Gate digest fields at schema-admission boundary;
+- derived-status doc freshness gate (`scripts/check_doc_freshness.py`) wired
+  into permanent CI and `make check`;
+- CI job `timeout-minutes` raised to 30 after a GitHub Actions platform outage
+  left jobs queued with `runner_id=0` and cancelled before any step ran;
+- governance findings recorded as **recommendations pending owner decision**,
+  not as binding policy.
+
+```text
+Audit hardening merged ≠ new P0 milestone
+Green post-merge CI ≠ POST-P0 roadmap authorization
+Governance recommendations ≠ adopted policy
+```
 
 ---
 
