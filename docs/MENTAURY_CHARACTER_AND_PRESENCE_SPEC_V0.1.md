@@ -279,11 +279,12 @@ Character Policy ≠ reasoning authority
 
 ### 6.4 🗣️ Contextual Communication Adaptation
 
-> **2026-08-07:** перенесено и адаптировано из integration note
-> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
-> после архитектурного review. Этот раздел — единственный owning-контракт
-> для адаптации подачи под собеседника; integration note остаётся историей
-> решения, а не параллельным authority.
+> **2026-08-07:** предварительно распределено по результатам
+> implementation review из integration note
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
+> окончательное принятие ожидает independent review. Этот раздел — единственный
+> owning-контракт для адаптации подачи под собеседника; integration note
+> остаётся decision record, а не параллельным authority.
 
 Voice Contract (§6) задаёт оси тона, но не задаёт воспроизводимый способ
 выбора точки на этих осях под конкретного собеседника. Contextual
