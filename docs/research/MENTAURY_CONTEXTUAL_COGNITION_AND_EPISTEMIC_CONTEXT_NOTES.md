@@ -2,9 +2,10 @@
 
 ```text
 Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.2
+Версия:                       0.3
 Дата:                         2026-08-07
 Owner direction:              PREPARE ARCHITECTURE + ENGINEERING HANDOFF
+Distribution status:          DRAFTED BY CURSOR · PENDING INDEPENDENT REVIEW (§29)
 Runtime authority:            NONE
 Truth authority:              NONE
 Capability authority:         NONE
@@ -903,6 +904,37 @@ Notion не синхронизируется как current architecture до me
 ```text
 GitHub → authoritative technical contract
 Notion → explanation, decision history and navigation
+```
+
+---
+
+## 29. 📊 Integration Status Table
+
+> **2026-08-07:** Контракты распределены по owning-документам после
+> архитектурного review, выполненного в отдельной ветке/PR. Этот файл
+> **остаётся integration note**, а не новым authoritative owner —
+> распределение ниже помечено `DRAFTED`, а не `ADOPTED`, до independent
+> review, требуемого adopted governance policy (`CURRENT_STATUS.md`
+> § Independent review policy).
+
+| Contract | Owning document | Integration status | Runtime status | Review status |
+|---|---|---|---|---|
+| Contextual Communication Adaptation | [`MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md`](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md) §6.4, §10 (CCA-SC-*), §11 (MT-CCA-*) | DRAFTED | NO_RUNTIME_AUTHORITY | PENDING_INDEPENDENT_REVIEW |
+| Cognitive Requirement Profile | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §20, §16.9 (CRP-SC-*) | DRAFTED | NO_RUNTIME_AUTHORITY | PENDING_INDEPENDENT_REVIEW |
+| Institutional Epistemic Context | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) §14, §15 (IEC-SC-*), §16 (MT-IEC-*) | DRAFTED | NO_RUNTIME_AUTHORITY | PENDING_INDEPENDENT_REVIEW |
+
+Найденное при распределении отклонение от изначально предложенной карты
+(задокументировано в PR): `research_source_record` (source-level admission,
+`independence_class`) физически принадлежит Identity Continuity Notes §15,
+а не Genesis Heritage — Institutional Epistemic Context (claim-level,
+funding/conflicts/replication) размещён в Genesis Heritage согласно
+плану, но с явным cross-reference на Identity Continuity §15, чтобы не
+создать второй Admission Gate под похожим именем.
+
+```text
+Distribution drafted ≠ distribution adopted
+Cursor placement ≠ independent review outcome
+Owner/independent-reviewer may still relocate or reject any part
 ```
 
 ---
