@@ -3,7 +3,7 @@
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
 Дата:       2026-08-07
-Синхронно:  GitHub main@0302c42e0482a5909d1d883ee9ddc7e3e041d31a + PR #34 (post-P0 governance, roadmap v0.1, lease notes)
+Синхронно:  GitHub main@0e29c9ebc9c9f2ab9a228a32899e9db8021923c1 after merged PR #34 (post-P0 governance + roadmap + lease notes)
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -505,13 +505,13 @@ fail-closed conflict when qualifying evidence exists on both sides
 reducer v2 recomputes and replay-verifies the full receipt
 ```
 
-Последняя принятая проверка на `main` (после audit hardening, PR #32):
+Последняя принятая проверка на `main` (после post-P0 owner path, PR #34):
 
 ```text
 validator  → PASS
 pytest     → 277 passed
 compileall → PASS
-CI         → Mentaury CI, permanent, green on main (run 31150100906)
+CI         → Mentaury CI, permanent, green on main (run 31153454503)
 ```
 
 ---

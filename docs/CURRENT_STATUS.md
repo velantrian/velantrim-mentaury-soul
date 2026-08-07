@@ -4,7 +4,7 @@
 Дата фиксации:                  2026-08-07
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  0302c42e0482a5909d1d883ee9ddc7e3e041d31a
+Verified implementation head:  0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -14,6 +14,7 @@ AUDIT_2026_08_06_HARDENING_MERGED_PR_32
 POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
 P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
+POST_P0_OWNER_PATH_MERGED_PR_34
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
@@ -374,8 +375,8 @@ Scope:               hardening + derived-doc sync; no new P0 milestone
   into permanent CI and `make check`;
 - CI job `timeout-minutes` raised to 30 after a GitHub Actions platform outage
   left jobs queued with `runner_id=0` and cancelled before any step ran;
-- governance findings recorded as **recommendations pending owner decision**,
-  not as binding policy.
+- governance findings initially recorded as recommendations pending owner
+  decision (later adopted as policy in PR #34).
 
 ```text
 Audit hardening merged ≠ new P0 milestone
@@ -513,15 +514,34 @@ still only recorded and equality-checked. These notes define how a future
 fail-closed resolver MUST behave; they do not make `AuthorityRef` a
 validated permission grant.
 
+### Merge evidence — PR #34
+
+```text
+PR:                  #34
+Merge SHA:           0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
+Main push run:       31153454503
+Python:              CPython 3.13.14
+Full pytest:         277 passed on main
+Scope:               docs/policy only; no src/ lease resolver
+Copilot review:      4 consistency nits addressed before merge
+```
+
+```text
+Owner path merged ≠ P1-001 Implemented
+Docs adopted ≠ capability lease resolver authorized
+Green CI ≠ domain runtime GO
+```
+
 ---
 
 # 🏁 Следующее действие
 
 ```text
 P1-001 Capability Lease Resolution
-Status:              DOCS_ONLY · NOT IMPLEMENTED
+Status:              DOCS_ONLY · NOT IMPLEMENTED · MERGED IN MAIN (PR #34)
 Roadmap:             POST_P0_ROADMAP_V0.1 adopted
 Docs:                research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 Next concrete step:  independent review + docs freeze of lease notes
+Ops follow-up:       mirror independent-review policy in GitHub branch protection
 Forbidden until GO:  src/ lease registry, resolve(), Action Gate, domain runtime
 ```

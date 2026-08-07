@@ -2,7 +2,7 @@
 
 ```text
 Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Main SHA:           0302c42e0482a5909d1d883ee9ddc7e3e041d31a
+Main SHA:           0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
@@ -38,8 +38,8 @@ P0-013 R1 deterministic replay
 P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
 post-P0-015 audit hardening (PR #32; not a new P0 milestone)
-Post-P0 Roadmap v0.1 adopted (docs-only; not a P1 implementation)
-P1-001 Capability Lease Resolution notes (docs-only; NOT IMPLEMENTED)
+Post-P0 Roadmap v0.1 adopted (docs-only; PR #34; not a P1 implementation)
+P1-001 Capability Lease Resolution notes (docs-only; NOT IMPLEMENTED; PR #34)
 ```
 
 ## P0-009 implementation boundary
