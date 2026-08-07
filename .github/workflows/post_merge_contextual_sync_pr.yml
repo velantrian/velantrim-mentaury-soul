@@ -56,6 +56,8 @@ jobs:
 
           rm .github/workflows/post_merge_contextual_sync.yml
           rm .github/workflows/post_merge_contextual_sync_pr.yml
+          rm docs/research/POST_MERGE_SYNC_PR_BODY.md
+          rm docs/research/POST_MERGE_SYNC_INSTRUCTIONS.md
 
       - name: Validate synchronized repository state
         run: |
