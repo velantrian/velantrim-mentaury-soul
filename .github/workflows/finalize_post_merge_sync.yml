@@ -1,0 +1,63 @@
+name: Finalize stable post-merge sync wording
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    if: github.head_ref == 'agent/post-merge-contextual-cognition-sync'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out status-sync branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: agent/post-merge-contextual-cognition-sync
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+          check-latest: false
+
+      - name: Apply stable source-head wording
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('docs/CURRENT_STATUS.md')
+          text = path.read_text(encoding='utf-8')
+          old = 'Authoritative documentation head: 850cfe439c3bedd6a2bd4e806e9912283ed5be32'
+          new = 'Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one source-head marker, found {text.count(old)}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          rm .github/workflows/finalize_post_merge_sync.yml
+
+      - name: Validate final tree
+        run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip install --no-build-isolation --no-deps -e .
+          python -m pip check
+          python scripts/validate.py
+          python scripts/check_doc_freshness.py
+          python -m pytest
+          python -m compileall -q src tests scripts
+          git diff --check
+
+      - name: Commit and push final wording
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/CURRENT_STATUS.md .github/workflows/finalize_post_merge_sync.yml
+          git commit -m "docs: clarify synchronized source documentation head"
+          git push origin HEAD:agent/post-merge-contextual-cognition-sync
