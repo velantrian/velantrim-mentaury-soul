@@ -2,7 +2,7 @@
 
 ```text
 Статус:                       ADOPTED · ROADMAP · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1
+Версия:                       0.1 + P1-001 hardening alignment
 Дата:                         2026-08-07
 Owner decision:               ACCEPTED (repository owner)
 Runtime authority:            NONE
@@ -13,97 +13,100 @@ Canon modification authority: NONE
 Domain runtime:               STILL NOT AUTHORIZED
 ```
 
-> Этот документ закрывает precondition `POST-P0 ROADMAP REVIEW` из
-> [`CURRENT_STATUS.md`](../CURRENT_STATUS.md). Он определяет **один**
-> следующий bounded milestone и явно **не** разрешает domain runtime,
-> Tool execution, Action Gate или автоматические внешние side effects.
+> Этот документ определяет один следующий bounded milestone и не разрешает
+> domain runtime, Tool execution, Action Gate или автоматические внешние side
+> effects. Research-направления сохраняются в [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md),
+> но их наличие не меняет порядок выполнения.
+
+```text
+Roadmap adopted ≠ runtime authorized
+Research presence ≠ roadmap priority
+First milestone named ≠ milestone implemented
+```
 
 ---
 
-## 1. 🎯 Назначение
+## 1. 🎯 Purpose
 
 После P0-001…P0-015 в `main` есть replay-проверяемый event substrate,
-минимальный belief lifecycle и Evidence Gate. Следующий шаг — не
-«подключить runtime», а выбрать **один** ограниченный milestone с явными:
+минимальный belief lifecycle и Evidence Gate. Следующий шаг — не подключать
+полный runtime, а завершить один authority milestone с явными:
 
 - threat model;
-- authority boundary;
-- resource budgets;
-- rollback / replay criteria;
-- exit criteria до любого `src/` wiring.
-
-```text
-Roadmap adopted
-≠
-runtime authorized
-
-First milestone named
-≠
-milestone implemented
-```
+- deterministic resolution contract;
+- caller-supplied resource budgets;
+- replay and compatibility boundary;
+- docs-freeze gate;
+- independent review before any `src/` authorization.
 
 ---
 
 ## 2. 🚫 Non-claims
 
-Этот документ **не**:
-
 ```text
-❌ авторизует domain runtime / M0–M3 engines
-❌ меняет Canon v0.1
-❌ делает AuthorityRef «валидированным permission grant»
-❌ добавляет Tool Receipt / Action Gate runtime
-❌ помечает P1-001 как ✅ Implemented
-❌ поднимает freshness-markers выше P0-015
-❌ разрешает LLM-integration или autonomous goals
+❌ domain runtime / M0–M3 engines authorized
+❌ Canon v0.1 changed
+❌ AuthorityRef converted into a permission blob
+❌ Tool Receipt / Action Gate runtime added
+❌ P1-001 marked Implemented
+❌ LLM integration or autonomous goals authorized
+❌ research backlog promoted automatically
 ```
 
 ---
 
-## 3. 📦 Закрытие P0 (входные условия)
+## 3. 📦 P0 implementation boundary
 
 ```text
 P0-001…P0-015     → IMPLEMENTED IN MAIN
 PR #32            → post-P0-015 audit hardening merged
-PR #33            → authoritative status sync merged
-DOMAIN_RUNTIME    → NOT AUTHORIZED (сохраняется)
+PR #33 / #37      → authoritative status synchronization merged
+DOMAIN_RUNTIME    → NOT AUTHORIZED
 ```
 
-Оставшийся критический gap (из аудита 2026-08-06):
+The current authority gap remains:
 
 ```text
-AuthorityRef.capability_lease_id
-→ записывается и сравнивается на equality
-→ НЕ резолвится против lease registry
-→ сейчас НЕ несёт enforceable permission
+AuthorityRef.capability_lease_id + capability_revision
+→ recorded and equality-checked
+→ not resolved against a lease registry
+→ not an enforceable permission grant
 ```
+
+`P0 implementation line complete` does not mean all governance, operational or
+runtime risks are closed.
 
 ---
 
-## 4. ✅ Выбор первого milestone
+## 4. ✅ First bounded milestone
 
 **P1-001 — Capability Lease Resolution (docs-first).**
 
-Почему именно он:
+Why it remains first:
 
-1. уже записан как owner-accepted governance recommendation;
-2. блокирует любой честный authority-sensitive runtime;
-3. расширяет существующий stub Identity Continuity §12.3 без domain engines;
-4. узкий scope: resolution contract, lifecycle, fail-closed outcomes, adversarial scenarios — без Action Gate execution.
+1. honest authority-sensitive runtime depends on it;
+2. it extends an existing AuthorityRef without changing that P0 contract;
+3. it can be designed as a pure deterministic boundary;
+4. it does not require Character, Human Paths, M3 or Action Gate runtime;
+5. the owner already adopted the docs-first path.
 
 ```text
-P1-001 docs freeze
-→ независимый review
-→ только затем возможен отдельный, явно авторизованный
-   implementation PR (если owner даст GO)
+P1-001 docs hardening
+→ independent exact-head review
+→ docs freeze
+→ explicit owner GO
+→ only then a separate minimal implementation PR may be considered
 ```
 
-Отложено (не часть P1-001):
+Deferred and not part of P1-001:
 
 ```text
-Identity Continuity engine
+Identity Continuity runtime
 Controlled Origin ingestion
+Non-Projection runtime
 Character / Curiosity engines
+Human Paths runtime
+Knowledge Density / Humor / Conflict Navigator
 Tool Receipt runtime
 Action Gate execution
 Governed Synthesis engine
@@ -112,157 +115,230 @@ LLM integration
 
 ---
 
-## 5. 🃏 Карточка milestone: P1-001
+## 5. 🃏 P1-001 milestone card
 
 ### 5.1 Goal
 
-Заморозить docs-only спецификацию **разрешения** `AuthorityRef` против
-записи Capability Lease так, чтобы будущий resolver мог быть fail-closed,
-replay-aware и adversarial-testable — **без** выдачи runtime permissions
-этим документом.
+Freeze a docs-only contract for resolving an immutable `AuthorityRef` against an
+immutable caller-supplied registry snapshot so that a future resolver can be:
 
-Authoritative notes:
+```text
+pure
+fail-closed
+deterministic
+exact-lookup only
+resource-bounded
+adversarial-testable
+P0-compatible
+```
+
+Authoritative contract draft:
 
 [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 
-### 5.2 Threat model (кратко)
+### 5.2 Threat model
 
-| Угроза | Почему важна | Требование к спеке |
-|---|---|---|
-| Поддельный / неизвестный `lease_id` | equality ≠ existence | fail-closed `UNKNOWN_LEASE` |
-| Stale `capability_revision` | старый grant после revoke/rotate | fail-closed `REVISION_MISMATCH` |
-| Expired / revoked lease | side effect после отзыва | fail-closed; fork → `UNVERIFIED` |
-| Cross-stream / cross-purpose reuse | lease выдан на другое | purpose + scope match required |
-| Embedded permission copy | обход registry | `AuthorityRef` остаётся ссылкой |
-| Docs → silent runtime GO | authority expansion | явный owner GO на `src/` |
+| Threat | Required contract response |
+|---|---|
+| Registry unavailable | distinct fail-closed `REGISTRY_UNAVAILABLE` |
+| Unknown lease id | exact `UNKNOWN_LEASE` |
+| Stale or future revision | exact live-head `REVISION_MISMATCH` |
+| Forged / stale record digest | recompute canonical digest; deny |
+| Expired or revoked grant | deterministic lifecycle/time denial |
+| Cross-purpose reuse | exact purpose identifier equality |
+| Cross-scope reuse | typed exact-set containment |
+| Wildcard / semantic expansion | forbidden in v0.1 |
+| Embedded permission copy | AuthorityRef remains id + revision only |
+| Docs silently becoming runtime | separate explicit owner GO required |
+| Fork / restore retaining authority | destination live grant quarantined as UNVERIFIED |
+| Resource exhaustion | explicit `BUDGET_MISSING` / `BUDGET_EXHAUSTED` |
 
 ### 5.3 Authority boundary
 
 ```text
 AuthorityRef
-→ ссылка (lease_id + revision)
+→ immutable reference: lease_id + revision
 
 Capability Lease record
-→ внешняя (будущая) registry-запись
+→ external immutable registry record
 
-Resolution result
-→ ALLOW / DENY + machine reason code
+ResolutionResult
+→ ALLOW | DENY + one primary machine reason
 ≠ truth
 ≠ identity authority
-≠ M3 write permission
-≠ automatic Action Gate pass
+≠ M3 write
+≠ Action Gate pass
+≠ tool execution
 ```
 
-### 5.4 In scope / Out of scope
+### 5.4 In scope / out of scope
 
-**In scope (docs):**
+**In scope — docs:**
 
-- lease record contract и lifecycle states;
-- pure resolution algorithm (inputs → fail-closed outcomes);
-- fork / restore → `UNVERIFIED`;
-- adversarial scenario IDs;
-- P0 touchpoints (что уже есть; чего нельзя трогать без GO);
-- Evidence Gate / exit criteria для будущего runtime PR.
+- lease record and invariants;
+- exact live-head lookup;
+- no revision walk;
+- digest domain excluding `content_digest`;
+- lifecycle and caller-supplied time;
+- exact purpose / operation / typed scope / side-effect semantics;
+- explicit budgets and deny precedence;
+- fork / restore quarantine;
+- resolver-only adversarial scenarios;
+- P0 compatibility and authorization gates.
 
 **Out of scope:**
 
-- любой production resolver в `src/`;
-- Tool execution, network, side effects;
-- branch protection / GitHub settings automation;
-- изменение Canon.
+- resolver or registry code in `src/`;
+- network lookup or system-clock access;
+- Tool execution / Action Gate;
+- in-flight operation invalidation handling;
+- domain or identity mutation;
+- branch-protection automation;
+- Canon changes.
 
-### 5.5 Resource budgets (для будущего runtime; фиксируются уже сейчас)
+### 5.5 Resource budgets
+
+The future resolver must accept an explicit `ResolutionBudget` with named units.
+The initial contract uses:
 
 ```text
-max leases consulted per resolution     ≤ 1 exact lease_id lookup
-max revision history walk               ≤ 32
-max wall-clock (caller-supplied)        required; no unbounded scan
-max adversarial cases in first suite    ≥ 12 named scenarios
+max_registry_lookups   → exact lookup ceiling; v0.1 requires at least 1
+max_canonical_bytes    → maximum admitted lease bytes for digest recomputation
+max_scope_items        → maximum requested/allowed typed scope entries examined
 ```
 
-Бюджеты — контракт спеки. Числа могут быть уточнены до implementation GO,
-но «без бюджета» не допускается.
-
-### 5.6 Rollback / replay criteria
+Normative rules:
 
 ```text
-Resolution MUST be a pure function of:
-  (lease registry snapshot, AuthorityRef, action intent, time, budgets)
-
-R1 replay of events that only *record* AuthorityRef
-→ не требует lease registry (P0 поведение сохраняется)
-
-Future events that *depend* on resolution
-→ MUST embed enough evidence (receipt) to re-verify without ambient trust
+missing budget object → BUDGET_MISSING
+negative or insufficient ceiling → BUDGET_EXHAUSTED
+revision history walk → forbidden, budget = 0
+network or wall-clock budget → not applicable; both dependencies are forbidden
 ```
 
-Rollback: отказ resolution **никогда** не пишет domain state и не
-создаёт side effects.
+Concrete upper bounds may be tuned before implementation GO, but the units,
+precedence and fail-closed behavior must be frozen first.
 
-### 5.7 Exit criteria (docs freeze)
-
-P1-001 docs считаются frozen, когда:
-
-1. notes имеют явные Non-claims и rejection codes;
-2. lifecycle + resolution algorithm полны для fail-closed решений;
-3. ≥ 12 adversarial / scenario contracts названы;
-4. независимый review по adopted governance policy пройден
-   (см. `CURRENT_STATUS.md` § Governance policy);
-5. `CURRENT_STATUS` **не** помечает P1-001 как `✅ Implemented`
-   до появления кода в `main`.
+### 5.6 Replay / rollback / compatibility
 
 ```text
-Docs freeze ≠ runtime GO
-Independent review of docs ≠ permission to merge resolver code
+resolve() is a pure function of:
+registry snapshot
++ AuthorityRef
++ ActionIntent
++ evaluated_at
++ ResolutionBudget
+```
+
+P0 events that only record AuthorityRef remain replayable without a registry.
+P1-001 does not retroactively reinterpret or rewrite P0 events.
+
+```text
+DENY → no domain write, no event append, no side effect
+ALLOW → still no domain write, event append or side effect inside resolver
+```
+
+A future execution receipt is a separate milestone. The old cross-boundary
+scenario where a lease becomes invalid during an operation is not a resolver
+scenario and does not belong to P1-001 tests.
+
+### 5.7 Docs-freeze exit criteria
+
+P1-001 docs are frozen only when:
+
+1. the lease notes have explicit non-claims and typed inputs;
+2. digest self-reference is removed by an exact exclusion rule;
+3. `REGISTRY_UNAVAILABLE`, `BUDGET_MISSING` and `BUDGET_EXHAUSTED` are distinct;
+4. one normative first-match deny table exists;
+5. purpose, operation and scope semantics are exact, with no wildcard or semantic matching;
+6. exact live-head lookup replaces revision walking;
+7. lifecycle, time, supersession and fork/restore semantics are unambiguous;
+8. resolver scenarios CAP-SC-001…020 are internally consistent;
+9. independent exact-head review passes under the adopted policy;
+10. `CURRENT_STATUS` still says implementation is not authorized.
+
+```text
+Docs freeze ≠ owner GO
+Owner GO ≠ full domain runtime authorization
 ```
 
 ---
 
-## 6. 🔐 Authorization gate перед `src/`
+## 6. 🔐 Authorization gate before `src/`
 
-Любой PR, добавляющий lease registry / resolver в `src/mentaury/`, требует:
+Any PR adding a lease registry or resolver requires all of:
 
-1. frozen P1-001 docs + independent review;
-2. отдельный owner GO в `CURRENT_STATUS` («P1-001 implementation authorized»);
-3. threat model / budgets / replay criteria из §5 без ослабления;
-4. merge-blocking review на путях `beliefs` / `evidence` / `replay` /
-   и на новом authority/lease пути.
+1. frozen P1-001 docs;
+2. independent docs review from a distinct operator identity;
+3. explicit owner amendment in `CURRENT_STATUS` stating only P1-001
+   implementation is authorized;
+4. minimal pure implementation scope;
+5. merge-blocking independent review on authority/lease paths;
+6. deterministic, adversarial and metamorphic tests;
+7. preserved prohibitions on Action Gate, external execution and M3 writes.
 
-До выполнения всех четырёх пунктов:
+Until then:
 
 ```text
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
+ACTION_GATE_NOT_AUTHORIZED
+DIRECT_M3_WRITE_FORBIDDEN
 ```
 
 ---
 
-## 7. 🧭 Правила sync статусной документации
+## 7. 🧭 Research and execution separation
 
-| Событие | Что делать с markers |
-|---|---|
-| Этот roadmap принят | **не** менять `P0-001…P0-015_IMPLEMENTED_IN_MAIN` |
-| P1-001 docs merged | статус `DOCS_ONLY · NOT IMPLEMENTED` |
-| P1-001 code merged | только тогда `✅ Implemented` + bump derived markers на P1 |
-
-`scripts/check_doc_freshness.py` остаётся на P0-015, пока нет кода P1.
-
----
-
-## 8. 🏁 Итоговая формула
+[`RESEARCH_INDEX.md`](RESEARCH_INDEX.md) preserves current and future ideas
+without promoting them.
 
 ```text
-P0 closed
-→ Post-P0 Roadmap v0.1 adopted (docs-only)
-→ first milestone = P1-001 Capability Lease Resolution (docs-first)
-→ domain runtime still forbidden
-→ AuthorityRef still ≠ validated permission
+Research document
+→ may capture hypotheses, risks and possible experiments
+
+Current execution milestone
+→ requires explicit roadmap position and owner authorization
 ```
 
-### Связанные документы
+A research item can enter execution planning only through a bounded promotion
+decision with problem evidence, invariants, threat model, non-goals,
+compatibility review and explicit owner approval.
 
-- [`CURRENT_STATUS.md`](../CURRENT_STATUS.md)
+---
+
+## 8. 🔄 Status synchronization
+
+| Event | Required status behavior |
+|---|---|
+| Research index merged | navigation only; no implementation marker changes |
+| P1-001 hardening PR merged | remain `DOCS_ONLY · NOT_IMPLEMENTED`; note docs under freeze review |
+| P1-001 docs independently approved | mark docs frozen; implementation still unauthorized |
+| Owner issues narrow implementation GO | record explicit authorization scope |
+| P1-001 code merged and main CI passes | only then mark P1-001 implemented |
+
+GitHub `main` + `docs/CURRENT_STATUS.md` remain engineering truth. Notion is
+synchronized after merge and green main CI.
+
+---
+
+## 9. 🏁 Final formula
+
+```text
+P0 implementation line complete
+→ Research Index preserves future directions without promotion
+→ first execution milestone remains P1-001
+→ harden and independently freeze docs
+→ explicit owner GO required before src/
+→ resolver remains pure and does not execute actions
+→ domain runtime remains forbidden
+```
+
+### Related documents
+
+- [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
+- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §12.3
-- [`P0_002_ENVELOPE_CONTRACTS.md`](../P0_002_ENVELOPE_CONTRACTS.md)
+- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
+- [`../P0_002_ENVELOPE_CONTRACTS.md`](../P0_002_ENVELOPE_CONTRACTS.md)
 - [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md)
