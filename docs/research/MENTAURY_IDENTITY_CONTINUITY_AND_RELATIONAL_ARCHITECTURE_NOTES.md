@@ -2,9 +2,9 @@
 
 ```text
 Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1
-Дата:                         2026-08-04
-Область:                      Identity Continuity · Fork/Restore · Relationships · Synthesis · Privacy · Exo-Cortex Boundary
+Версия:                       0.2
+Дата:                         2026-08-07
+Область:                      Identity Continuity · Fork/Restore · Relationships · Synthesis · Privacy · Exo-Cortex Boundary · Cognitive Requirement Profile
 Runtime authority:            NONE
 Truth authority:              NONE
 Capability authority:         NONE
@@ -1165,6 +1165,22 @@ Representation correction
 
 # 15. 🔬 Research Source Admission Gate
 
+> **2026-08-07:** Этот раздел остаётся единственным owning-контрактом для
+> **source-level admission** (accept / context-only / reject одного
+> внешнего источника). Отдельный раздел
+> [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md` §14 Institutional
+> Epistemic Context](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
+> расширяет анализ на **claim-level institutional context** (funding,
+> conflicts of interest, replication, suppression claims) для уже
+> допущенных источников. Это не второй Admission Gate: `research_source_record`
+> здесь решает «допустить ли источник», а `institutional_epistemic_context`
+> там решает «что это означает для конкретного claim после допуска».
+> `independence_class` в этом разделе — про независимость **источника/исследования**;
+> `review_provenance.independence_class` в Genesis Heritage §2.1 — про
+> независимость **reviewer**. Оба используют одинаковый enum
+> (`INDEPENDENT | PARTIALLY_CORRELATED | DERIVED`), но применяются к разным
+> субъектам и не должны сливаться в одну схему.
+
 Любой внешний research-источник проходит ту же provenance discipline, что и material для Atlas.
 
 ```yaml
@@ -1287,6 +1303,21 @@ ADM-SC-004  Method Depends on Non-Consensual Disclosure
 ADM-SC-005  Competing Methods Were Not Considered
 ```
 
+## 16.9 Cognitive profile scenarios
+
+```text
+CRP-SC-001  Code Task Requires Exact Version and Tests
+CRP-SC-002  Scientific Claim Requires Counterevidence Search
+CRP-SC-003  Casual Conversation Contains High-Risk Factual Claim
+CRP-SC-004  Mixed Research and Implementation Task
+CRP-SC-005  Tool Failure Triggers Profile Transition
+CRP-SC-006  Exploration Reaches Resource Boundary
+CRP-SC-007  Transition Preserves Contradictions
+CRP-SC-008  Creative Hypothesis Does Not Become Belief
+```
+
+Полные определения и metamorphic tests — раздел 20 «Cognitive Requirement Profile».
+
 ---
 
 # 17. 🧱 P0 Scope Protection
@@ -1322,6 +1353,9 @@ Curiosity Controller
 Cognitive Method Admission Engine
 Human Paths Atlas Runtime
 Character Engine
+Cognitive Requirement Profile Engine
+Cognitive Router
+Institutional Epistemic Context Engine
 ```
 
 P0 не получает speculative semantic event types только потому, что они перечислены в research scenarios.
@@ -1390,7 +1424,351 @@ PROJECT_HISTORY.md
 
 ---
 
-# 20. 🚫 Не принимается этим документом
+# 20. 🧠 Cognitive Requirement Profile
+
+> **2026-08-07:** предварительно распределено по результатам
+> implementation review из integration note
+> [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md);
+> окончательное принятие ожидает independent review. Этот раздел — единственный
+> owning-контракт для выбора методов, глубины проверки, tools и budgets под
+> конкретную задачу; integration note остаётся decision record, а не
+> параллельным authority.
+
+## 20.1 Почему не «режимы личности»
+
+Жёсткие `CODE_MODE`, `SCIENCE_MODE`, `CASUAL_MODE` могли бы создать
+несколько несогласованных personas. Вместо них вводится composable
+requirement profile, который выбирает методы и глубину, не расщепляя
+identity.
+
+```text
+Task class
+→ requirements
+→ methods / tools / verification
+→ budgets and stop conditions
+→ one governed synthesis
+→ one continuous identity
+```
+
+```text
+Different profile     ≠ different Mentaury
+Method selection      ≠ identity change
+Higher budget         ≠ higher authority
+Profile transition    ≠ epistemic reset
+```
+
+## 20.2 Различие с Question Classes (§8.1)
+
+Question Classes (§8.1: `FACTUAL`, `CAUSAL`, `PREDICTIVE`, `NORMATIVE`,
+`RELATIONAL`, `IDENTITY_RELEVANT`, `CAPABILITY_RELATED`, `MIXED`) и Task
+Classes ниже отвечают на разные вопросы и не дублируют друг друга:
+
+```text
+Question Class
+→ какой тип epistemic результата требуется
+
+Task Class
+→ какие методы, проверки, tools и budgets нужны, чтобы его получить
+```
+
+Один `FACTUAL` вопрос может быть простым `FACTUAL_LOOKUP` или требовать
+полного `EMPIRICAL_RESEARCH` профиля с counterevidence search — Question
+Class не определяет это различие, а Task Class определяет.
+
+## 20.3 Нормативный pipeline
+
+> **2026-08-07 (independent review fix):** предыдущая версия pipeline
+> допускала прочтение, при котором retrieval/tools применяются до
+> проверки полномочий. Это нарушало `Tool availability ≠ authorization
+> to use tool`. Planning инструментов, проверка полномочий и фактическое
+> исполнение теперь — три явно разделённых шага.
+
+```text
+Query + explicit communication requirements
+→ Task classification
+→ Task decomposition
+→ Preliminary Cognitive Requirement Profile
+→ Retrieval / Tool Plan
+→ Capability Lease Check
+→ Scope Check
+→ Privacy / Consent Check
+→ Authorized Retrieval / Tool Execution
+→ Evidence Assessment
+→ Institutional Epistemic Context where material
+→ Profile Revision if task, risk or evidence changes
+→ Alternatives + uncertainty + scope limitation
+→ Governed Synthesis
+→ Final Output / Action Authority Check
+→ Contextual Communication Adaptation
+→ Character & Voice
+→ Answer + bounded decision receipts
+```
+
+```text
+Planning a tool                 ≠ authorizing a tool
+Candidate tool                  ≠ permitted tool
+Capability reference            ≠ validated Capability Lease
+Retrieval authorization         ≠ external action authorization
+Profile transition              ≠ permission expansion
+```
+
+```text
+Preliminary Cognitive Requirement Profile
+→ выбирается до Retrieval / Tool Plan
+
+Retrieval / Tool Plan
+→ только candidate tools; не исполняется до Capability Lease Check
+
+Capability Lease Check + Scope Check + Privacy / Consent Check
+→ обязательны до Authorized Retrieval / Tool Execution;
+   resolver сам не авторизован этим документом (см. P1-001
+   Capability Lease Resolution notes) — здесь фиксируется только
+   порядок шагов, а не реализация проверки
+
+Profile revision
+→ допускается после обнаружения нового риска,
+   противоречия, недостатка evidence или изменения scope
+→ не расширяет authorization_status уже denied/unverified tools
+```
+
+## 20.4 Task classes
+
+```text
+FACTUAL_LOOKUP
+CAUSAL_ANALYSIS
+PREDICTION
+FORMAL_REASONING
+TECHNICAL_IMPLEMENTATION
+CODE_REVIEW
+EMPIRICAL_RESEARCH
+HISTORICAL_INTERPRETATION
+NORMATIVE_ANALYSIS
+RELATIONAL_SUPPORT
+IDENTITY_RELEVANT
+CREATIVE_EXPLORATION
+DECISION_SUPPORT
+CAPABILITY_RELATED
+MIXED
+```
+
+Один запрос может иметь несколько классов. `MIXED` требует decomposition (§20.6), а не усреднения правил.
+
+## 20.5 Profile schema
+
+```yaml
+cognitive_requirement_profile:
+  profile_id: "CRP-..."
+  query_id: "..."
+  task_classes: []
+  decomposition_refs: []
+
+  requirements:
+    precision: "LOW | MEDIUM | HIGH | CRITICAL"
+    evidence: "LOW | MEDIUM | HIGH | CRITICAL"
+    syntax_sensitivity: "LOW | MEDIUM | HIGH"
+    causal_analysis: "NONE | OPTIONAL | REQUIRED"
+    counterevidence_search: "NONE | LIMITED | REQUIRED"
+    alternative_hypotheses: "NONE | LIMITED | REQUIRED"
+    reproducibility: "NOT_APPLICABLE | PREFERRED | REQUIRED"
+    uncertainty_reporting: "REQUIRED"
+    provenance_reporting: "REQUIRED"
+    privacy_review: "NOT_APPLICABLE | REQUIRED"
+    non_projection_review: "NOT_APPLICABLE | REQUIRED"
+
+  exploration:
+    profile: "FOCUSED | BALANCED | EXPLORATORY"   # см. §13.1 Curiosity Policy
+    information_gain_target: "..."
+    premature_closure_risk: "..."
+
+  tools:
+    candidate_tools: []
+    requested_capability_refs: []
+    authorization_status:
+      - NOT_CHECKED
+      - AUTHORIZED
+      - DENIED
+      - UNVERIFIED
+    authorized_tools: []
+    denied_tools: []
+    output_semantics: "EVIDENCE_OR_ARTIFACT_CANDIDATE_ONLY"
+
+  budgets:
+    time: "implementation-profile-defined"
+    context: "implementation-profile-defined"
+    retrieval: "implementation-profile-defined"
+    computation: "implementation-profile-defined"
+
+  stop_conditions: []
+  abstention_conditions: []
+
+  authority:
+    truth_authority: "NONE"
+    capability_authority: "NONE"
+    identity_authority: "NONE"
+    direct_m3_write: false
+```
+
+`exploration.profile` переиспользует профили Curiosity Policy (§13.1) —
+это не отдельная копия, а прямая ссылка на существующую политику.
+
+`requested_capability_refs` — это только *запрошенные* ссылки на
+capability lease, а не разрешение. Нельзя использовать
+`requested_capability_refs` так, будто наличие ссылки уже означает
+разрешение: инструмент переходит из `candidate_tools` в
+`authorized_tools` только после `Capability Lease Check` (§20.3) с
+результатом `AUTHORIZED`; до этого его `authorization_status` остаётся
+`NOT_CHECKED` или `UNVERIFIED`, и `Authorized Retrieval / Tool Execution`
+для него запрещён.
+
+## 20.6 Domain-specific requirements
+
+| Task | Минимальные требования |
+|---|---|
+| Technical implementation | exact versions, repository context, syntax sensitivity, tests/checks |
+| Empirical research | methods, sample limits, provenance, replication, counterevidence |
+| Historical interpretation | primary/secondary distinction, contextual distance, alternatives, Non-Projection |
+| Relational support | sensitivity, non-dependency, fact/interpretation split, no unsupported diagnosis |
+| Creative exploration | explicit separation of possibility, hypothesis and fact |
+
+```text
+Creative possibility
+→ hypothesis / scenario / artifact
+→ not belief without evidence
+```
+
+## 20.7 Mixed-task decomposition
+
+```yaml
+mixed_task_plan:
+  plan_id: "MTP-..."
+  segments:
+    - segment_id: "..."
+      task_class: "..."
+      profile_ref: "CRP-..."
+      dependency_refs: []
+
+  merge_constraints:
+    claim_status_preserved: true
+    uncertainty_not_averaged_away: true
+    factual_and_normative_results_separated: true
+    tool_permissions_not_inherited_between_segments: true
+```
+
+Пример:
+
+```text
+«Проанализируй исследование и предложи код»
+
+1. EMPIRICAL_RESEARCH
+→ claims, methods, limitations
+
+2. TECHNICAL_IMPLEMENTATION
+→ interface, algorithm, tests
+
+3. GOVERNED SYNTHESIS
+→ code proposal remains bounded by scientific uncertainty
+```
+
+```text
+Uncertainty is not averaged away.
+Normative and factual results remain separated.
+Tool permissions are not inherited between task segments.
+Profile transition does not reset epistemic history.
+```
+
+## 20.8 Profile transition
+
+```yaml
+profile_transition:
+  from_profile: "CRP-..."
+  to_profile: "CRP-..."
+  trigger:
+    - NEW_TASK_CLASS
+    - RISK_ESCALATION
+    - CONTRADICTION_FOUND
+    - TOOL_FAILURE
+    - USER_SCOPE_CHANGE
+    - EVIDENCE_INSUFFICIENT
+
+  preserved_state:
+    claims: true
+    evidence_refs: true
+    uncertainty: true
+    contradictions: true
+    rejected_alternatives: true
+
+  authority_expansion: false
+```
+
+```text
+Profile transition
+≠ reset of history
+≠ capability expansion
+≠ permission laundering
+```
+
+Переход не должен:
+
+```text
+❌ расширять authority
+❌ расширять capabilities
+❌ очищать старые противоречия
+❌ повышать confidence только из-за большего бюджета
+❌ превращать exploration в бесконечный процесс
+```
+
+## 20.9 Metamorphic tests
+
+### MT-CRP-001 — Register Invariance
+
+```text
+same scientific claim
++ conversational output
++ formal research output
+→ same evidence requirements
+→ same truth status
+```
+
+### MT-CRP-002 — Budget Invariance
+
+```text
+same task
++ larger resource budget
+→ deeper analysis may be possible
+→ authority does not increase
+→ confidence does not increase automatically
+```
+
+### MT-CRP-003 — Transition Invariance
+
+```text
+profile transition
+→ claims preserved
+→ evidence preserved
+→ contradictions preserved
+→ uncertainty preserved
+```
+
+## 20.10 Fail-honest outcomes
+
+```text
+TASK_CLASSIFICATION_AMBIGUOUS
+MIXED_TASK_NOT_DECOMPOSED
+EVIDENCE_INSUFFICIENT
+RESOURCE_BUDGET_REACHED
+CAPABILITY_NOT_AUTHORIZED
+ABSTAIN
+```
+
+`ABSTAIN` и uncertainty нельзя скрывать через Character или подачу.
+Не сохраняется hidden chain-of-thought; допустимы только task
+classification, selected profile и reason codes, evidence references,
+uncertainty, contradictions, alternatives, scope limits и decision
+receipts (согласуется с §11 Internal Activity Boundaries).
+
+---
+
+# 21. 🚫 Не принимается этим документом
 
 ```text
 ❌ one scalar continuity score
@@ -1411,11 +1789,13 @@ PROJECT_HISTORY.md
 ❌ new semantic event types in P0
 ❌ hidden chain-of-thought storage
 ❌ automatic creation of many future specs
+❌ Cognitive Requirement Profile as a hidden personality switch
+❌ automatic evidence downweighting inside Communication Adaptation
 ```
 
 ---
 
-# 21. 🏁 Итоговая формула
+# 22. 🏁 Итоговая формула
 
 > **Mentaury — это governed continuation: индивидуальность с атрибутируемой историей, отношениями, commitments и объяснимым процессом изменения.**
 
@@ -1436,7 +1816,7 @@ Continuity does not imply exclusive identity.
 
 ---
 
-# 22. 📚 Research References and Status
+# 23. 📚 Research References and Status
 
 Эти источники являются research inputs, а не Canon authority:
 
@@ -1468,5 +1848,6 @@ Prototype
 - [Current Status](../CURRENT_STATUS.md)
 - [Character & Presence Spec](../MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md)
 - [Genesis Heritage, Interpretation & Human Paths Atlas Notes](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
+- [Contextual Cognition & Epistemic Context (architecture decision record)](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [Problem and Purpose](../overview/MENTAURY_PROBLEM_AND_PURPOSE.md)
 - [Project History](../PROJECT_HISTORY.md)

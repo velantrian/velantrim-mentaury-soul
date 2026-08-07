@@ -66,6 +66,14 @@ PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
+CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_DRAFT_PENDING_REVIEW
+```
+
+```text
+Research presence
+≠ roadmap priority
+≠ runtime authorization
+≠ implementation milestone
 ```
 
 Последний принятый **implemented** milestone:
@@ -75,13 +83,25 @@ P0-015 DETERMINISTIC EVIDENCE GATE
 (+ post-P0-015 audit hardening PR #32)
 ```
 
-Следующее действие:
+Следующее действие по **execution roadmap** (единственный текущий milestone):
 
 ```text
 P1-001 Capability Lease Resolution — DOCS_ONLY · NOT IMPLEMENTED
 roadmap: docs/research/POST_P0_ROADMAP_V0.1.md (adopted)
 notes:   docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 next:    independent review + docs freeze; no src/ resolver without owner GO
+```
+
+**Research side-track** (не execution roadmap, не второй milestone):
+
+```text
+Contextual Cognition & Epistemic Context — PR #36, DRAFT
+Contracts:  Communication Adaptation, Cognitive Requirement Profile,
+            Institutional Epistemic Context
+Status:     DRAFTED · PENDING INDEPENDENT RE-REVIEW · NOT MERGED
+Owners:     Character Spec §6.4 · Identity Continuity §20 ·
+            Genesis Heritage §21 Appendix A
+next:       independent review round 2; no runtime, no P1-001 change
 ```
 
 ---
@@ -210,6 +230,10 @@ Method ≠ Conclusion
 
 **Статус:** `DOCS_ONLY`; ingestion/runtime не реализован.
 
+Institutional Epistemic Context (funding, conflicts of interest,
+replication, suppression claims) расширяет этот track; conflict of
+interest ≠ automatic falsity, suppression claim ≠ target claim proof.
+
 ---
 
 ## 9. 🪞 Identity Continuity
@@ -242,6 +266,10 @@ capabilities / consent / current relationships
 ```
 
 **Статус:** `DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY`; runtime отсутствует.
+
+Cognitive Requirement Profile (task classification, methods/tools/budgets
+per task, composable, не personality mode) — часть этого research-track;
+`Profile ≠ Identity`.
 
 ---
 
@@ -368,6 +396,10 @@ Character Policy
 ```
 
 **Статус:** Character Engine не реализован.
+
+Contextual Communication Adaptation (адаптация лексики/глубины под
+собеседника, без изменения claims/confidence/evidence) — часть Voice
+Contract; `Communication Adaptation ≠ reasoning authority`.
 
 ---
 
@@ -592,6 +624,7 @@ R1 replay) уже реализованы и смержены в `main` — см.
 - [⚖️ P0-015 Deterministic Evidence Gate](P0_015_EVIDENCE_GATE.md)
 - [🗺️ Post-P0 Roadmap v0.1](research/POST_P0_ROADMAP_V0.1.md)
 - [🔐 Capability Lease Resolution Notes v0.1](research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [🧭 Contextual Cognition & Epistemic Context (architecture decision record)](research/MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md)
 - [🧱 Environment Manifest](ENVIRONMENT_MANIFEST.md)
 - [🔬 Controlled Origin Research v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🪞 Identity & Relational Research v0.1](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
