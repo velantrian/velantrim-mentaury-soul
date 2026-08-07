@@ -2,7 +2,7 @@
 
 ```text
 Статус:                       ADOPTED · ROADMAP · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1 + P1-001 hardening alignment
+Версия:                       0.2-draft
 Дата:                         2026-08-07
 Owner decision:               ACCEPTED (repository owner)
 Runtime authority:            NONE
@@ -16,7 +16,9 @@ Domain runtime:               STILL NOT AUTHORIZED
 > Этот документ определяет один следующий bounded milestone и не разрешает
 > domain runtime, Tool execution, Action Gate или автоматические внешние side
 > effects. Research-направления сохраняются в [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md),
-> но их наличие не меняет порядок выполнения.
+> но их наличие не меняет порядок выполнения. Метаданные `Версия: 0.2-draft` —
+> единственный version authority; имя файла `POST_P0_ROADMAP_V0.1.md` сохранено
+> только для стабильности относительных ссылок.
 
 ```text
 Roadmap adopted ≠ runtime authorized

@@ -17,6 +17,9 @@ Implementation in src/:       NOT AUTHORIZED
 > Resolution. Версия `0.2-draft` устраняет противоречия v0.1, но не считается
 > frozen до отдельного independent review. `ADOPTED` относится только к
 > docs-first направлению: lease registry / `resolve()` в `src/` не разрешены.
+> Language policy: см. [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md) — русский для
+> narrative/context; English для identifiers, schemas, reason codes, algorithms
+> и normative contract terms; при конфликте побеждают exact English contracts.
 
 ```text
 Docs contract ≠ runtime permission

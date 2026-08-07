@@ -21,6 +21,22 @@ Notion explanation ≠ GitHub execution authority
 A future idea ≠ an accepted contract
 ```
 
+### Language policy
+
+```text
+Language policy
+- narrative context, rationale and human-readable explanations may be written in Russian;
+- machine-stable identifiers, schemas, reason codes, algorithms and normative contract terms remain in English;
+- translation must not create a second normative source of truth;
+- when Russian and English wording conflict, exact identifiers, tables, algorithms and scenario contracts govern.
+```
+
+```text
+Russian = explanation and context
+English = stable technical identifiers and contracts
+One normative source of truth
+```
+
 ---
 
 ## 1. 🚀 Current execution boundary
