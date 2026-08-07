@@ -1,7 +1,7 @@
 # 🔐 Capability Lease Resolution — Research Notes
 
 ```text
-Статус:                       DRAFT · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY
+Статус:                       ADOPTED · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY · NOT_IMPLEMENTED
 Версия:                       0.1
 Дата:                         2026-08-07
 Целевая фаза:                 POST_P0 / P1-001 (docs-first)
@@ -13,10 +13,13 @@ Canon modification authority: NONE
 Implementation in src/:       NOT AUTHORIZED
 ```
 
-> Этот документ разворачивает stub Identity Continuity §12.3 в полный
-> **resolution contract**. Он не создаёт lease registry, не валидирует
-> `AuthorityRef` в production и не разрешает внешние side effects.
-> Owner-accepted roadmap: [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md).
+> Этот документ — **owner-adopted** docs authority для P1-001 Capability
+> Lease Resolution (см. [`CURRENT_STATUS.md`](../CURRENT_STATUS.md) и
+> [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md)). Он разворачивает
+> stub Identity Continuity §12.3 в полный **resolution contract**.
+> `ADOPTED` относится только к docs-контракту: lease registry / `resolve()`
+> в `src/` **не** авторизованы, runtime permissions этим документом
+> **не** выдаются.
 
 ---
 

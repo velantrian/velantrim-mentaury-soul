@@ -125,7 +125,7 @@ Identity Continuity:
 │
 ├── 🗺️ Post-P0 — docs-only
 │   ├── Roadmap v0.1 ✅ adopted
-│   └── P1-001 Capability Lease Resolution 🟡 docs · not implemented
+│   └── P1-001 Capability Lease Resolution 🟡 docs · NOT IMPLEMENTED
 │
 ├── 🧠 Memory & Belief — minimal M2 contracts implemented; runtime absent
 │   ├── M0 working
@@ -476,4 +476,4 @@ Navigation
 
 # 🏁 Главный критерий
 
-> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015. Post-P0 Roadmap v0.1 принят (docs-only); P1-001 Capability Lease Resolution — docs-only и не implemented. Memory/Identity/Relationship runtime, lease resolver, Character и Exo-Cortex остаются не авторизованными.** 🧬🔐⚙️
+> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015. Post-P0 Roadmap v0.1 принят (docs-only); P1-001 Capability Lease Resolution — docs-only · NOT IMPLEMENTED. Memory/Identity/Relationship runtime, lease resolver, Character и Exo-Cortex остаются не авторизованными.** 🧬🔐⚙️

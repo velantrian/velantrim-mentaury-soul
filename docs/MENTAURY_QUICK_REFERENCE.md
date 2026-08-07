@@ -3,7 +3,7 @@
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
 Дата:       2026-08-07
-Синхронно:  GitHub main after owner-adopted post-P0 governance + roadmap + lease notes
+Синхронно:  GitHub main@0302c42e0482a5909d1d883ee9ddc7e3e041d31a + PR #34 (post-P0 governance, roadmap v0.1, lease notes)
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -107,7 +107,7 @@ Architecture Reconciliation ✅
 → P0-014 minimal belief lifecycle ✅
 → P0-015 Evidence Gate ✅
 → post-P0 roadmap v0.1 ✅ adopted (docs-only)
-→ P1-001 Capability Lease Resolution 🟡 docs-only · not implemented
+→ P1-001 Capability Lease Resolution 🟡 docs-only · NOT IMPLEMENTED
 ```
 
 ```text
@@ -603,4 +603,4 @@ R1 replay) уже реализованы и смержены в `main` — см.
 
 ## 🏁 One-Line Summary
 
-> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Post-P0 Roadmap v0.1 принят (docs-only); первый milestone — P1-001 Capability Lease Resolution (docs-only, не implemented). Identity, Character, Exo-Cortex и domain runtime по-прежнему не авторизованы.**
+> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Post-P0 Roadmap v0.1 принят (docs-only); первый milestone — P1-001 Capability Lease Resolution (docs-only, NOT IMPLEMENTED). Identity, Character, Exo-Cortex и domain runtime по-прежнему не авторизованы.**
