@@ -889,6 +889,11 @@ Technical / factual material
 
 ## 12.3 Capability Lease
 
+> **2026-08-07:** полный docs-only resolution contract вынесен в
+> [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+> (P1-001, NOT IMPLEMENTED). Ниже — исходный stub; при расхождении
+> приоритет у dedicated lease notes + `CURRENT_STATUS.md`.
+
 ```yaml
 capability_lease:
   lease_id: "CAP-..."
@@ -917,6 +922,9 @@ Tool action
 
 Exo-Cortex expansion
 ≠ identity expansion
+
+AuthorityRef
+≠ validated permission grant
 ```
 
 После fork или restore inherited lease claims становятся `UNVERIFIED`. External side effect запрещён до revalidation или выдачи нового lease.

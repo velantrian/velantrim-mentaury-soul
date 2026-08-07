@@ -3,7 +3,7 @@
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
 Дата:       2026-08-07
-Синхронно:  GitHub main after merged PR #32 (post-P0-015 audit hardening)
+Синхронно:  GitHub main@0302c42e0482a5909d1d883ee9ddc7e3e041d31a + PR #34 (post-P0 governance, roadmap v0.1, lease notes)
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -59,24 +59,29 @@ ARCHITECTURE_READINESS_REVIEW_V0.1_COMPLETED
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
 P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
+POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
+P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
+GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
+CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
 
-Последний принятый milestone:
+Последний принятый **implemented** milestone:
 
 ```text
 P0-015 DETERMINISTIC EVIDENCE GATE
+(+ post-P0-015 audit hardening PR #32)
 ```
 
 Следующее действие:
 
 ```text
-POST-P0 ROADMAP REVIEW — NOT YET AUTHORIZED
-precondition: define the next bounded milestone, threat model, authority
-boundary, resource budgets and rollback/replay criteria before adding any
-runtime wiring
+P1-001 Capability Lease Resolution — DOCS_ONLY · NOT IMPLEMENTED
+roadmap: docs/research/POST_P0_ROADMAP_V0.1.md (adopted)
+notes:   docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
+next:    independent review + docs freeze; no src/ resolver without owner GO
 ```
 
 ---
@@ -101,7 +106,8 @@ Architecture Reconciliation ✅
 → P0-013 R1 replay ✅
 → P0-014 minimal belief lifecycle ✅
 → P0-015 Evidence Gate ✅
-→ post-P0 roadmap 🟡 not yet authorized
+→ post-P0 roadmap v0.1 ✅ adopted (docs-only)
+→ P1-001 Capability Lease Resolution 🟡 docs-only · NOT IMPLEMENTED
 ```
 
 ```text
@@ -549,7 +555,8 @@ Navigation
 - доказанное сознание;
 - субъективные эмоции;
 - absolute tamper-proof history;
-- verified authority resolution (AuthorityRef ≠ validated capability lease);
+- verified authority resolution runtime (AuthorityRef ≠ validated capability lease;
+  P1-001 lease notes exist as docs-only);
 - готовый Belief, Identity или Relationship runtime;
 - готовый Exo-Cortex runtime;
 - готовый Character Engine;
@@ -583,6 +590,8 @@ R1 replay) уже реализованы и смержены в `main` — см.
 - [🔁 P0-013 R1 Deterministic Replay](P0_013_R1_DETERMINISTIC_REPLAY.md)
 - [🧠 P0-014 Minimal Belief Lifecycle](P0_014_MINIMAL_BELIEF_LIFECYCLE.md)
 - [⚖️ P0-015 Deterministic Evidence Gate](P0_015_EVIDENCE_GATE.md)
+- [🗺️ Post-P0 Roadmap v0.1](research/POST_P0_ROADMAP_V0.1.md)
+- [🔐 Capability Lease Resolution Notes v0.1](research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 - [🧱 Environment Manifest](ENVIRONMENT_MANIFEST.md)
 - [🔬 Controlled Origin Research v0.2](research/GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md)
 - [🪞 Identity & Relational Research v0.1](research/MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
@@ -594,4 +603,4 @@ R1 replay) уже реализованы и смержены в `main` — см.
 
 ## 🏁 One-Line Summary
 
-> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Identity, Character, Exo-Cortex и остальной domain runtime пока остаются документированными, но не реализованными runtime-областями.**
+> **Mentaury имеет подробную архитектуру цифровой индивидуальности и реализованную, replay-проверяемую P0-линию до P0-015, включая минимальный belief lifecycle и Evidence Gate. Post-P0 Roadmap v0.1 принят (docs-only); первый milestone — P1-001 Capability Lease Resolution (docs-only, NOT IMPLEMENTED). Identity, Character, Exo-Cortex и domain runtime по-прежнему не авторизованы.**

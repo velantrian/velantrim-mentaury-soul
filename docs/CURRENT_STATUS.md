@@ -4,15 +4,19 @@
 Дата фиксации:                  2026-08-07
 Репозиторий:                    velantrian/velantrim-mentaury-soul
 Authoritative ref:              GitHub main
-Verified implementation head:  e15864e7837b2c12e7574b55678340c25e15c003
+Verified implementation head:  0302c42e0482a5909d1d883ee9ddc7e3e041d31a
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
 P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
 AUDIT_2026_08_06_HARDENING_MERGED_PR_32
+POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
+P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
+GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
+CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 ```
 
@@ -435,49 +439,89 @@ Self-audit passing ≠ absence of cross-PR boundary regressions
 Documented gap ≠ closed gap
 ```
 
-# 📋 Audit recommendations pending owner decision (2026-08-06)
+# ✅ Owner decisions (2026-08-07) — governance + post-P0 path
 
-The governance gap above surfaced two candidate policy changes. An external
-review of the audit PR correctly pushed back on an earlier draft of this
-section: an audit may *propose* governance changes, but it must not silently
-write them into this authoritative status document as binding project law
-without the repository owner's explicit decision — doing so would itself be
-exactly the kind of unreviewed, self-asserted authority change the Bounded
-Authority invariant exists to prevent. Neither item below is adopted policy.
-Both are pending owner approval.
+Repository owner explicitly accepted the 2026-08-06 audit recommendations
+and authorized the docs-only post-P0 path below. This section is now
+**adopted project policy**, not a pending proposal.
 
-- **Recommended:** require either a second human reviewer or a distinct,
-  non-same-operator automated reviewer with merge-blocking authority, at
-  minimum for changes touching `src/mentaury/beliefs`, `src/mentaury/evidence`
-  or `src/mentaury/replay`.
-- **Recommended:** author and get independently reviewed a dedicated
-  Capability Lease resolution specification (docs-only, like Controlled
-  Origin and Identity Continuity before it) before any domain runtime is
-  authorized to treat `AuthorityRef.capability_lease_id` as a validated
-  permission grant. As implemented through P0-015, `capability_lease_id` is
-  recorded and cross-checked for equality between linked records (e.g.
-  redaction ↔ evidence linkage) but is never resolved against a lease
-  registry, so it currently carries no enforceable authority.
+## A. Independent review policy (adopted)
 
-Open questions this audit does not resolve, left for the owner:
+**Rule:** changes that touch any of the following paths require a
+merge-blocking review from someone (human or automated reviewer) who is
+**not** the same operator that authored the change:
 
 ```text
-Should review be merge-blocking, or advisory?
-Which directories/paths actually require independent approval?
-Does a second AI reviewer count as independent, or is a human required?
-What is the fallback if no independent reviewer is available?
-Does this apply to emergency security fixes?
-Who has authority to lift the requirement once (if ever) adopted?
+src/mentaury/beliefs/**
+src/mentaury/evidence/**
+src/mentaury/replay/**
+src/mentaury/**/authority/**          # if/when created
+src/mentaury/**/lease/**              # if/when created
+docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
+docs/research/POST_P0_ROADMAP_V0.1.md
 ```
 
-Pending owner approval.
+Resolved owner answers:
+
+```text
+Review mode:              merge-blocking (not advisory-only)
+Path scope:               paths listed above
+Second AI reviewer:       counts as interim independent review
+                          when distinct from the authoring operator;
+                          human review preferred when available
+Fallback if unavailable:  do not merge protected-path changes
+Emergency security fix:   allowed with public disclosure in the PR
+                          and mandatory post-hoc independent review
+                          within 7 days
+Who may lift / amend:     repository owner (velantrian) only, via
+                          explicit CURRENT_STATUS amendment
+```
+
+```text
+Adopted policy ≠ GitHub branch-protection already configured
+Docs policy MUST still be enforced in review practice until
+repository settings mirror it
+```
+
+## B. Post-P0 Roadmap v0.1 (adopted, docs-only)
+
+Authoritative roadmap:
+
+[`docs/research/POST_P0_ROADMAP_V0.1.md`](research/POST_P0_ROADMAP_V0.1.md)
+
+```text
+POST-P0 ROADMAP REVIEW → CLOSED by adoption of v0.1
+First bounded milestone → P1-001 Capability Lease Resolution (docs-first)
+Domain runtime          → still NOT AUTHORIZED
+```
+
+## C. Capability Lease resolution notes (docs-only, NOT IMPLEMENTED)
+
+Authoritative notes:
+
+[`docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+
+```text
+P1-001 status:     DOCS_ONLY · NOT IMPLEMENTED
+Freshness markers: remain P0-001…P0-015_IMPLEMENTED_IN_MAIN
+Resolver in src/:  NOT AUTHORIZED until separate owner GO after
+                   docs freeze + independent review
+```
+
+As implemented through P0-015 / audit hardening, `capability_lease_id` is
+still only recorded and equality-checked. These notes define how a future
+fail-closed resolver MUST behave; they do not make `AuthorityRef` a
+validated permission grant.
 
 ---
 
 # 🏁 Следующее действие
 
 ```text
-POST-P0 ROADMAP REVIEW
-Status: NOT YET AUTHORIZED
-Precondition: define the next bounded milestone, threat model, authority boundary, resource budgets and rollback/replay criteria before adding runtime wiring
+P1-001 Capability Lease Resolution
+Status:              DOCS_ONLY · NOT IMPLEMENTED
+Roadmap:             POST_P0_ROADMAP_V0.1 adopted
+Docs:                research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
+Next concrete step:  independent review + docs freeze of lease notes
+Forbidden until GO:  src/ lease registry, resolve(), Action Gate, domain runtime
 ```
