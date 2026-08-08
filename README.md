@@ -3,7 +3,13 @@
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
 ```text
-Status snapshot: 2026-08-07
+Status snapshot: 2026-08-08
+Verified implementation baseline:
+  main@1d3af6f0946e596529b9d40315a83cd3573918db
+Status synchronization provenance:
+  PR #45
+Live repository head and PR state:
+  resolved from GitHub, not embedded in this README
 
 VISION · RESEARCH
 CANON_V0.1_FROZEN
@@ -23,11 +29,19 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
 CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
+SECURITY_PYTEST_9_1_1_MERGED_PR_40
+NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
+STORAGE_GRAPH_PROFILE_CANDIDATES_CAPTURED_DOCS_ONLY
+STATUS_SYNC_PROVENANCE_PR_45
 
 First implementation profile: Python 3.13 + standard-library SQLite
+Future profile candidates (NOT SELECTED): PostgreSQL;
+  temporal context-graph framework candidate (Graphiti);
+  embedded graph database/index candidate (LadybugDB)
 ```
 
 ```text
+README status snapshot ≠ authoritative live branch pointer
 Research presence
 ≠ roadmap priority
 ≠ runtime authorization
