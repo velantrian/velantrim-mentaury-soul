@@ -1,5 +1,8 @@
 """P0-014 neutral contracts for the minimal M2 belief lifecycle."""
 
+# ENFORCEMENT_TEST_MARKER: harmless Tier A probe for post-#54 ruleset verification.
+# No runtime behavior change. Do not treat as product work. See issue #39 / PR #54 bootstrap.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
