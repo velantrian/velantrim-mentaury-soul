@@ -28,6 +28,7 @@ from mentaury.contracts.canonical_json import authority_ref_value
 from mentaury.contracts.primitives import require_non_empty
 from mentaury.validation import SchemaRegistry
 
+from ._event_rows import insert_event_row
 from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
@@ -414,44 +415,4 @@ def redacted_targets_for_stream(
 
 
 def _insert_audit_event(connection: sqlite3.Connection, event: EventEnvelope) -> None:
-    connection.execute(
-        """
-        INSERT INTO events(
-            event_id, event_type, envelope_schema_version, payload_schema,
-            stream_id, stream_version, batch_id, batch_index, batch_size,
-            occurred_at, recorded_at, producer_component, producer_version,
-            initiator_type, initiator_id, capability_lease_id,
-            capability_revision, causation_id, correlation_id,
-            affects_domain_state, payload_digest, payload_ref,
-            previous_hash, event_hash
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-        """,
-        (
-            event.event_id,
-            event.event_type,
-            event.envelope_schema_version,
-            event.payload_schema,
-            event.stream_id,
-            event.stream_version,
-            event.batch_id,
-            event.batch_index,
-            event.batch_size,
-            event.occurred_at,
-            event.recorded_at,
-            event.producer.component,
-            event.producer.version,
-            event.initiator.actor_type,
-            event.initiator.actor_id,
-            event.authority.capability_lease_id,
-            event.authority.capability_revision,
-            event.causation_id,
-            event.correlation_id,
-            int(event.affects_domain_state),
-            event.payload_digest,
-            event.payload_ref,
-            event.previous_hash,
-            event.event_hash,
-        ),
-    )
+    insert_event_row(connection, event)
