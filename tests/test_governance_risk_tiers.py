@@ -63,7 +63,7 @@ _CODEOWNERS_EXISTING = (
     "/scripts/validate.py",
     "/scripts/check_doc_freshness.py",
     "/.github/workflows/",
-    "/requirements-dev.lock",
+    "/requirements*.lock",
     "/pyproject.toml",
     "/CODEOWNERS",
     "/docs/CURRENT_STATUS.md",
@@ -109,10 +109,11 @@ def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
 def test_reserved_paths_are_marked_if_when_created() -> None:
     section = GOVERNANCE.split("#### Paths reserved if/when created")[1]
     section = section.split("#### Tier A requirements")[0]
+    lines = [line.strip() for line in section.splitlines() if line.strip()]
     for path in _IF_WHEN_TIER_A:
-        assert path in section
-        # Each reserved path line must carry the if/when marker nearby.
-        assert "if/when created" in section
+        matching = [line for line in lines if line.startswith(path)]
+        assert len(matching) == 1, path
+        assert "if/when created" in matching[0], path
 
 
 def test_every_existing_tier_a_path_exists_on_disk() -> None:

@@ -5,6 +5,9 @@
 #
 # Owner/admin: velantrian (temporary CODEOWNER until an independent
 # reviewer/team identity is added — issue #39).
+# Do NOT enable "Require review from Code Owners" while CODEOWNERS
+# only lists @velantrian — that would require owner review, not
+# independent approval.
 
 # Tier A — existing paths
 /src/mentaury/storage/ @velantrian
@@ -15,7 +18,7 @@
 /scripts/validate.py @velantrian
 /scripts/check_doc_freshness.py @velantrian
 /.github/workflows/ @velantrian
-/requirements-dev.lock @velantrian
+/requirements*.lock @velantrian
 /pyproject.toml @velantrian
 /CODEOWNERS @velantrian
 /docs/CURRENT_STATUS.md @velantrian
