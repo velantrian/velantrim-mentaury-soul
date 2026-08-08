@@ -79,6 +79,8 @@ resolver implementation before explicit owner GO
 | [`ARCHITECTURE_READINESS_REVIEW_V0.1.md`](ARCHITECTURE_READINESS_REVIEW_V0.1.md) | historical readiness review | retained reference | NONE |
 | [`CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md`](CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md) | evidence receipt | historical verification record | NONE |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external research input | preserved docs-only notes; no execution authority | NOT AUTHORIZED |
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | captured future profile candidates | CAPTURED · NOT SELECTED · DOCS_ONLY | NOT AUTHORIZED |
+| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | biological / cybernetic / cognitive candidates | CAPTURED · RESEARCH_NOTES · DOCS_ONLY · 15 captured · 0 selected | NOT AUTHORIZED |
 
 ---
 
@@ -98,6 +100,46 @@ External research input
 ≠ authority transfer
 ≠ automatic M2/M3 promotion
 ≠ change to P1-001 priority
+```
+
+---
+
+## 2.2. 🗄️ Captured future profile candidates
+
+Эти заметки фиксируют возможные будущие engineering profiles. Они не выбирают
+backend и не авторизуют wiring.
+
+| Document | Disposition | Runtime / Truth / Capability |
+|---|---|---|
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | CAPTURED · NOT SELECTED · NON_CANONICAL · DOCS_ONLY | NONE / NONE / NONE |
+
+```text
+PostgreSQL:
+  future storage profile candidate
+Graphiti:
+  temporal context-graph framework candidate
+LadybugDB:
+  embedded property-graph database candidate
+
+No backend selected.
+No runtime wiring authorized.
+P1-001 priority impact: NONE
+```
+
+---
+
+## 2.3. 🧬⚙️ Biological / cybernetic / cognitive candidates
+
+| Document | Disposition | Runtime / Truth / Capability |
+|---|---|---|
+| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | CAPTURED · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY | NONE / NONE / NONE |
+
+```text
+Candidates: 15 captured · 0 selected
+biological inspiration ≠ implementation
+candidate captured ≠ candidate selected
+research presence ≠ roadmap priority
+P1-001 priority impact: NONE
 ```
 
 ---
