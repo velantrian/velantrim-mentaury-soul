@@ -204,12 +204,9 @@ class BeliefLifecycle:
                 BeliefRejectionCode.UNKNOWN_EVIDENCE_REF,
                 f"contradiction references unattached evidence: {sorted(unknown)!r}",
             )
-        current = _status(state)
-        resulting = (
-            BeliefStatus.CONTRADICTED
-            if current is BeliefStatus.CONTRADICTED
-            else BeliefStatus.CONTESTED
-        )
+        # После _require_mutable() статус не может быть CONTRADICTED
+        # (Evidence Gate-owned); resulting status детерминированно CONTESTED.
+        resulting = BeliefStatus.CONTESTED
         return _accepted(
             PendingEvent(
                 CONTRADICTION_REGISTERED,

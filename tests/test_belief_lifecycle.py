@@ -862,3 +862,97 @@ def test_reducer_rejects_direct_no_effect_revision() -> None:
 
     with pytest.raises(BeliefReducerError, match="no effect"):
         _apply(state, pending, 3, "EVT-DIRECT-NOOP")
+
+
+def test_register_contradiction_on_supported_is_rejected() -> None:
+    state = _state_with_status(BeliefStatus.SUPPORTED)
+    decision = BeliefLifecycle().decide(
+        _command(
+            REGISTER_CONTRADICTION,
+            {
+                "belief_id": BELIEF_ID,
+                "contradiction_id": "contradiction:supported",
+                "statement": "Must not mutate Evidence Gate-owned supported belief.",
+                "evidence_refs": ["evidence:for:1"],
+            },
+            expected_stream_version=3,
+        ),
+        state,
+    )
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF
+
+
+def test_register_contradiction_on_contradicted_is_rejected() -> None:
+    state = _state_with_status(BeliefStatus.CONTRADICTED)
+    decision = BeliefLifecycle().decide(
+        _command(
+            REGISTER_CONTRADICTION,
+            {
+                "belief_id": BELIEF_ID,
+                "contradiction_id": "contradiction:contradicted",
+                "statement": "Must not mutate Evidence Gate-owned contradicted belief.",
+                "evidence_refs": ["evidence:for:1"],
+            },
+            expected_stream_version=3,
+        ),
+        state,
+    )
+    assert not decision.accepted
+    assert decision.rejection_code is BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF
+
+
+def test_mutable_non_gated_contradiction_always_produces_contested() -> None:
+    """После mutable/non-terminal checks resulting status всегда CONTESTED."""
+
+    for status in (
+        BeliefStatus.HYPOTHESIS,
+        BeliefStatus.PROVISIONAL,
+        BeliefStatus.CONTESTED,
+        BeliefStatus.UNRESOLVED,
+    ):
+        state = _state_with_status(status)
+        decision = BeliefLifecycle().decide(
+            _command(
+                REGISTER_CONTRADICTION,
+                {
+                    "belief_id": BELIEF_ID,
+                    "contradiction_id": f"contradiction:{status.value}",
+                    "statement": "Open contradiction registered from mutable status.",
+                    "evidence_refs": ["evidence:for:1"],
+                },
+                expected_stream_version=3,
+                command_id=f"CMD-CONTRADICTION-{status.value}",
+            ),
+            state,
+        )
+        assert decision.accepted, status
+        assert (
+            decision.domain_events[0].payload["resulting_status"]
+            == BeliefStatus.CONTESTED.value
+        )
+        projected = _apply(
+            state,
+            decision.domain_events[0],
+            4,
+            f"EVT-CONTRADICTION-{status.value}",
+        )
+        assert projected["status"] == BeliefStatus.CONTESTED.value
+
+
+def test_reducer_rejects_contradicted_resulting_status_after_non_terminal() -> None:
+    state = _state_with_evidence()
+    pending = PendingEvent(
+        "CONTRADICTION_REGISTERED",
+        "contradiction-registered/v1",
+        True,
+        {
+            "belief_id": BELIEF_ID,
+            "contradiction_id": "contradiction:forged",
+            "statement": "Forged contradicted resulting_status.",
+            "evidence_refs": ["evidence:for:1"],
+            "resulting_status": BeliefStatus.CONTRADICTED.value,
+        },
+    )
+    with pytest.raises(BeliefReducerError, match="invalid contradiction resulting_status"):
+        _apply(state, pending, 3, "EVT-FORGED-CONTRADICTED-RESULT")

@@ -160,13 +160,9 @@ class BeliefReducer:
             payload,
             "resulting_status",
         )
-        current_status = BeliefStatus(_string(state, "status"))
-        expected_status = (
-            BeliefStatus.CONTRADICTED
-            if current_status is BeliefStatus.CONTRADICTED
-            else BeliefStatus.CONTESTED
-        )
-        if resulting_status is not expected_status:
+        # После _require_non_terminal() CONTRADICTED недоступен; ожидаем
+        # только детерминированный CONTESTED.
+        if resulting_status is not BeliefStatus.CONTESTED:
             raise BeliefReducerError("invalid contradiction resulting_status")
         contradictions.append(
             {

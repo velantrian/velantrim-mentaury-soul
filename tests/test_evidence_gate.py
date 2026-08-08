@@ -1067,3 +1067,46 @@ def test_reducer_binds_gate_event_to_stream_and_state_flag() -> None:
             replace(event, affects_domain_state=False),
             pending.payload,
         )
+
+
+def test_lifecycle_conflict_uses_qualifying_evidence_fail_closed_message() -> None:
+    """CONFLICT возникает при qualifying groups на обеих сторонах.
+
+    Даже если threshold полностью не достигнут с одной стороны, наличие
+    qualifying evidence на обеих сторонах остаётся fail-closed CONFLICT.
+    Сообщение не должно утверждать, что обе стороны «satisfy the approved
+    policy».
+    """
+
+    state = _created_state()
+    state, _ = _attach(state, "evidence:for:1", EvidenceSide.FOR, 2)
+    state, _ = _attach(state, "evidence:against:1", EvidenceSide.AGAINST, 3)
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:for"),
+        _record("evidence:against:1", EvidenceSide.AGAINST, "source:against"),
+    )
+    # minimum_source_groups_against=2: against не достигает threshold,
+    # но qualifying group на against всё равно существует → CONFLICT.
+    policy = EvidenceGatePolicy(
+        policy_id=P0_015_CONTEXTUAL_POLICY.policy_id,
+        allowed_claim_types=P0_015_CONTEXTUAL_POLICY.allowed_claim_types,
+        minimum_source_groups_for=1,
+        minimum_source_groups_against=2,
+        minimum_reliability_milli=P0_015_CONTEXTUAL_POLICY.minimum_reliability_milli,
+        minimum_relevance_milli=P0_015_CONTEXTUAL_POLICY.minimum_relevance_milli,
+        maximum_age_seconds=P0_015_CONTEXTUAL_POLICY.maximum_age_seconds,
+    )
+    registry = EvidenceGatePolicyRegistry((policy,))
+    decision = EvidenceGatedBeliefLifecycle(policies=registry).decide(
+        _gate_command(state, records, policy_id=policy.policy_id),
+        state,
+    )
+
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.CONFLICT
+    assert decision.message == (
+        "qualifying evidence exists on both sides; fail-closed conflict"
+    )
+    assert decision.receipt is not None
+    assert decision.receipt.outcome is EvidenceGateOutcome.CONFLICT
+    assert "satisfy the approved policy" not in (decision.message or "")
