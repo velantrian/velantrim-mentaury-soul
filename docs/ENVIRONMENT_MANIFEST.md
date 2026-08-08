@@ -7,7 +7,7 @@ Verified implementation baseline:
 Environment verified against:
                     main@1d3af6f0946e596529b9d40315a83cd3573918db
 Status-sync candidate:
-                    PR #45 @ STATUS_SYNC_EXACT_HEAD_PENDING
+                    PR #45 @ ec138d9d3ca05a6b2092987579b8cc49c79e7de0
 Post-merge main SHA:
                     PENDING
 Profile:            Python 3.13 + standard-library SQLite 3.46.1

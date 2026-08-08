@@ -6,7 +6,7 @@
 Authoritative ref:                   GitHub main
 Verified implementation baseline:   1d3af6f0946e596529b9d40315a83cd3573918db
 Accepted pre-sync checkpoint:        1d3af6f0946e596529b9d40315a83cd3573918db
-Status-sync candidate:               PR #45 @ STATUS_SYNC_EXACT_HEAD_PENDING
+Status-sync candidate:               PR #45 @ ec138d9d3ca05a6b2092987579b8cc49c79e7de0
 Post-merge main SHA:                 PENDING
 Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
 Baseline CI (pre-sync checkpoint):   31214550093 · success · 277 passed
