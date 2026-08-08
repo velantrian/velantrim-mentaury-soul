@@ -495,11 +495,11 @@ Repository owner explicitly accepted the 2026-08-06 audit recommendations
 and authorized the docs-only post-P0 path below. This section is now
 **adopted project policy**, not a pending proposal.
 
-## A. Independent review policy (adopted)
+## A. Independent review policy (adopted → risk-tier remediation)
 
-**Rule:** changes that touch any of the following paths require a
-merge-blocking review from someone (human or automated reviewer) who is
-**not** the same operator that authored the change:
+### A.0 Historical path-scoped rule (2026-08-07)
+
+The originally adopted rule required merge-blocking independent review for:
 
 ```text
 src/mentaury/beliefs/**
@@ -511,26 +511,66 @@ docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
 ```
 
-Resolved owner answers:
+```text
+That rule was path-scoped, not universal.
+```
+
+### A.1 Audit reconciliation (2026-08-08)
+
+Independent audit of merges #45 / #46 / #50 / #51 established:
 
 ```text
-Review mode:              merge-blocking (not advisory-only)
-Path scope:               paths listed above
-Second AI reviewer:       counts as interim independent review
-                          when distinct from the authoring operator;
-                          human review preferred when available
-Fallback if unavailable:  do not merge protected-path changes
+Canonical policy violation: NOT ESTABLISHED for #45/#46/#50/#51
+Process inconsistency:      CONFIRMED for #45/#46
+                            (PR-local STOP broader than canonical path rule)
+Review coverage gap:        CONFIRMED for #50/#51
+                            (#50 validators/freshness; #51 storage core)
+Technical enforcement gap:  CONFIRMED repository-wide
+                            (branch protection disabled)
+```
+
+Do **not** claim all four PRs formally violated the old path rule.
+Do **not** claim governance was fully obeyed.
+Do **not** treat PR-local STOP language as meaningless.
+
+Post-hoc review issues:
+- #42 → PR #40 (deadline 2026-08-14)
+- #52 → PR #50
+- #53 → PR #51
+
+### A.2 Canonical risk-tier policy (authoritative)
+
+Authoritative merge-gate policy:
+
+[`docs/GOVERNANCE.md`](GOVERNANCE.md)
+
+```text
+Tier A → independent APPROVED required
+Tier B → owner review + green CI
+Tier C → editorial/research review may suffice
+Highest-risk file/effect classifies the whole PR
+PR-local status may explain but not silently broaden Canon
+```
+
+Resolved owner answers that remain in force:
+
+```text
+Review mode:              merge-blocking for Tier A
+Second AI reviewer:       may count only if independently operated,
+                          exact-head, GitHub-APPROVED, auditable;
+                          otherwise AI assessment ≠ independent approval
+Fallback if unavailable:  do not merge Tier A changes
 Emergency security fix:   allowed with public disclosure in the PR
                           and mandatory post-hoc independent review
                           within 7 days
 Who may lift / amend:     repository owner (velantrian) only, via
-                          explicit CURRENT_STATUS amendment
+                          explicit CURRENT_STATUS + GOVERNANCE amendment
 ```
 
 ```text
-Adopted policy ≠ GitHub branch-protection already configured
+Adopted docs policy ≠ GitHub branch-protection already configured
 Docs policy MUST still be enforced in review practice until
-repository settings mirror it
+repository rulesets mirror it (issue #39)
 ```
 
 ## B. Post-P0 Roadmap v0.1 (adopted, docs-only)

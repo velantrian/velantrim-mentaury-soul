@@ -71,7 +71,7 @@ Current maturity authority
 README, Quick Reference и Notion являются производными навигационными представлениями.
 
 Актуальный статус: [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
-
+Governance / risk tiers: [docs/GOVERNANCE.md](docs/GOVERNANCE.md).
 ---
 
 ## 🌌 Что исследует Mentaury

@@ -1,0 +1,33 @@
+# CODEOWNERS — Tier A path ownership markers
+#
+# Ownership assignment helps request reviewers. It is NOT by itself an
+# independent APPROVED gate. See docs/GOVERNANCE.md for risk-tier rules.
+#
+# Owner/admin: velantrian (temporary CODEOWNER until an independent
+# reviewer/team identity is added — issue #39).
+
+# Tier A — existing paths
+/src/mentaury/storage/ @velantrian
+/src/mentaury/replay/ @velantrian
+/src/mentaury/beliefs/ @velantrian
+/src/mentaury/evidence/ @velantrian
+/src/mentaury/contracts/canonical_json.py @velantrian
+/scripts/validate.py @velantrian
+/scripts/check_doc_freshness.py @velantrian
+/.github/workflows/ @velantrian
+/requirements-dev.lock @velantrian
+/pyproject.toml @velantrian
+/CODEOWNERS @velantrian
+/docs/CURRENT_STATUS.md @velantrian
+/docs/GOVERNANCE.md @velantrian
+/docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md @velantrian
+/docs/research/POST_P0_ROADMAP_V0.1.md @velantrian
+
+# Tier A — if/when created (kept for alignment with docs/GOVERNANCE.md)
+# /src/mentaury/**/authority/ @velantrian
+# /src/mentaury/**/lease/ @velantrian
+# /src/mentaury/schema/ @velantrian
+# /src/mentaury/canonical.py @velantrian
+# /src/mentaury/canonical/ @velantrian
+# /src/mentaury/integrity/ @velantrian
+# /src/mentaury/redaction/ @velantrian
