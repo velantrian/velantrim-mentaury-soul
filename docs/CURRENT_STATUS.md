@@ -6,11 +6,11 @@
 Authoritative ref:                   GitHub main
 Verified implementation baseline:   1d3af6f0946e596529b9d40315a83cd3573918db
 Accepted pre-sync checkpoint:        1d3af6f0946e596529b9d40315a83cd3573918db
-Status-sync candidate:               PR #45 @ ec138d9d3ca05a6b2092987579b8cc49c79e7de0
+Status-sync candidate:               PR #45 · OPEN · exact tip recorded in PR body
 Post-merge main SHA:                 PENDING
 Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
 Baseline CI (pre-sync checkpoint):   31214550093 · success · 277 passed
-Candidate CI:                        PENDING until exact-head CI of PR #45
+Candidate CI:                        31249503148 · success · 277 passed (validates tip 528dae5…; later tip CI in PR body)
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -31,6 +31,7 @@ BRANCH_CLEANUP_COMPLETED_ISSUE_41
 PR_38_OPEN_AWAITING_QUALIFYING_APPROVAL
 POST_HOC_SECURITY_REVIEW_ISSUE_42_OPEN
 STATUS_SYNC_PR_45_OPEN
+STATUS_SYNC_EXACT_HEAD_528dae5ba1c5
 VERIFIED_IMPLEMENTATION_BASELINE_1d3af6f
 ACCEPTED_PRE_SYNC_CHECKPOINT_1d3af6f
 POST_MERGE_MAIN_PENDING
