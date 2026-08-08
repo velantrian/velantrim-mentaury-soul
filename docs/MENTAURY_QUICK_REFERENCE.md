@@ -2,8 +2,8 @@
 
 ```text
 Статус:     NAVIGATION_ONLY · NON_AUTHORITATIVE · DERIVED_DOCUMENT
-Дата:       2026-08-07
-Синхронно:  GitHub main@1d3af6f0946e596529b9d40315a83cd3573918db after merged PR #40 (pytest 9.1.1) and PR #43 (Native Kernel research preserve); open PR #38 head 3dd8859d52782576e811f46888d7c8b53df74fad
+Дата:       2026-08-08
+Синхронно:  verified implementation baseline main@1d3af6f0946e596529b9d40315a83cd3573918db after merged PR #40 (pytest 9.1.1) and PR #43 (Native Kernel research preserve); status-sync candidate PR #45 OPEN; open PR #38 head 3dd8859d52782576e811f46888d7c8b53df74fad
 Назначение: краткая фактическая карта проекта для людей и подключаемых ИИ
 ```
 
@@ -85,8 +85,12 @@ Research presence
 Checkpoint markers:
 
 ```text
-FINAL_MAIN_1d3af6f0946e596529b9d40315a83cd3573918db
-FINAL_CI_31214550093
+VERIFIED_IMPLEMENTATION_BASELINE_1d3af6f
+ACCEPTED_PRE_SYNC_CHECKPOINT_1d3af6f
+STATUS_SYNC_PR_45_OPEN
+STATUS_SYNC_EXACT_HEAD_PENDING
+POST_MERGE_MAIN_PENDING
+BASELINE_CI_31214550093
 PR_38_HEAD_3dd8859d52782576e811f46888d7c8b53df74fad
 PR_38_CI_31214573368
 NATIVE_KERNEL_INPUT_PRESERVED

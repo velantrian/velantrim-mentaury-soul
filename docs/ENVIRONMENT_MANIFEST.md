@@ -2,7 +2,14 @@
 
 ```text
 Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Main SHA:           1d3af6f0946e596529b9d40315a83cd3573918db
+Verified implementation baseline:
+                    1d3af6f0946e596529b9d40315a83cd3573918db
+Environment verified against:
+                    main@1d3af6f0946e596529b9d40315a83cd3573918db
+Status-sync candidate:
+                    PR #45 @ STATUS_SYNC_EXACT_HEAD_PENDING
+Post-merge main SHA:
+                    PENDING
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
@@ -13,6 +20,11 @@ Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
 Permanent CI:       PRESENT AND VALIDATED (.github/workflows/ci.yml)
+```
+
+```text
+Environment Manifest records the verified implementation baseline.
+It does not claim to know the future post-merge main SHA of PR #45.
 ```
 
 This manifest historically documented only the P0-009 baseline. It is now

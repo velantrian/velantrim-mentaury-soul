@@ -1,13 +1,16 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации:                  2026-08-07
-Репозиторий:                    velantrian/velantrim-mentaury-soul
-Authoritative ref:              GitHub main
-Verified GitHub main head:     1d3af6f0946e596529b9d40315a83cd3573918db
-Verified implementation head:  1d3af6f0946e596529b9d40315a83cd3573918db
+Дата фиксации:                       2026-08-08
+Репозиторий:                         velantrian/velantrim-mentaury-soul
+Authoritative ref:                   GitHub main
+Verified implementation baseline:   1d3af6f0946e596529b9d40315a83cd3573918db
+Accepted pre-sync checkpoint:        1d3af6f0946e596529b9d40315a83cd3573918db
+Status-sync candidate:               PR #45 @ STATUS_SYNC_EXACT_HEAD_PENDING
+Post-merge main SHA:                 PENDING
 Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
-Main CI after PR #43:          31214550093 · success · 277 passed
+Baseline CI (pre-sync checkpoint):   31214550093 · success · 277 passed
+Candidate CI:                        PENDING until exact-head CI of PR #45
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -27,10 +30,22 @@ NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
 BRANCH_CLEANUP_COMPLETED_ISSUE_41
 PR_38_OPEN_AWAITING_QUALIFYING_APPROVAL
 POST_HOC_SECURITY_REVIEW_ISSUE_42_OPEN
+STATUS_SYNC_PR_45_OPEN
+VERIFIED_IMPLEMENTATION_BASELINE_1d3af6f
+ACCEPTED_PRE_SYNC_CHECKPOINT_1d3af6f
+POST_MERGE_MAIN_PENDING
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 RUNTIME_NOT_VALIDATED
+```
+
+```text
+1d3af6f… = verified implementation baseline
+         + accepted pre-sync repository checkpoint
+1d3af6f… ≠ future post-merge main SHA
+Candidate CI ≠ post-merge main CI
+Post-merge main SHA remains PENDING until GitHub performs the merge
 ```
 
 ## ⚖️ Правило текущей правды

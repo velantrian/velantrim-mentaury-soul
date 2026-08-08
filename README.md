@@ -3,8 +3,13 @@
 > **Substrate-neutral исследовательская архитектура развивающейся цифровой индивидуальности — с происхождением, памятью, отношениями, характером, объяснимыми изменениями и ограниченной внешней властью.**
 
 ```text
-Status snapshot: 2026-08-07
-Verified GitHub main: 1d3af6f0946e596529b9d40315a83cd3573918db
+Status snapshot: 2026-08-08
+Verified implementation baseline:
+  main@1d3af6f0946e596529b9d40315a83cd3573918db
+Current status-sync:
+  PR #45 · OPEN · DOCS_ONLY
+Post-merge main SHA:
+  PENDING
 
 VISION · RESEARCH
 CANON_V0.1_FROZEN
@@ -27,6 +32,7 @@ CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
 SECURITY_PYTEST_9_1_1_MERGED_PR_40
 NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
 STORAGE_GRAPH_PROFILE_CANDIDATES_CAPTURED_DOCS_ONLY
+STATUS_SYNC_PR_45_OPEN
 
 First implementation profile: Python 3.13 + standard-library SQLite
 Future profile candidates (NOT SELECTED): PostgreSQL;
@@ -35,6 +41,7 @@ Future profile candidates (NOT SELECTED): PostgreSQL;
 ```
 
 ```text
+README status snapshot ≠ authoritative live branch pointer
 Research presence
 ≠ roadmap priority
 ≠ runtime authorization
