@@ -30,6 +30,7 @@ from collections.abc import Mapping
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CURRENT_STATUS_PATH = ROOT / "docs" / "CURRENT_STATUS.md"
 DERIVED_DOC_PATHS = (
+    ROOT / "README.md",
     ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
     ROOT / "docs" / "ENVIRONMENT_MANIFEST.md",
 )
