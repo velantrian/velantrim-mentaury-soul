@@ -157,8 +157,9 @@ Research priority:                 HIGH
 Scientific-transfer confidence:    MEDIUM
 Engineering readiness:             READY_FOR_BOUNDED_EXPERIMENT
 Governance risk:                   MEDIUM
-Existing Mentaury analogue:        event capture (P0-001…P0-013) +
-                                    minimal belief lifecycle (P0-014/015)
+Existing Mentaury analogue:        immutable event/payload storage (P0-004)
+                                    + deterministic reconstruction substrate (P0-013)
+                                    + belief lifecycle / Evidence Gate (P0-014/P0-015)
 Computational transfer hypothesis: разделить (1) быстрый, детальный,
                                     малообобщающий episodic capture и (2) более
                                     медленную interleaved semantic integration,
@@ -257,7 +258,7 @@ Minimal experiment:                сравнить (a) немедленную �
 Baseline:                          немедленная посистемная обработка без
                                     отложенного consolidation batching
 Failure / falsification criterion: если consolidation replay не снижает
-                                    Duplicate revision reduction / не улучшает
+                                    число duplicate revisions и не улучшает
                                     Contradiction-resolution rate при safety
                                     counters = 0 — гипотеза отклоняется
 Evidence references:
