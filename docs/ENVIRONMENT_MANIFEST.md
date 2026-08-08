@@ -6,10 +6,10 @@ Verified implementation baseline:
                     1d3af6f0946e596529b9d40315a83cd3573918db
 Environment verified against:
                     main@1d3af6f0946e596529b9d40315a83cd3573918db
-Status-sync candidate:
-                    PR #45 · OPEN · exact tip recorded in PR body
-Post-merge main SHA:
-                    PENDING
+Status synchronization provenance:
+                    PR #45
+Live repository head and PR state:
+                    resolved from GitHub, not embedded in this document
 Profile:            Python 3.13 + standard-library SQLite 3.46.1
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
@@ -23,8 +23,9 @@ Permanent CI:       PRESENT AND VALIDATED (.github/workflows/ci.yml)
 ```
 
 ```text
-Environment Manifest records the verified implementation baseline.
-It does not claim to know the future post-merge main SHA of PR #45.
+Environment Manifest records the verified implementation baseline and
+status-sync provenance. It does not embed a mutable live main tip or
+candidate CI SHA.
 ```
 
 This manifest historically documented only the P0-009 baseline. It is now

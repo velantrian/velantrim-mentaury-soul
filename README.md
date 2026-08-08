@@ -6,10 +6,10 @@
 Status snapshot: 2026-08-08
 Verified implementation baseline:
   main@1d3af6f0946e596529b9d40315a83cd3573918db
-Current status-sync:
-  PR #45 · OPEN · DOCS_ONLY
-Post-merge main SHA:
-  PENDING
+Status synchronization provenance:
+  PR #45
+Live repository head and PR state:
+  resolved from GitHub, not embedded in this README
 
 VISION · RESEARCH
 CANON_V0.1_FROZEN
@@ -32,7 +32,7 @@ CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
 SECURITY_PYTEST_9_1_1_MERGED_PR_40
 NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
 STORAGE_GRAPH_PROFILE_CANDIDATES_CAPTURED_DOCS_ONLY
-STATUS_SYNC_PR_45_OPEN
+STATUS_SYNC_PROVENANCE_PR_45
 
 First implementation profile: Python 3.13 + standard-library SQLite
 Future profile candidates (NOT SELECTED): PostgreSQL;
