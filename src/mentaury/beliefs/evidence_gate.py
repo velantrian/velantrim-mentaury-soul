@@ -193,7 +193,7 @@ class EvidenceGatedBeliefLifecycle:
                 belief_id,
                 state,
                 EvidenceGateRejectionCode.CONFLICT,
-                "both evidence sides satisfy the approved policy",
+                "qualifying evidence exists on both sides; fail-closed conflict",
                 receipt=receipt,
             )
         if receipt.outcome is EvidenceGateOutcome.INCONCLUSIVE:

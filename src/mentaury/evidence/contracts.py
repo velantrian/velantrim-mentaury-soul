@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
 
-from mentaury.beliefs.contracts import ClaimType, EvidenceSide
+from mentaury.epistemic_types import ClaimType, EvidenceSide
 from mentaury.contracts import PendingEvent, canonical_timestamp
 from mentaury.validation import SHA256_DIGEST_PATTERN
 

@@ -6,7 +6,7 @@ import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 
-from mentaury.beliefs.contracts import ClaimType, EvidenceSide
+from mentaury.epistemic_types import ClaimType, EvidenceSide
 from mentaury.contracts import canonical_json_bytes, canonical_timestamp
 
 MAX_EVIDENCE_RECORDS = 256

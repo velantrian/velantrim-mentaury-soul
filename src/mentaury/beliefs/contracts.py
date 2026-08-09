@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from mentaury.contracts import PendingEvent
-
+from mentaury.epistemic_types import ClaimType, EvidenceSide
 
 CREATE_BELIEF = "CREATE_BELIEF"
 ATTACH_EVIDENCE = "ATTACH_EVIDENCE"
@@ -30,15 +30,6 @@ BELIEF_REVISED_SCHEMA = "belief-revised/v1"
 BELIEF_DECISION_SCHEMA = "belief-decision/v1"
 
 
-class ClaimType(StrEnum):
-    UNIVERSAL = "universal"
-    STATISTICAL = "statistical"
-    CAUSAL = "causal"
-    CONTEXTUAL = "contextual"
-    EXISTENTIAL = "existential"
-    UNSPECIFIED = "unspecified"
-
-
 class BeliefStatus(StrEnum):
     HYPOTHESIS = "hypothesis"
     PROVISIONAL = "provisional"
@@ -47,11 +38,6 @@ class BeliefStatus(StrEnum):
     CONTRADICTED = "contradicted"
     SUPERSEDED = "superseded"
     UNRESOLVED = "unresolved"
-
-
-class EvidenceSide(StrEnum):
-    FOR = "for"
-    AGAINST = "against"
 
 
 _P0_014_ALLOWED_TRANSITIONS: dict[BeliefStatus, frozenset[BeliefStatus]] = {
