@@ -1,13 +1,13 @@
 # CODEOWNERS — Tier A path ownership markers
 #
-# Ownership assignment helps request reviewers. It is NOT by itself an
-# independent APPROVED gate. See docs/GOVERNANCE.md for risk-tier rules.
+# Ownership assignment is navigation and reviewer-routing metadata.
+# The repository currently operates in solo-maintainer mode, and the live
+# ruleset does not require Code Owner review. See docs/GOVERNANCE.md.
 #
-# Owner/admin: velantrian (temporary CODEOWNER until an independent
-# reviewer/team identity is added — issue #39).
-# Do NOT enable "Require review from Code Owners" while CODEOWNERS
-# only lists @velantrian — that would require owner review, not
-# independent approval.
+# Owner/admin: @velantrian during the solo-maintainer phase.
+# Do not enable "Require review from Code Owners" until a genuinely distinct
+# trusted reviewer or team is represented here and the team transition is
+# verified under issue #39.
 
 # Tier A — existing paths
 /src/mentaury/storage/ @velantrian
@@ -23,10 +23,11 @@
 /CODEOWNERS @velantrian
 /docs/CURRENT_STATUS.md @velantrian
 /docs/GOVERNANCE.md @velantrian
+/docs/governance/ @velantrian
 /docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md @velantrian
 /docs/research/POST_P0_ROADMAP_V0.1.md @velantrian
 
-# Tier A — if/when created (kept for alignment with docs/GOVERNANCE.md)
+# Tier A — if/when created
 # /src/mentaury/**/authority/ @velantrian
 # /src/mentaury/**/lease/ @velantrian
 # /src/mentaury/schema/ @velantrian

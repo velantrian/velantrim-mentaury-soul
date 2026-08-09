@@ -1,30 +1,37 @@
-"""Structural checks for governance risk-tier contract alignment.
+"""Structural checks for the adopted solo-maintainer governance contract.
 
-Эти тесты проверяют согласованность docs/GOVERNANCE.md и CODEOWNERS,
-а не GitHub branch-protection (которая остаётся административной).
+These tests keep docs/GOVERNANCE.md, CODEOWNERS, and the retained repository
+surfaces aligned. They do not claim that repository text alone proves the live
+GitHub ruleset; live enforcement is verified separately through GitHub state.
 """
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GOVERNANCE = (ROOT / "docs" / "GOVERNANCE.md").read_text(encoding="utf-8")
 CODEOWNERS = (ROOT / "CODEOWNERS").read_text(encoding="utf-8")
 CURRENT_STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
+SOLO_MODE = (
+    ROOT / "docs" / "governance" / "solo-maintainer-mode.md"
+).read_text(encoding="utf-8")
+REVIEW_CHECKLIST = (
+    ROOT / "docs" / "governance" / "solo-maintainer-review-checklist.md"
+).read_text(encoding="utf-8")
 
-_APPROVED_STATUSES = {
-    "READY_FOR_REVIEW",
+_ACTIVE_STATUSES = (
+    "DRAFT",
+    "READY_FOR_MAINTAINER_REVIEW",
     "BLOCKED_BY_CI",
+    "BLOCKED_BY_CONFLICT",
     "BLOCKED_BY_CHANGES_REQUESTED",
-    "BLOCKED_BY_INDEPENDENT_REVIEW",
-    "BLOCKED_BY_STALE_REVIEW",
-    "BLOCKED_BY_ADMIN_ENFORCEMENT",
+    "BLOCKED_BY_UNRESOLVED_CONVERSATION",
+    "BLOCKED_BY_AUTHORIZATION_BOUNDARY",
     "ACCEPTED_FOR_MERGE",
-}
+    "MERGED",
+)
 
-# Existing Tier A paths that must be present now (not if/when).
 _EXISTING_TIER_A = (
     "src/mentaury/storage/**",
     "src/mentaury/replay/**",
@@ -39,6 +46,7 @@ _EXISTING_TIER_A = (
     "CODEOWNERS",
     "docs/CURRENT_STATUS.md",
     "docs/GOVERNANCE.md",
+    "docs/governance/**",
     "docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "docs/research/POST_P0_ROADMAP_V0.1.md",
 )
@@ -53,7 +61,6 @@ _IF_WHEN_TIER_A = (
     "src/mentaury/redaction/**",
 )
 
-# CODEOWNERS active (non-comment) entries mapped from existing Tier A surfaces.
 _CODEOWNERS_EXISTING = (
     "/src/mentaury/storage/",
     "/src/mentaury/replay/",
@@ -68,6 +75,7 @@ _CODEOWNERS_EXISTING = (
     "/CODEOWNERS",
     "/docs/CURRENT_STATUS.md",
     "/docs/GOVERNANCE.md",
+    "/docs/governance/",
     "/docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "/docs/research/POST_P0_ROADMAP_V0.1.md",
 )
@@ -83,33 +91,65 @@ def _active_codeowner_paths(text: str) -> list[str]:
     return paths
 
 
+def _between(text: str, start: str, end: str) -> str:
+    return text.split(start, 1)[1].split(end, 1)[0]
+
+
+def _first_text_fence(section: str) -> list[str]:
+    fence = section.split("```text", 1)[1].split("```", 1)[0]
+    return [line.strip() for line in fence.splitlines() if line.strip()]
+
+
+def test_solo_mode_is_the_current_operating_contract() -> None:
+    assert "**Current operating mode:** SOLO MAINTAINER" in GOVERNANCE
+    assert "required approvals = 0" in GOVERNANCE
+    assert "no genuinely independent human reviewer" in GOVERNANCE
+    assert "Independent human review claimed: NO" in GOVERNANCE
+    assert "solo maintainer mode" in SOLO_MODE.lower()
+
+
+def test_active_status_vocabulary_is_exact_and_has_no_identity_blocker() -> None:
+    section = _between(
+        GOVERNANCE,
+        "## 2. Standard merge statuses",
+        "## 3. Risk classification",
+    )
+    assert _first_text_fence(section) == list(_ACTIVE_STATUSES)
+    assert "BLOCKED_BY_INDEPENDENT_REVIEW" not in _first_text_fence(section)
+    assert "BLOCKED_BY_GOVERNANCE_IDENTITY" not in _first_text_fence(section)
+
+
 def test_current_status_is_classified_tier_a() -> None:
-    assert "docs/CURRENT_STATUS.md" in GOVERNANCE
-    assert "Tier A" in GOVERNANCE
-    section = GOVERNANCE.split("### 3.2 Tier A")[1].split("### 3.3 Tier B")[0]
+    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
     assert "docs/CURRENT_STATUS.md" in section
 
 
-def test_storage_and_workflows_are_tier_a() -> None:
-    section = GOVERNANCE.split("### 3.2 Tier A")[1].split("### 3.3 Tier B")[0]
+def test_storage_workflows_and_governance_are_tier_a() -> None:
+    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
     assert "src/mentaury/storage/**" in section
     assert ".github/workflows/**" in section
     assert "requirements*.lock" in section
+    assert "docs/governance/**" in section
 
 
 def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
-    section = GOVERNANCE.split("#### Existing protected / high-risk paths")[1]
-    section = section.split("#### Paths reserved if/when created")[0]
-    fence = section.split("```text", 1)[1].split("```", 1)[0]
-    listed = [line.strip() for line in fence.splitlines() if line.strip()]
+    section = _between(
+        GOVERNANCE,
+        "#### Existing protected / high-risk paths",
+        "#### Paths reserved if/when created",
+    )
+    listed = _first_text_fence(section)
     assert listed == list(_EXISTING_TIER_A)
     assert len(listed) == len(set(listed))
 
 
 def test_reserved_paths_are_marked_if_when_created() -> None:
-    section = GOVERNANCE.split("#### Paths reserved if/when created")[1]
-    section = section.split("#### Tier A requirements")[0]
-    lines = [line.strip() for line in section.splitlines() if line.strip()]
+    section = _between(
+        GOVERNANCE,
+        "#### Paths reserved if/when created",
+        "#### Tier A requirements",
+    )
+    lines = _first_text_fence(section)
     for path in _IF_WHEN_TIER_A:
         matching = [line for line in lines if line.startswith(path)]
         assert len(matching) == 1, path
@@ -119,12 +159,9 @@ def test_reserved_paths_are_marked_if_when_created() -> None:
 def test_every_existing_tier_a_path_exists_on_disk() -> None:
     for pattern in _EXISTING_TIER_A:
         if pattern.endswith("/**"):
-            root = ROOT / pattern[:-3]
-            assert root.exists(), pattern
+            assert (ROOT / pattern[:-3]).exists(), pattern
         elif "*" in pattern:
-            # Glob lockfiles: at least one requirements*.lock must exist.
-            matches = list(ROOT.glob(pattern))
-            assert matches, pattern
+            assert list(ROOT.glob(pattern)), pattern
         else:
             assert (ROOT / pattern).exists(), pattern
 
@@ -136,7 +173,6 @@ def test_codeowners_aligns_with_existing_tier_a_surfaces() -> None:
 
 
 def test_codeowners_keeps_if_when_paths_commented() -> None:
-    # Reserved globs must not be active CODEOWNERS entries until created.
     active = set(_active_codeowner_paths(CODEOWNERS))
     for reserved in (
         "/src/mentaury/schema/",
@@ -150,22 +186,34 @@ def test_codeowners_keeps_if_when_paths_commented() -> None:
     assert "# /src/mentaury/**/lease/" in CODEOWNERS
 
 
-def test_pr_local_status_vocabulary_is_enumerated() -> None:
-    for status in _APPROVED_STATUSES:
-        assert status in GOVERNANCE
-    # Vague status must be constrained, not promoted as standalone vocabulary.
-    assert "BLOCKED_BY_GOVERNANCE_IDENTITY" in GOVERNANCE
-    assert "must not be used without specifying" in GOVERNANCE
+def test_tier_a_requires_two_distinct_solo_review_passes() -> None:
+    section = _between(GOVERNANCE, "#### Tier A requirements", "### 3.3 Tier B")
+    assert "two-pass maintainer review" in section
+    assert "**Correctness pass**" in section
+    assert "**Adversarial pass**" in section
+    assert "post-merge `main` CI" in section
+    assert "Correctness pass" in REVIEW_CHECKLIST
+    assert "Adversarial pass" in REVIEW_CHECKLIST
 
 
 def test_automatic_escalation_rule_present() -> None:
-    assert "entire PR becomes Tier A" in GOVERNANCE
-    assert "Highest-risk file/effect classifies the whole PR" in CURRENT_STATUS or (
-        "highest-risk" in GOVERNANCE.lower()
-    )
+    assert "the entire PR becomes Tier A" in GOVERNANCE
+    assert "highest-risk file or semantic effect" in GOVERNANCE
 
 
-def test_current_status_points_to_governance_authority() -> None:
+def test_old_independent_gate_is_explicitly_superseded_not_erased() -> None:
+    assert "Any older repository text" in GOVERNANCE
+    assert "superseded by this policy" in GOVERNANCE
+    assert "BLOCKED_BY_INDEPENDENT_REVIEW" in GOVERNANCE
+    assert "must not be used as an active solo-mode status" in GOVERNANCE
+
+
+def test_future_team_transition_remains_explicit() -> None:
+    assert "## 7. Transition to public or team operation" in GOVERNANCE
+    assert "set required approvals to `1`" in GOVERNANCE
+    assert "issue #39" in GOVERNANCE
+    assert "future lifecycle trigger, not a current development blocker" in GOVERNANCE
+
+
+def test_current_status_still_points_to_governance_authority() -> None:
     assert "docs/GOVERNANCE.md" in CURRENT_STATUS
-    assert "NOT ESTABLISHED for #45/#46/#50/#51" in CURRENT_STATUS
-    assert "CONFIRMED for #50/#51" in CURRENT_STATUS
