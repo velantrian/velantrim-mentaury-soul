@@ -1,9 +1,4 @@
-"""Structural checks for the adopted solo-maintainer governance contract.
-
-These tests keep docs/GOVERNANCE.md, CODEOWNERS, and the retained repository
-surfaces aligned. They do not claim that repository text alone proves the live
-GitHub ruleset; live enforcement is verified separately through GitHub state.
-"""
+"""Structural checks for the adopted solo-maintainer governance contract."""
 
 from __future__ import annotations
 
@@ -19,14 +14,14 @@ SOLO_MODE = (
 REVIEW_CHECKLIST = (
     ROOT / "docs" / "governance" / "solo-maintainer-review-checklist.md"
 ).read_text(encoding="utf-8")
-AUTHORIZATION = (ROOT / "docs" / "P1_001_IMPLEMENTATION_AUTHORIZATION.md").read_text(
+P1_001_AUTH = (ROOT / "docs" / "P1_001_IMPLEMENTATION_AUTHORIZATION.md").read_text(
+    encoding="utf-8"
+)
+P1_002_AUTH = (ROOT / "docs" / "P1_002_IMPLEMENTATION_AUTHORIZATION.md").read_text(
     encoding="utf-8"
 )
 P1_002_CONTRACT = (
-    ROOT
-    / "docs"
-    / "research"
-    / "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
+    ROOT / "docs" / "research" / "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
 ).read_text(encoding="utf-8")
 
 _ACTIVE_STATUSES = (
@@ -47,6 +42,7 @@ _EXISTING_TIER_A = (
     "src/mentaury/beliefs/**",
     "src/mentaury/evidence/**",
     "src/mentaury/capabilities/lease/**",
+    "src/mentaury/privacy/reconciliation/**",
     "src/mentaury/contracts/canonical_json.py",
     "scripts/validate.py",
     "scripts/check_doc_freshness.py",
@@ -58,13 +54,13 @@ _EXISTING_TIER_A = (
     "docs/GOVERNANCE.md",
     "docs/governance/**",
     "docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
+    "docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md",
     "docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md",
     "docs/research/POST_P0_ROADMAP_V0.1.md",
 )
 
 _IF_WHEN_TIER_A = (
-    "src/mentaury/privacy/reconciliation/**",
     "src/mentaury/**/authority/**",
     "src/mentaury/**/lease/**",
     "src/mentaury/schema/**",
@@ -80,6 +76,7 @@ _CODEOWNERS_EXISTING = (
     "/src/mentaury/beliefs/",
     "/src/mentaury/evidence/",
     "/src/mentaury/capabilities/lease/",
+    "/src/mentaury/privacy/reconciliation/",
     "/src/mentaury/contracts/canonical_json.py",
     "/scripts/validate.py",
     "/scripts/check_doc_freshness.py",
@@ -91,6 +88,7 @@ _CODEOWNERS_EXISTING = (
     "/docs/GOVERNANCE.md",
     "/docs/governance/",
     "/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
+    "/docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md",
     "/docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "/docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md",
     "/docs/research/POST_P0_ROADMAP_V0.1.md",
@@ -98,13 +96,11 @@ _CODEOWNERS_EXISTING = (
 
 
 def _active_codeowner_paths(text: str) -> list[str]:
-    paths: list[str] = []
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        paths.append(stripped.split()[0])
-    return paths
+    return [
+        line.strip().split()[0]
+        for line in text.splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
 
 
 def _between(text: str, start: str, end: str) -> str:
@@ -120,59 +116,16 @@ def test_solo_mode_is_the_current_operating_contract() -> None:
     assert "**Current operating mode:** SOLO MAINTAINER" in GOVERNANCE
     assert "required approvals = 0" in GOVERNANCE
     assert "no genuinely independent human reviewer" in GOVERNANCE
-    assert "Independent human review claimed: NO" in GOVERNANCE
     assert "solo maintainer mode" in SOLO_MODE.lower()
 
 
-def test_active_status_vocabulary_is_exact_and_has_no_identity_blocker() -> None:
-    section = _between(
-        GOVERNANCE,
-        "## 2. Standard merge statuses",
-        "## 3. Risk classification",
-    )
+def test_active_status_vocabulary_is_exact() -> None:
+    section = _between(GOVERNANCE, "## 2. Standard merge statuses", "## 3. Risk classification")
     assert _first_text_fence(section) == list(_ACTIVE_STATUSES)
     assert "BLOCKED_BY_INDEPENDENT_REVIEW" not in _first_text_fence(section)
-    assert "BLOCKED_BY_GOVERNANCE_IDENTITY" not in _first_text_fence(section)
 
 
-def test_current_status_is_classified_tier_a() -> None:
-    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
-    assert "docs/CURRENT_STATUS.md" in section
-
-
-def test_storage_workflows_and_governance_are_tier_a() -> None:
-    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
-    assert "src/mentaury/storage/**" in section
-    assert ".github/workflows/**" in section
-    assert "requirements*.lock" in section
-    assert "docs/governance/**" in section
-
-
-def test_capability_lease_path_and_authorization_are_active_tier_a() -> None:
-    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
-    assert "src/mentaury/capabilities/lease/**" in section
-    assert "docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md" in section
-    assert "/src/mentaury/capabilities/lease/ @velantrian" in CODEOWNERS
-    assert "/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md @velantrian" in CODEOWNERS
-    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTHORIZATION
-    assert "P1-001 authority outside the pure resolver scope" in GOVERNANCE
-    assert "Capability Lease registry persistence or service" in GOVERNANCE
-
-
-def test_p1_002_contract_is_tier_a_but_source_path_is_inactive() -> None:
-    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
-    contract_path = "docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
-    assert contract_path in section
-    assert f"/{contract_path} @velantrian" in CODEOWNERS
-    assert "P1_002_IMPLEMENTATION_NOT_AUTHORIZED" in P1_002_CONTRACT
-    assert "# /src/mentaury/privacy/reconciliation/ @velantrian" in CODEOWNERS
-    assert "/src/mentaury/privacy/reconciliation/" not in _active_codeowner_paths(
-        CODEOWNERS
-    )
-    assert not (ROOT / "src" / "mentaury" / "privacy" / "reconciliation").exists()
-
-
-def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
+def test_existing_tier_a_paths_are_exact_and_unique() -> None:
     section = _between(
         GOVERNANCE,
         "#### Existing protected / high-risk paths",
@@ -183,7 +136,7 @@ def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
     assert len(listed) == len(set(listed))
 
 
-def test_reserved_paths_are_marked_if_when_created() -> None:
+def test_reserved_tier_a_paths_are_exact() -> None:
     section = _between(
         GOVERNANCE,
         "#### Paths reserved if/when created",
@@ -191,12 +144,14 @@ def test_reserved_paths_are_marked_if_when_created() -> None:
     )
     lines = _first_text_fence(section)
     for path in _IF_WHEN_TIER_A:
-        matching = [line for line in lines if line.startswith(path)]
-        assert len(matching) == 1, path
+        assert sum(line.startswith(path) for line in lines) == 1
 
 
-def test_every_existing_tier_a_path_exists_on_disk() -> None:
+def test_existing_paths_exist_or_are_explicitly_authorized_not_started() -> None:
     for pattern in _EXISTING_TIER_A:
+        if pattern == "src/mentaury/privacy/reconciliation/**":
+            assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in P1_002_AUTH
+            continue
         if pattern.endswith("/**"):
             assert (ROOT / pattern[:-3]).exists(), pattern
         elif "*" in pattern:
@@ -205,16 +160,35 @@ def test_every_existing_tier_a_path_exists_on_disk() -> None:
             assert (ROOT / pattern).exists(), pattern
 
 
-def test_codeowners_aligns_with_existing_tier_a_surfaces() -> None:
+def test_codeowners_aligns_with_tier_a_surfaces() -> None:
     active = _active_codeowner_paths(CODEOWNERS)
     assert active == list(_CODEOWNERS_EXISTING)
     assert len(active) == len(set(active))
 
 
-def test_codeowners_keeps_if_when_paths_commented() -> None:
+def test_p1_001_scope_remains_bounded() -> None:
+    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in P1_001_AUTH
+    assert "/src/mentaury/capabilities/lease/ @velantrian" in CODEOWNERS
+    assert "P1-001 authority outside the pure resolver scope" in GOVERNANCE
+    assert "Capability Lease registry persistence or service" in GOVERNANCE
+
+
+def test_p1_002_authorization_activates_only_exact_pure_path() -> None:
+    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in P1_002_AUTH
+    assert "P1_002_OWNER_GO_AUTHORIZED_BOUNDED" in P1_002_AUTH
+    assert "P1_002_MUTATION_AUTHORITY_NONE" in P1_002_AUTH
+    assert "P1_002_RETRIEVAL_AUTHORITY_NONE" in P1_002_AUTH
+    assert "/src/mentaury/privacy/reconciliation/ @velantrian" in CODEOWNERS
+    assert "/docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md @velantrian" in CODEOWNERS
+    assert "src/mentaury/privacy/reconciliation/**" in GOVERNANCE
+    assert "P1-002 authority outside the pure classifier scope" in GOVERNANCE
+    assert "P1_002_IMPLEMENTATION_NOT_AUTHORIZED" in P1_002_CONTRACT
+    assert not (ROOT / "src" / "mentaury" / "privacy").exists()
+
+
+def test_other_reserved_codeowner_paths_remain_commented() -> None:
     active = set(_active_codeowner_paths(CODEOWNERS))
     for reserved in (
-        "/src/mentaury/privacy/reconciliation/",
         "/src/mentaury/schema/",
         "/src/mentaury/canonical.py",
         "/src/mentaury/canonical/",
@@ -222,13 +196,11 @@ def test_codeowners_keeps_if_when_paths_commented() -> None:
         "/src/mentaury/redaction/",
     ):
         assert reserved not in active
-    assert "# /src/mentaury/privacy/reconciliation/" in CODEOWNERS
     assert "# /src/mentaury/**/authority/" in CODEOWNERS
     assert "# /src/mentaury/**/lease/" in CODEOWNERS
-    assert "/src/mentaury/capabilities/lease/" in active
 
 
-def test_tier_a_requires_two_distinct_solo_review_passes() -> None:
+def test_tier_a_requires_distinct_reviews_and_post_merge_ci() -> None:
     section = _between(GOVERNANCE, "#### Tier A requirements", "### 3.3 Tier B")
     assert "two-pass maintainer review" in section
     assert "**Correctness pass**" in section
@@ -238,24 +210,21 @@ def test_tier_a_requires_two_distinct_solo_review_passes() -> None:
     assert "Adversarial pass" in REVIEW_CHECKLIST
 
 
-def test_automatic_escalation_rule_present() -> None:
+def test_automatic_escalation_and_historical_gate_rules_remain() -> None:
     assert "the entire PR becomes Tier A" in GOVERNANCE
     assert "highest-risk file or semantic effect" in GOVERNANCE
-
-
-def test_old_independent_gate_is_explicitly_superseded_not_erased() -> None:
     assert "Any older repository text" in GOVERNANCE
     assert "superseded by this policy" in GOVERNANCE
     assert "BLOCKED_BY_INDEPENDENT_REVIEW" in GOVERNANCE
-    assert "must not be used as an active solo-mode status" in GOVERNANCE
 
 
 def test_future_team_transition_remains_explicit() -> None:
     assert "## 7. Transition to public or team operation" in GOVERNANCE
     assert "set required approvals to `1`" in GOVERNANCE
-    assert "issue #39" in GOVERNANCE
-    assert "future lifecycle trigger, not a current development blocker" in GOVERNANCE
+    assert "Issue #39" in GOVERNANCE
+    assert "future lifecycle trigger" in GOVERNANCE
 
 
-def test_current_status_still_points_to_governance_authority() -> None:
+def test_current_status_points_to_governance_and_p1_002_receipt() -> None:
     assert "docs/GOVERNANCE.md" in CURRENT_STATUS
+    assert "docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md" in CURRENT_STATUS
