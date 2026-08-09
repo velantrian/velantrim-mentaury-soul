@@ -424,17 +424,20 @@ def test_other_contracts_reject_wrong_types_and_unknown_fields(
 
 
 @pytest.mark.parametrize(
-    "material",
+    ("material", "copy"),
     [
-        _material(policy_revision=2**60),
-        _material(material_id=chr(0xD800)),
+        (_material(policy_revision=2**60), _copy()),
+        (
+            _material(material_id=chr(0xD800)),
+            _copy(material_id=chr(0xD800)),
+        ),
     ],
 )
 def test_noncanonical_json_values_become_contract_violations(
-    material: object,
+    material: object, copy: object
 ) -> None:
     with pytest.raises(PrivacyContractError, match="canonical JSON"):
-        _classify(material=material)
+        _classify(material=material, copy=copy)
 
 
 def test_linkage_is_checked_before_budget() -> None:
