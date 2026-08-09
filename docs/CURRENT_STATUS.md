@@ -107,7 +107,7 @@ contains no reusable permission material.
 
 ---
 
-## 4. 🔐 P1-002 authorization checkpoint
+## 4. 🔐 P1-002 Privacy Reconciliation Classifier authorization checkpoint
 
 P1-002 contract freeze evidence:
 
