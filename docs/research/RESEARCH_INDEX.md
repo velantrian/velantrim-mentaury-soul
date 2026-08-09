@@ -6,7 +6,7 @@ Updated:                      2026-08-09
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
 Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
-Selected execution contract:  P1-002 · FROZEN_DOCS · NOT_AUTHORIZED
+Selected execution contract:  P1-002 Privacy Reconciliation Classifier · FROZEN_DOCS · NOT_AUTHORIZED
 Runtime deployment authority: NONE
 Truth authority:              NONE
 Identity authority:           NONE
@@ -36,6 +36,7 @@ Authoritative P1-001 navigation:
 ```text
 P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
 P1_001_PURE_RESOLVER_VALIDATED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 Verified implementation evidence:
@@ -68,6 +69,8 @@ ALLOW executes nothing
 ---
 
 ## 2. 🧊 Selected P1-002 contract
+
+Selected milestone: **P1-002 Privacy Reconciliation Classifier**.
 
 Authoritative navigation:
 
