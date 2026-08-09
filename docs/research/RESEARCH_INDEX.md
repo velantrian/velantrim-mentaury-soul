@@ -23,6 +23,8 @@ Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
 
+Authoritative governance: [`../GOVERNANCE.md`](../GOVERNANCE.md).
+
 ---
 
 ## 1. ✅ Completed P1-001 checkpoint
@@ -129,6 +131,7 @@ permission.
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
+| [`../GOVERNANCE.md`](../GOVERNANCE.md) | governance authority | ADOPTED | merge/review policy only |
 | [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | P1-001 contract | FROZEN_DOCS | implemented bounded |
 | [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | P1-001 receipt | OWNER_GO_CONSUMED | complete |
 | [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) | P1-002 contract | FROZEN_DOCS | code not started |
