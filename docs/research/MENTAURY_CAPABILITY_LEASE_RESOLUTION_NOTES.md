@@ -64,6 +64,7 @@ Opaque authority reference
 
 - immutable `CapabilityLeaseRecord`;
 - explicit caller-supplied `RegistrySnapshot`;
+- versioned admission contracts for snapshot and record;
 - exact live-head lookup without history walking;
 - pure deterministic resolver contract;
 - canonical digest domain;
@@ -79,7 +80,7 @@ Opaque authority reference
 
 ```text
 ❌ changing AuthorityRef fields
-❌ embedding lease payload in EventEnvelope
+❌ embedding grant data in EventEnvelope
 ❌ registry implementation
 ❌ resolver implementation
 ❌ network lookup
@@ -95,8 +96,9 @@ Opaque authority reference
 ```
 
 Registry-snapshot provenance and authenticity remain an upstream caller-side
-boundary. The pure resolver may validate the supplied snapshot's admitted
-structure and records, but it cannot establish where that snapshot came from.
+boundary. The pure resolver validates the supplied snapshot's admitted structure
+and records, but cannot establish who produced the snapshot or whether the caller
+was entitled to supply it.
 
 ---
 
@@ -130,7 +132,7 @@ registry_snapshot:
   unavailable_reason: null
   registry_schema_version: 1
   live_heads:
-    "CAP-...": 3                         # exactly one live revision per lease_id
+    "CAP-...": 3                         # one live revision per lease_id
   records:
     - capability_lease_record
 
@@ -154,7 +156,35 @@ resolution_budget:
   max_scope_items: 128
 ```
 
-All values must be explicit. No ambient defaults may expand permission.
+All values must be explicit. No ambient default may expand permission.
+
+### 3.1 RegistrySnapshot admission
+
+An `AVAILABLE` snapshot must be admitted before lease lookup:
+
+```text
+registry_schema_version is supported and exact
+availability is AVAILABLE or UNAVAILABLE
+UNAVAILABLE carries no grantable records
+live_heads is a bounded map of unique non-empty lease ids to positive revisions
+records are uniquely indexed by (lease_id, revision)
+no duplicate record keys exist
+one live-head entry exists at most once per lease_id
+live_heads points to an existing record with the same lease_id and revision
+record count and map sizes are bounded by the caller contract
+unknown snapshot fields are rejected
+```
+
+Malformed snapshot structure returns `REGISTRY_CONTRACT_VIOLATION`. This reason
+is distinct from:
+
+```text
+REGISTRY_UNAVAILABLE → no available snapshot was supplied
+UNKNOWN_LEASE        → admitted snapshot has no requested lease id
+REVISION_MISMATCH    → requested revision differs from admitted live head
+```
+
+The resolver does not repair, normalize, merge or infer registry state.
 
 ---
 
@@ -188,10 +218,10 @@ capability_lease:
   content_digest: "sha256:..."
 ```
 
-### 4.1 Admission rules
+### 4.1 Record admission
 
-Before any semantic check, the record must be admitted against an exact versioned
-schema:
+Before digest or semantic authorization, the exact selected record is admitted
+against a versioned schema:
 
 ```text
 unknown fields                     → reject
@@ -201,10 +231,17 @@ duplicate set-like members          → reject
 non-canonical set ordering          → reject
 invalid RFC3339 UTC Z timestamp     → reject
 non-positive revision               → reject
+record key differs from lookup key  → reject
 oversized record                    → BUDGET_EXHAUSTED
 ```
 
-Admission is distinct from authorization. An admitted record may still be denied.
+Admission failure returns `LEASE_CONTRACT_VIOLATION`. Admission is distinct from
+authorization: an admitted record may still be denied.
+
+`max_record_bytes` is evaluated over the bounded serialized record supplied by
+the admitted snapshot before digest recomputation. The caller-side parser must
+already enforce an outer input-size ceiling so malformed input cannot force an
+unbounded parse.
 
 ### 4.2 Record invariants
 
@@ -214,10 +251,9 @@ revision is a positive integer
 revision 1 → supersedes_revision MUST be null
 revision n > 1 → supersedes_revision MUST equal n - 1
 no revision gaps or branches are valid in v0.1
-one lease_id has exactly one live-head revision in a snapshot
 purpose_id is an exact identifier, not semantic free text
 allowed_operations are unique and sorted
-allowed_side_effects are unique and sorted
+authorized side-effect identifiers are unique and sorted
 data_scope entries are unique and sorted by (kind, identifier)
 not_before MUST be earlier than expires_at
 expires_at MUST be present
@@ -287,27 +323,39 @@ Historical resolve-for-audit is outside P1-001.
 
 ```text
 one exact lookup by AuthorityRef.capability_lease_id
-→ obtain the snapshot live-head revision
+→ obtain the admitted snapshot live-head revision
 → AuthorityRef.capability_revision MUST equal the live head
-→ obtain exactly that record
+→ obtain exactly the record indexed by (lease_id, revision)
 ```
 
 No revision walk, fallback, nearest-version selection, wildcard lease lookup or
 historical grant is allowed.
 
-### 5.2 Time model
+### 5.2 Time and lifecycle consistency
 
 The resolver receives `evaluated_at` from the caller and never reads the system
 clock.
 
 ```text
-valid interval:
+valid ACTIVE interval:
 not_before <= evaluated_at < expires_at
 ```
 
-An ACTIVE record at or after `expires_at` returns `LEASE_EXPIRED` without
-mutating the registry. A materialized `EXPIRED` state before `expires_at` is a
-contract violation.
+Lifecycle consistency is checked before lifecycle denial:
+
+```text
+status EXPIRED while evaluated_at < expires_at
+→ LEASE_CONTRACT_VIOLATION
+
+status ACTIVE while evaluated_at >= expires_at
+→ LEASE_EXPIRED
+
+status REVOKED with revoked_at null
+or non-REVOKED with revoked_at non-null
+→ LEASE_CONTRACT_VIOLATION
+```
+
+The resolver never materializes a new state or mutates the registry.
 
 ### 5.3 Fork / restore quarantine
 
@@ -359,8 +407,8 @@ no ambient operator override
 
 ## 7. 🚦 Normative deny precedence
 
-First matching failure determines the single primary reason. Diagnostics may add
-bounded observations but may not replace the primary reason.
+The first matching failure determines the single primary reason. Diagnostics may
+add bounded observations but may not replace the primary reason.
 
 | Order | Check | Primary result |
 |---:|---|---|
@@ -368,25 +416,28 @@ bounded observations but may not replace the primary reason.
 | 2 | budget object present | `BUDGET_MISSING` |
 | 3 | budget values admitted and permit one exact lookup | `BUDGET_EXHAUSTED` |
 | 4 | registry snapshot available | `REGISTRY_UNAVAILABLE` |
-| 5 | exact `lease_id` exists | `UNKNOWN_LEASE` |
-| 6 | one valid live head exists and requested revision equals it | `REVISION_MISMATCH` |
-| 7 | exact record bytes fit `max_record_bytes` | `BUDGET_EXHAUSTED` |
-| 8 | record is admitted by the exact versioned schema | `LEASE_CONTRACT_VIOLATION` |
-| 9 | recomputed digest equals stored `content_digest` | `LEASE_DIGEST_MISMATCH` |
-| 10 | semantic invariants and supersession chain are valid | `LEASE_CONTRACT_VIOLATION` |
-| 11 | revoked state or non-null `revoked_at` | `LEASE_REVOKED` |
-| 12 | materialized or derived expiry | `LEASE_EXPIRED` |
-| 13 | status is exactly ACTIVE | `LEASE_NOT_ACTIVE` |
-| 14 | `evaluated_at >= not_before` | `NOT_YET_VALID` |
-| 15 | exact `purpose_id` equality | `PURPOSE_MISMATCH` |
-| 16 | exact operation membership | `OPERATION_NOT_ALLOWED` |
-| 17 | requested and allowed scope counts fit `max_scope_items` | `BUDGET_EXHAUSTED` |
-| 18 | requested typed scope is a subset of allowed typed scope | `DATA_SCOPE_VIOLATION` |
-| 19 | requested side effects are a subset of allowed side effects | `SIDE_EFFECT_NOT_ALLOWED` |
-| 20 | all checks pass | `ALLOW` |
+| 5 | registry snapshot admitted by exact versioned schema | `REGISTRY_CONTRACT_VIOLATION` |
+| 6 | exact `lease_id` exists | `UNKNOWN_LEASE` |
+| 7 | requested revision equals the admitted live head | `REVISION_MISMATCH` |
+| 8 | exact record bytes fit `max_record_bytes` | `BUDGET_EXHAUSTED` |
+| 9 | selected record admitted by exact versioned schema | `LEASE_CONTRACT_VIOLATION` |
+| 10 | recomputed digest equals stored `content_digest` | `LEASE_DIGEST_MISMATCH` |
+| 11 | semantic invariants and supersession chain are valid | `LEASE_CONTRACT_VIOLATION` |
+| 12 | lifecycle status and timestamps are mutually consistent | `LEASE_CONTRACT_VIOLATION` |
+| 13 | revoked state | `LEASE_REVOKED` |
+| 14 | materialized or derived expiry | `LEASE_EXPIRED` |
+| 15 | status is exactly ACTIVE | `LEASE_NOT_ACTIVE` |
+| 16 | `evaluated_at >= not_before` | `NOT_YET_VALID` |
+| 17 | exact `purpose_id` equality | `PURPOSE_MISMATCH` |
+| 18 | exact operation membership | `OPERATION_NOT_ALLOWED` |
+| 19 | requested and allowed scope counts fit `max_scope_items` | `BUDGET_EXHAUSTED` |
+| 20 | requested typed scope is a subset of allowed typed scope | `DATA_SCOPE_VIOLATION` |
+| 21 | requested side effects are a subset of allowed side effects | `SIDE_EFFECT_NOT_ALLOWED` |
+| 22 | all checks pass | `ALLOW` |
 
 ```text
-REGISTRY_UNAVAILABLE ≠ UNKNOWN_LEASE
+REGISTRY_UNAVAILABLE ≠ REGISTRY_CONTRACT_VIOLATION
+REGISTRY_CONTRACT_VIOLATION ≠ UNKNOWN_LEASE
 BUDGET_MISSING ≠ BUDGET_EXHAUSTED
 revision behind or ahead of live head → REVISION_MISMATCH
 purpose compatibility                → exact identifier equality
@@ -411,8 +462,10 @@ resolution_result:
   resolver_contract_version: "P1-001-v0.2"
 ```
 
-For failures before record observation, observed fields are null. The result must
-not contain copied permission material reusable as authority.
+For failures before record observation, observed record fields are null. For a
+registry-contract failure, bounded registry diagnostics may be present but no
+untrusted permission material may be echoed. The result must never contain a
+permission copy reusable as authority.
 
 ```text
 ALLOW
@@ -430,30 +483,33 @@ ALLOW
 | ID | Scenario | Expected primary result |
 |---|---|---|
 | `CAP-SC-001` | unavailable registry snapshot | `REGISTRY_UNAVAILABLE` |
-| `CAP-SC-002` | unknown lease id | `UNKNOWN_LEASE` |
-| `CAP-SC-003` | requested revision behind live head | `REVISION_MISMATCH` |
-| `CAP-SC-004` | requested revision ahead of live head | `REVISION_MISMATCH` |
-| `CAP-SC-005` | oversized exact record | `BUDGET_EXHAUSTED` |
-| `CAP-SC-006` | unknown field or malformed schema | `LEASE_CONTRACT_VIOLATION` |
-| `CAP-SC-007` | forged or stale digest | `LEASE_DIGEST_MISMATCH` |
-| `CAP-SC-008` | malformed supersession chain | `LEASE_CONTRACT_VIOLATION` |
-| `CAP-SC-009` | revoked lease | `LEASE_REVOKED` |
-| `CAP-SC-010` | active record at or after expiry | `LEASE_EXPIRED` |
-| `CAP-SC-011` | suspended / proposed / superseded / unverified | `LEASE_NOT_ACTIVE` |
-| `CAP-SC-012` | before `not_before` | `NOT_YET_VALID` |
-| `CAP-SC-013` | purpose mismatch | `PURPOSE_MISMATCH` |
-| `CAP-SC-014` | operation not allowed | `OPERATION_NOT_ALLOWED` |
-| `CAP-SC-015` | scope budget exceeded | `BUDGET_EXHAUSTED` |
-| `CAP-SC-016` | typed data-scope violation | `DATA_SCOPE_VIOLATION` |
-| `CAP-SC-017` | undeclared side effect | `SIDE_EFFECT_NOT_ALLOWED` |
-| `CAP-SC-018` | missing budget | `BUDGET_MISSING` |
-| `CAP-SC-019` | identity authority or direct M3 write present | `LEASE_CONTRACT_VIOLATION` |
-| `CAP-SC-020` | same admitted inputs repeated | byte-equivalent result |
-| `CAP-SC-021` | unrelated registry record added | result unchanged |
-| `CAP-SC-022` | old ACTIVE ref after fork / new UNVERIFIED ref | `REVISION_MISMATCH` / `LEASE_NOT_ACTIVE` |
+| `CAP-SC-002` | unsupported registry schema version | `REGISTRY_CONTRACT_VIOLATION` |
+| `CAP-SC-003` | duplicate record key or live head references missing record | `REGISTRY_CONTRACT_VIOLATION` |
+| `CAP-SC-004` | unknown lease id in admitted registry | `UNKNOWN_LEASE` |
+| `CAP-SC-005` | requested revision behind live head | `REVISION_MISMATCH` |
+| `CAP-SC-006` | requested revision ahead of live head | `REVISION_MISMATCH` |
+| `CAP-SC-007` | oversized exact record | `BUDGET_EXHAUSTED` |
+| `CAP-SC-008` | unknown field or malformed lease schema | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-009` | forged or stale digest | `LEASE_DIGEST_MISMATCH` |
+| `CAP-SC-010` | malformed supersession chain | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-011` | premature materialized `EXPIRED` status | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-012` | revoked lease | `LEASE_REVOKED` |
+| `CAP-SC-013` | active record at or after expiry | `LEASE_EXPIRED` |
+| `CAP-SC-014` | suspended / proposed / superseded / unverified | `LEASE_NOT_ACTIVE` |
+| `CAP-SC-015` | before `not_before` | `NOT_YET_VALID` |
+| `CAP-SC-016` | purpose mismatch | `PURPOSE_MISMATCH` |
+| `CAP-SC-017` | operation not allowed | `OPERATION_NOT_ALLOWED` |
+| `CAP-SC-018` | scope budget exceeded | `BUDGET_EXHAUSTED` |
+| `CAP-SC-019` | typed data-scope violation | `DATA_SCOPE_VIOLATION` |
+| `CAP-SC-020` | undeclared side effect | `SIDE_EFFECT_NOT_ALLOWED` |
+| `CAP-SC-021` | missing budget | `BUDGET_MISSING` |
+| `CAP-SC-022` | identity authority or direct M3 write present | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-023` | same admitted inputs repeated | byte-equivalent result |
+| `CAP-SC-024` | unrelated admitted registry record added | result unchanged |
+| `CAP-SC-025` | old ACTIVE ref after fork / new UNVERIFIED ref | `REVISION_MISMATCH` / `LEASE_NOT_ACTIVE` |
 
 A lease becoming invalid after an external operation starts belongs to future
-Action Gate / execution receipt research, not to this pure resolver contract.
+Action Gate / execution-receipt research, not to this pure resolver contract.
 
 ---
 
@@ -531,9 +587,11 @@ current absence of that reviewer is not a blocker to docs work under solo mode.
 AuthorityRef remains (lease_id, revision)
 Lease record carries bounded, expiring, revocable grant data
 Registry snapshot is explicit and may be UNAVAILABLE
+Registry and record have separate fail-closed admission contracts
 Resolver uses exact live-head lookup with no history walk
 Schema admission precedes digest and semantic authorization
 Digest excludes its own content_digest field
+Lifecycle consistency precedes revoked / expired / active denial
 Purpose, operation and typed scope are exact in v0.1
 Budgets are explicit and fail closed
 Fork / restore quarantines inherited grants as UNVERIFIED
