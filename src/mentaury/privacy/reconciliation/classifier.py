@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from mentaury.contracts import canonical_json_bytes
+from mentaury.contracts import CanonicalJSONError, canonical_json_bytes
 
 from .contracts import (
     CopyState,
@@ -51,20 +51,6 @@ def _surface_result(
     return _result(PrivacyDecision.DENY_RETRIEVAL, reason)
 
 
-def _requires_explicit_purpose(material: PrivacyMaterial) -> bool:
-    return (
-        material.state is MaterialState.RESTRICTED
-        or material.privacy_class is not PrivacyClass.PUBLIC
-    )
-
-
-def _requires_explicit_branch(material: PrivacyMaterial) -> bool:
-    return (
-        material.state is MaterialState.RESTRICTED
-        or material.privacy_class is PrivacyClass.RESTRICTED
-    )
-
-
 def classify_privacy_reconciliation(
     material: PrivacyMaterial | object,
     copy: PrivacyCopy | object,
@@ -74,8 +60,8 @@ def classify_privacy_reconciliation(
     """Classify one caller-supplied privacy copy without performing any action.
 
     Strict admission exceptions represent ``INPUT_CONTRACT_VIOLATION`` from the
-    frozen contract. All admitted semantic outcomes are returned as the minimal
-    two-field result.
+    frozen contract. Empty purpose and branch allowlists grant nothing; they
+    are never interpreted as wildcard authority.
     """
 
     admitted_material = PrivacyMaterial.from_value(material)
@@ -99,7 +85,13 @@ def classify_privacy_reconciliation(
         "copy": admitted_copy.to_value(),
         "intent": admitted_intent.to_value(),
     }
-    serialized_size = len(canonical_json_bytes(canonical_input))
+    try:
+        serialized_size = len(canonical_json_bytes(canonical_input))
+    except (CanonicalJSONError, UnicodeEncodeError) as exc:
+        raise PrivacyContractError(
+            "material, copy, and intent must be canonical JSON values"
+        ) from exc
+
     purpose_count = len(admitted_material.permitted_purposes) + len(
         admitted_material.withdrawn_purposes
     )
@@ -141,24 +133,12 @@ def classify_privacy_reconciliation(
     if admitted_intent.purpose in admitted_material.withdrawn_purposes:
         return _surface_result(admitted_copy.surface, PrivacyReason.PURPOSE_WITHDRAWN)
 
-    if admitted_material.permitted_purposes:
-        purpose_permitted = (
-            admitted_intent.purpose in admitted_material.permitted_purposes
-        )
-    else:
-        purpose_permitted = not _requires_explicit_purpose(admitted_material)
-    if not purpose_permitted:
+    if admitted_intent.purpose not in admitted_material.permitted_purposes:
         return _surface_result(
             admitted_copy.surface, PrivacyReason.PURPOSE_NOT_PERMITTED
         )
 
-    if admitted_material.permitted_branches:
-        branch_permitted = (
-            admitted_intent.branch_id in admitted_material.permitted_branches
-        )
-    else:
-        branch_permitted = not _requires_explicit_branch(admitted_material)
-    if not branch_permitted:
+    if admitted_intent.branch_id not in admitted_material.permitted_branches:
         return _surface_result(
             admitted_copy.surface, PrivacyReason.BRANCH_NOT_PERMITTED
         )
