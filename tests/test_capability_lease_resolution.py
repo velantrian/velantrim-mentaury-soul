@@ -200,7 +200,10 @@ def test_cap_sc_006_revision_ahead_of_live_head() -> None:
 
 
 def test_cap_sc_007_oversized_record() -> None:
-    assert _reason(budget=_budget(max_record_bytes=1)) is ResolutionReason.BUDGET_EXHAUSTED
+    assert (
+        _reason(budget=_budget(max_record_bytes=1))
+        is ResolutionReason.BUDGET_EXHAUSTED
+    )
 
 
 def test_cap_sc_008_malformed_lease_schema() -> None:
@@ -241,12 +244,21 @@ def test_cap_sc_011_premature_materialized_expired() -> None:
 
 
 def test_cap_sc_012_revoked_lease() -> None:
-    record = _record(status=LeaseStatus.REVOKED, revoked_at="2026-08-09T11:00:00Z")
-    assert _reason(snapshot=_snapshot(records=[record])) is ResolutionReason.LEASE_REVOKED
+    record = _record(
+        status=LeaseStatus.REVOKED,
+        revoked_at="2026-08-09T11:00:00Z",
+    )
+    assert (
+        _reason(snapshot=_snapshot(records=[record]))
+        is ResolutionReason.LEASE_REVOKED
+    )
 
 
 def test_cap_sc_013_active_at_expiry() -> None:
-    assert _reason(evaluated_at="2026-08-10T00:00:00Z") is ResolutionReason.LEASE_EXPIRED
+    assert (
+        _reason(evaluated_at="2026-08-10T00:00:00Z")
+        is ResolutionReason.LEASE_EXPIRED
+    )
 
 
 @pytest.mark.parametrize(
@@ -266,20 +278,32 @@ def test_cap_sc_014_other_non_active_state(status: LeaseStatus) -> None:
 
 
 def test_cap_sc_015_before_not_before() -> None:
-    assert _reason(evaluated_at="2026-08-08T23:59:59Z") is ResolutionReason.NOT_YET_VALID
+    assert (
+        _reason(evaluated_at="2026-08-08T23:59:59Z")
+        is ResolutionReason.NOT_YET_VALID
+    )
 
 
 def test_cap_sc_016_purpose_mismatch() -> None:
-    assert _reason(intent=_intent(purpose_id="PURPOSE-OTHER")) is ResolutionReason.PURPOSE_MISMATCH
+    assert (
+        _reason(intent=_intent(purpose_id="PURPOSE-OTHER"))
+        is ResolutionReason.PURPOSE_MISMATCH
+    )
 
 
 def test_cap_sc_017_operation_not_allowed() -> None:
-    assert _reason(intent=_intent(operation_id="write")) is ResolutionReason.OPERATION_NOT_ALLOWED
+    assert (
+        _reason(intent=_intent(operation_id="write"))
+        is ResolutionReason.OPERATION_NOT_ALLOWED
+    )
 
 
 def test_cap_sc_018_scope_budget_exceeded() -> None:
     record = _record(
-        data_scope=(ScopeItem("stream", "stream:a"), ScopeItem("stream", "stream:b"))
+        data_scope=(
+            ScopeItem("stream", "stream:a"),
+            ScopeItem("stream", "stream:b"),
+        )
     )
     intent = _intent(
         data_scope=[
@@ -299,7 +323,13 @@ def test_cap_sc_018_scope_budget_exceeded() -> None:
 
 def test_cap_sc_019_typed_scope_violation() -> None:
     assert (
-        _reason(intent=_intent(data_scope=[{"kind": "stream", "identifier": "stream:other"}]))
+        _reason(
+            intent=_intent(
+                data_scope=[
+                    {"kind": "stream", "identifier": "stream:other"}
+                ]
+            )
+        )
         is ResolutionReason.DATA_SCOPE_VIOLATION
     )
 
@@ -322,8 +352,13 @@ def test_cap_sc_021_missing_budget() -> None:
     assert result.primary_reason is ResolutionReason.BUDGET_MISSING
 
 
-@pytest.mark.parametrize("changes", [{"identity_authority": "M3"}, {"direct_m3_write": True}])
-def test_cap_sc_022_identity_authority_or_direct_m3_write(changes: dict[str, object]) -> None:
+@pytest.mark.parametrize(
+    "changes",
+    [{"identity_authority": "M3"}, {"direct_m3_write": True}],
+)
+def test_cap_sc_022_identity_authority_or_direct_m3_write(
+    changes: dict[str, object],
+) -> None:
     assert (
         _reason(snapshot=_snapshot(records=[_record(**changes)]))
         is ResolutionReason.LEASE_CONTRACT_VIOLATION
@@ -334,7 +369,9 @@ def test_cap_sc_023_identical_inputs_are_byte_equivalent() -> None:
     first = _resolve()
     second = _resolve()
     assert first.decision is ResolutionDecision.ALLOW
-    assert canonical_json_bytes(first.to_value()) == canonical_json_bytes(second.to_value())
+    assert canonical_json_bytes(first.to_value()) == canonical_json_bytes(
+        second.to_value()
+    )
 
 
 def test_cap_sc_024_unrelated_admitted_record_does_not_change_result() -> None:
@@ -342,11 +379,17 @@ def test_cap_sc_024_unrelated_admitted_record_does_not_change_result() -> None:
     unrelated = _record(lease_id="CAP-UNRELATED")
     baseline = _resolve(snapshot=_snapshot(records=[primary]))
     expanded = _resolve(snapshot=_snapshot(records=[primary, unrelated]))
-    assert canonical_json_bytes(baseline.to_value()) == canonical_json_bytes(expanded.to_value())
+    assert canonical_json_bytes(baseline.to_value()) == canonical_json_bytes(
+        expanded.to_value()
+    )
 
 
 def test_cap_sc_025_fork_old_and_new_unverified_refs() -> None:
-    restored = _record(revision=2, supersedes_revision=1, status=LeaseStatus.UNVERIFIED)
+    restored = _record(
+        revision=2,
+        supersedes_revision=1,
+        status=LeaseStatus.UNVERIFIED,
+    )
     snapshot = _snapshot(records=[restored], live_heads={LEASE_ID: 2})
     old = _resolve(snapshot=snapshot, ref=AuthorityRef(LEASE_ID, 1))
     new = _resolve(snapshot=snapshot, ref=AuthorityRef(LEASE_ID, 2))
@@ -383,8 +426,16 @@ def test_invalid_evaluated_at_is_request_invalid() -> None:
     "budget",
     [
         {},
-        {"max_registry_lookups": 0, "max_record_bytes": 1, "max_scope_items": 1},
-        {"max_registry_lookups": True, "max_record_bytes": 1, "max_scope_items": 1},
+        {
+            "max_registry_lookups": 0,
+            "max_record_bytes": 1,
+            "max_scope_items": 1,
+        },
+        {
+            "max_registry_lookups": True,
+            "max_record_bytes": 1,
+            "max_scope_items": 1,
+        },
         {
             "max_registry_lookups": 1,
             "max_record_bytes": 1,
@@ -410,7 +461,9 @@ def test_budget_failure_precedes_registry_unavailable() -> None:
 @pytest.mark.parametrize(
     "mutation",
     [
-        lambda record: {key: value for key, value in record.items() if key != "purpose_id"},
+        lambda record: {
+            key: value for key, value in record.items() if key != "purpose_id"
+        },
         lambda record: {**record, "allowed_operations": ["read", "read"]},
         lambda record: {**record, "allowed_operations": ["write", "read"]},
         lambda record: {
@@ -420,11 +473,16 @@ def test_budget_failure_precedes_registry_unavailable() -> None:
                 {"kind": "stream", "identifier": "stream:a"},
             ],
         },
-        lambda record: {**record, "not_before": "2026-08-09T02:00:00+02:00"},
+        lambda record: {
+            **record,
+            "not_before": "2026-08-09T02:00:00+02:00",
+        },
         lambda record: {**record, "audit_required": "true"},
     ],
 )
-def test_record_admission_rejects_unknown_types_duplicates_and_order(mutation) -> None:
+def test_record_admission_rejects_unknown_types_duplicates_and_order(
+    mutation,
+) -> None:
     malformed = mutation(_record())
     assert (
         _reason(snapshot=_snapshot(records=[malformed]))
@@ -453,7 +511,10 @@ def test_digest_precedes_semantic_and_lifecycle_denial() -> None:
         {"audit_required": False},
         {"not_before": "2026-08-10T00:00:00Z"},
         {"status": LeaseStatus.REVOKED, "revoked_at": None},
-        {"status": LeaseStatus.ACTIVE, "revoked_at": "2026-08-09T11:00:00Z"},
+        {
+            "status": LeaseStatus.ACTIVE,
+            "revoked_at": "2026-08-09T11:00:00Z",
+        },
     ],
 )
 def test_semantic_invariants_fail_closed(changes: dict[str, object]) -> None:
@@ -512,7 +573,9 @@ def test_typed_and_mapping_inputs_are_equivalent() -> None:
         resolution_budget=ResolutionBudget(1, 65_536, 128),
     )
     mapped = _resolve()
-    assert canonical_json_bytes(typed.to_value()) == canonical_json_bytes(mapped.to_value())
+    assert canonical_json_bytes(typed.to_value()) == canonical_json_bytes(
+        mapped.to_value()
+    )
 
 
 def test_registry_snapshot_detaches_caller_records() -> None:
@@ -525,7 +588,30 @@ def test_registry_snapshot_detaches_caller_records() -> None:
         records=(raw,),
     )
     raw["purpose_id"] = "MUTATED"
-    assert snapshot.record_for(LEASE_ID, 1)["purpose_id"] == PURPOSE_ID
+    stored = snapshot.record_for(LEASE_ID, 1)
+    assert stored is not None
+    assert stored["purpose_id"] == PURPOSE_ID
+
+
+def test_registry_snapshot_records_are_recursively_immutable() -> None:
+    snapshot = RegistrySnapshot(
+        availability=RegistryAvailability.AVAILABLE,
+        unavailable_reason=None,
+        registry_schema_version=1,
+        live_heads={LEASE_ID: 1},
+        records=(_record(),),
+    )
+    stored = snapshot.record_for(LEASE_ID, 1)
+    assert stored is not None
+
+    granted_by = stored["granted_by"]
+    operations = stored["allowed_operations"]
+    assert operations == ("read",)
+
+    with pytest.raises(TypeError):
+        granted_by["actor_id"] = "operator:mutated"
+    with pytest.raises(TypeError):
+        operations[0] = "write"
 
 
 def test_authority_ref_shape_remains_p0_reference_only() -> None:
@@ -558,7 +644,9 @@ print('ok')
     env = dict(os.environ)
     src = str(ROOT / "src")
     existing = env.get("PYTHONPATH")
-    env["PYTHONPATH"] = src if not existing else os.pathsep.join((src, existing))
+    env["PYTHONPATH"] = (
+        src if not existing else os.pathsep.join((src, existing))
+    )
     result = subprocess.run(
         [sys.executable, "-c", code],
         cwd=str(ROOT),
