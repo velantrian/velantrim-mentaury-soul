@@ -1,11 +1,11 @@
-"""Structural consistency checks for the P1-001 contract and owner GO.
+"""Structural checks for the P1-001 contract and completion evidence.
 
-These tests do not implement or validate a capability resolver. They preserve
-three distinct states:
+These tests preserve four distinct facts:
 
 - the immutable frozen contract receipt;
-- the later bounded implementation authorization;
-- implementation completion, which is still not claimed.
+- the later bounded owner authorization;
+- the verified bounded implementation completion;
+- the absence of authority for any subsequent runtime milestone.
 """
 
 from __future__ import annotations
@@ -28,6 +28,13 @@ AUTH = (ROOT / "docs" / "P1_001_IMPLEMENTATION_AUTHORIZATION.md").read_text(
 )
 STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
 GOVERNANCE = (ROOT / "docs" / "GOVERNANCE.md").read_text(encoding="utf-8")
+README = (ROOT / "README.md").read_text(encoding="utf-8")
+QUICK = (ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md").read_text(
+    encoding="utf-8"
+)
+ENVIRONMENT = (ROOT / "docs" / "ENVIRONMENT_MANIFEST.md").read_text(
+    encoding="utf-8"
+)
 
 _EXPECTED_DENY_ORDER = [
     "REQUEST_INVALID",
@@ -54,7 +61,7 @@ _EXPECTED_DENY_ORDER = [
     "ALLOW",
 ]
 
-_AUTHORIZED_PATHS = (
+_IMPLEMENTED_PATHS = (
     "src/mentaury/capabilities/__init__.py",
     "src/mentaury/capabilities/lease/__init__.py",
     "src/mentaury/capabilities/lease/contracts.py",
@@ -79,41 +86,70 @@ def _scenario_ids() -> list[int]:
     return [int(value) for value in re.findall(r"`CAP-SC-(\d{3})`", section)]
 
 
-def test_frozen_contract_and_later_owner_go_are_distinct() -> None:
+def test_frozen_contract_remains_historical_while_current_state_is_implemented() -> None:
     assert "FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED" in LEASE
     assert "Implementation in src/:       NOT AUTHORIZED" in LEASE
 
-    assert "P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED" in STATUS
-    assert "P1_001_IMPLEMENTATION_NOT_STARTED" in STATUS
-    assert "P1_001_COMPLETION_NOT_CLAIMED" in STATUS
-    assert "AUTHORIZED_BOUNDED · NOT_STARTED" in ROADMAP
-    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTH
+    assert "P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED" in STATUS
+    assert "P1_001_PURE_RESOLVER_VALIDATED" in STATUS
+    assert "P1-001 implementation:        IMPLEMENTED_BOUNDED" in ROADMAP
+    assert "OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED" in AUTH
+    assert "Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED" in INDEX
 
-    combined_current = "\n".join((STATUS, ROADMAP, INDEX, AUTH))
-    assert "Implementation completion:    NOT CLAIMED" in combined_current
-    assert "ACTION_GATE_NOT_AUTHORIZED" in combined_current
-    assert "DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN" in combined_current
+    for document in (STATUS, ROADMAP, INDEX, AUTH, README, QUICK, ENVIRONMENT):
+        assert "NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED" in document
 
 
-def test_authorization_scope_is_exact_and_bounded() -> None:
-    for path in _AUTHORIZED_PATHS:
-        assert AUTH.count(path) == 1, path
+def test_implementation_scope_exists_and_matches_receipt() -> None:
+    for path in _IMPLEMENTED_PATHS:
+        assert (ROOT / path).exists(), path
         assert path in STATUS
-        assert path in ROADMAP
+        assert path in AUTH
 
+    for path in _IMPLEMENTED_PATHS[:4]:
+        assert path in ROADMAP or path in ENVIRONMENT
+
+
+def test_completion_evidence_is_consistent() -> None:
+    evidence_documents = (STATUS, ROADMAP, INDEX, AUTH, README, QUICK, ENVIRONMENT)
+    immutable_evidence = (
+        "53b3eec436d4dbfd2c13050a9966fb84ef0b7b3a",
+        "31322108100",
+        "d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98",
+        "31322210843",
+        "e873e43331fa7273b92f896b371707e4779b17d4",
+        "31323051934",
+        "f21809d8f31a457bd7acfe1d766230973ba9ecf5",
+        "31323138053",
+    )
+    combined = "\n".join(evidence_documents)
+    for receipt in immutable_evidence:
+        assert receipt in combined
+
+    for document in (STATUS, ROADMAP, AUTH, README, QUICK):
+        assert "387 passed" in document
+
+
+def test_authorization_is_consumed_and_does_not_roll_forward() -> None:
+    combined = "\n".join((STATUS, ROADMAP, INDEX, AUTH)).lower()
     for forbidden in (
         "registry persistence",
-        "network access",
-        "ambient system clock",
-        "event append",
-        "replay or projection integration",
-        "direct or indirect M3 write",
-        "Action Gate",
+        "registry service",
+        "network",
+        "ambient clock",
+        "action gate",
         "tool execution",
-        "backend selection or migration",
+        "event append",
+        "replay",
+        "m3",
+        "backend selection",
         "production deployment",
     ):
-        assert forbidden.lower() in AUTH.lower(), forbidden
+        assert forbidden in combined, forbidden
+
+    assert "authorization does not roll forward" in AUTH.lower()
+    assert "owner go is consumed" in INDEX.lower()
+    assert "no registry service, action gate, p1-002" in ROADMAP.lower()
 
 
 def test_current_governance_is_solo_tier_a_without_fake_independence() -> None:
@@ -147,11 +183,16 @@ def test_deny_precedence_is_exact_and_complete() -> None:
     assert _deny_results() == _EXPECTED_DENY_ORDER
 
 
-def test_scenario_ids_are_unique_and_contiguous() -> None:
+def test_scenario_ids_are_unique_contiguous_and_implemented() -> None:
     ids = _scenario_ids()
     assert ids == list(range(1, 26))
     assert len(ids) == len(set(ids))
     assert "CAP-SC-001…CAP-SC-025" in AUTH
+    implementation_tests = (ROOT / "tests" / "test_capability_lease_resolution.py").read_text(
+        encoding="utf-8"
+    )
+    for scenario in range(1, 26):
+        assert f"test_cap_sc_{scenario:03d}" in implementation_tests
 
 
 def test_lifecycle_ambiguity_is_closed_fail_closed() -> None:
@@ -165,7 +206,7 @@ def test_lifecycle_ambiguity_is_closed_fail_closed() -> None:
 def test_budget_vocabulary_is_consistent() -> None:
     combined = "\n".join((LEASE, ROADMAP, AUTH))
     assert "max_record_bytes" in LEASE
-    assert "max_record_bytes" in ROADMAP
+    assert "max_record_bytes" in AUTH
     assert "max_canonical_bytes" not in combined
 
 
@@ -174,7 +215,7 @@ def test_p0_and_execution_boundaries_remain_explicit() -> None:
         assert "Action Gate" in document
         assert "M3" in document
     assert "P0 events remain replayable without a registry" in LEASE
-    assert "no backend selected" in INDEX.lower()
+    assert "no backend" in INDEX.lower()
     assert "DOMAIN_RUNTIME_NOT_AUTHORIZED" in ROADMAP
     assert "ALLOW executes nothing" in AUTH
 
@@ -188,4 +229,4 @@ def test_owning_documents_link_to_each_other() -> None:
     assert "P1_001_IMPLEMENTATION_AUTHORIZATION.md" in INDEX
     assert "MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md" in AUTH
     assert "docs/CURRENT_STATUS.md" in AUTH
-    assert "docs/GOVERNANCE.md" in INDEX or "../GOVERNANCE.md" in INDEX
+    assert "../GOVERNANCE.md" in INDEX

@@ -1,37 +1,42 @@
-# 🔐 P1-001 Capability Lease Resolution — Implementation Authorization
+# 🔐 P1-001 Capability Lease Resolution — Authorization and Completion Receipt
 
 ```text
-Status:                       OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED
+Status:                       OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED
+Original authorization status:OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED
 Authorization date:           2026-08-09
+Completion date:              2026-08-09
 Milestone:                    P1-001 Capability Lease Resolution
 Contract authority:           docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 Status authority:             docs/CURRENT_STATUS.md
 Governance:                   SOLO_MAINTAINER · TIER_A
 Independent human assurance:  NOT CLAIMED
-Implementation completion:    NOT CLAIMED
 Runtime deployment:           NOT AUTHORIZED
+Next runtime milestone:       NOT AUTHORIZED
 ```
 
-## 1. 🎯 Authorization source
+## 1. 🎯 Authorization source and disposition
 
-After completion of the P0 line, governance reconciliation, P1-001 contract
-freeze and maintenance cleanup, the repository owner instructed the agent to
-continue the remaining work on 2026-08-09.
+The repository owner instructed the agent on 2026-08-09 to continue the
+remaining work after the P1-001 contract freeze. PR #62 recorded the separate
+bounded owner GO required by the frozen contract and roadmap.
 
-This document is the explicit separate owner GO required by the frozen P1-001
-contract and Post-P0 Roadmap.
+That authorization has now been consumed by the exact bounded implementation in
+PR #63.
 
 ```text
 owner instruction
-→ bounded implementation authorization
-≠ implementation complete
-≠ deployment authorization
-≠ Action Gate authorization
+→ bounded authorization PR #62
+→ pure resolver implementation PR #63
+→ green resulting main CI
+→ IMPLEMENTED_BOUNDED
 ```
 
-## 2. ✅ Exact authorized implementation scope
+The authorization does not roll forward to any registry, Action Gate, tool,
+deployment or later P1 milestone.
 
-Only the following new implementation and test paths are authorized:
+---
+
+## 2. ✅ Exact completed implementation scope
 
 ```text
 src/mentaury/capabilities/__init__.py
@@ -41,30 +46,30 @@ src/mentaury/capabilities/lease/resolver.py
 tests/test_capability_lease_resolution.py
 ```
 
-The implementation PR may also make the minimum supporting changes required to:
+Minimum Tier A support completed with the implementation:
 
-- classify the created lease path as active Tier A in governance;
-- align CODEOWNERS with the created Tier A path;
-- update structural governance and contract tests;
-- add bounded documentation for the implemented resolver;
-- synchronize authoritative and derived status only after verified merge.
+- active lease path added to `docs/GOVERNANCE.md`;
+- active lease path added to `CODEOWNERS`;
+- structural governance tests updated.
 
-No other runtime path is authorized by this receipt.
+No other runtime path was authorized or implemented by this receipt.
 
-## 3. 🧊 Frozen contract remains normative
+---
 
-The implementation must conform to the frozen contract in:
+## 3. 🧊 Frozen contract conformance
+
+The implementation conforms to the frozen contract in:
 
 - `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`;
 - `docs/research/POST_P0_ROADMAP_V0.1.md`.
 
-Required properties:
+Implemented properties:
 
 ```text
 pure and deterministic
 fail closed
 caller-supplied RegistrySnapshot
-caller-supplied AuthorityRef
+caller-supplied P0 AuthorityRef
 caller-supplied ActionIntent
 caller-supplied evaluated_at
 caller-supplied ResolutionBudget
@@ -79,20 +84,85 @@ fork / restore quarantine as UNVERIFIED
 ALLOW executes nothing
 ```
 
-The frozen contract's metadata records that implementation was unauthorized at
-the time of PR #58. This later receipt changes current implementation authority
-without rewriting the historical freeze evidence.
+Frozen resource vocabulary retained by the implementation:
 
-## 4. 🚫 Explicit non-goals and prohibitions
+```text
+max_registry_lookups
+max_record_bytes
+max_scope_items
+```
 
-This authorization does not permit:
+The frozen document's metadata remains historical evidence that implementation
+was not authorized at the time of PR #58. PR #62 provided the later bounded GO;
+PR #63 completed it without rewriting the freeze receipt.
+
+---
+
+## 4. 🧾 Verified evidence
+
+### Authorization
+
+```text
+PR:                    #62
+Reviewed head:         53b3eec436d4dbfd2c13050a9966fb84ef0b7b3a
+Exact-head CI:         31322108100 · success · 327 passed
+Merge:                 d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
+Post-merge CI:         31322210843 · success
+```
+
+### Implementation
+
+```text
+PR:                    #63
+Reviewed head:         e873e43331fa7273b92f896b371707e4779b17d4
+Exact-head CI:         31323051934 · success · 387 passed
+Merge:                 f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Post-merge CI:         31323138053 · success
+Correctness pass:      PASS
+Adversarial pass:      PASS
+Review conversations:  0
+Independent assurance: NOT CLAIMED
+```
+
+The adversarial pass identified nested mutability in the initial snapshot
+representation despite an already green CI run. The final reviewed head reused
+the P0 recursive payload freezer and added a regression proving that nested
+mappings and sequences cannot be mutated through the stored snapshot.
+
+---
+
+## 5. 🧪 Retained validation boundary
+
+The accepted suite covers:
+
+- all `CAP-SC-001…CAP-SC-025` frozen scenarios;
+- exact first-match denial precedence;
+- deterministic byte-equivalent repeatability;
+- typed and mapping input equivalence;
+- unrelated-record metamorphic invariance;
+- strict unknown-field and wrong-type rejection;
+- duplicate and non-canonical set-like collection rejection;
+- canonical digest recomputation;
+- stale and future revision denial;
+- revoked, expired, suspended, superseded and unverified denial;
+- exact purpose, operation, typed scope and side-effect containment;
+- explicit budget denial;
+- recursive snapshot immutability;
+- fresh-process no-network/database/filesystem/clock import checks;
+- unchanged two-field P0 `AuthorityRef`;
+- absence of storage, replay, beliefs and evidence integration.
+
+---
+
+## 6. 🚫 Preserved prohibitions
+
+The completed bounded implementation does not include or authorize:
 
 ```text
 registry persistence
 registry network service
 network access
-ambient system clock
-ambient environment authority
+ambient system clock or environment authority
 filesystem or database mutation
 SQLite schema changes
 event append
@@ -110,75 +180,29 @@ backend selection or migration
 production deployment
 ```
 
-The existing P0 `AuthorityRef` shape remains unchanged:
+The P0 `AuthorityRef` remains exactly:
 
 ```text
 (capability_lease_id, capability_revision)
 ```
 
-## 5. 🧪 Mandatory validation matrix
+`ResolutionResult(ALLOW)` is observation/classification data and contains no
+reusable capability material.
 
-The implementation PR must include:
+---
 
-- all `CAP-SC-001…CAP-SC-025` contract scenarios;
-- exact deny-precedence tests;
-- deterministic repeatability tests;
-- input-order and unrelated-record metamorphic tests;
-- strict unknown-field and wrong-type rejection;
-- duplicate and non-canonical set-like collection rejection;
-- canonical digest recomputation tests;
-- stale and future revision denial;
-- revoked, expired, suspended, superseded and unverified denial;
-- exact purpose, operation, typed scope and side-effect containment tests;
-- budget exhaustion tests;
-- import-side-effect tests proving no network/database/filesystem mutation;
-- P0 compatibility tests proving envelopes and replay require no registry.
-
-## 6. 🛡️ Tier A delivery sequence
+## 7. ⛔ Authorization stop
 
 ```text
-1. merge this authorization checkpoint
-2. verify green post-merge main CI
-3. create a clean implementation branch from that main
-4. implement only the authorized pure resolver slice
-5. run full validator, freshness, pytest and compileall
-6. inspect exact final diff
-7. complete correctness review pass
-8. complete adversarial review pass
-9. resolve every review conversation
-10. merge only the unchanged reviewed head
-11. verify green post-merge main CI
-12. update status and Notion from verified evidence
-```
-
-Implementation and authorization must not be combined into one unreviewed
-status jump.
-
-## 7. 🏁 Completion condition
-
-P1-001 may be marked implemented only after all of the following are true:
-
-```text
-bounded code exists on main
-+ contract scenarios pass
-+ adversarial and metamorphic tests pass
-+ full repository CI passes exact PR head
-+ Tier A correctness pass recorded
-+ Tier A adversarial pass recorded
-+ unresolved review conversations = 0
-+ merge uses unchanged reviewed head
-+ resulting main CI passes
-+ authoritative status is synchronized
-```
-
-Until then:
-
-```text
-P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED
-P1_001_IMPLEMENTATION_NOT_STARTED_OR_IN_PROGRESS
-P1_001_COMPLETION_NOT_CLAIMED
+P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
+P1_001_PURE_RESOLVER_VALIDATED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
+
+Any next runtime-capable step requires a new bounded contract, threat model,
+explicit owner GO, independent implementation PR, exact-head Tier A review and
+green post-merge `main` CI.
