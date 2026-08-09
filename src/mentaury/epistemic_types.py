@@ -1,19 +1,20 @@
-"""Независимые leaf-типы для epistemic contracts.
+"""Shared leaf types for belief and evidence contracts.
 
-Этот модуль намеренно не живёт внутри ``mentaury.beliefs`` и
-``mentaury.evidence``: импорт submodule пакета выполняет package
-``__init__``, что и создаёт circular ImportError при
-``import mentaury.evidence`` → ``beliefs.contracts`` →
-``beliefs.__init__`` → ``evidence_gate`` → частично инициализированный
-``mentaury.evidence``.
+This module intentionally lives outside both ``mentaury.beliefs`` and
+``mentaury.evidence``. Importing a package submodule executes that package's
+``__init__`` first, so placing these shared enums inside either package would
+reintroduce the circular import that this leaf module removes.
 
-``ClaimType`` и ``EvidenceSide`` имеют единую type identity и
-реэкспортируются из ``mentaury.beliefs.contracts`` для совместимости.
+The enums are re-exported from ``mentaury.beliefs.contracts`` and the public
+``mentaury.beliefs`` package for compatibility while retaining one class
+identity across all consumers.
 """
 
 from __future__ import annotations
 
 from enum import StrEnum
+
+__all__ = ["ClaimType", "EvidenceSide"]
 
 
 class ClaimType(StrEnum):
