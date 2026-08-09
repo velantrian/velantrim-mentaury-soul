@@ -18,15 +18,9 @@ Purpose:     compact map for people and connected agents
 **Mentaury Soul** is a substrate-neutral research architecture for persistent,
 governed digital individuality.
 
-It studies continuity through:
-
-- origin and provenance;
-- event history;
-- memory and beliefs;
-- relationships and commitments;
-- Self–World modelling;
-- character as presentation;
-- explainable governed change.
+It studies continuity through origin/provenance, event history, memory and
+beliefs, relationships and commitments, a governed Self–World model, character
+as presentation, and explainable change.
 
 `Soul` is an architectural-philosophical name. It is not a claim of proven
 consciousness or subjective experience.
@@ -38,6 +32,7 @@ consciousness or subjective experience.
 ```text
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
+BELIEFS_EVIDENCE_IMPORT_ORDER_FIXED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 
 SOLO_MAINTAINER_GOVERNANCE_ACTIVE
@@ -56,12 +51,12 @@ DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
 RUNTIME_NOT_VALIDATED
 ```
 
-Latest accepted P1 docs evidence:
+Latest accepted maintenance evidence:
 
 ```text
-PR #58 exact-head CI: 31317003807 · success
-PR #58 merge:         8e89063fd74f5ae6d337366c299fa5f4e0164618
-Post-merge CI:        31317057193 · success
+PR #60 exact-head CI: 31317635719 · success · 326 passed
+PR #60 merge:         102fac1f8778e056d29ece3f1f76d92d4cf264f2
+Post-merge CI:        31317696013 · success
 Review:               solo Tier A correctness + adversarial passes
 Independent review:   not claimed
 ```
@@ -132,6 +127,19 @@ runtime dependencies: none
 network/database at import: forbidden
 ```
 
+### Beliefs/evidence maintenance
+
+PR #60:
+
+- moved shared `ClaimType` / `EvidenceSide` to a dependency-light leaf module;
+- preserved one public enum identity;
+- removed the package import cycle;
+- added fresh-interpreter order tests;
+- made contradiction registration deterministically produce `CONTESTED` from
+  mutable states;
+- made forged contradiction outcomes fail reducer validation;
+- retained P0-015 conflict thresholds and semantics.
+
 ---
 
 ## 5. 🔐 P1-001 contract
@@ -140,19 +148,10 @@ network/database at import: forbidden
 Status: FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
 ```
 
-The accepted contract defines:
-
-- explicit caller-supplied `RegistrySnapshot`;
-- separate fail-closed registry and lease-record admission;
-- exact live-head lookup;
-- no revision history walking;
-- canonical digest recomputation excluding `content_digest`;
-- explicit lifecycle and caller-supplied time;
-- exact purpose, operation, typed scope and side-effect matching;
-- caller-supplied budgets;
-- fork/restore quarantine as `UNVERIFIED`;
-- deterministic first-match denial;
-- `ALLOW` that executes nothing.
+The accepted contract defines explicit registry input, separate fail-closed
+registry and lease admission, exact live-head lookup, canonical digest
+recomputation, explicit time/budgets, exact purpose/operation/typed-scope
+matching, fork quarantine and an `ALLOW` that executes nothing.
 
 ```text
 FROZEN_DOCS
@@ -201,14 +200,15 @@ consciousness claims
 
 ---
 
-## 8. 🧹 Governance cleanup
+## 8. 🧹 Completed cleanup
 
 ```text
 PR #38 → closed, superseded by PR #58
+PR #48 → closed, superseded by PR #60
 PR #55 → closed historical probe
+Issue #47 → import-order remediation completed
 Issues #42 / #52 / #53 → solo post-hoc reviews completed
 Issue #39 → future team-transition trigger
-PR #48 / issue #47 → real import-order remediation, clean successor required
 ```
 
 ---
@@ -230,6 +230,7 @@ PR #48 / issue #47 → real import-order remediation, clean successor required
 
 ```text
 P0 foundation implemented
++ beliefs/evidence import isolation fixed
 + active solo governance
 + P1-001 docs frozen
 

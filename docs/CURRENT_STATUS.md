@@ -38,6 +38,7 @@ CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P0_014_BELIEF_LIFECYCLE_VALIDATED
 P0_015_EVIDENCE_GATE_VALIDATED
+BELIEFS_EVIDENCE_IMPORT_ORDER_FIXED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 
 SOLO_MAINTAINER_GOVERNANCE_ACTIVE
@@ -57,21 +58,36 @@ DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
 RUNTIME_NOT_VALIDATED
 ```
 
-Accepted governance evidence:
+Accepted governance and contract evidence:
 
 ```text
 PR #56 → solo-maintainer mode documented
 PR #57 → governance, CODEOWNERS and tests reconciled with solo mode
 PR #58 → P1-001 contract hardened and accepted under Tier A review
+PR #59 → authoritative and derived status synchronized
 ```
 
-Verified PR #58 evidence:
+Verified P1-001 docs evidence:
 
 ```text
 Reviewed head:   a32b0e4fe55382f76a70b2205104af2e28f99451
 Exact-head CI:   31317003807 · success
 Merge commit:    8e89063fd74f5ae6d337366c299fa5f4e0164618
 Post-merge CI:   31317057193 · success
+Review mode:     SOLO_MAINTAINER · correctness + adversarial passes
+Independent assurance: NOT CLAIMED
+```
+
+Verified beliefs/evidence remediation evidence:
+
+```text
+Issue:           #47 · completed
+Successor PR:    #60
+Reviewed head:   7afe7e1bdd47913732f6e3d1e8b479c46e95b06e
+Exact-head CI:   31317635719 · success · 326 passed
+Merge commit:    102fac1f8778e056d29ece3f1f76d92d4cf264f2
+Post-merge CI:   31317696013 · success
+Legacy PR #48:   closed without merge · superseded
 Review mode:     SOLO_MAINTAINER · correctness + adversarial passes
 Independent assurance: NOT CLAIMED
 ```
@@ -141,6 +157,23 @@ network at import: forbidden
 database at import: forbidden
 ```
 
+### P0-014 / P0-015 maintenance state
+
+PR #60 removed the confirmed import-order dependency between
+`mentaury.beliefs` and `mentaury.evidence` by introducing dependency-light
+shared epistemic leaf types.
+
+```text
+ClaimType / EvidenceSide → one shared type identity
+beliefs ↔ evidence import order → fresh-interpreter validated
+mutable contradiction result → deterministic CONTESTED
+forged CONTRADICTED result → reducer rejection
+qualifying evidence on both sides → unchanged fail-closed CONFLICT semantics
+```
+
+The remediation changes no status enum, policy threshold, event schema, storage
+format or replay profile.
+
 ---
 
 ## 4. 🔐 P1-001 Capability Lease Resolution
@@ -169,11 +202,9 @@ ALLOW: executes nothing
 
 PR #58 corrected two contract ambiguities before acceptance:
 
-1. malformed registry structure now returns
-   `REGISTRY_CONTRACT_VIOLATION`;
-2. premature materialized `EXPIRED` state returns
-   `LEASE_CONTRACT_VIOLATION`, while ACTIVE at/after expiry returns
-   `LEASE_EXPIRED`.
+1. malformed registry structure returns `REGISTRY_CONTRACT_VIOLATION`;
+2. premature materialized `EXPIRED` returns `LEASE_CONTRACT_VIOLATION`, while
+   ACTIVE at/after expiry returns `LEASE_EXPIRED`.
 
 ### Implementation gate
 
@@ -240,20 +271,22 @@ consciousness or subjective-experience claims
 
 ---
 
-## 7. 🧹 Completed governance cleanup
+## 7. 🧹 Completed governance and maintenance cleanup
 
 ```text
 PR #38 → closed without merge; superseded by merged PR #58
+PR #48 → closed without merge; superseded by merged PR #60
 PR #55 → closed without merge; historical ruleset probe
+Issue #47 → import-order and contradiction-path remediation completed
 Issue #42 → solo security post-hoc review completed
 Issue #52 → solo validator post-hoc review completed
 Issue #53 → solo storage-integrity post-hoc review completed
 Issue #39 → open only as future public/team transition gate
 ```
 
-Legacy PR #48 and issue #47 concern a real beliefs/evidence import-order bug.
-They must be handled through a clean current-main successor and Tier A review;
-they are not blocked merely by the absence of an independent reviewer.
+There is no remaining reviewer-identity blocker in the current solo phase.
+Future work is evaluated by actual technical scope, exact-head evidence and the
+current authorization boundaries.
 
 ---
 
@@ -275,6 +308,7 @@ they are not blocked merely by the absence of an independent reviewer.
 
 ```text
 P0-001…P0-015 implemented
++ import-order defect fixed
 + permanent CI
 + active solo-main ruleset
 + honest two-pass Tier A review
