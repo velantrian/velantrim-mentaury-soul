@@ -2,28 +2,30 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      0.2
+Version:                      0.3
 Updated:                      2026-08-09
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 docs status:           FROZEN_DOCS
-P1-001 implementation:        NOT AUTHORIZED
-Runtime authority:            NONE
+P1-001 implementation:        AUTHORIZED_BOUNDED · NOT_STARTED
+Implementation completion:    NOT CLAIMED
+Runtime deployment authority: NONE
 Truth authority:              NONE
-Capability authority:         NONE
+Capability grant authority:   NONE
 Canon modification authority: NONE
 Direct or indirect M3 write:  FORBIDDEN
 Domain runtime:               NOT AUTHORIZED
 ```
 
 ```text
-Roadmap adopted ≠ runtime authorized
-FROZEN_DOCS ≠ implementation
+Roadmap adopted ≠ runtime deployed
+FROZEN_DOCS ≠ implementation complete
+AUTHORIZED_BOUNDED ≠ permission to widen scope
 Research presence ≠ roadmap priority
 Solo review ≠ independent certification
 ```
 
-The filename retains `V0.1` only for stable historical links. This document's
-metadata is the current version authority.
+The filename retains `V0.1` for stable historical links. Document metadata is
+the current version authority.
 
 ---
 
@@ -31,22 +33,25 @@ metadata is the current version authority.
 
 ```text
 P0-001…P0-015 implemented
-→ P1-001 Capability Lease Resolution contract frozen
-→ implementation remains unauthorized
-→ separate bounded owner GO required before src/
+→ P1-001 contract frozen by PR #58
+→ separate owner GO recorded
+→ bounded pure implementation authorized
+→ implementation not started
+→ separate Tier A implementation PR required
 ```
 
-P1-001 remains the first post-P0 execution candidate because authority-sensitive
-runtime cannot rely on an opaque lease reference. The accepted docs define a
-pure fail-closed contract without enabling runtime.
+P1-001 remains the first post-P0 execution milestone because authority-sensitive
+future runtime cannot rely on an opaque lease reference.
 
-Owning contract:
+Owning surfaces:
 
-[`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [Frozen contract](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [Implementation authorization](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [Current status](../CURRENT_STATUS.md)
 
 ---
 
-## 2. ✅ P1-001 frozen docs boundary
+## 2. ✅ P1-001 frozen contract boundary
 
 ```text
 RegistrySnapshot is explicit and caller supplied
@@ -77,7 +82,7 @@ Threat handling includes:
 | Ambient network/clock authority | forbidden |
 | Fork/restore authority carryover | quarantine as `UNVERIFIED` |
 
-Resource vocabulary:
+Resource vocabulary remains:
 
 ```text
 max_registry_lookups
@@ -87,7 +92,7 @@ max_scope_items
 
 ---
 
-## 3. 🧾 Freeze evidence
+## 3. 🧾 Contract freeze evidence
 
 ```text
 PR:              #58
@@ -99,40 +104,79 @@ Review:          correctness + adversarial maintainer passes
 Independent human assurance: not claimed
 ```
 
-The review corrected malformed-registry and premature-EXPIRED ambiguities before
-acceptance. Structural tests enforce deny ordering, scenario numbering and
-cross-document non-authorization boundaries.
+The frozen document remains the normative contract. Its freeze-time statement
+that implementation was not authorized is historical evidence of the state at
+PR #58; current authorization is recorded separately and does not rewrite that
+receipt.
 
 ---
 
-## 4. 🔐 Authorization gate before implementation
+## 4. 🔐 Owner authorization checkpoint
 
-Any future registry or resolver implementation requires all of:
-
-1. separate explicit owner GO in `docs/CURRENT_STATUS.md`;
-2. minimal pure implementation scope;
-3. a new Tier A exact-head correctness and adversarial review;
-4. deterministic, adversarial and metamorphic tests;
-5. preserved P0 event/replay compatibility;
-6. no Action Gate, tool execution, M3 or domain-runtime expansion;
-7. green exact-head and post-merge CI.
-
-Until such a GO exists:
+The repository owner instructed the agent on 2026-08-09 to continue the
+remaining work. The separate authorization receipt defines the exact bounded
+implementation scope.
 
 ```text
-CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
-DOMAIN_RUNTIME_NOT_AUTHORIZED
-ACTION_GATE_NOT_AUTHORIZED
-DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
+P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED
+P1_001_IMPLEMENTATION_NOT_STARTED
+P1_001_COMPLETION_NOT_CLAIMED
 ```
+
+Authorized source/test slice:
+
+```text
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
+```
+
+Minimum governance/test/documentation support may accompany the implementation
+only to classify and validate that exact Tier A path.
 
 ---
 
-## 5. 🚫 Deferred work
+## 5. 🛠️ Implementation requirements
+
+The implementation PR must be:
+
+```text
+pure
++ deterministic
++ caller supplied
++ fail closed
++ standard-library only
++ side-effect free
+```
+
+It must implement the frozen deny ordering and all `CAP-SC-001…CAP-SC-025`
+scenarios, plus adversarial and metamorphic validation.
+
+It must not:
+
+```text
+persist or fetch a registry
+read network, environment or system clock
+mutate files, databases, events or projections
+change P0 AuthorityRef
+perform action execution
+write beliefs, identity, relationships or M3
+select a backend
+```
+
+The implementation result `ALLOW` remains a pure classification and executes
+nothing.
+
+---
+
+## 6. 🚫 Deferred work
 
 Not part of P1-001:
 
 ```text
+registry persistence or service
 Identity Continuity runtime
 Controlled Origin ingestion
 Non-Projection runtime
@@ -149,9 +193,18 @@ backend selection or migration
 These remain research or future milestones and gain no priority merely by being
 documented.
 
+Until separately authorized:
+
+```text
+DOMAIN_RUNTIME_NOT_AUTHORIZED
+ACTION_GATE_NOT_AUTHORIZED
+TOOL_EXECUTION_NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
+```
+
 ---
 
-## 6. 🔬 Research promotion
+## 7. 🔬 Research promotion
 
 The [Research Index](RESEARCH_INDEX.md) preserves hypotheses and candidates.
 Promotion requires:
@@ -172,34 +225,40 @@ team exists. Its current absence is not a solo-mode blocker.
 
 ---
 
-## 7. 🔄 Status rules
+## 8. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
 | Research captured | no runtime status change |
 | P1 docs frozen | `FROZEN_DOCS · NOT_IMPLEMENTED` |
-| Owner authorizes bounded code | explicit scope added to `CURRENT_STATUS` |
-| Code PR merged + main CI | only then may bounded implementation be marked complete |
+| Owner GO merged | `AUTHORIZED_BOUNDED · NOT_STARTED` |
+| Implementation PR opened | `AUTHORIZED_BOUNDED · IN_PROGRESS` only in live PR state |
+| Code PR merged + main CI | bounded implementation may then be marked implemented |
+| Action Gate or deployment | remains unauthorized without a separate milestone |
 
 GitHub `main` and `docs/CURRENT_STATUS.md` are authoritative. Notion is synced
 after verified merge evidence.
 
 ---
 
-## 8. 🏁 Formula
+## 9. 🏁 Formula
 
 ```text
 P0 complete
 → P1-001 docs frozen
-→ implementation still unauthorized
-→ separate owner GO
-→ possible future pure resolver
-→ Action Gate / M3 / domain runtime remain forbidden
+→ bounded owner GO
+→ pure resolver implementation PR
+→ exact-head Tier A review
+→ post-merge main CI
+→ bounded implementation status sync
+
+Action Gate / tools / M3 / domain runtime remain forbidden
 ```
 
 ### Related
 
 - [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
