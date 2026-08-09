@@ -11,8 +11,7 @@ Live main tip:                      resolved from GitHub; not embedded here
 ```
 
 This document records durable maturity and authorization facts. Mutable branch
-tips, open-PR heads and current workflow state must be read from GitHub rather
-than copied into long-lived maturity text.
+tips, open-PR heads and workflow state are resolved from GitHub.
 
 ```text
 IMPLEMENTED
@@ -20,12 +19,14 @@ IMPLEMENTED
 
 FROZEN_DOCS
 = accepted contract documentation
-≠ implementation authorization
+≠ implementation by itself
 
-OPEN PR
-≠ implemented
+AUTHORIZED_BOUNDED
+= implementation may begin only inside the exact recorded scope
+≠ completion
+≠ runtime deployment
 
-Notion / README / Quick Reference
+README / Quick Reference / Notion
 = derived navigation surfaces
 ```
 
@@ -47,9 +48,10 @@ INDEPENDENT_HUMAN_REVIEW_NOT_CLAIMED
 TIER_A_TWO_PASS_MAINTAINER_REVIEW_REQUIRED
 
 POST_P0_ROADMAP_ADOPTED_DOCS_ONLY
-P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 P1_001_CAPABILITY_LEASE_RESOLUTION_FROZEN_DOCS
-CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
+P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED
+P1_001_IMPLEMENTATION_NOT_STARTED
+P1_001_COMPLETION_NOT_CLAIMED
 
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
@@ -58,43 +60,60 @@ DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
 RUNTIME_NOT_VALIDATED
 ```
 
-Accepted governance and contract evidence:
+---
+
+## 2. 🔐 P1-001 owner GO
+
+The repository owner instructed the agent on 2026-08-09 to continue the
+remaining work after the P1-001 contract freeze. This is the separate owner GO
+required by the frozen roadmap.
+
+The authoritative authorization receipt is:
+
+- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
+
+Authorized implementation is limited to a pure, deterministic, caller-supplied
+Capability Lease resolver:
 
 ```text
-PR #56 → solo-maintainer mode documented
-PR #57 → governance, CODEOWNERS and tests reconciled with solo mode
-PR #58 → P1-001 contract hardened and accepted under Tier A review
-PR #59 → authoritative and derived status synchronized
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
 ```
 
-Verified P1-001 docs evidence:
+Governance-only supporting edits are allowed where required to classify the new
+path as Tier A and keep documentation/tests consistent.
+
+Explicitly outside the GO:
 
 ```text
-Reviewed head:   a32b0e4fe55382f76a70b2205104af2e28f99451
-Exact-head CI:   31317003807 · success
-Merge commit:    8e89063fd74f5ae6d337366c299fa5f4e0164618
-Post-merge CI:   31317057193 · success
-Review mode:     SOLO_MAINTAINER · correctness + adversarial passes
-Independent assurance: NOT CLAIMED
+registry persistence or registry service
+network lookup
+ambient system clock or environment authority
+Action Gate or Tool Receipt runtime
+tool execution or external effects
+event append or replay integration
+belief, identity, relationship or M3 mutation
+operator override inside resolve()
+backend selection or migration
+production deployment
 ```
 
-Verified beliefs/evidence remediation evidence:
+The frozen contract remains an immutable freeze receipt. Its freeze-time marker
+`Implementation in src/: NOT AUTHORIZED` records the state at PR #58 and does
+not override this later owner authorization. Current authorization authority is
+this file plus `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
 
-```text
-Issue:           #47 · completed
-Successor PR:    #60
-Reviewed head:   7afe7e1bdd47913732f6e3d1e8b479c46e95b06e
-Exact-head CI:   31317635719 · success · 326 passed
-Merge commit:    102fac1f8778e056d29ece3f1f76d92d4cf264f2
-Post-merge CI:   31317696013 · success
-Legacy PR #48:   closed without merge · superseded
-Review mode:     SOLO_MAINTAINER · correctness + adversarial passes
-Independent assurance: NOT CLAIMED
-```
+Completion requires a separate implementation PR with exact-head Tier A
+correctness and adversarial review, deterministic/adversarial/metamorphic tests,
+all conversations resolved, squash merge with unchanged reviewed head, and
+green post-merge `main` CI.
 
 ---
 
-## 2. 🛡️ Live governance model
+## 3. 🛡️ Live governance model
 
 The active `Mentaury main governance` ruleset protects `main`:
 
@@ -105,29 +124,27 @@ The active `Mentaury main governance` ruleset protects `main`:
 - force pushes blocked;
 - branch deletion blocked;
 - bypass list empty;
-- required approvals set to `0` during the explicit solo-maintainer phase.
+- required approvals `0` during explicit solo-maintainer operation.
 
-Risk-sensitive changes use the Tier A procedure in `docs/GOVERNANCE.md`:
+Tier A work requires:
 
 ```text
 exact final head
-+ exact-head CI
 + complete diff inspection
 + correctness pass
 + adversarial pass
++ green exact-head CI
 + resolved conversations
 + explicit maintainer decision
-+ post-merge main CI
++ green post-merge main CI
 ```
 
-Automated agents may support review but do not constitute independent human
-approval. Issue #39 is a future transition trigger: when a genuine independent
-reviewer or team exists, approvals and stale/latest-push review gates must be
-restored and verified.
+Issue #39 remains only the future transition trigger for a genuine independent
+reviewer/team. It does not block current solo work.
 
 ---
 
-## 3. ✅ Implemented milestones
+## 4. ✅ Implemented milestones
 
 | Milestone | State | Verified boundary |
 |---|---|---|
@@ -147,7 +164,7 @@ restored and verified.
 | P0-014 Minimal Belief Lifecycle | ✅ Implemented | belief status is not objective truth |
 | P0-015 Deterministic Evidence Gate | ✅ Implemented | gate receipt is not external verification |
 
-The implementation profile remains:
+Implementation profile remains:
 
 ```text
 Python 3.13
@@ -157,102 +174,52 @@ network at import: forbidden
 database at import: forbidden
 ```
 
-### P0-014 / P0-015 maintenance state
-
-PR #60 removed the confirmed import-order dependency between
-`mentaury.beliefs` and `mentaury.evidence` by introducing dependency-light
-shared epistemic leaf types.
-
-```text
-ClaimType / EvidenceSide → one shared type identity
-beliefs ↔ evidence import order → fresh-interpreter validated
-mutable contradiction result → deterministic CONTESTED
-forged CONTRADICTED result → reducer rejection
-qualifying evidence on both sides → unchanged fail-closed CONFLICT semantics
-```
-
-The remediation changes no status enum, policy threshold, event schema, storage
-format or replay profile.
-
 ---
 
-## 4. 🔐 P1-001 Capability Lease Resolution
+## 5. 🔐 P1-001 contract and implementation state
 
-Owning documents:
+Owning frozen contract:
 
-- `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`;
-- `docs/research/POST_P0_ROADMAP_V0.1.md`;
-- `docs/research/RESEARCH_INDEX.md`.
+- `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`.
 
-Accepted docs boundary:
+Ordering:
 
-```text
-Status: FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
-AuthorityRef remains: (capability_lease_id, capability_revision)
-RegistrySnapshot: explicit caller-supplied input
-Lookup: exact live head; no history walk
-Admission: registry and record contracts fail closed
-Digest: canonical recomputation excluding content_digest
-Lifecycle: explicit revoked / expired / active ordering
-Matching: exact purpose, operation and typed scope
-Budgets: explicit and fail closed
-Fork / restore: inherited grants quarantined as UNVERIFIED
-ALLOW: executes nothing
-```
+- `docs/research/POST_P0_ROADMAP_V0.1.md`.
 
-PR #58 corrected two contract ambiguities before acceptance:
+Authorization:
 
-1. malformed registry structure returns `REGISTRY_CONTRACT_VIOLATION`;
-2. premature materialized `EXPIRED` returns `LEASE_CONTRACT_VIOLATION`, while
-   ACTIVE at/after expiry returns `LEASE_EXPIRED`.
-
-### Implementation gate
-
-No registry or resolver code is authorized. A future implementation requires:
+- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
 
 ```text
-FROZEN_DOCS on main
-+ separate explicit owner GO in this status document
-+ bounded pure implementation scope
-+ new Tier A review on exact head
-+ deterministic / adversarial / metamorphic tests
-+ preserved P0 replay compatibility
-+ no Action Gate, tools, M3 or domain-runtime expansion
+Contract:       FROZEN_DOCS
+Implementation: AUTHORIZED_BOUNDED · NOT_STARTED
+Completion:     NOT_CLAIMED
 ```
 
----
-
-## 5. 🔬 Research boundary
-
-Active research documents may capture hypotheses and candidates but provide no
-runtime authority.
+The planned resolver must preserve:
 
 ```text
-Research presence ≠ roadmap priority
-Candidate captured ≠ candidate selected
-External research input ≠ integration
-Notion page ≠ implementation authority
+AuthorityRef = (capability_lease_id, capability_revision)
+explicit caller-supplied RegistrySnapshot
+exact live-head lookup; no history walk
+registry and record admission before authorization
+digest recomputation excluding content_digest
+caller-supplied evaluated_at and budgets
+exact purpose, operation, typed scope and side-effect checks
+fork/restore quarantine as UNVERIFIED
+ALLOW executes nothing
 ```
 
-Current retained tracks include:
-
-- identity continuity and relational architecture;
-- Genesis Heritage / Human Atlas;
-- contextual cognition and epistemic context;
-- character and presence;
-- Native Kernel external research input;
-- storage and graph profile candidates;
-- biological, cybernetic and cognitive candidates.
-
-No PostgreSQL, Graphiti, LadybugDB or other future backend/profile is selected by
-research presence alone.
+No implementation status may become `Implemented` until the code PR and its
+resulting `main` SHA both pass retained CI.
 
 ---
 
 ## 6. 🧱 Explicitly not implemented or authorized
 
 ```text
-Capability Lease registry / resolver runtime
+P1-001 implementation completion
+Capability Lease registry persistence or service
 Action Gate
 Tool Receipt runtime
 external tool execution
@@ -271,50 +238,67 @@ consciousness or subjective-experience claims
 
 ---
 
-## 7. 🧹 Completed governance and maintenance cleanup
+## 7. 🔬 Research boundary
+
+Research documents may capture hypotheses and candidates but provide no runtime
+authority.
+
+```text
+Research presence ≠ roadmap priority
+Candidate captured ≠ candidate selected
+External research input ≠ integration
+Notion page ≠ implementation authority
+```
+
+No PostgreSQL, Graphiti, LadybugDB or other future backend/profile is selected by
+research presence alone.
+
+---
+
+## 8. 🧹 Completed cleanup
 
 ```text
 PR #38 → closed without merge; superseded by merged PR #58
 PR #48 → closed without merge; superseded by merged PR #60
 PR #55 → closed without merge; historical ruleset probe
 Issue #47 → import-order and contradiction-path remediation completed
-Issue #42 → solo security post-hoc review completed
-Issue #52 → solo validator post-hoc review completed
-Issue #53 → solo storage-integrity post-hoc review completed
-Issue #39 → open only as future public/team transition gate
+Issues #42 / #52 / #53 → solo post-hoc reviews completed
+Issue #49 → status-authority B+C+D decision adopted
+Issue #39 → future public/team transition gate only
 ```
 
-There is no remaining reviewer-identity blocker in the current solo phase.
-Future work is evaluated by actual technical scope, exact-head evidence and the
-current authorization boundaries.
+Three obsolete remote branches remain cosmetic cleanup only because the current
+connector exposes no delete-ref operation and local `gh` is unavailable. They
+do not affect `main`, PR state or authorization.
 
 ---
 
-## 8. 🔗 Authoritative navigation
+## 9. 🔗 Authoritative navigation
 
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
 - Solo mode: `docs/governance/solo-maintainer-mode.md`
 - Tier A checklist: `docs/governance/solo-maintainer-review-checklist.md`
 - Environment: `docs/ENVIRONMENT_MANIFEST.md`
-- Quick Reference: `docs/MENTAURY_QUICK_REFERENCE.md`
-- Project history: `docs/PROJECT_HISTORY.md`
+- P1 authorization: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
+- P1 contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
+- Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
-- P1-001 contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
 
 ---
 
-## 9. 🏁 Current formula
+## 10. 🏁 Current formula
 
 ```text
 P0-001…P0-015 implemented
 + import-order defect fixed
 + permanent CI
 + active solo-main ruleset
-+ honest two-pass Tier A review
-+ P1-001 docs frozen
++ P1-001 contract frozen
++ bounded P1-001 implementation authorized
 
-≠ P1-001 runtime implemented
+≠ P1-001 implementation completed
+≠ Action Gate or tool execution authorized
 ≠ domain runtime authorized
 ≠ production ready
 ≠ independent human assurance
