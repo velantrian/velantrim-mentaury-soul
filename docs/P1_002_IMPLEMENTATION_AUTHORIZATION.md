@@ -132,8 +132,9 @@ typed/mapping equivalence
 strict unknown-field and wrong-type rejection
 sorted unique immutable collection admission
 bool-as-int rejection
-canonical serialized input budget
-purpose/branch collection budgets
+max_serialized_bytes canonical input budget
+max_purposes collection budget
+max_branches collection budget
 future policy revision rejection
 unrelated-purpose metamorphic invariance
 minimal two-field result
