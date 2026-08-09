@@ -1,216 +1,95 @@
-# 🧱 Mentaury Environment Manifest
+# ⚙️ Mentaury Environment Manifest
 
 ```text
-Status:             P0 + P1-001 IMPLEMENTED IN MAIN
-Updated:            2026-08-09
-Authority:          docs/CURRENT_STATUS.md + verified GitHub main
-Profile:            Python 3.13 + standard library
-Minimum SQLite:     3.37.0
-P0 journal mode:    WAL for file databases
-P0 storage schema:  v4
-Dev toolchain pin:  pytest==9.1.1
-Runtime deps:       NONE
-Network at import:  FORBIDDEN
-Database at import: FORBIDDEN
-Filesystem mutation at import: FORBIDDEN
-Domain runtime:     FORBIDDEN
-Governance mode:    SOLO_MAINTAINER
-
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P1-001…P1-001_IMPLEMENTED_IN_MAIN
+P1-002…P1-002_IMPLEMENTED_IN_MAIN
 ```
 
-This manifest records stable environment and implementation boundaries. It does
-not embed a mutable current `main` tip or open-PR head.
-
----
-
-## 1. ✅ Accepted implementation line
+## Runtime profile
 
 ```text
-P0-001…P0-013 integrity, storage and replay foundation
-P0-014 minimal evidence-referenced belief lifecycle
-P0-015 deterministic Evidence Gate
-P1-001 pure Capability Lease resolver · IMPLEMENTED_BOUNDED
+Language:                    Python 3.13
+Runtime dependencies:        none
+P0 storage profile:          standard-library SQLite
+Permanent CI:                GitHub Actions
+Required check:              Python 3.13 · validator · pytest · compileall
+Import-time external I/O:    forbidden
+Production deployment:       not authorized
 ```
 
-P1-001 evidence:
+## Implemented bounded source surfaces
 
 ```text
-Authorization merge:   d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
-Authorization main CI: 31322210843 · success
-Implementation head:   e873e43331fa7273b92f896b371707e4779b17d4
-Exact-head CI:         31323051934 · success · 387 passed
-Implementation merge: f21809d8f31a457bd7acfe1d766230973ba9ecf5
-Implementation main CI:31323138053 · success
+src/mentaury/capabilities/lease/
+src/mentaury/privacy/reconciliation/
 ```
 
----
-
-## 2. 🐍 Python environment
-
-```text
-Interpreter target: Python 3.13
-Package layout:     src/mentaury
-Runtime packages:   standard library only
-Development tool:   pytest==9.1.1
-```
-
-Supported validation commands:
-
-```bash
-python3 scripts/validate.py
-python3 scripts/check_doc_freshness.py
-PYTHONPATH=src python3 -m pytest
-python3 -m compileall -q src tests scripts
-```
-
-Required workflow job:
-
-```text
-Python 3.13 · validator · pytest · compileall
-```
-
-Green CI proves repository conformance for the checked revision. It does not
-prove production readiness, independent assurance or external authorization.
-
----
-
-## 3. 🗄️ Storage boundary
-
-P0 uses standard-library SQLite as its accepted storage profile. P1-001 is
-storage-free and makes no schema, journal, persistence or replay change.
-
-```text
-P1-001 registry persistence: NOT IMPLEMENTED
-P1-001 registry service:     NOT IMPLEMENTED
-network registry lookup:     FORBIDDEN
-backend selection/migration: NOT AUTHORIZED
-```
-
----
-
-## 4. 🔒 Import and dependency boundaries
-
-At module import:
-
-```text
-network access    → forbidden
-database opening  → forbidden
-filesystem write  → forbidden
-ambient clock     → forbidden
-ambient authority → forbidden
-```
-
-Runtime dependencies remain empty.
-
-P1-001 package:
+### Capability Lease resolver
 
 ```text
 src/mentaury/capabilities/__init__.py
 src/mentaury/capabilities/lease/__init__.py
 src/mentaury/capabilities/lease/contracts.py
 src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
 ```
 
-Its fresh-process import test blocks `open`, `socket.socket`, `sqlite3.connect`
-and `time.time`; import still succeeds.
+Pure caller-supplied classification only. No registry persistence, network
+lookup, execution, event append, identity/M3 mutation or deployment authority.
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED.
 
----
-
-## 5. 🔐 P1-001 execution environment
-
-Inputs are entirely caller supplied:
+### Privacy Reconciliation Classifier
 
 ```text
-RegistrySnapshot
-AuthorityRef(capability_lease_id, capability_revision)
-ActionIntent
-canonical UTC-Z evaluated_at
-ResolutionBudget
-```
+Inputs:
+- PrivacyMaterial
+- PrivacyCopy
+- PrivacyAccessIntent
+- PrivacyReconciliationBudget
 
 Output:
-
-```text
-ResolutionResult
+- PrivacyReconciliationResult(decision, reason)
 ```
 
-The resolver performs strict admission, exact live-head lookup, canonical digest
-verification, deterministic invariant/lifecycle checks and exact intent matching.
-Stored registry records are recursively immutable.
+The classifier is deterministic and fail closed. It performs no deletion,
+redaction, quarantine, rebuilding or retrieval.
 
-`ALLOW` executes nothing and contains no reusable permission token, operations,
-scope, side effects or tool credentials.
-
----
-
-## 6. 🧠 Epistemic and state boundary
-
-P1-001 does not import or mutate storage, replay, beliefs or evidence packages.
-It does not append events, alter projections, change belief status, write
-identity/relationship state or authorize M3 mutation.
+## P1-002 verification
 
 ```text
-capability resolution ≠ objective truth
-capability resolution ≠ action execution
-capability resolution ≠ identity authority
+Contract PR:             #65
+Authorization PR:        #66
+Implementation PR:       #67
+Reviewed implementation: 74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:           31332728486 · success · 461 passed
+Merge/main:              d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:           31332793742 · success · 461 passed
 ```
 
----
+Validation covers all frozen `PRIV-SC-001…PRIV-SC-015` scenarios, exact
+precedence, typed/mapping equivalence, deterministic repeatability, canonical
+budgets, empty-allowlist denial, impossible-result rejection and fresh-process
+imports with ambient I/O/clock access blocked.
 
-## 7. 🧑‍💻 Governance environment
-
-The active ruleset requires PRs, current branches, required CI, resolved
-conversations, deletion protection and force-push protection.
+## Explicitly absent
 
 ```text
-required approvals: 0
-reason: explicit solo-maintainer phase
-independent human review claimed: no
-Tier A review: correctness + adversarial passes on exact head
+privacy registry or copy inventory service
+backup/fork scanning
+content inspection
+deletion/redaction/quarantine/rebuild execution
+retrieval execution
+network, filesystem or database authority in P1-002
+event/replay integration from P1 classifiers
+relationship, identity or M3 mutation
+Action Gate or tool runtime
+backend migration or production deployment
 ```
 
-`src/mentaury/capabilities/lease/**` is an active Tier A path in Governance and
-CODEOWNERS. Issue #39 governs only the future team transition.
+## Governance
 
----
-
-## 8. ⛔ Next milestone boundary
-
-```text
-NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
-```
-
-No registry service, Action Gate, Tool Receipt, external action adapter, P1-002,
-identity runtime or deployment follows automatically. Each requires a separate
-contract, threat model and Owner GO.
-
----
-
-## 9. 🚫 Explicit non-environment claims
-
-This manifest does not claim:
-
-```text
-production deployment readiness
-registry service availability
-Action Gate or external tools
-identity or relationship runtime
-M3 authority
-backend portability beyond validated profiles
-independent certification
-```
-
----
-
-## 10. 🔗 References
-
-- `docs/CURRENT_STATUS.md`
-- `docs/GOVERNANCE.md`
-- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
-- `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
-- `docs/research/POST_P0_ROADMAP_V0.1.md`
-- `.github/workflows/ci.yml`
-- `requirements-dev.lock`
-- `pyproject.toml`
+The repository operates in explicit solo-maintainer mode. Tier A work requires
+exact-head CI, correctness and adversarial passes, resolved conversations,
+explicit acceptance and green post-merge `main` CI. Independent human assurance
+is not claimed.

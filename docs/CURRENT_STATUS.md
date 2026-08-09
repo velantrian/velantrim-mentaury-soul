@@ -10,23 +10,12 @@ Independent human review claimed:  NO
 Live main tip:                      resolved from GitHub; not embedded here
 ```
 
-This document records durable maturity and authorization facts. Mutable branch
-tips, open-PR heads and workflow state are resolved from GitHub.
-
 ```text
-IMPLEMENTED
-= merged into GitHub main and retained by validation
-
 IMPLEMENTED_BOUNDED
-= the exact authorized subsystem slice is merged and retained by validation
-≠ broader runtime authorization
-≠ deployment authorization
-
-AUTHORIZED_BOUNDED
-= exact implementation scope approved but not yet implemented
-
-FROZEN_DOCS
-= accepted contract documentation
+= exact authorized subsystem merged and retained by validation
+≠ broader runtime authority
+≠ remediation or action authority
+≠ deployment authority
 ```
 
 ---
@@ -36,26 +25,21 @@ FROZEN_DOCS
 ```text
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
-P0_014_BELIEF_LIFECYCLE_VALIDATED
-P0_015_EVIDENCE_GATE_VALIDATED
-BELIEFS_EVIDENCE_IMPORT_ORDER_FIXED
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
-
 SOLO_MAINTAINER_GOVERNANCE_ACTIVE
-REQUIRED_APPROVALS_0_BY_EXPLICIT_SOLO_POLICY
-INDEPENDENT_HUMAN_REVIEW_NOT_CLAIMED
 TIER_A_TWO_PASS_MAINTAINER_REVIEW_REQUIRED
+INDEPENDENT_HUMAN_REVIEW_NOT_CLAIMED
 
-P1_001_CAPABILITY_LEASE_RESOLUTION_FROZEN_DOCS
 P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
 P1_001_PURE_RESOLVER_VALIDATED
+P1_001_OWNER_GO_CONSUMED
 P1_001_REGISTRY_PERSISTENCE_NOT_IMPLEMENTED
 P1_001_REGISTRY_SERVICE_NOT_IMPLEMENTED
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 
-P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_FROZEN_DOCS
-P1_002_OWNER_GO_AUTHORIZED_BOUNDED
-P1_002_IMPLEMENTATION_NOT_STARTED
+P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
+P1_002_PURE_CLASSIFIER_VALIDATED
+P1_002_OWNER_GO_CONSUMED
 P1_002_MUTATION_AUTHORITY_NONE
 P1_002_RETRIEVAL_AUTHORITY_NONE
 NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
@@ -69,7 +53,19 @@ RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 
 ---
 
-## 2. 🔐 P1-001 completion evidence
+## 2. ✅ Milestone table
+
+| Milestone | State | Verified boundary |
+|---|---|---|
+| P0-001…P0-013 | ✅ Implemented | integrity, storage and deterministic replay foundation |
+| P0-014 | ✅ Implemented | minimal evidence-referenced belief lifecycle |
+| P0-015 | ✅ Implemented | deterministic Evidence Gate |
+| P1-001 | ✅ Implemented bounded | pure Capability Lease classification only |
+| P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
+
+---
+
+## 3. 🔐 P1-001 retained evidence
 
 ```text
 Authorization PR:       #62
@@ -80,17 +76,12 @@ Reviewed head:          e873e43331fa7273b92f896b371707e4779b17d4
 Exact-head CI:          31323051934 · success · 387 passed
 Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Post-merge CI:          31323138053 · success
-Correctness pass:       PASS
-Adversarial pass:       PASS
-Independent assurance:  NOT CLAIMED
 ```
 
-The accepted final P1-001 head recursively freezes every registry record after
-an adversarial pass found nested mutability in the initial representation.
+P1-001 remains a pure caller-supplied resolver. `ALLOW` executes nothing and
+contains no reusable capability material.
 
----
-
-## 3. ✅ Implemented P1-001 slice
+Implemented P1-001 slice:
 
 ```text
 src/mentaury/capabilities/__init__.py
@@ -100,16 +91,11 @@ src/mentaury/capabilities/lease/resolver.py
 tests/test_capability_lease_resolution.py
 ```
 
-The pure resolver performs strict registry admission, canonical digest
-verification, exact live-head lookup, lifecycle/purpose/operation/scope/effect
-checks and deterministic first-match denial. `ALLOW` executes nothing and
-contains no reusable permission material.
-
 ---
 
-## 4. 🔐 P1-002 Privacy Reconciliation Classifier authorization checkpoint
+## 4. 🔐 P1-002 Privacy Reconciliation Classifier — verified evidence
 
-P1-002 contract freeze evidence:
+### Contract freeze
 
 ```text
 Contract PR:            #65
@@ -119,11 +105,33 @@ Contract merge:         1dc7bcf97986f455f48beb121c2048dfc34bd11c
 Post-merge CI:          31331506606 · success
 ```
 
-A separate bounded Owner GO is recorded in:
+### Bounded authorization
 
-- `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
+```text
+Authorization PR:       #66
+Reviewed head:          670b10c7ea69e3c609453e979a8de6853b23c6bc
+Exact-head CI:          31331910395 · success · 398 passed
+Authorization merge:    8f4c444e2144d1dffde20fc60d6d5250148d07e6
+Post-merge CI:          31331973557 · success
+```
 
-Authorized implementation scope:
+### Implementation
+
+```text
+Implementation PR:      #67
+Reviewed head:          74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:          31332728486 · success · 461 passed
+Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:          31332793742 · success · 461 passed
+Correctness pass:       PASS
+Adversarial pass:       PASS
+Review threads:         0
+Independent assurance:  NOT CLAIMED
+```
+
+---
+
+## 5. ✅ Implemented P1-002 slice
 
 ```text
 src/mentaury/privacy/__init__.py
@@ -133,7 +141,16 @@ src/mentaury/privacy/reconciliation/classifier.py
 tests/test_privacy_reconciliation_classifier.py
 ```
 
-The future implementation may only classify caller-supplied records into:
+Inputs are caller supplied:
+
+```text
+PrivacyMaterial
+PrivacyCopy
+PrivacyAccessIntent
+PrivacyReconciliationBudget
+```
+
+Output is one minimal two-field `PrivacyReconciliationResult`:
 
 ```text
 ALLOW_REFERENCE
@@ -142,67 +159,61 @@ QUARANTINE_REQUIRED
 REBUILD_REQUIRED
 ```
 
-It may not perform deletion, redaction, quarantine, rebuilding, retrieval,
-storage access, event append, network access, relationship/identity mutation or
-M3 writes. `ALLOW_REFERENCE` remains classification data, not permission.
+Implemented behavior:
+
+- immutable typed contracts and strict exact-field mapping admission;
+- canonical sorted and unique purpose/branch collections;
+- deterministic linkage and future-revision validation;
+- canonical byte-budget over material, copy, intent and budget;
+- deterministic purpose and branch collection budgets;
+- exact first-match precedence;
+- surface-specific fail-closed classification;
+- all frozen `PRIV-SC-001…PRIV-SC-015` scenarios;
+- typed/mapping equivalence and repeatability;
+- fresh-process import with ambient I/O and clock calls blocked.
+
+`ALLOW_REFERENCE` is observation/classification data. It is not permission to
+retrieve and contains no token, credential, capability or mutation instruction.
 
 ---
 
-## 5. 🛡️ Governance state
+## 6. 🛡️ Adversarial findings resolved before merge
 
-The active ruleset requires PRs, exact required CI, up-to-date branches,
-resolved conversations, deletion/force-push protection, empty bypass and
-required approvals `0` during explicit solo operation.
+The implementation review found and fixed:
 
-Tier A work requires exact-head CI, complete diff inspection, distinct
-correctness and adversarial passes, explicit maintainer decision and green
-post-merge `main` CI. Issue #39 remains only the future transition trigger for a
-genuine independent reviewer/team.
-
----
-
-## 6. ✅ Milestone table
-
-| Milestone | State | Verified boundary |
-|---|---|---|
-| P0-001…P0-013 | ✅ Implemented | integrity/storage/replay foundation |
-| P0-014 | ✅ Implemented | belief status is not objective truth |
-| P0-015 | ✅ Implemented | gate receipt is not external verification |
-| P1-001 | ✅ Implemented bounded | pure capability classification only |
-| P1-002 | 🔐 Authorized bounded | pure privacy classifier not yet implemented |
-
-Implementation profile remains Python 3.13, standard-library SQLite for P0,
-zero runtime dependencies and no import-time network/database/filesystem
-mutation.
+1. empty purpose/branch allowlists initially risked being interpreted as
+   wildcard authority for public material; final behavior grants nothing unless
+   purpose and branch are explicitly listed;
+2. the result type initially allowed impossible decision/reason pairs; final
+   contracts reject fixed-reason mismatches and prevent
+   `INPUT_CONTRACT_VIOLATION` from becoming a result;
+3. canonical JSON failures are normalized to `PrivacyContractError`;
+4. budget-field validation order is fixed and canonical byte-budget includes
+   all four caller-supplied inputs.
 
 ---
 
-## 7. 🧱 Explicitly not implemented or authorized
+## 7. 🚫 Explicitly not implemented or authorized
 
 ```text
-P1-002 implementation completion
 privacy registry persistence
-backup or fork inventory scanning
+backup or fork discovery/scanning
 content inspection
-content deletion or redaction execution
+content deletion or P0 redaction execution
 quarantine execution
 index, embedding, graph, cache or summary rebuilding
 retrieval execution
-Capability Lease registry persistence or service
-ambient clock/environment authority
+network, filesystem or database access
+ambient clock or environment authority
+event append or replay/projection integration
+belief, relationship or identity mutation
+M3 nomination or write
+Capability Lease invocation from P1-002
 Action Gate
 Tool Receipt runtime
-external tool execution
-event append or replay/projection integration from P1 classifiers
-belief, relationship or identity mutation
-M3 identity writes
-Character runtime
-Identity Continuity runtime
-Human Paths runtime
-Controlled Origin ingestion runtime
-Non-Projection runtime
+tool execution
 backend selection or migration
-production deployment readiness
+production deployment
 objective-truth authority
 consciousness or subjective-experience claims
 ```
@@ -212,27 +223,32 @@ consciousness or subjective-experience claims
 ## 8. ⛔ Next execution gate
 
 ```text
+P1_002_IMPLEMENTED_BOUNDED
+P1_002_OWNER_GO_CONSUMED
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+No deletion, quarantine, rebuild, retrieval, relationship, identity, Action
+Gate, tool or deployment work follows automatically. Any next runtime-capable
+milestone requires a new bounded contract, threat model, explicit Owner GO,
+clean Tier A implementation PR, exact-head review and green resulting-main CI.
+
+Historical checkpoint (superseded, preserved as provenance): before PR #67
+merged, this document recorded the pre-implementation authorization state:
+
+```text
 P1_002_OWNER_GO_AUTHORIZED_BOUNDED
 P1_002_IMPLEMENTATION_NOT_STARTED
 ```
 
-The next allowed action is one clean Tier A implementation PR confined to the
-exact authorized source/test paths. Completion requires exact-head tests,
-correctness/adversarial review, unchanged-head merge and green resulting-main
-CI. No remediation execution or later runtime milestone follows automatically.
-
 ---
 
-## 9. 🔬 Research boundary
+## 9. 🛡️ Governance state
 
-```text
-Research presence ≠ roadmap priority
-Candidate captured ≠ candidate selected
-External research input ≠ integration
-Notion page ≠ implementation authority
-```
-
-No PostgreSQL, Graphiti, LadybugDB or other backend/profile is selected.
+The live solo ruleset retains mandatory PRs, exact required CI, up-to-date
+branches, resolved conversations, deletion/force-push protection and empty
+bypass. Required approvals remain `0` while no genuine independent reviewer
+exists. Issue #39 is the future public/team transition trigger only.
 
 ---
 
@@ -241,28 +257,26 @@ No PostgreSQL, Graphiti, LadybugDB or other backend/profile is selected.
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
 - P1-001 receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
-- P1-001 contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
-- P1-002 authorization: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
+- P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
+- Environment: `docs/ENVIRONMENT_MANIFEST.md`
 
 ---
 
 ## 11. 🏁 Current formula
 
 ```text
-P0-001…P0-015 implemented
+P0 foundation implemented
++ P1-001 pure capability resolver implemented bounded
++ P1-002 pure privacy classifier implemented bounded
 + permanent CI
-+ active solo-main governance
-+ P1-001 pure resolver implemented bounded
-+ P1-002 contract frozen
-+ P1-002 pure classifier implementation authorized bounded
++ active solo governance
 
-≠ P1-002 implemented
-≠ deletion, quarantine, rebuild or retrieval runtime
-≠ Action Gate or tool execution
+≠ remediation or retrieval runtime
+≠ Action Gate or tools
 ≠ identity or M3 mutation
-≠ domain runtime or deployment authorization
+≠ domain runtime or deployment
 ≠ independent human assurance
 ```
