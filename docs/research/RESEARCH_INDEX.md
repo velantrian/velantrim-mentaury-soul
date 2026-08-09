@@ -158,7 +158,8 @@ Native Kernel input
 ≠ automatic M2/M3 promotion
 ```
 
-No PostgreSQL, Graphiti, LadybugDB or other backend is selected.
+No backend is selected. PostgreSQL, Graphiti, LadybugDB and other candidates
+remain research-only and provide no implementation authority.
 
 ---
 
