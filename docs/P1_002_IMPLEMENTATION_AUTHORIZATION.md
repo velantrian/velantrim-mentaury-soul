@@ -217,5 +217,5 @@ NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 Any next runtime-capable step requires a new bounded contract, threat model,
-explicit Owner GO, independent implementation PR, exact-head Tier A review and
+explicit Owner GO, separate clean implementation PR, exact-head Tier A review and
 green post-merge `main` CI.
