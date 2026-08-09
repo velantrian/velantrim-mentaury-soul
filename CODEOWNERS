@@ -14,6 +14,7 @@
 /src/mentaury/replay/ @velantrian
 /src/mentaury/beliefs/ @velantrian
 /src/mentaury/evidence/ @velantrian
+/src/mentaury/capabilities/lease/ @velantrian
 /src/mentaury/contracts/canonical_json.py @velantrian
 /scripts/validate.py @velantrian
 /scripts/check_doc_freshness.py @velantrian
@@ -24,10 +25,11 @@
 /docs/CURRENT_STATUS.md @velantrian
 /docs/GOVERNANCE.md @velantrian
 /docs/governance/ @velantrian
+/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md @velantrian
 /docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md @velantrian
 /docs/research/POST_P0_ROADMAP_V0.1.md @velantrian
 
-# Tier A — if/when created
+# Tier A — if/when created outside an active exact path
 # /src/mentaury/**/authority/ @velantrian
 # /src/mentaury/**/lease/ @velantrian
 # /src/mentaury/schema/ @velantrian
