@@ -383,14 +383,34 @@ class PrivacyReconciliationResult:
         object.__setattr__(
             self, "reason", _require_enum(self.reason, PrivacyReason, "reason")
         )
-        if self.decision is PrivacyDecision.ALLOW_REFERENCE:
-            if self.reason is not PrivacyReason.ALLOW_REFERENCE:
-                raise PrivacyContractError(
-                    "ALLOW_REFERENCE decision requires ALLOW_REFERENCE reason"
-                )
-        elif self.reason is PrivacyReason.ALLOW_REFERENCE:
+
+        if self.reason is PrivacyReason.INPUT_CONTRACT_VIOLATION:
             raise PrivacyContractError(
-                "non-allow decision cannot carry ALLOW_REFERENCE reason"
+                "INPUT_CONTRACT_VIOLATION is represented by an exception, not a result"
+            )
+        if self.reason is PrivacyReason.ALLOW_REFERENCE:
+            if self.decision is not PrivacyDecision.ALLOW_REFERENCE:
+                raise PrivacyContractError(
+                    "ALLOW_REFERENCE reason requires ALLOW_REFERENCE decision"
+                )
+            return
+        if self.decision is PrivacyDecision.ALLOW_REFERENCE:
+            raise PrivacyContractError(
+                "ALLOW_REFERENCE decision requires ALLOW_REFERENCE reason"
+            )
+        if self.reason in {
+            PrivacyReason.BUDGET_EXHAUSTED,
+            PrivacyReason.COPY_ABSENT,
+        } and self.decision is not PrivacyDecision.DENY_RETRIEVAL:
+            raise PrivacyContractError(
+                f"{self.reason.value} requires DENY_RETRIEVAL decision"
+            )
+        if (
+            self.reason is PrivacyReason.COPY_ALREADY_QUARANTINED
+            and self.decision is not PrivacyDecision.QUARANTINE_REQUIRED
+        ):
+            raise PrivacyContractError(
+                "COPY_ALREADY_QUARANTINED requires QUARANTINE_REQUIRED decision"
             )
 
     def to_value(self) -> dict[str, str]:
