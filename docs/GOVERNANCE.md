@@ -34,7 +34,7 @@ For merge decisions, use this order:
 
 PR-local text may not invent a permanent gate that contradicts this policy. A stale
 `BLOCKED_BY_INDEPENDENT_REVIEW` or `BLOCKED_BY_GOVERNANCE_IDENTITY` statement must be
-reconciled before merge.
+reconciled before merge and must not be used as an active solo-mode status.
 
 The current live ruleset requires:
 
@@ -51,7 +51,7 @@ The current live ruleset requires:
 
 ## 2. Standard merge statuses
 
-Use only clear, evidence-based statuses:
+Use only these active statuses in current PR-local checkpoints:
 
 ```text
 DRAFT
@@ -65,7 +65,7 @@ ACCEPTED_FOR_MERGE
 MERGED
 ```
 
-Do not use missing reviewer identity as a current blocker while the repository remains in
+Missing reviewer identity is not a current blocker while the repository remains in
 solo-maintainer mode.
 
 ---
@@ -74,17 +74,20 @@ solo-maintainer mode.
 
 A PR is classified by its highest-risk file or semantic effect.
 
-### 3.1 Tier A — integrity, authority, security, governance, or runtime-capable core
+### 3.1 Automatic escalation
 
-Typical Tier A paths include:
+A nominal Tier B or Tier C PR that changes a Tier A path or has a Tier A semantic effect
+is governed as Tier A: **the entire PR becomes Tier A**.
+
+### 3.2 Tier A — integrity, authority, security, governance, or runtime-capable core
+
+#### Existing protected / high-risk paths
 
 ```text
 src/mentaury/storage/**
 src/mentaury/replay/**
 src/mentaury/beliefs/**
 src/mentaury/evidence/**
-src/mentaury/**/authority/**
-src/mentaury/**/lease/**
 src/mentaury/contracts/canonical_json.py
 scripts/validate.py
 scripts/check_doc_freshness.py
@@ -99,7 +102,21 @@ docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
 ```
 
-Tier A requirements in solo mode:
+#### Paths reserved if/when created
+
+```text
+src/mentaury/**/authority/**          # if/when created
+src/mentaury/**/lease/**              # if/when created
+src/mentaury/schema/**                # if/when created
+src/mentaury/canonical.py             # if/when created
+src/mentaury/canonical/**             # if/when created
+src/mentaury/integrity/**             # if/when created
+src/mentaury/redaction/**             # if/when created
+```
+
+#### Tier A requirements
+
+In solo mode:
 
 - exact current head SHA recorded;
 - complete final diff inspected;
@@ -121,7 +138,7 @@ The two passes must be meaningfully different:
 Automated analysis may support either pass, but the repository must not label it as
 independent human review.
 
-### 3.2 Tier B — bounded tooling and non-authoritative project documentation
+### 3.3 Tier B — bounded tooling and non-authoritative project documentation
 
 Typical Tier B examples:
 
@@ -140,7 +157,7 @@ Requirements:
 - no runtime, authority, security, or maturity escalation hidden in the change;
 - maintainer acceptance recorded.
 
-### 3.3 Tier C — editorial, navigation, and research capture
+### 3.4 Tier C — editorial, navigation, and research capture
 
 Typical Tier C examples:
 
@@ -157,9 +174,6 @@ Requirements:
 - no Canon, roadmap, backend, runtime, truth, or authority promotion is implied;
 - green CI where applicable;
 - maintainer acceptance recorded.
-
-A nominal Tier B or Tier C PR automatically escalates to Tier A when it changes Tier A
-paths or has Tier A semantic effect.
 
 ---
 
