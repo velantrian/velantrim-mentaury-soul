@@ -8,9 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 GOVERNANCE = (ROOT / "docs" / "GOVERNANCE.md").read_text(encoding="utf-8")
 CODEOWNERS = (ROOT / "CODEOWNERS").read_text(encoding="utf-8")
 CURRENT_STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
-SOLO_MODE = (
-    ROOT / "docs" / "governance" / "solo-maintainer-mode.md"
-).read_text(encoding="utf-8")
+SOLO_MODE = (ROOT / "docs" / "governance" / "solo-maintainer-mode.md").read_text(
+    encoding="utf-8"
+)
 REVIEW_CHECKLIST = (
     ROOT / "docs" / "governance" / "solo-maintainer-review-checklist.md"
 ).read_text(encoding="utf-8")
@@ -120,7 +120,9 @@ def test_solo_mode_is_the_current_operating_contract() -> None:
 
 
 def test_active_status_vocabulary_is_exact() -> None:
-    section = _between(GOVERNANCE, "## 2. Standard merge statuses", "## 3. Risk classification")
+    section = _between(
+        GOVERNANCE, "## 2. Standard merge statuses", "## 3. Risk classification"
+    )
     assert _first_text_fence(section) == list(_ACTIVE_STATUSES)
     assert "BLOCKED_BY_INDEPENDENT_REVIEW" not in _first_text_fence(section)
 
@@ -147,11 +149,8 @@ def test_reserved_tier_a_paths_are_exact() -> None:
         assert sum(line.startswith(path) for line in lines) == 1
 
 
-def test_existing_paths_exist_or_are_explicitly_authorized_not_started() -> None:
+def test_every_existing_tier_a_path_exists_in_candidate_tree() -> None:
     for pattern in _EXISTING_TIER_A:
-        if pattern == "src/mentaury/privacy/reconciliation/**":
-            assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in P1_002_AUTH
-            continue
         if pattern.endswith("/**"):
             assert (ROOT / pattern[:-3]).exists(), pattern
         elif "*" in pattern:
@@ -183,7 +182,8 @@ def test_p1_002_authorization_activates_only_exact_pure_path() -> None:
     assert "src/mentaury/privacy/reconciliation/**" in GOVERNANCE
     assert "P1-002 authority outside the pure classifier scope" in GOVERNANCE
     assert "P1_002_IMPLEMENTATION_NOT_AUTHORIZED" in P1_002_CONTRACT
-    assert not (ROOT / "src" / "mentaury" / "privacy").exists()
+    assert (ROOT / "src" / "mentaury" / "privacy" / "reconciliation").is_dir()
+    assert (ROOT / "tests" / "test_privacy_reconciliation_classifier.py").is_file()
 
 
 def test_other_reserved_codeowner_paths_remain_commented() -> None:

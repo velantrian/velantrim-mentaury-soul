@@ -76,7 +76,9 @@ def test_authoritative_surfaces_reference_contract_and_receipt() -> None:
 
 
 def test_result_vocabulary_is_exact_and_non_executing() -> None:
-    scope = _between(CONTRACT, "## 2. 🧱 Exact bounded scope", "## 3. 🧩 Contract vocabulary")
+    scope = _between(
+        CONTRACT, "## 2. 🧱 Exact bounded scope", "## 3. 🧩 Contract vocabulary"
+    )
     assert re.findall(
         r"^(ALLOW_REFERENCE|DENY_RETRIEVAL|QUARANTINE_REQUIRED|REBUILD_REQUIRED)$",
         scope,
@@ -94,33 +96,51 @@ def test_result_vocabulary_is_exact_and_non_executing() -> None:
 
 
 def test_all_frozen_scenarios_are_present_once_and_in_order() -> None:
-    section = _between(CONTRACT, "## 7. 🧪 Frozen scenarios", "## 8. 🔬 Required validation properties")
+    section = _between(
+        CONTRACT, "## 7. 🧪 Frozen scenarios", "## 8. 🔬 Required validation properties"
+    )
     found = tuple(re.findall(r"^(PRIV-SC-\d{3})\s", section, re.MULTILINE))
     assert found == _EXPECTED_SCENARIOS
     assert len(found) == len(set(found))
 
 
 def test_normative_precedence_is_exact() -> None:
-    section = _between(CONTRACT, "## 5. 🔁 Deterministic precedence", "### 5.1 Surface-specific remediation mapping")
-    found = tuple(value.strip() for value in re.findall(r"^\d{2}\s+(.+)$", section, re.MULTILINE))
+    section = _between(
+        CONTRACT,
+        "## 5. 🔁 Deterministic precedence",
+        "### 5.1 Surface-specific remediation mapping",
+    )
+    found = tuple(
+        value.strip()
+        for value in re.findall(r"^\d{2}\s+(.+)$", section, re.MULTILINE)
+    )
     assert found == _EXPECTED_PRECEDENCE
     assert "The first matching reason wins" in section
 
 
 def test_surface_mapping_and_budget_vocabulary_are_frozen() -> None:
-    mapping = _between(CONTRACT, "### 5.1 Surface-specific remediation mapping", "## 6. 🧾 Minimal result")
+    mapping = _between(
+        CONTRACT,
+        "### 5.1 Surface-specific remediation mapping",
+        "## 6. 🧾 Minimal result",
+    )
     assert "`BACKUP`, `FORK` | `QUARANTINE_REQUIRED`" in mapping
-    assert "`INDEX`, `EMBEDDING`, `GRAPH_EDGE`, `CACHE`, `DERIVED_SUMMARY` | `REBUILD_REQUIRED`" in mapping
+    assert (
+        "`INDEX`, `EMBEDDING`, `GRAPH_EDGE`, `CACHE`, `DERIVED_SUMMARY` | `REBUILD_REQUIRED`"
+        in mapping
+    )
     assert "`PRIMARY` | `DENY_RETRIEVAL`" in mapping
     for token in ("max_serialized_bytes", "max_purposes", "max_branches"):
         assert token in CONTRACT
-        assert token in AUTH or token == "max_serialized_bytes"
+        assert token in AUTH
     assert "booleans are rejected" in CONTRACT
     assert "sorted, unique tuples" in CONTRACT
 
 
 def test_p0_p1_identity_and_execution_boundaries_remain_separate() -> None:
-    compatibility = _between(CONTRACT, "## 10. 🔗 Compatibility boundaries", "## 11. 🚫 Explicit non-goals")
+    compatibility = _between(
+        CONTRACT, "## 10. 🔗 Compatibility boundaries", "## 11. 🚫 Explicit non-goals"
+    )
     assert "P0 redaction executor" in compatibility
     assert "P1-002 classifier" in compatibility
     assert "Neither result authorizes execution" in compatibility
@@ -157,7 +177,15 @@ def test_governance_and_codeowners_activate_only_exact_path() -> None:
     assert "P1-002 authority outside the pure classifier scope" in GOVERNANCE
 
 
-def test_authorization_exists_but_implementation_is_not_started() -> None:
+def test_candidate_implementation_exists_without_completion_claim() -> None:
     assert (ROOT / "docs" / "P1_002_IMPLEMENTATION_AUTHORIZATION.md").exists()
-    assert not (ROOT / "src" / "mentaury" / "privacy").exists()
-    assert not (ROOT / "tests" / "test_privacy_reconciliation_classifier.py").exists()
+    for path in (
+        "src/mentaury/privacy/__init__.py",
+        "src/mentaury/privacy/reconciliation/__init__.py",
+        "src/mentaury/privacy/reconciliation/contracts.py",
+        "src/mentaury/privacy/reconciliation/classifier.py",
+        "tests/test_privacy_reconciliation_classifier.py",
+    ):
+        assert (ROOT / path).is_file(), path
+    assert "P1_002_IMPLEMENTATION_NOT_STARTED" in CURRENT_STATUS
+    assert "P1-002 | ✅ Implemented" not in CURRENT_STATUS
