@@ -42,6 +42,15 @@ P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
 ```
 
+Retained maintenance state:
+
+```text
+beliefs/evidence import order → fixed and fresh-interpreter validated
+shared epistemic enum identity → one leaf implementation
+mutable contradiction outcome → CONTESTED
+forged CONTRADICTED outcome → reducer rejection
+```
+
 Post-P0 accepted documentation:
 
 ```text
@@ -78,6 +87,14 @@ The permanent workflow runs the required job:
 Python 3.13 · validator · pytest · compileall
 ```
 
+Latest accepted runtime-maintenance evidence:
+
+```text
+PR #60 exact-head CI: 31317635719 · success · 326 passed
+PR #60 merge:         102fac1f8778e056d29ece3f1f76d92d4cf264f2
+Post-merge CI:        31317696013 · success
+```
+
 Green CI proves only that the checked revision passed the repository's current
 structural, test and compilation gates. It does not prove semantic completeness,
 production readiness or independent assurance.
@@ -106,11 +123,23 @@ do not authorize runtime wiring.
 At module import:
 
 ```text
-network access   → forbidden
-database opening → forbidden
-filesystem write → forbidden unless an explicit operation requests it
+network access    → forbidden
+database opening  → forbidden
+filesystem write  → forbidden unless an explicit operation requests it
 ambient authority → forbidden
 ```
+
+Beliefs/evidence package isolation:
+
+```text
+mentaury.epistemic_types
+→ dependency-light shared ClaimType / EvidenceSide
+→ imported by beliefs and evidence contracts
+→ no evidence → beliefs package dependency
+```
+
+Fresh-interpreter tests cover both package orders and public enum identity so an
+already populated `sys.modules` cannot mask an import cycle.
 
 Runtime dependencies remain empty. Development dependencies are locked
 separately and must not be interpreted as product runtime requirements.
@@ -152,7 +181,17 @@ Implemented P0 contracts include:
 - policy-bound receipts;
 - fail-closed conflict handling.
 
-They do not authorize:
+PR #60 preserved these semantics while fixing:
+
+- the import-order cycle;
+- an unreachable `CONTRADICTED → CONTRADICTED` contradiction branch;
+- reducer acceptance of a forged contradiction resulting status;
+- a misleading conflict explanation.
+
+It changed no belief status, policy threshold, event schema, storage format or
+replay profile.
+
+These modules do not authorize:
 
 ```text
 objective truth claims
@@ -161,9 +200,6 @@ Character runtime
 M3 writes
 external actions
 ```
-
-Legacy PR #48 / issue #47 track an import-order and contradiction-path cleanup.
-That work requires a current-main successor and Tier A review before merge.
 
 ---
 
