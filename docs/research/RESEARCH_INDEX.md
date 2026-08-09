@@ -5,17 +5,19 @@ Status:                       ADOPTED NAVIGATION · DOCS_ONLY · NON_CANONICAL
 Updated:                      2026-08-09
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
-Current execution candidate:  P1-001 · FROZEN_DOCS · NOT_IMPLEMENTED
-Runtime authority:            NONE
+Current execution milestone:  P1-001 · AUTHORIZED_BOUNDED · NOT_STARTED
+Contract state:               FROZEN_DOCS
+Implementation completion:    NOT CLAIMED
+Runtime deployment authority: NONE
 Truth authority:              NONE
 Identity authority:           NONE
-Capability authority:         NONE
-Implementation authority:     NONE
+Capability grant authority:   NONE
 ```
 
 ```text
 Research presence ≠ roadmap priority
 Research adoption ≠ implementation authorization
+Owner GO ≠ implementation complete
 Candidate captured ≠ candidate selected
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
@@ -29,18 +31,21 @@ Authoritative navigation:
 
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — maturity and authorization;
 - [`../GOVERNANCE.md`](../GOVERNANCE.md) — risk tiers and review policy;
+- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) — exact owner GO scope;
 - [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) — ordering;
 - [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) — frozen P1-001 contract.
 
 ```text
 Allowed now:
-status synchronization
+bounded pure P1-001 resolver implementation
++ minimum Tier A governance / CODEOWNERS alignment
++ deterministic, adversarial and metamorphic tests
 + maintenance and bug remediation
 + bounded research capture
-+ explicit planning for a future owner GO
 
 Still forbidden:
-Capability Lease registry / resolver implementation without owner GO
+registry persistence or service
++ network or ambient-clock resolution
 + Action Gate
 + tool execution
 + domain runtime
@@ -48,8 +53,10 @@ Capability Lease registry / resolver implementation without owner GO
 + backend selection by implication
 ```
 
-P1-001 documentation was accepted through PR #58 with exact-head CI and two
-maintainer review passes. Independent human assurance is not claimed.
+P1-001 documentation was frozen through PR #58. The separate owner GO authorizes
+only the exact implementation slice in
+`docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`. Independent human assurance is
+not claimed.
 
 ---
 
@@ -57,8 +64,9 @@ maintainer review passes. Independent human assurance is not claimed.
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
-| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | execution-bound contract | FROZEN_DOCS · NOT_IMPLEMENTED | NOT AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | adopted ordering | NONE |
+| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | execution-bound contract | FROZEN_DOCS | bounded implementation authorized separately |
+| [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | owner authorization | AUTHORIZED_BOUNDED · NOT_STARTED | pure resolver slice only |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | adopted ordering | no deployment authority |
 | [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md) | research side-track | adopted docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
@@ -71,7 +79,34 @@ maintainer review passes. Independent human assurance is not claimed.
 
 ---
 
-## 3. 🔗 External input
+## 3. 🔐 P1-001 implementation separation
+
+The authorization is intentionally narrower than future capability runtime.
+
+```text
+AUTHORIZED:
+pure resolve(inputs) → ResolutionResult
+strict contracts and enums
+canonical digest recomputation
+exact deny precedence
+all CAP-SC-001…CAP-SC-025 tests
+
+NOT AUTHORIZED:
+registry persistence
+registry fetch
+Action Gate
+Tool Receipt
+execution
+identity or M3 mutation
+replay integration
+deployment
+```
+
+`ALLOW` remains data, not executable authority.
+
+---
+
+## 4. 🔗 External input
 
 ```text
 Native Kernel research input
@@ -79,7 +114,7 @@ Native Kernel research input
 ≠ shared runtime
 ≠ authority transfer
 ≠ automatic M2/M3 promotion
-≠ change to P1-001 priority
+≠ change to P1-001 scope
 ```
 
 External ideas remain quarantined as docs-only input until a separate bounded
@@ -87,7 +122,7 @@ integration process is authorized and validated.
 
 ---
 
-## 4. 🗄️ Storage and graph candidates
+## 5. 🗄️ Storage and graph candidates
 
 ```text
 PostgreSQL → future storage-profile candidate
@@ -96,12 +131,12 @@ LadybugDB  → embedded property-graph candidate
 
 No backend selected.
 No runtime wiring authorized.
-P1-001 priority impact: NONE.
+P1-001 scope impact: NONE.
 ```
 
 ---
 
-## 5. 🧬 Biological and cognitive candidates
+## 6. 🧬 Biological and cognitive candidates
 
 ```text
 15 candidates captured · 0 selected
@@ -112,7 +147,7 @@ research presence ≠ roadmap priority
 
 ---
 
-## 6. 🌱 Backlog
+## 7. 🌱 Backlog
 
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
@@ -142,7 +177,7 @@ Institutional context
 
 ---
 
-## 7. 🚪 Promotion gate
+## 8. 🚪 Promotion gate
 
 Research becomes eligible for execution planning only after:
 
@@ -172,7 +207,7 @@ SUPERSEDED · ARCHIVED
 
 ---
 
-## 8. 🧱 Ecosystem separation
+## 9. 🧱 Ecosystem separation
 
 ```text
 Mentaury research
@@ -189,7 +224,7 @@ mere research insight.
 
 ---
 
-## 9. 🗺️ Notion boundary
+## 10. 🗺️ Notion boundary
 
 Notion is navigation and research workspace. GitHub `main`,
 `docs/CURRENT_STATUS.md` and `docs/GOVERNANCE.md` remain engineering authority.
@@ -197,7 +232,7 @@ A Notion page cannot authorize implementation.
 
 ---
 
-## 10. 🏁 Rule
+## 11. 🏁 Rule
 
 ```text
 Keep ideas.
