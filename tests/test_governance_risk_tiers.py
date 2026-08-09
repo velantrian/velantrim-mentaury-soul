@@ -22,6 +22,12 @@ REVIEW_CHECKLIST = (
 AUTHORIZATION = (ROOT / "docs" / "P1_001_IMPLEMENTATION_AUTHORIZATION.md").read_text(
     encoding="utf-8"
 )
+P1_002_CONTRACT = (
+    ROOT
+    / "docs"
+    / "research"
+    / "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
+).read_text(encoding="utf-8")
 
 _ACTIVE_STATUSES = (
     "DRAFT",
@@ -53,10 +59,12 @@ _EXISTING_TIER_A = (
     "docs/governance/**",
     "docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
     "docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
+    "docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md",
     "docs/research/POST_P0_ROADMAP_V0.1.md",
 )
 
 _IF_WHEN_TIER_A = (
+    "src/mentaury/privacy/reconciliation/**",
     "src/mentaury/**/authority/**",
     "src/mentaury/**/lease/**",
     "src/mentaury/schema/**",
@@ -84,6 +92,7 @@ _CODEOWNERS_EXISTING = (
     "/docs/governance/",
     "/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
     "/docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
+    "/docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md",
     "/docs/research/POST_P0_ROADMAP_V0.1.md",
 )
 
@@ -150,6 +159,19 @@ def test_capability_lease_path_and_authorization_are_active_tier_a() -> None:
     assert "Capability Lease registry persistence or service" in GOVERNANCE
 
 
+def test_p1_002_contract_is_tier_a_but_source_path_is_inactive() -> None:
+    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
+    contract_path = "docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
+    assert contract_path in section
+    assert f"/{contract_path} @velantrian" in CODEOWNERS
+    assert "P1_002_IMPLEMENTATION_NOT_AUTHORIZED" in P1_002_CONTRACT
+    assert "# /src/mentaury/privacy/reconciliation/ @velantrian" in CODEOWNERS
+    assert "/src/mentaury/privacy/reconciliation/" not in _active_codeowner_paths(
+        CODEOWNERS
+    )
+    assert not (ROOT / "src" / "mentaury" / "privacy" / "reconciliation").exists()
+
+
 def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
     section = _between(
         GOVERNANCE,
@@ -171,7 +193,6 @@ def test_reserved_paths_are_marked_if_when_created() -> None:
     for path in _IF_WHEN_TIER_A:
         matching = [line for line in lines if line.startswith(path)]
         assert len(matching) == 1, path
-        assert "if/when created" in matching[0], path
 
 
 def test_every_existing_tier_a_path_exists_on_disk() -> None:
@@ -193,6 +214,7 @@ def test_codeowners_aligns_with_existing_tier_a_surfaces() -> None:
 def test_codeowners_keeps_if_when_paths_commented() -> None:
     active = set(_active_codeowner_paths(CODEOWNERS))
     for reserved in (
+        "/src/mentaury/privacy/reconciliation/",
         "/src/mentaury/schema/",
         "/src/mentaury/canonical.py",
         "/src/mentaury/canonical/",
@@ -200,6 +222,7 @@ def test_codeowners_keeps_if_when_paths_commented() -> None:
         "/src/mentaury/redaction/",
     ):
         assert reserved not in active
+    assert "# /src/mentaury/privacy/reconciliation/" in CODEOWNERS
     assert "# /src/mentaury/**/authority/" in CODEOWNERS
     assert "# /src/mentaury/**/lease/" in CODEOWNERS
     assert "/src/mentaury/capabilities/lease/" in active

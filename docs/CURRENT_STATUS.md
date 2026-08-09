@@ -51,8 +51,13 @@ P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
 P1_001_PURE_RESOLVER_VALIDATED
 P1_001_REGISTRY_PERSISTENCE_NOT_IMPLEMENTED
 P1_001_REGISTRY_SERVICE_NOT_IMPLEMENTED
-
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+
+P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_SELECTED
+P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_FROZEN_DOCS
+P1_002_IMPLEMENTATION_NOT_AUTHORIZED
+P1_002_STORAGE_OR_DELETION_AUTHORITY_NONE
+
 ACTION_GATE_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
@@ -132,7 +137,42 @@ blocked.
 
 ---
 
-## 4. 🛡️ Governance state
+## 4. 🧊 Selected P1-002 contract
+
+The next selected contract is:
+
+```text
+P1-002 Privacy Reconciliation Classifier
+Status: FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
+Implementation authorization: NOT GRANTED
+```
+
+Owning contract:
+
+- `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
+
+The bounded problem is the gap between one active-store P0 redaction and stale
+copies that may still exist in backups, forks, indexes, embeddings, graph edges,
+caches or derived summaries.
+
+The frozen contract permits a future pure caller-supplied classifier with only
+these possible dispositions:
+
+```text
+ALLOW_REFERENCE
+DENY_RETRIEVAL
+QUARANTINE_REQUIRED
+REBUILD_REQUIRED
+```
+
+It does not authorize deletion, redaction, quarantine execution, rebuilding,
+retrieval, storage access, event append, network access, relationship changes,
+identity changes or M3 writes. `ALLOW_REFERENCE` remains classification data,
+not retrieval permission.
+
+---
+
+## 5. 🛡️ Governance state
 
 The active ruleset requires:
 
@@ -153,7 +193,7 @@ reviewer/team. It does not block current solo maintenance.
 
 ---
 
-## 5. ✅ Implemented milestones
+## 6. ✅ Implemented milestones
 
 | Milestone | State | Verified boundary |
 |---|---|---|
@@ -161,6 +201,7 @@ reviewer/team. It does not block current solo maintenance.
 | P0-014 | ✅ Implemented | belief status is not objective truth |
 | P0-015 | ✅ Implemented | gate receipt is not external verification |
 | P1-001 | ✅ Implemented bounded | pure resolution only; no execution authority |
+| P1-002 | 🧊 Frozen docs | privacy classification contract only; no code authority |
 
 Implementation profile remains:
 
@@ -173,9 +214,17 @@ network/database/filesystem mutation at import: forbidden
 
 ---
 
-## 6. 🧱 Explicitly not implemented or authorized
+## 7. 🧱 Explicitly not implemented or authorized
 
 ```text
+P1-002 Privacy Reconciliation Classifier implementation
+privacy registry persistence
+backup or fork inventory scanning
+content inspection
+content deletion or redaction execution
+quarantine execution
+index, embedding, graph, cache or summary rebuilding
+retrieval execution
 Capability Lease registry persistence
 Capability Lease registry service or network lookup
 ambient clock/environment authority
@@ -183,7 +232,7 @@ Action Gate
 Tool Receipt runtime
 external tool execution
 P1 resolver integration with event append, replay or projections
-belief, identity or relationship mutation from capability resolution
+belief, identity or relationship mutation from classification
 M3 identity writes
 Character runtime
 Identity Continuity runtime
@@ -196,33 +245,36 @@ objective-truth authority
 consciousness or subjective-experience claims
 ```
 
-The P1-001 authorization is consumed by the completed bounded slice. It does not
-roll forward to a registry, Action Gate, tools, deployment, P1-002 or any other
-runtime milestone.
+The P1-001 authorization is consumed by its completed bounded slice. The new
+P1-002 frozen contract does not itself grant implementation authority.
 
 ---
 
-## 7. ⛔ Next execution gate
+## 8. ⛔ Next execution gate
 
 ```text
-NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+P1_002_CONTRACT_FROZEN_DOCS
+P1_002_IMPLEMENTATION_NOT_AUTHORIZED
 ```
 
 Maintenance, bug remediation, tests and research capture may continue under
-current governance. Any new runtime-capable milestone requires:
+current governance. P1-002 implementation requires:
 
 ```text
-separate bounded problem statement
-+ contract and threat model
-+ explicit owner GO
+separate bounded owner GO
++ dedicated authorization receipt
 + clean implementation PR
-+ exact-head Tier A review
++ exact-head Tier A correctness review
++ exact-head Tier A adversarial review
 + green post-merge main CI
 ```
 
+No later privacy runtime, Action Gate, tool execution, identity/M3 runtime or
+deployment follows automatically from P1-002 selection.
+
 ---
 
-## 8. 🔬 Research boundary
+## 9. 🔬 Research boundary
 
 ```text
 Research presence ≠ roadmap priority
@@ -236,27 +288,30 @@ research presence alone.
 
 ---
 
-## 9. 🔗 Authoritative navigation
+## 10. 🔗 Authoritative navigation
 
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
-- P1 authorization/completion receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
-- P1 frozen contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
+- P1-001 authorization/completion receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
+- P1-001 frozen contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
+- P1-002 frozen contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 - Environment: `docs/ENVIRONMENT_MANIFEST.md`
 
 ---
 
-## 10. 🏁 Current formula
+## 11. 🏁 Current formula
 
 ```text
 P0-001…P0-015 implemented
 + permanent CI
 + active solo-main governance
-+ P1-001 frozen contract
-+ bounded pure P1-001 resolver implemented and validated
++ P1-001 bounded pure resolver implemented and validated
++ P1-002 privacy classifier contract frozen
 
+≠ P1-002 implementation authorization
+≠ privacy deletion, quarantine, rebuild or retrieval runtime
 ≠ registry service
 ≠ Action Gate or tool execution
 ≠ identity or M3 mutation
