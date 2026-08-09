@@ -542,17 +542,40 @@ def test_result_and_typed_inputs_are_immutable() -> None:
         result.reason = PrivacyReason.BUDGET_EXHAUSTED
 
 
-def test_result_rejects_incoherent_allow_pairs() -> None:
-    with pytest.raises(PrivacyContractError):
-        PrivacyReconciliationResult(
+@pytest.mark.parametrize(
+    ("decision", "reason"),
+    [
+        (
             PrivacyDecision.ALLOW_REFERENCE,
             PrivacyReason.PURPOSE_NOT_PERMITTED,
-        )
-    with pytest.raises(PrivacyContractError):
-        PrivacyReconciliationResult(
+        ),
+        (
             PrivacyDecision.DENY_RETRIEVAL,
             PrivacyReason.ALLOW_REFERENCE,
-        )
+        ),
+        (
+            PrivacyDecision.QUARANTINE_REQUIRED,
+            PrivacyReason.BUDGET_EXHAUSTED,
+        ),
+        (
+            PrivacyDecision.REBUILD_REQUIRED,
+            PrivacyReason.COPY_ABSENT,
+        ),
+        (
+            PrivacyDecision.DENY_RETRIEVAL,
+            PrivacyReason.COPY_ALREADY_QUARANTINED,
+        ),
+        (
+            PrivacyDecision.DENY_RETRIEVAL,
+            PrivacyReason.INPUT_CONTRACT_VIOLATION,
+        ),
+    ],
+)
+def test_result_rejects_impossible_decision_reason_pairs(
+    decision: PrivacyDecision, reason: PrivacyReason
+) -> None:
+    with pytest.raises(PrivacyContractError):
+        PrivacyReconciliationResult(decision, reason)
 
 
 def test_import_has_no_ambient_io_or_clock_side_effects() -> None:
