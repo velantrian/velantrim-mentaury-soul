@@ -342,12 +342,15 @@ class PrivacyReconciliationBudget:
     max_purposes: int
     max_branches: int
 
-    _FIELDS: ClassVar[frozenset[str]] = frozenset(
-        {"max_serialized_bytes", "max_purposes", "max_branches"}
+    _FIELD_ORDER: ClassVar[tuple[str, ...]] = (
+        "max_serialized_bytes",
+        "max_purposes",
+        "max_branches",
     )
+    _FIELDS: ClassVar[frozenset[str]] = frozenset(_FIELD_ORDER)
 
     def __post_init__(self) -> None:
-        for name in self._FIELDS:
+        for name in self._FIELD_ORDER:
             object.__setattr__(
                 self, name, _require_positive_int(getattr(self, name), name)
             )
