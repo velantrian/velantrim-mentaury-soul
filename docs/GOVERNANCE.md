@@ -101,19 +101,21 @@ docs/GOVERNANCE.md
 docs/governance/**
 docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md
 docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
+docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
 ```
 
 #### Paths reserved if/when created
 
 ```text
-src/mentaury/**/authority/**          # if/when created
-src/mentaury/**/lease/**              # if/when created outside the active exact path
-src/mentaury/schema/**                # if/when created
-src/mentaury/canonical.py             # if/when created
-src/mentaury/canonical/**             # if/when created
-src/mentaury/integrity/**             # if/when created
-src/mentaury/redaction/**             # if/when created
+src/mentaury/privacy/reconciliation/** # P1-002 implementation path; inactive until Owner GO
+src/mentaury/**/authority/**           # if/when created
+src/mentaury/**/lease/**               # if/when created outside the active exact path
+src/mentaury/schema/**                 # if/when created
+src/mentaury/canonical.py              # if/when created
+src/mentaury/canonical/**              # if/when created
+src/mentaury/integrity/**              # if/when created
+src/mentaury/redaction/**              # if/when created
 ```
 
 The exact `src/mentaury/capabilities/lease/**` path is active because the bounded
@@ -121,6 +123,13 @@ P1-001 owner GO is recorded in `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
 That authorization covers only a pure resolver and its immutable contracts. It does not
 authorize registry persistence, Action Gate, tool execution, external effects, identity
 or M3 mutation, replay integration, backend selection, or deployment.
+
+The P1-002 privacy contract is frozen in
+`docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`, but no P1-002
+implementation authorization exists yet. The reserved
+`src/mentaury/privacy/reconciliation/**` path must remain absent until a separate bounded
+Owner GO and authorization receipt are merged. Contract freeze alone is not permission to
+create runtime code.
 
 #### Tier A requirements
 
@@ -271,7 +280,7 @@ future lifecycle trigger, not a current development blocker.
 
 ## 8. Explicit non-claims
 
-This governance policy and the bounded P1-001 authorization do not authorize:
+This governance policy and the current bounded authorizations do not authorize:
 
 ```text
 identity runtime
@@ -280,12 +289,13 @@ M3 writes
 Action Gate or external tool execution
 Capability Lease registry persistence or service
 P1-001 authority outside the pure resolver scope
-P1-001 implementation completion before verified PR and main evidence
+P1-002 implementation before a separate Owner GO
+privacy persistence, scanning, deletion, quarantine, rebuilding or retrieval runtime
 backend selection or integration
 production deployment claims
 objective truth claims
 ```
 
 Use precise terms such as `docs-only`, `research`, `runtime-capable`,
-`AUTHORIZED_BOUNDED`, `implemented`, `not implemented`, and `not authorized`
-according to the verified state.
+`FROZEN_DOCS`, `AUTHORIZED_BOUNDED`, `implemented`, `not implemented`, and
+`not authorized` according to the verified state.
