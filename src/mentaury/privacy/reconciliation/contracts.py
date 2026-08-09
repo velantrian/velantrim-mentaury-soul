@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Final, TypeVar
+from typing import ClassVar, Final, TypeVar
 
 CLASSIFIER_CONTRACT_VERSION: Final[str] = "P1-002-v0.1"
 
@@ -78,9 +78,9 @@ def _require_exact_mapping(
 ) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise PrivacyContractError(f"{name} must be an object")
-    keys = set(value.keys())
     if any(not isinstance(key, str) for key in value.keys()):
         raise PrivacyContractError(f"{name} keys must be strings")
+    keys = set(value.keys())
     missing = fields - keys
     unknown = keys - fields
     if missing:
@@ -141,7 +141,7 @@ class PrivacyMaterial:
     permitted_branches: tuple[str, ...]
     third_party_permission: bool
 
-    _FIELDS: Final[frozenset[str]] = frozenset(
+    _FIELDS: ClassVar[frozenset[str]] = frozenset(
         {
             "material_id",
             "privacy_class",
@@ -232,7 +232,7 @@ class PrivacyCopy:
     state: CopyState
     contains_material: bool
 
-    _FIELDS: Final[frozenset[str]] = frozenset(
+    _FIELDS: ClassVar[frozenset[str]] = frozenset(
         {
             "copy_id",
             "material_id",
@@ -306,7 +306,9 @@ class PrivacyAccessIntent:
     branch_id: str
     purpose: str
 
-    _FIELDS: Final[frozenset[str]] = frozenset({"copy_id", "branch_id", "purpose"})
+    _FIELDS: ClassVar[frozenset[str]] = frozenset(
+        {"copy_id", "branch_id", "purpose"}
+    )
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "copy_id", _require_non_empty(self.copy_id, "copy_id"))
@@ -340,7 +342,7 @@ class PrivacyReconciliationBudget:
     max_purposes: int
     max_branches: int
 
-    _FIELDS: Final[frozenset[str]] = frozenset(
+    _FIELDS: ClassVar[frozenset[str]] = frozenset(
         {"max_serialized_bytes", "max_purposes", "max_branches"}
     )
 
