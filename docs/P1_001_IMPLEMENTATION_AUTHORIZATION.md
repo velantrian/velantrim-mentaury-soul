@@ -2,6 +2,7 @@
 
 ```text
 Status:                       OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED
+Original authorization status:OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED
 Authorization date:           2026-08-09
 Completion date:              2026-08-09
 Milestone:                    P1-001 Capability Lease Resolution
@@ -81,6 +82,14 @@ exact purpose / operation / typed-scope / side-effect checks
 first-match deny precedence
 fork / restore quarantine as UNVERIFIED
 ALLOW executes nothing
+```
+
+Frozen resource vocabulary retained by the implementation:
+
+```text
+max_registry_lookups
+max_record_bytes
+max_scope_items
 ```
 
 The frozen document's metadata remains historical evidence that implementation
