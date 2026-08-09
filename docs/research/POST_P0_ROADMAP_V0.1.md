@@ -16,6 +16,7 @@ Capability grant authority:   NONE
 Canon modification authority: NONE
 Direct or indirect M3 write:  FORBIDDEN
 Domain runtime:               NOT AUTHORIZED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
@@ -42,6 +43,15 @@ P0-001…P0-015 implemented
 → exact-head Tier A review passed
 → resulting main CI passed
 → P1-001 IMPLEMENTED_BOUNDED
+```
+
+Retained implementation evidence:
+
+```text
+Reviewed head:   e873e43331fa7273b92f896b371707e4779b17d4
+Exact-head CI:   31323051934 · success · 387 passed
+Merge:           f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Post-merge CI:   31323138053 · success
 ```
 
 P1-001 remains limited to pure capability classification. It does not authorize
@@ -138,6 +148,9 @@ P1-002 must not call P1-001 internally and must not convert a Capability Lease
 P1_002_CONTRACT_FROZEN_DOCS
 P1_002_IMPLEMENTATION_NOT_AUTHORIZED
 ```
+
+No registry service, Action Gate, P1-002 implementation, deletion, quarantine,
+rebuild or retrieval runtime is authorized by this contract freeze.
 
 Implementation requires:
 
