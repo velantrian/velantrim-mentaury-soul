@@ -3,66 +3,74 @@
 ```text
 Status:                       ADOPTED NAVIGATION · DOCS_ONLY · NON_CANONICAL
 Purpose:                      separate research from current execution
+Current governance:           SOLO_MAINTAINER
 Runtime authority:            NONE
 Truth authority:              NONE
+Identity authority:           NONE
 Capability authority:         NONE
 Canon modification authority: NONE
 Implementation authority:     NONE
 ```
 
-> Этот файл — навигационный индекс уже существующих research-документов.
-> Он не создаёт новый runtime, не меняет приоритет roadmap и не превращает
-> исследовательскую идею в разрешённый milestone.
+> Этот файл индексирует существующие research-документы. Он не создаёт runtime,
+> не меняет roadmap priority и не превращает идею в разрешённый milestone.
 
 ```text
 Research presence ≠ roadmap priority
 Research adoption ≠ implementation authorization
 Notion explanation ≠ GitHub execution authority
-A future idea ≠ an accepted contract
+Candidate captured ≠ candidate selected
+Solo review ≠ independent human assurance
 ```
 
-### Language policy
-
-```text
-Language policy
-- narrative context, rationale and human-readable explanations may be written in Russian;
-- machine-stable identifiers, schemas, reason codes, algorithms and normative contract terms remain in English;
-- translation must not create a second normative source of truth;
-- when Russian and English wording conflict, exact identifiers, tables, algorithms and scenario contracts govern.
-```
+## Language policy
 
 ```text
-Russian = explanation and context
-English = stable technical identifiers and contracts
-One normative source of truth
+Russian
+→ narrative context, rationale and human-readable explanations
+
+English
+→ stable identifiers, schemas, reason codes, algorithms and normative terms
+
+Conflict
+→ exact identifiers, tables, algorithms and scenario contracts govern
 ```
+
+Translation must not create a second normative source of truth.
 
 ---
 
 ## 1. 🚀 Current execution boundary
 
-Текущая инженерная правда находится в:
+Engineering authority:
 
-- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — authoritative current state;
-- [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) — принятый post-P0 порядок;
-- [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) — текущий P1-001 docs-first contract.
+- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — maturity and authorization state;
+- [`../GOVERNANCE.md`](../GOVERNANCE.md) — current merge and review policy;
+- [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) — post-P0 ordering;
+- [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) — P1-001 contract draft.
 
 ```text
 Current bounded milestone:
 P1-001 Capability Lease Resolution
 
-Current allowed work:
-branch-protection follow-up
-+ docs hardening
-+ independent docs review
+Allowed now:
+docs hardening
++ exact-head CI
++ Tier A correctness review
++ Tier A adversarial review
++ docs freeze when all criteria pass
 
 Still forbidden:
-resolver implementation before explicit owner GO
+resolver implementation before explicit bounded owner GO
 + Action Gate
 + tool execution
 + domain runtime
-+ direct M3 writes
++ direct or indirect M3 writes
++ backend selection by implication
 ```
+
+The lack of an independent reviewer is not a current solo-mode blocker. Review
+must instead be honestly recorded as maintainer review under `docs/GOVERNANCE.md`.
 
 ---
 
@@ -70,28 +78,27 @@ resolver implementation before explicit owner GO
 
 | Document | Track | Current disposition | Runtime |
 |---|---|---|---|
-| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | execution-bound research | P1-001 docs hardening / freeze candidate | NOT AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | adopted docs-only | NONE |
-| [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md) | active research side-track | adopted docs-only | NOT IMPLEMENTED |
+| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | execution-bound research | P1-001 contract draft / freeze candidate | NOT AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | adopted docs-only ordering | NONE |
+| [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md) | research side-track | adopted docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
-| [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md) | historical architecture decision support | retained reference | NONE |
+| [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md) | historical decision support | retained reference | NONE |
 | [`ARCHITECTURE_READINESS_REVIEW_V0.1.md`](ARCHITECTURE_READINESS_REVIEW_V0.1.md) | historical readiness review | retained reference | NONE |
-| [`CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md`](CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md) | evidence receipt | historical verification record | NONE |
-| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external research input | preserved docs-only notes; no execution authority | NOT AUTHORIZED |
-| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | captured future profile candidates | CAPTURED · NOT SELECTED · DOCS_ONLY | NOT AUTHORIZED |
-| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | biological / cybernetic / cognitive candidates | CAPTURED · RESEARCH_NOTES · DOCS_ONLY · 15 captured · 0 selected | NOT AUTHORIZED |
+| [`CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md`](CONTEXTUAL_COGNITION_POST_MERGE_RECEIPT.md) | evidence receipt | historical verification | NONE |
+| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external research input | preserved · non-canonical | NOT AUTHORIZED |
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | future profile candidates | captured · not selected | NOT AUTHORIZED |
+| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | biological / cybernetic candidates | 15 captured · 0 selected | NOT AUTHORIZED |
 
 ---
 
-## 2.1. 🔗 External research input
+## 3. 🔗 External research input
 
-Эти документы фиксируют внешние идеи как research input. Они не являются
-execution milestones и не авторизуют интеграцию.
+External material is preserved as input, not imported as authority.
 
 | Document | External source | Disposition | Runtime |
 |---|---|---|---|
-| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | `velantrim-native-kernel` (via preservation PR #43) | PRESERVED · DOCS_ONLY · NON_CANONICAL | NOT AUTHORIZED |
+| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | `velantrim-native-kernel` | PRESERVED · DOCS_ONLY · NON_CANONICAL | NOT AUTHORIZED |
 
 ```text
 External research input
@@ -104,38 +111,32 @@ External research input
 
 ---
 
-## 2.2. 🗄️ Captured future profile candidates
-
-Эти заметки фиксируют возможные будущие engineering profiles. Они не выбирают
-backend и не авторизуют wiring.
+## 4. 🗄️ Future storage and graph profiles
 
 | Document | Disposition | Runtime / Truth / Capability |
 |---|---|---|
-| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | CAPTURED · NOT SELECTED · NON_CANONICAL · DOCS_ONLY | NONE / NONE / NONE |
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | CAPTURED · NOT SELECTED · DOCS_ONLY | NONE / NONE / NONE |
 
 ```text
-PostgreSQL:
-  future storage profile candidate
-Graphiti:
-  temporal context-graph framework candidate
-LadybugDB:
-  embedded property-graph database candidate
+PostgreSQL → future storage-profile candidate
+Graphiti   → temporal context-graph framework candidate
+LadybugDB  → embedded property-graph database candidate
 
 No backend selected.
 No runtime wiring authorized.
-P1-001 priority impact: NONE
+P1-001 priority impact: NONE.
 ```
 
 ---
 
-## 2.3. 🧬⚙️ Biological / cybernetic / cognitive candidates
+## 5. 🧬 Biological, cybernetic and cognitive candidates
 
 | Document | Disposition | Runtime / Truth / Capability |
 |---|---|---|
-| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | CAPTURED · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY | NONE / NONE / NONE |
+| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | CAPTURED · RESEARCH_NOTES · DOCS_ONLY | NONE / NONE / NONE |
 
 ```text
-Candidates: 15 captured · 0 selected
+15 candidates captured · 0 selected
 biological inspiration ≠ implementation
 candidate captured ≠ candidate selected
 research presence ≠ roadmap priority
@@ -144,30 +145,27 @@ P1-001 priority impact: NONE
 
 ---
 
-## 3. 🌱 Captured future research backlog
-
-Эти направления сохраняются, но пока не являются implementation specs и не
-меняют текущий milestone.
+## 6. 🌱 Future research backlog
 
 | Research ID | Direction | Status | Required before promotion |
 |---|---|---|---|
 | `R-ELIDA-001` | ELIDA / Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification plan |
 | `R-NPG-001` | Non-Projection Gate | CAPTURED | claim taxonomy + provenance contract + threat model |
-| `R-HPA-001` | Human Paths Atlas | CAPTURED / PARTLY DOCUMENTED | bounded schema + analogy limits + source rules |
-| `R-CO-001` | Controlled Origin / Creator Atlas | CAPTURED / PARTLY DOCUMENTED | consent, provenance and promotion boundaries |
+| `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + analogy limits + source rules |
+| `R-CO-001` | Controlled Origin / Creator Atlas | PARTLY DOCUMENTED | consent, provenance and promotion boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | conceptual-core preservation tests |
-| `R-VHE-001` | Volumetric Humor Engine | CAPTURED | safety suppression rules + factuality tests |
-| `R-ECN-001` | Epistemic Conflict Navigator | CAPTURED | symmetric evidence protocol + motive-claim guardrails |
-| `R-MM-001` | Memory Metabolism | CAPTURED | retention semantics + replay + rollback criteria |
+| `R-VHE-001` | Volumetric Humor Engine | CAPTURED | safety suppression + factuality tests |
+| `R-ECN-001` | Epistemic Conflict Navigator | CAPTURED | symmetric evidence + motive-claim guardrails |
+| `R-MM-001` | Memory Metabolism | CAPTURED | retention, replay and rollback semantics |
 | `R-CHAR-001` | Character & Social Adaptability runtime | DEFERRED | Non-Projection and belief boundaries first |
 | `R-ID-001` | Identity runtime / M2→M3 promotion | DEFERRED | longitudinal evidence + authority + rollback |
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy, consent and scope contracts |
-| `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability authority + reversible experiments |
+| `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + authority + reversible experiments |
 
 ### Explicit non-claims
 
 ```text
-Identity = Practice
+Identity as Practice
 → working research hypothesis
 ≠ proven law of digital identity
 
@@ -183,9 +181,10 @@ Institutional context
 
 ---
 
-## 4. 🚪 Promotion gate: Research → Execution
+## 7. 🚪 Promotion gate: Research → Execution
 
-Research may enter the execution roadmap only after all applicable checks pass:
+A research item becomes eligible for execution planning only after applicable
+checks pass:
 
 ```text
 problem demonstrated
@@ -196,10 +195,15 @@ problem demonstrated
 + threat model recorded
 + Canon and P0 compatibility checked
 + previous milestone completed or explicitly superseded
-+ independent architecture review
++ exact-head correctness review under current governance
++ exact-head adversarial review under current governance
 + explicit repository-owner authorization
 = eligible for execution planning
 ```
+
+Review is risk-tiered. During the solo phase it is attributable maintainer review,
+not independent human assurance. When a genuine reviewer/team exists, issue #39
+controls the future ruleset transition.
 
 Allowed dispositions:
 
@@ -216,12 +220,12 @@ SUPERSEDED
 ARCHIVED
 ```
 
-No percentage-based maturity score is authoritative unless its denominator and
-measurement contract are explicitly defined.
+No percentage maturity score is authoritative without a defined denominator and
+measurement contract.
 
 ---
 
-## 5. 🧱 Separation from Velantrim Research Mode
+## 8. 🧱 Ecosystem separation
 
 ```text
 Mentaury research track
@@ -231,40 +235,38 @@ Mentaury research track
 ≠ Native Kernel runtime
 ```
 
-Mentaury remains a standalone experimental project. Any future transfer to
-another Velantrim system requires a bounded export, quarantine, review, RFC,
-independent implementation and target-system validation. Identity state,
-private memory, capability state and relationship state do not transfer as
-research insight.
+Any future transfer requires a bounded export, quarantine, target RFC, explicit
+authorization, implementation review and target-system validation. Identity,
+private memory, capability and relationship state do not transfer merely because
+research ideas are shared.
 
 ---
 
-## 6. 🗺️ Notion navigation
+## 9. 🗺️ Notion boundary
 
-Notion is a human-readable navigation and research workspace. GitHub `main` and
-[`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) remain the engineering source of
-truth.
+Notion is a human-readable navigation and research workspace. GitHub `main`,
+`docs/CURRENT_STATUS.md` and `docs/GOVERNANCE.md` remain engineering authority.
 
-Current Notion counterparts include:
+Notion may link:
 
-- Mentaury main hub / current checkpoint;
-- Controlled Origin Research;
+- current Mentaury checkpoint;
+- Controlled Origin research;
 - Identity Continuity & Relational Architecture;
 - Character & Presence;
 - Architecture Readiness & P0 Engineering;
-- Research History archive;
-- early-research archive.
+- research history and archives.
 
-A Notion research registry may link these pages, but it must remain navigation
-only and must not authorize implementation.
+A Notion page cannot authorize implementation or override a verified GitHub
+checkpoint.
 
 ---
 
-## 7. 🏁 Operating rule
+## 10. 🏁 Operating rule
 
 ```text
 Keep ideas.
-Label their epistemic and implementation status.
-Do not let research text impersonate current runtime truth.
+Label epistemic and implementation status.
+Do not let research text impersonate runtime truth.
 Promote one bounded milestone at a time.
+Review honestly under the governance that actually exists.
 ```
