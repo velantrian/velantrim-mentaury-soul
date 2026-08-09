@@ -1,19 +1,19 @@
 # 🧱 Mentaury Environment Manifest
 
 ```text
-Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
+Status:             P0-001…P0-015 + P1-001 IMPLEMENTED IN MAIN
 Updated:            2026-08-09
 Authority:          docs/CURRENT_STATUS.md + verified GitHub main
-Profile:            Python 3.13 + standard-library SQLite
+Profile:            Python 3.13 + standard library
 Minimum SQLite:     3.37.0
-Journal mode:       WAL for file databases
-Storage schema:     v4
+P0 journal mode:    WAL for file databases
+P0 storage schema:  v4
 Dev toolchain pin:  pytest==9.1.1
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
+Filesystem mutation at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
-Permanent CI:       PRESENT AND VALIDATED
 Governance mode:    SOLO_MAINTAINER
 ```
 
@@ -25,31 +25,21 @@ not embed a mutable current `main` tip or open-PR head.
 ## 1. ✅ Accepted implementation line
 
 ```text
-P0-001 neutral skeleton
-P0-002 typed envelopes
-P0-003 canonical JSON
-P0-004 immutable event and external-payload storage
-P0-005 fail-closed structural validation
-P0-006 atomic multi-event batch
-P0-007 semantic idempotency
-P0-008 controlled SQLite concurrency
-P0-009 trusted commit + bounded R0 integrity
-P0-010 atomic same-stream redaction
-P0-011 adversarial integrity suite
-P0-012 permanent read-only GitHub Actions CI
-P0-013 R1 deterministic replay
+P0-001…P0-013 integrity, storage and replay foundation
 P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
+P1-001 pure Capability Lease resolver · IMPLEMENTED_BOUNDED
 ```
 
-Post-P0 status:
+P1-001 evidence:
 
 ```text
-P1-001 contract         → FROZEN_DOCS
-P1-001 owner GO         → AUTHORIZED_BOUNDED
-P1-001 implementation   → NOT_STARTED
-P1-001 completion       → NOT_CLAIMED
-Action Gate / tools / M3 / domain runtime → NOT AUTHORIZED
+Authorization merge:  d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
+Authorization main CI:31322210843 · success
+Implementation head:  e873e43331fa7273b92f896b371707e4779b17d4
+Exact-head CI:        31323051934 · success · 387 passed
+Implementation merge: f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Implementation main CI:31323138053 · success
 ```
 
 ---
@@ -78,26 +68,22 @@ Required workflow job:
 Python 3.13 · validator · pytest · compileall
 ```
 
-Green CI proves only that the checked revision passed the repository's current
-structural, test and compilation gates. It does not prove semantic completeness,
-production readiness or independent assurance.
+Green CI proves repository conformance for the checked revision. It does not
+prove production readiness, independent assurance or external authorization.
 
 ---
 
-## 3. 🗄️ SQLite profile
+## 3. 🗄️ Storage boundary
+
+P0 uses standard-library SQLite as its accepted storage profile. P1-001 is
+storage-free and makes no schema, journal, persistence or replay change.
 
 ```text
-Backend:             sqlite3 from the Python standard library
-Minimum version:     3.37.0
-Accepted profile:    SQLite
-File journal mode:   WAL
-Foreign keys:        enabled where required by store setup
-Storage schema:      v4
+P1-001 registry persistence: NOT IMPLEMENTED
+P1-001 registry service:     NOT IMPLEMENTED
+network registry lookup:     FORBIDDEN
+backend selection/migration: NOT AUTHORIZED
 ```
-
-Current implementation uses SQLite as the first P0 profile. P1-001 pure resolver
-implementation is explicitly storage-free and does not select, modify or add a
-backend.
 
 ---
 
@@ -109,103 +95,68 @@ At module import:
 network access    → forbidden
 database opening  → forbidden
 filesystem write  → forbidden
+ambient clock     → forbidden
 ambient authority → forbidden
 ```
 
-Runtime dependencies remain empty. Development dependencies are locked
-separately and are not product runtime requirements.
+Runtime dependencies remain empty.
 
-The future authorized P1-001 package must preserve the same import boundary:
-
-```text
-src/mentaury/capabilities/lease/**
-→ standard library only
-→ no network
-→ no database
-→ no filesystem mutation
-→ no clock or environment read
-```
-
----
-
-## 5. 🛡️ Integrity boundary
-
-Implemented storage and replay capabilities include canonical payload bytes,
-payload digests and event hashes, atomic batches, semantic idempotency, bounded
-R0 verification, same-stream redaction and deterministic R1 replay.
-
-```text
-hash chain ≠ truth
-successful replay ≠ authorization
-budget exhaustion ≠ ledger corruption
-redaction ≠ deletion of event provenance
-```
-
-P1-001 must not change storage schema, historical hashes, P0 envelope contracts
-or replay behavior.
-
----
-
-## 6. 🧠 Belief and evidence boundary
-
-Implemented P0 contracts include a minimal belief lifecycle and deterministic
-Evidence Gate. They do not authorize objective truth, identity runtime, M3
-writes or external actions.
-
-P1-001 must remain independent from belief mutation and Evidence Gate status
-changes. Capability resolution classifies an explicit intent against an
-explicit lease record; it does not alter epistemic state.
-
----
-
-## 7. 🔐 P1-001 authorized environment
-
-Authorization authority:
-
-- `docs/CURRENT_STATUS.md`;
-- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
-
-Authorized implementation paths:
+P1-001 package:
 
 ```text
 src/mentaury/capabilities/__init__.py
 src/mentaury/capabilities/lease/__init__.py
 src/mentaury/capabilities/lease/contracts.py
 src/mentaury/capabilities/lease/resolver.py
-tests/test_capability_lease_resolution.py
 ```
 
-Required execution environment:
-
-```text
-caller-supplied RegistrySnapshot
-caller-supplied AuthorityRef
-caller-supplied ActionIntent
-caller-supplied evaluated_at
-caller-supplied ResolutionBudget
-pure deterministic ResolutionResult
-```
-
-Forbidden environment dependencies:
-
-```text
-network registry lookup
-system clock
-process environment authority
-filesystem registry
-SQLite registry
-external service
-background worker
-Action Gate
-Tool Receipt
-execution adapter
-```
-
-`ALLOW` executes nothing and carries no reusable permission material.
+Its fresh-process import test blocks `open`, `socket.socket`, `sqlite3.connect`
+and `time.time`; import still succeeds.
 
 ---
 
-## 8. 🧑‍💻 Governance environment
+## 5. 🔐 P1-001 execution environment
+
+Inputs are entirely caller supplied:
+
+```text
+RegistrySnapshot
+AuthorityRef(capability_lease_id, capability_revision)
+ActionIntent
+canonical UTC-Z evaluated_at
+ResolutionBudget
+```
+
+Output:
+
+```text
+ResolutionResult
+```
+
+The resolver performs strict admission, exact live-head lookup, canonical digest
+verification, deterministic invariant/lifecycle checks and exact intent matching.
+Stored registry records are recursively immutable.
+
+`ALLOW` executes nothing and contains no reusable permission token, operations,
+scope, side effects or tool credentials.
+
+---
+
+## 6. 🧠 Epistemic and state boundary
+
+P1-001 does not import or mutate storage, replay, beliefs or evidence packages.
+It does not append events, alter projections, change belief status, write
+identity/relationship state or authorize M3 mutation.
+
+```text
+capability resolution ≠ objective truth
+capability resolution ≠ action execution
+capability resolution ≠ identity authority
+```
+
+---
+
+## 7. 🧑‍💻 Governance environment
 
 The active ruleset requires PRs, current branches, required CI, resolved
 conversations, deletion protection and force-push protection.
@@ -217,11 +168,20 @@ independent human review claimed: no
 Tier A review: correctness + adversarial passes on exact head
 ```
 
-The created `src/mentaury/**/lease/**` path is a reserved Tier A path and must be
-made active in governance/CODEOWNERS when implementation files are added.
+`src/mentaury/capabilities/lease/**` is an active Tier A path in Governance and
+CODEOWNERS. Issue #39 governs only the future team transition.
 
-Issue #39 defines the future transition when a genuine independent reviewer or
-team exists. Until then, technical work proceeds under documented solo review.
+---
+
+## 8. ⛔ Next milestone boundary
+
+```text
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+No registry service, Action Gate, Tool Receipt, external action adapter, P1-002,
+identity runtime or deployment follows automatically. Each requires a separate
+contract, threat model and Owner GO.
 
 ---
 
@@ -230,14 +190,12 @@ team exists. Until then, technical work proceeds under documented solo review.
 This manifest does not claim:
 
 ```text
-P1-001 implementation completion
 production deployment readiness
 registry service availability
-distributed-database equivalence
-cloud or mobile runtime readiness
-LLM integration
-identity or relationship runtime
 Action Gate or external tools
+identity or relationship runtime
+M3 authority
+backend portability beyond validated profiles
 independent certification
 ```
 
