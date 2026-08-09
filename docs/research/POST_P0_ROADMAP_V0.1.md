@@ -15,6 +15,7 @@ Capability grant authority:   NONE
 Canon modification authority: NONE
 Direct or indirect M3 write:  FORBIDDEN
 Domain runtime:               NOT AUTHORIZED
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
 ```text
@@ -150,6 +151,7 @@ production deployment
 
 ```text
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
 No registry service, Action Gate, P1-002 or other runtime milestone follows
