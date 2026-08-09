@@ -14,9 +14,10 @@ CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
 
-P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
 P1_001_CAPABILITY_LEASE_RESOLUTION_FROZEN_DOCS
-CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
+P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED
+P1_001_IMPLEMENTATION_NOT_STARTED
+P1_001_COMPLETION_NOT_CLAIMED
 
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
@@ -39,10 +40,12 @@ IMPLEMENTED
 
 FROZEN_DOCS
 = accepted contract documentation
-≠ runtime implementation
+≠ implementation by itself
 
-OPEN PR
-≠ implemented
+AUTHORIZED_BOUNDED
+= code may be developed only inside the exact owner-GO scope
+≠ implementation complete
+≠ deployment authorized
 
 README / Quick Reference / Notion
 = derived navigation surfaces
@@ -50,8 +53,10 @@ README / Quick Reference / Notion
 
 - [Current Status](docs/CURRENT_STATUS.md)
 - [Governance](docs/GOVERNANCE.md)
-- [Solo-maintainer mode](docs/governance/solo-maintainer-mode.md)
-- [Tier A review checklist](docs/governance/solo-maintainer-review-checklist.md)
+- [P1-001 implementation authorization](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [P1-001 frozen contract](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [Post-P0 Roadmap](docs/research/POST_P0_ROADMAP_V0.1.md)
+- [Research Index](docs/research/RESEARCH_INDEX.md)
 - [Environment Manifest](docs/ENVIRONMENT_MANIFEST.md)
 - [Quick Reference](docs/MENTAURY_QUICK_REFERENCE.md)
 
@@ -71,17 +76,7 @@ coherent continuity through:
 - 🎭 character as presentation rather than truth authority;
 - 🌱 explainable, reversible development.
 
-The project rejects two simplistic extremes:
-
-```text
-Stateless tool
-→ useful, but no durable explainable continuity
-
-Digital copy of the creator
-→ inherits identity claims, errors and projections without separation
-```
-
-The research target is a third model:
+The research target is:
 
 > **A governed evolving digital individuality with provenance, bounded authority
 > and explainable change, without pretending to be a copy of its creator.**
@@ -109,12 +104,12 @@ MENTAURY SOUL
 │   ├── minimal belief lifecycle
 │   └── deterministic Evidence Gate
 │
-├── 🔐 P1-001 Capability Lease Resolution — docs frozen
-│   ├── explicit registry snapshot
-│   ├── exact live-head lookup
-│   ├── fail-closed admission and lifecycle
-│   ├── exact purpose / operation / typed scope
-│   └── no runtime implementation authorization
+├── 🔐 P1-001 Capability Lease Resolution
+│   ├── frozen fail-closed contract
+│   ├── separate bounded owner GO
+│   ├── pure resolver implementation not started
+│   ├── exact live-head / purpose / operation / typed scope
+│   └── ALLOW executes nothing
 │
 ├── 🔬 Research tracks — docs-only
 │   ├── identity continuity and relationships
@@ -122,10 +117,10 @@ MENTAURY SOUL
 │   ├── contextual cognition
 │   ├── character and presence
 │   ├── Non-Projection research
-│   ├── storage / graph candidates
-│   └── biological / cybernetic candidates
+│   └── biological / storage / graph candidates
 │
 └── 🚫 Deferred runtime
+    ├── registry service
     ├── identity / character engines
     ├── Action Gate and tools
     ├── M3 writes
@@ -166,58 +161,64 @@ network/database access at import: forbidden
 
 ---
 
-## 🔐 P1-001 Capability Lease Resolution
+## 🔐 P1-001 bounded owner GO
 
-The accepted contract is in:
+The contract is frozen in:
 
-- [Capability Lease Resolution Notes](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-- [Post-P0 Roadmap](docs/research/POST_P0_ROADMAP_V0.1.md)
-- [Research Index](docs/research/RESEARCH_INDEX.md)
+- [Capability Lease Resolution Contract](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+
+The separate owner authorization is recorded in:
+
+- [P1-001 Implementation Authorization](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+
+Exact authorized implementation slice:
 
 ```text
-Status: FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
 ```
 
-The contract specifies:
+Required resolver properties:
 
-- caller-supplied immutable `RegistrySnapshot`;
-- separate registry and lease-record admission;
-- distinct `REGISTRY_UNAVAILABLE`, `REGISTRY_CONTRACT_VIOLATION`,
-  `UNKNOWN_LEASE` and `REVISION_MISMATCH` outcomes;
+- pure and deterministic;
+- caller-supplied registry, intent, time and budgets;
+- strict registry and record admission;
 - exact live-head lookup with no history walk;
-- canonical digest recomputation excluding `content_digest`;
-- explicit caller-supplied time and resource budgets;
-- exact purpose, operation, typed scope and side-effect containment;
-- fail-closed lifecycle ordering;
+- canonical digest recomputation;
+- exact purpose, operation, typed scope and side-effect checks;
+- deterministic first-match denial;
 - fork/restore quarantine as `UNVERIFIED`;
-- an `ALLOW` result that executes nothing.
+- `ALLOW` that executes nothing.
 
 ```text
-FROZEN_DOCS
-≠ registry implemented
-≠ resolver implemented
+AUTHORIZED_BOUNDED
+≠ implementation complete
+≠ registry service
 ≠ Action Gate approval
+≠ tool execution
 ≠ M3 write
 ≠ domain runtime
 ```
 
-A future implementation requires a separate explicit owner GO in
-`docs/CURRENT_STATUS.md` and a new Tier A exact-head review.
+A separate Tier A implementation PR and green resulting `main` CI are mandatory
+before P1-001 can be marked implemented.
 
 ---
 
 ## 🧑‍💻 Solo governance
 
-The repository currently has one maintainer and no genuine independent human
-reviewer. The active ruleset therefore uses `required approvals = 0` while
-retaining:
+The active ruleset retains:
 
 - mandatory pull requests;
 - required CI;
 - up-to-date branches;
 - resolved conversations;
 - force-push and deletion protection;
-- an empty bypass list.
+- empty bypass list;
+- required approvals `0` during genuine solo operation.
 
 Tier A changes require:
 
@@ -232,16 +233,13 @@ exact final head
 + green post-merge main CI
 ```
 
-Automated agents may challenge and test changes but are not described as
-independent human reviewers. [Issue #39](https://github.com/velantrian/velantrim-mentaury-soul/issues/39)
+Automated agents may challenge and test changes but are not independent human
+reviewers. [Issue #39](https://github.com/velantrian/velantrim-mentaury-soul/issues/39)
 tracks the future transition when a real reviewer/team exists.
 
 ---
 
 ## 🔬 Research is not implementation
-
-The [Research Index](docs/research/RESEARCH_INDEX.md) preserves ideas without
-promoting them automatically.
 
 ```text
 research presence ≠ roadmap priority
@@ -250,25 +248,16 @@ external research input ≠ integration
 Notion page ≠ implementation authority
 ```
 
-Current research includes:
-
-- identity continuity and relational architecture;
-- Genesis Heritage and Human Atlas;
-- contextual cognition and epistemic context;
-- character and presence;
-- Native Kernel external input;
-- storage and graph profile candidates;
-- biological, cybernetic and cognitive candidates.
-
 No PostgreSQL, Graphiti, LadybugDB or other future profile is selected merely by
 being documented.
 
 ---
 
-## 🚫 Explicitly absent
+## 🚫 Explicitly absent or unauthorized
 
 ```text
-Capability Lease registry / resolver runtime
+P1-001 implementation completion
+Capability Lease registry persistence/service
 Action Gate or Tool Receipt runtime
 external tool execution
 identity / character / relationship runtime
@@ -307,7 +296,6 @@ docs/               Canon, status, governance and research
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.lock
 python scripts/validate.py
 python scripts/check_doc_freshness.py
@@ -315,31 +303,11 @@ PYTHONPATH=src python -m pytest
 python -m compileall -q src tests scripts
 ```
 
-The required GitHub Actions job is:
+Required GitHub Actions job:
 
 ```text
 Python 3.13 · validator · pytest · compileall
 ```
-
----
-
-## 🤝 Contribution and review
-
-Read before changing the repository:
-
-1. `AGENTS.md`;
-2. `docs/CURRENT_STATUS.md`;
-3. `docs/GOVERNANCE.md`;
-4. the owning contract for the affected subsystem.
-
-Do not:
-
-- claim implementation from an open PR;
-- convert research into runtime authority implicitly;
-- bypass required checks or conversations;
-- claim independent review during solo operation;
-- weaken fail-closed behavior merely to make CI green;
-- widen Action Gate, tool, M3 or domain-runtime authority without explicit GO.
 
 ---
 
@@ -349,9 +317,10 @@ Do not:
 P0 foundation implemented
 + permanent CI
 + active solo governance
-+ P1-001 docs frozen
++ P1-001 contract frozen
++ bounded P1-001 implementation authorized
 
-≠ P1 runtime implemented
+≠ P1-001 implementation complete
 ≠ domain runtime authorized
 ≠ production ready
 ≠ independent assurance
