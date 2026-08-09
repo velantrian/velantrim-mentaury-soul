@@ -42,23 +42,14 @@ P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
 ```
 
-Retained maintenance state:
+Post-P0 status:
 
 ```text
-beliefs/evidence import order → fixed and fresh-interpreter validated
-shared epistemic enum identity → one leaf implementation
-mutable contradiction outcome → CONTESTED
-forged CONTRADICTED outcome → reducer rejection
-```
-
-Post-P0 accepted documentation:
-
-```text
-Post-P0 Roadmap → adopted docs-only
-P1-001 Capability Lease Resolution → FROZEN_DOCS · NOT IMPLEMENTED
-Research Index → navigation-only · non-canonical
-Native Kernel input → preserved · not integrated
-Storage/graph profiles → candidates captured · none selected
+P1-001 contract         → FROZEN_DOCS
+P1-001 owner GO         → AUTHORIZED_BOUNDED
+P1-001 implementation   → NOT_STARTED
+P1-001 completion       → NOT_CLAIMED
+Action Gate / tools / M3 / domain runtime → NOT AUTHORIZED
 ```
 
 ---
@@ -81,18 +72,10 @@ PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-The permanent workflow runs the required job:
+Required workflow job:
 
 ```text
 Python 3.13 · validator · pytest · compileall
-```
-
-Latest accepted runtime-maintenance evidence:
-
-```text
-PR #60 exact-head CI: 31317635719 · success · 326 passed
-PR #60 merge:         102fac1f8778e056d29ece3f1f76d92d4cf264f2
-Post-merge CI:        31317696013 · success
 ```
 
 Green CI proves only that the checked revision passed the repository's current
@@ -112,9 +95,9 @@ Foreign keys:        enabled where required by store setup
 Storage schema:      v4
 ```
 
-Current implementation uses SQLite as the first profile. Research mentions of
-PostgreSQL, Graphiti, LadybugDB or other systems are not backend selection and
-do not authorize runtime wiring.
+Current implementation uses SQLite as the first P0 profile. P1-001 pure resolver
+implementation is explicitly storage-free and does not select, modify or add a
+backend.
 
 ---
 
@@ -125,107 +108,107 @@ At module import:
 ```text
 network access    → forbidden
 database opening  → forbidden
-filesystem write  → forbidden unless an explicit operation requests it
+filesystem write  → forbidden
 ambient authority → forbidden
 ```
 
-Beliefs/evidence package isolation:
+Runtime dependencies remain empty. Development dependencies are locked
+separately and are not product runtime requirements.
+
+The future authorized P1-001 package must preserve the same import boundary:
 
 ```text
-mentaury.epistemic_types
-→ dependency-light shared ClaimType / EvidenceSide
-→ imported by beliefs and evidence contracts
-→ no evidence → beliefs package dependency
+src/mentaury/capabilities/lease/**
+→ standard library only
+→ no network
+→ no database
+→ no filesystem mutation
+→ no clock or environment read
 ```
-
-Fresh-interpreter tests cover both package orders and public enum identity so an
-already populated `sys.modules` cannot mask an import cycle.
-
-Runtime dependencies remain empty. Development dependencies are locked
-separately and must not be interpreted as product runtime requirements.
 
 ---
 
 ## 5. 🛡️ Integrity boundary
 
-Implemented storage and replay capabilities include:
-
-- canonical payload bytes;
-- payload digests and event hashes;
-- previous-hash allocation from the locked stream tail;
-- stream version and event-count tracking;
-- atomic multi-event batches;
-- event-aware idempotency;
-- same-stream redaction events;
-- R0 bounded integrity verification;
-- R1 deterministic full replay and verified snapshot-tail equivalence;
-- explicit caller-supplied verification and replay budgets.
+Implemented storage and replay capabilities include canonical payload bytes,
+payload digests and event hashes, atomic batches, semantic idempotency, bounded
+R0 verification, same-stream redaction and deterministic R1 replay.
 
 ```text
 hash chain ≠ truth
-stream metadata ≠ independent source of truth
 successful replay ≠ authorization
 budget exhaustion ≠ ledger corruption
 redaction ≠ deletion of event provenance
 ```
 
+P1-001 must not change storage schema, historical hashes, P0 envelope contracts
+or replay behavior.
+
 ---
 
 ## 6. 🧠 Belief and evidence boundary
 
-Implemented P0 contracts include:
+Implemented P0 contracts include a minimal belief lifecycle and deterministic
+Evidence Gate. They do not authorize objective truth, identity runtime, M3
+writes or external actions.
 
-- minimal belief lifecycle;
-- evidence references;
-- deterministic Evidence Gate;
-- policy-bound receipts;
-- fail-closed conflict handling.
-
-PR #60 preserved these semantics while fixing:
-
-- the import-order cycle;
-- an unreachable `CONTRADICTED → CONTRADICTED` contradiction branch;
-- reducer acceptance of a forged contradiction resulting status;
-- a misleading conflict explanation.
-
-It changed no belief status, policy threshold, event schema, storage format or
-replay profile.
-
-These modules do not authorize:
-
-```text
-objective truth claims
-identity runtime
-Character runtime
-M3 writes
-external actions
-```
+P1-001 must remain independent from belief mutation and Evidence Gate status
+changes. Capability resolution classifies an explicit intent against an
+explicit lease record; it does not alter epistemic state.
 
 ---
 
-## 7. 🔐 P1-001 environment boundary
+## 7. 🔐 P1-001 authorized environment
 
-The P1-001 Capability Lease contract is frozen as documentation only.
+Authorization authority:
+
+- `docs/CURRENT_STATUS.md`;
+- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
+
+Authorized implementation paths:
 
 ```text
-registry implementation: NOT PRESENT
-resolver implementation: NOT PRESENT
-network registry lookup: FORBIDDEN BY CONTRACT
-ambient wall clock: FORBIDDEN BY CONTRACT
-Action Gate: NOT AUTHORIZED
-Tool execution: NOT AUTHORIZED
-M3 write: FORBIDDEN
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
 ```
 
-A future implementation requires separate owner authorization in
-`docs/CURRENT_STATUS.md`; this manifest does not grant it.
+Required execution environment:
+
+```text
+caller-supplied RegistrySnapshot
+caller-supplied AuthorityRef
+caller-supplied ActionIntent
+caller-supplied evaluated_at
+caller-supplied ResolutionBudget
+pure deterministic ResolutionResult
+```
+
+Forbidden environment dependencies:
+
+```text
+network registry lookup
+system clock
+process environment authority
+filesystem registry
+SQLite registry
+external service
+background worker
+Action Gate
+Tool Receipt
+execution adapter
+```
+
+`ALLOW` executes nothing and carries no reusable permission material.
 
 ---
 
 ## 8. 🧑‍💻 Governance environment
 
-The active ruleset requires PRs, current branches, the required CI check,
-resolved conversations, deletion protection and force-push protection.
+The active ruleset requires PRs, current branches, required CI, resolved
+conversations, deletion protection and force-push protection.
 
 ```text
 required approvals: 0
@@ -234,9 +217,11 @@ independent human review claimed: no
 Tier A review: correctness + adversarial passes on exact head
 ```
 
-When a genuine independent reviewer/team exists, issue #39 defines the future
-transition. Until then, technical work proceeds under documented solo review
-without fabricated approval.
+The created `src/mentaury/**/lease/**` path is a reserved Tier A path and must be
+made active in governance/CODEOWNERS when implementation files are added.
+
+Issue #39 defines the future transition when a genuine independent reviewer or
+team exists. Until then, technical work proceeds under documented solo review.
 
 ---
 
@@ -245,10 +230,11 @@ without fabricated approval.
 This manifest does not claim:
 
 ```text
+P1-001 implementation completion
 production deployment readiness
+registry service availability
 distributed-database equivalence
-cloud service availability
-mobile runtime readiness
+cloud or mobile runtime readiness
 LLM integration
 identity or relationship runtime
 Action Gate or external tools
@@ -261,8 +247,9 @@ independent certification
 
 - `docs/CURRENT_STATUS.md`
 - `docs/GOVERNANCE.md`
-- `docs/governance/solo-maintainer-mode.md`
+- `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
 - `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
+- `docs/research/POST_P0_ROADMAP_V0.1.md`
 - `.github/workflows/ci.yml`
 - `requirements-dev.lock`
 - `pyproject.toml`
