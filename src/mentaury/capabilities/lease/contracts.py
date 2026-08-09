@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -11,6 +10,7 @@ from types import MappingProxyType
 from typing import Final
 
 from mentaury.contracts import AuthorityRef, canonical_timestamp
+from mentaury.contracts.primitives import freeze_payload_value
 from mentaury.validation import SHA256_DIGEST_PATTERN
 
 RESOLVER_CONTRACT_VERSION: Final[str] = "P1-001-v0.2"
@@ -261,8 +261,12 @@ class CapabilityLeaseRecord:
                 require_sorted=True,
             ),
         )
-        object.__setattr__(self, "not_before", _canonical_utc_z(self.not_before, "not_before"))
-        object.__setattr__(self, "expires_at", _canonical_utc_z(self.expires_at, "expires_at"))
+        object.__setattr__(
+            self, "not_before", _canonical_utc_z(self.not_before, "not_before")
+        )
+        object.__setattr__(
+            self, "expires_at", _canonical_utc_z(self.expires_at, "expires_at")
+        )
         object.__setattr__(
             self,
             "revocation_conditions",
@@ -273,7 +277,9 @@ class CapabilityLeaseRecord:
             ),
         )
         if self.revoked_at is not None:
-            object.__setattr__(self, "revoked_at", _canonical_utc_z(self.revoked_at, "revoked_at"))
+            object.__setattr__(
+                self, "revoked_at", _canonical_utc_z(self.revoked_at, "revoked_at")
+            )
         for name in (
             "delegation_allowed",
             "branch_transfer_allowed",
@@ -355,10 +361,11 @@ class RegistrySnapshot:
             key = (lease_id, revision)
             if key in indexed:
                 raise ValueError("duplicate registry record key")
-            detached = copy.deepcopy(dict(raw))
-            frozen = MappingProxyType(detached)
-            indexed[key] = frozen
-            frozen_records.append(frozen)
+            frozen_value = freeze_payload_value(dict(raw))
+            if not isinstance(frozen_value, Mapping):
+                raise TypeError("registry record must freeze to an object")
+            indexed[key] = frozen_value
+            frozen_records.append(frozen_value)
 
         if self.availability is RegistryAvailability.AVAILABLE:
             if self.unavailable_reason is not None:
