@@ -1,7 +1,7 @@
 # 🧱 Mentaury Environment Manifest
 
 ```text
-Status:             P0-001…P0-015 + P1-001 IMPLEMENTED IN MAIN
+Status:             P0 + P1-001 IMPLEMENTED IN MAIN
 Updated:            2026-08-09
 Authority:          docs/CURRENT_STATUS.md + verified GitHub main
 Profile:            Python 3.13 + standard library
@@ -15,6 +15,9 @@ Database at import: FORBIDDEN
 Filesystem mutation at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
 Governance mode:    SOLO_MAINTAINER
+
+P0-001…P0-015_IMPLEMENTED_IN_MAIN
+P1-001…P1-001_IMPLEMENTED_IN_MAIN
 ```
 
 This manifest records stable environment and implementation boundaries. It does
@@ -34,10 +37,10 @@ P1-001 pure Capability Lease resolver · IMPLEMENTED_BOUNDED
 P1-001 evidence:
 
 ```text
-Authorization merge:  d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
-Authorization main CI:31322210843 · success
-Implementation head:  e873e43331fa7273b92f896b371707e4779b17d4
-Exact-head CI:        31323051934 · success · 387 passed
+Authorization merge:   d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
+Authorization main CI: 31322210843 · success
+Implementation head:   e873e43331fa7273b92f896b371707e4779b17d4
+Exact-head CI:         31323051934 · success · 387 passed
 Implementation merge: f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Implementation main CI:31323138053 · success
 ```
