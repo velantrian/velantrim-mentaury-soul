@@ -88,6 +88,7 @@ src/mentaury/storage/**
 src/mentaury/replay/**
 src/mentaury/beliefs/**
 src/mentaury/evidence/**
+src/mentaury/capabilities/lease/**
 src/mentaury/contracts/canonical_json.py
 scripts/validate.py
 scripts/check_doc_freshness.py
@@ -98,6 +99,7 @@ CODEOWNERS
 docs/CURRENT_STATUS.md
 docs/GOVERNANCE.md
 docs/governance/**
+docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md
 docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
 ```
@@ -106,13 +108,19 @@ docs/research/POST_P0_ROADMAP_V0.1.md
 
 ```text
 src/mentaury/**/authority/**          # if/when created
-src/mentaury/**/lease/**              # if/when created
+src/mentaury/**/lease/**              # if/when created outside the active exact path
 src/mentaury/schema/**                # if/when created
 src/mentaury/canonical.py             # if/when created
 src/mentaury/canonical/**             # if/when created
 src/mentaury/integrity/**             # if/when created
 src/mentaury/redaction/**             # if/when created
 ```
+
+The exact `src/mentaury/capabilities/lease/**` path is active because the bounded
+P1-001 owner GO is recorded in `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
+That authorization covers only a pure resolver and its immutable contracts. It does not
+authorize registry persistence, Action Gate, tool execution, external effects, identity
+or M3 mutation, replay integration, backend selection, or deployment.
 
 #### Tier A requirements
 
@@ -263,19 +271,21 @@ future lifecycle trigger, not a current development blocker.
 
 ## 8. Explicit non-claims
 
-This governance policy does not authorize:
+This governance policy and the bounded P1-001 authorization do not authorize:
 
 ```text
 identity runtime
 Character runtime
 M3 writes
 Action Gate or external tool execution
-P1-001 resolver implementation
+Capability Lease registry persistence or service
+P1-001 authority outside the pure resolver scope
+P1-001 implementation completion before verified PR and main evidence
 backend selection or integration
 production deployment claims
 objective truth claims
 ```
 
 Use precise terms such as `docs-only`, `research`, `runtime-capable`,
-`integrity-sensitive`, `not implemented`, and `not authorized` according to the verified
-state.
+`AUTHORIZED_BOUNDED`, `implemented`, `not implemented`, and `not authorized`
+according to the verified state.
