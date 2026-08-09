@@ -5,6 +5,7 @@ Status:                       ADOPTED NAVIGATION · DOCS_ONLY · NON_CANONICAL
 Updated:                      2026-08-09
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
+Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
 Completed execution milestone:P1-002 Privacy Reconciliation Classifier · IMPLEMENTED_BOUNDED
 Next execution milestone:     NOT SELECTED · NOT AUTHORIZED
 Runtime deployment authority: NONE
@@ -33,6 +34,7 @@ Authoritative governance: [`../GOVERNANCE.md`](../GOVERNANCE.md).
 P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
 P1_001_PURE_RESOLVER_VALIDATED
 P1_001_OWNER_GO_CONSUMED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 - [Frozen contract](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
@@ -156,7 +158,8 @@ problem demonstrated
 + green resulting main CI
 ```
 
-Both P1-001 and P1-002 Owner GO receipts are consumed. Issue #39 remains the
+Each Owner GO is consumed once. Both P1-001 and P1-002 Owner GO receipts are
+consumed. Issue #39 remains the
 future transition trigger for genuine independent review.
 
 ---

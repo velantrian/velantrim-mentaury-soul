@@ -177,7 +177,12 @@ def test_governance_and_codeowners_activate_only_exact_path() -> None:
     assert "P1-002 authority outside the pure classifier scope" in GOVERNANCE
 
 
-def test_candidate_implementation_exists_without_completion_claim() -> None:
+def test_completed_implementation_exists_with_historical_marker_preserved() -> None:
+    """P1-002 is now IMPLEMENTED_BOUNDED; the old NOT_STARTED checkpoint stays
+    only as preserved historical provenance, and the current claim must remain
+    the qualified "Implemented bounded" form rather than a bare overclaim.
+    """
+
     assert (ROOT / "docs" / "P1_002_IMPLEMENTATION_AUTHORIZATION.md").exists()
     for path in (
         "src/mentaury/privacy/__init__.py",
@@ -188,4 +193,5 @@ def test_candidate_implementation_exists_without_completion_claim() -> None:
     ):
         assert (ROOT / path).is_file(), path
     assert "P1_002_IMPLEMENTATION_NOT_STARTED" in CURRENT_STATUS
-    assert "P1-002 | ✅ Implemented" not in CURRENT_STATUS
+    assert "P1-002 | ✅ Implemented bounded |" in CURRENT_STATUS
+    assert "P1-002 | ✅ Implemented |" not in CURRENT_STATUS

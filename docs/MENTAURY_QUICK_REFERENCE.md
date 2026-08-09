@@ -17,6 +17,16 @@ P1-002…P1-002_IMPLEMENTED_IN_MAIN
 | Governance | SOLO_MAINTAINER · TIER_A |
 | Next runtime milestone | NOT SELECTED · NOT AUTHORIZED |
 
+## P1-001 evidence
+
+```text
+Authorization PR #62   merge d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
+Implementation PR #63  CI 31323051934 · 387 passed
+Merge/main             f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Post-merge CI           31323138053 · success
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+```
+
 ## P1-002 in one diagram
 
 ```text

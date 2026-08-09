@@ -27,8 +27,17 @@ src/mentaury/privacy/reconciliation/
 
 ### Capability Lease resolver
 
+```text
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
+```
+
 Pure caller-supplied classification only. No registry persistence, network
 lookup, execution, event append, identity/M3 mutation or deployment authority.
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED.
 
 ### Privacy Reconciliation Classifier
 

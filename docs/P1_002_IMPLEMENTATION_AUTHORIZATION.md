@@ -15,6 +15,23 @@ Retrieval authority:          NONE
 Next runtime milestone:       NOT AUTHORIZED
 ```
 
+## 0. 📜 Historical checkpoint — original authorization (superseded)
+
+Recorded on 2026-08-09 when PR #66 granted this bounded Owner GO, before PR #67
+existed. Preserved verbatim as provenance; the status block above is now
+authoritative and supersedes it.
+
+```text
+Original authorization status:OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED
+Original marker:               P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+Original marker:               P1_002_IMPLEMENTATION_NOT_STARTED
+```
+
+This receipt records a new bounded Owner GO. It does not reuse the consumed
+P1-001 authorization.
+
+---
+
 ## 1. 🎯 Authorization disposition
 
 The separate bounded Owner GO recorded by PR #66 was consumed only by the pure
@@ -81,7 +98,7 @@ QUARANTINE_REQUIRED
 REBUILD_REQUIRED
 ```
 
-It executes none of those actions.
+It executes none of those actions. `ALLOW_REFERENCE` remains classification data only.
 
 ---
 

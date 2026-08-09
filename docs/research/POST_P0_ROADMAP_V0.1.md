@@ -43,14 +43,17 @@ Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Post-merge CI:          31323138053 · success
 ```
 
+Frozen contract: [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md).
 Owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md).
 
 P1-001 remains a pure capability classifier without registry persistence,
 Action Gate, tool execution, identity/M3 mutation or deployment authority.
+No registry service, Action Gate, P1-002 remediation execution or tool runtime
+follows automatically from P1-001.
 
 ---
 
-## 2. ✅ Completed P1-002 sequence
+## 2. ✅ Completed P1-002 Privacy Reconciliation Classifier sequence
 
 ```text
 P0-010 active-store redaction boundary

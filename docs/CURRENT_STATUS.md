@@ -35,6 +35,7 @@ P1_001_PURE_RESOLVER_VALIDATED
 P1_001_OWNER_GO_CONSUMED
 P1_001_REGISTRY_PERSISTENCE_NOT_IMPLEMENTED
 P1_001_REGISTRY_SERVICE_NOT_IMPLEMENTED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 
 P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
 P1_002_PURE_CLASSIFIER_VALIDATED
@@ -80,9 +81,19 @@ Post-merge CI:          31323138053 · success
 P1-001 remains a pure caller-supplied resolver. `ALLOW` executes nothing and
 contains no reusable capability material.
 
+Implemented P1-001 slice:
+
+```text
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
+```
+
 ---
 
-## 4. 🔐 P1-002 verified evidence
+## 4. 🔐 P1-002 Privacy Reconciliation Classifier — verified evidence
 
 ### Contract freeze
 
@@ -221,6 +232,14 @@ No deletion, quarantine, rebuild, retrieval, relationship, identity, Action
 Gate, tool or deployment work follows automatically. Any next runtime-capable
 milestone requires a new bounded contract, threat model, explicit Owner GO,
 clean Tier A implementation PR, exact-head review and green resulting-main CI.
+
+Historical checkpoint (superseded, preserved as provenance): before PR #67
+merged, this document recorded the pre-implementation authorization state:
+
+```text
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+P1_002_IMPLEMENTATION_NOT_STARTED
+```
 
 ---
 
