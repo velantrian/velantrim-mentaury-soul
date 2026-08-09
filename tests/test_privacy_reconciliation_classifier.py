@@ -6,17 +6,13 @@ import dataclasses
 import os
 import subprocess
 import sys
-from dataclasses import replace
 from pathlib import Path
 
 import pytest
 
 from mentaury.contracts import canonical_json_bytes
 from mentaury.privacy.reconciliation import (
-    CopyState,
-    MaterialState,
     PrivacyAccessIntent,
-    PrivacyClass,
     PrivacyContractError,
     PrivacyCopy,
     PrivacyDecision,
@@ -24,7 +20,6 @@ from mentaury.privacy.reconciliation import (
     PrivacyReason,
     PrivacyReconciliationBudget,
     PrivacyReconciliationResult,
-    SurfaceKind,
     classify_privacy_reconciliation,
 )
 
@@ -104,72 +99,139 @@ def _outcome(**kwargs: object) -> tuple[PrivacyDecision, PrivacyReason]:
     return result.decision, result.reason
 
 
-def test_priv_sc_001_deleted_data_present_in_backup() -> None:
-    assert _outcome(
-        material=_material(state="DELETED"),
-        copy=_copy(surface="BACKUP"),
-    ) == (
-        PrivacyDecision.QUARANTINE_REQUIRED,
-        PrivacyReason.DELETED_OR_REDACTED_MATERIAL,
-    )
-
-
-def test_priv_sc_002_third_party_testimony_without_permission() -> None:
-    assert _outcome(
-        material=_material(privacy_class="THIRD_PARTY")
-    ) == (
-        PrivacyDecision.DENY_RETRIEVAL,
-        PrivacyReason.THIRD_PARTY_PERMISSION_MISSING,
-    )
-
-
-def test_priv_sc_003_fork_retains_withdrawn_data() -> None:
-    assert _outcome(
-        material=_material(
-            permitted_purposes=[], withdrawn_purposes=[PURPOSE]
+@pytest.mark.parametrize(
+    ("scenario", "material", "copy", "intent", "budget", "expected"),
+    [
+        (
+            "PRIV-SC-001",
+            _material(state="DELETED"),
+            _copy(surface="BACKUP"),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.QUARANTINE_REQUIRED,
+                PrivacyReason.DELETED_OR_REDACTED_MATERIAL,
+            ),
         ),
-        copy=_copy(surface="FORK"),
-    ) == (
-        PrivacyDecision.QUARANTINE_REQUIRED,
-        PrivacyReason.PURPOSE_WITHDRAWN,
-    )
-
-
-def test_priv_sc_004_derived_summary_exposes_redacted_material() -> None:
+        (
+            "PRIV-SC-002",
+            _material(privacy_class="THIRD_PARTY"),
+            _copy(),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.DENY_RETRIEVAL,
+                PrivacyReason.THIRD_PARTY_PERMISSION_MISSING,
+            ),
+        ),
+        (
+            "PRIV-SC-003",
+            _material(permitted_purposes=[], withdrawn_purposes=[PURPOSE]),
+            _copy(surface="FORK"),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.QUARANTINE_REQUIRED,
+                PrivacyReason.PURPOSE_WITHDRAWN,
+            ),
+        ),
+        (
+            "PRIV-SC-004",
+            _material(privacy_class="REDACTED", state="REDACTED"),
+            _copy(surface="DERIVED_SUMMARY"),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.REBUILD_REQUIRED,
+                PrivacyReason.DELETED_OR_REDACTED_MATERIAL,
+            ),
+        ),
+        (
+            "PRIV-SC-005",
+            _material(),
+            _copy(),
+            _intent(),
+            _budget(),
+            (PrivacyDecision.ALLOW_REFERENCE, PrivacyReason.ALLOW_REFERENCE),
+        ),
+        (
+            "PRIV-SC-006",
+            _material(policy_revision=2),
+            _copy(policy_revision=1),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.DENY_RETRIEVAL,
+                PrivacyReason.STALE_POLICY_REVISION,
+            ),
+        ),
+        (
+            "PRIV-SC-007",
+            _material(policy_revision=2),
+            _copy(policy_revision=1, surface="INDEX"),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.REBUILD_REQUIRED,
+                PrivacyReason.STALE_POLICY_REVISION,
+            ),
+        ),
+        (
+            "PRIV-SC-009",
+            _material(),
+            _copy(state="ABSENT", contains_material=False),
+            _intent(),
+            _budget(),
+            (PrivacyDecision.DENY_RETRIEVAL, PrivacyReason.COPY_ABSENT),
+        ),
+        (
+            "PRIV-SC-010",
+            _material(),
+            _copy(state="QUARANTINED"),
+            _intent(),
+            _budget(),
+            (
+                PrivacyDecision.QUARANTINE_REQUIRED,
+                PrivacyReason.COPY_ALREADY_QUARANTINED,
+            ),
+        ),
+        (
+            "PRIV-SC-011",
+            _material(),
+            _copy(),
+            _intent(),
+            _budget(max_serialized_bytes=1),
+            (
+                PrivacyDecision.DENY_RETRIEVAL,
+                PrivacyReason.BUDGET_EXHAUSTED,
+            ),
+        ),
+        (
+            "PRIV-SC-012",
+            _material(),
+            _copy(branch_id="branch:fork", surface="FORK"),
+            _intent(branch_id="branch:fork"),
+            _budget(),
+            (
+                PrivacyDecision.QUARANTINE_REQUIRED,
+                PrivacyReason.BRANCH_NOT_PERMITTED,
+            ),
+        ),
+    ],
+    ids=lambda value: value if isinstance(value, str) and value.startswith("PRIV-") else None,
+)
+def test_frozen_semantic_scenarios(
+    scenario: str,
+    material: object,
+    copy: object,
+    intent: object,
+    budget: object,
+    expected: tuple[PrivacyDecision, PrivacyReason],
+) -> None:
+    assert scenario.startswith("PRIV-SC-")
     assert _outcome(
-        material=_material(privacy_class="REDACTED", state="REDACTED"),
-        copy=_copy(surface="DERIVED_SUMMARY"),
-    ) == (
-        PrivacyDecision.REBUILD_REQUIRED,
-        PrivacyReason.DELETED_OR_REDACTED_MATERIAL,
-    )
-
-
-def test_priv_sc_005_active_primary_copy_is_allowed_for_exact_policy() -> None:
-    assert _outcome() == (
-        PrivacyDecision.ALLOW_REFERENCE,
-        PrivacyReason.ALLOW_REFERENCE,
-    )
-
-
-def test_priv_sc_006_stale_primary_policy_revision() -> None:
-    assert _outcome(
-        material=_material(policy_revision=2),
-        copy=_copy(policy_revision=1),
-    ) == (
-        PrivacyDecision.DENY_RETRIEVAL,
-        PrivacyReason.STALE_POLICY_REVISION,
-    )
-
-
-def test_priv_sc_007_stale_index_policy_revision() -> None:
-    assert _outcome(
-        material=_material(policy_revision=2),
-        copy=_copy(policy_revision=1, surface="INDEX"),
-    ) == (
-        PrivacyDecision.REBUILD_REQUIRED,
-        PrivacyReason.STALE_POLICY_REVISION,
-    )
+        material=material, copy=copy, intent=intent, budget=budget
+    ) == expected
 
 
 def test_priv_sc_008_copy_links_to_another_material() -> None:
@@ -177,45 +239,11 @@ def test_priv_sc_008_copy_links_to_another_material() -> None:
         _classify(copy=_copy(material_id="MAT-OTHER"))
 
 
-def test_priv_sc_009_copy_material_is_absent() -> None:
-    assert _outcome(
-        copy=_copy(state="ABSENT", contains_material=False)
-    ) == (
-        PrivacyDecision.DENY_RETRIEVAL,
-        PrivacyReason.COPY_ABSENT,
-    )
-
-
-def test_priv_sc_010_copy_is_already_quarantined() -> None:
-    assert _outcome(copy=_copy(state="QUARANTINED")) == (
-        PrivacyDecision.QUARANTINE_REQUIRED,
-        PrivacyReason.COPY_ALREADY_QUARANTINED,
-    )
-
-
-def test_priv_sc_011_budget_is_exhausted() -> None:
-    assert _outcome(budget=_budget(max_serialized_bytes=1)) == (
-        PrivacyDecision.DENY_RETRIEVAL,
-        PrivacyReason.BUDGET_EXHAUSTED,
-    )
-
-
-def test_priv_sc_012_fork_branch_is_not_permitted() -> None:
-    branch = "branch:fork"
-    assert _outcome(
-        copy=_copy(branch_id=branch, surface="FORK"),
-        intent=_intent(branch_id=branch),
-    ) == (
-        PrivacyDecision.QUARANTINE_REQUIRED,
-        PrivacyReason.BRANCH_NOT_PERMITTED,
-    )
-
-
 def test_priv_sc_013_mapping_contains_unknown_field() -> None:
-    value = _material()
-    value["unexpected_authority"] = True
+    material = _material()
+    material["unexpected_authority"] = True
     with pytest.raises(PrivacyContractError, match="unknown fields"):
-        _classify(material=value)
+        _classify(material=material)
 
 
 def test_priv_sc_014_unrelated_additional_permitted_purpose_is_invariant() -> None:
@@ -279,19 +307,14 @@ def test_priv_sc_015_copy_policy_revision_ahead_of_material() -> None:
             PrivacyReason.THIRD_PARTY_PERMISSION_MISSING,
         ),
         (
-            _material(
-                permitted_purposes=[], withdrawn_purposes=[PURPOSE]
-            ),
+            _material(permitted_purposes=[], withdrawn_purposes=[PURPOSE]),
             _copy(branch_id="branch:other"),
             _intent(branch_id="branch:other"),
             _budget(),
             PrivacyReason.PURPOSE_WITHDRAWN,
         ),
         (
-            _material(
-                policy_revision=2,
-                permitted_purposes=["archive"],
-            ),
+            _material(policy_revision=2, permitted_purposes=["archive"]),
             _copy(policy_revision=1, branch_id="branch:other"),
             _intent(branch_id="branch:other"),
             _budget(),
@@ -356,11 +379,11 @@ def test_typed_and_mapping_inputs_are_byte_equivalent() -> None:
 
 def test_repeatability_is_deterministic() -> None:
     first = _classify()
+    first_bytes = canonical_json_bytes(first.to_value())
     for _ in range(20):
-        assert _classify() == first
-        assert canonical_json_bytes(_classify().to_value()) == canonical_json_bytes(
-            first.to_value()
-        )
+        current = _classify()
+        assert current == first
+        assert canonical_json_bytes(current.to_value()) == first_bytes
 
 
 @pytest.mark.parametrize(
@@ -370,14 +393,12 @@ def test_repeatability_is_deterministic() -> None:
         _material(privacy_class="UNKNOWN"),
         _material(permitted_purposes=[PURPOSE, PURPOSE]),
         _material(permitted_purposes=[PURPOSE, "archive"]),
-        _material(
-            permitted_purposes=[PURPOSE], withdrawn_purposes=[PURPOSE]
-        ),
+        _material(permitted_purposes=[PURPOSE], withdrawn_purposes=[PURPOSE]),
         _material(third_party_permission="yes"),
         _material(material_id=" padded "),
     ],
 )
-def test_strict_material_admission_rejects_wrong_or_noncanonical_values(
+def test_material_admission_rejects_wrong_or_noncanonical_values(
     material: object,
 ) -> None:
     with pytest.raises(PrivacyContractError):
@@ -402,7 +423,21 @@ def test_other_contracts_reject_wrong_types_and_unknown_fields(
         _classify(copy=copy, intent=intent, budget=budget)
 
 
-def test_intent_linkage_is_checked_before_budget() -> None:
+@pytest.mark.parametrize(
+    "material",
+    [
+        _material(policy_revision=2**60),
+        _material(material_id=chr(0xD800)),
+    ],
+)
+def test_noncanonical_json_values_become_contract_violations(
+    material: object,
+) -> None:
+    with pytest.raises(PrivacyContractError, match="canonical JSON"):
+        _classify(material=material)
+
+
+def test_linkage_is_checked_before_budget() -> None:
     with pytest.raises(PrivacyContractError, match="intent.copy_id"):
         _classify(
             intent=_intent(copy_id="COPY-OTHER"),
@@ -411,21 +446,19 @@ def test_intent_linkage_is_checked_before_budget() -> None:
 
 
 def test_purpose_and_branch_collection_budgets_fail_closed() -> None:
-    purpose_result = _classify(
+    purpose = _classify(
         material=_material(permitted_purposes=["archive", PURPOSE]),
         budget=_budget(max_purposes=1),
     )
-    branch_result = _classify(
-        material=_material(
-            permitted_branches=[BRANCH_ID, "branch:secondary"]
-        ),
+    branch = _classify(
+        material=_material(permitted_branches=[BRANCH_ID, "branch:secondary"]),
         budget=_budget(max_branches=1),
     )
-    assert purpose_result.reason is PrivacyReason.BUDGET_EXHAUSTED
-    assert branch_result.reason is PrivacyReason.BUDGET_EXHAUSTED
+    assert purpose.reason is PrivacyReason.BUDGET_EXHAUSTED
+    assert branch.reason is PrivacyReason.BUDGET_EXHAUSTED
 
 
-def test_public_material_without_explicit_lists_can_be_referenced() -> None:
+def test_empty_allowlists_grant_nothing_even_for_public_material() -> None:
     result = _classify(
         material=_material(
             privacy_class="PUBLIC",
@@ -433,10 +466,17 @@ def test_public_material_without_explicit_lists_can_be_referenced() -> None:
             permitted_branches=[],
         )
     )
+    assert result.decision is PrivacyDecision.DENY_RETRIEVAL
+    assert result.reason is PrivacyReason.PURPOSE_NOT_PERMITTED
+
+
+def test_public_material_with_exact_allowlists_can_be_referenced() -> None:
+    result = _classify(material=_material(privacy_class="PUBLIC"))
     assert result.decision is PrivacyDecision.ALLOW_REFERENCE
+    assert result.reason is PrivacyReason.ALLOW_REFERENCE
 
 
-def test_restricted_material_requires_explicit_purpose_and_branch() -> None:
+def test_restricted_material_requires_exact_purpose_and_branch() -> None:
     missing_purpose = _classify(
         material=_material(
             privacy_class="RESTRICTED",
@@ -458,7 +498,7 @@ def test_restricted_material_requires_explicit_purpose_and_branch() -> None:
     assert missing_branch.reason is PrivacyReason.BRANCH_NOT_PERMITTED
 
 
-def test_third_party_permission_does_not_bypass_purpose_or_branch() -> None:
+def test_third_party_permission_does_not_bypass_purpose_policy() -> None:
     result = _classify(
         material=_material(
             privacy_class="THIRD_PARTY",
@@ -469,7 +509,7 @@ def test_third_party_permission_does_not_bypass_purpose_or_branch() -> None:
     assert result.reason is PrivacyReason.PURPOSE_NOT_PERMITTED
 
 
-def test_result_is_exactly_two_fields_and_contains_no_permission_material() -> None:
+def test_result_is_exactly_two_fields_without_permission_material() -> None:
     result = _classify()
     assert tuple(field.name for field in dataclasses.fields(result)) == (
         "decision",
@@ -553,9 +593,14 @@ print('ok')
 
 def test_source_has_no_forbidden_runtime_integrations() -> None:
     sources = "\n".join(
-        (ROOT / "src" / "mentaury" / "privacy" / "reconciliation" / name).read_text(
-            encoding="utf-8"
-        )
+        (
+            ROOT
+            / "src"
+            / "mentaury"
+            / "privacy"
+            / "reconciliation"
+            / name
+        ).read_text(encoding="utf-8")
         for name in ("contracts.py", "classifier.py")
     )
     for forbidden_import in (
