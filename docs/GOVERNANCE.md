@@ -1,124 +1,90 @@
 # Mentaury Soul — Governance risk-tier policy
 
-**Status:** proposed for adoption via dedicated governance PR  
-**Authority:** once merged, this document is the canonical merge-gate policy for risk tiers.  
-**Companion:** `docs/CURRENT_STATUS.md` remains the maturity / implementation status authority.  
-**CODEOWNERS:** path ownership markers aligned with Tier A (review assignment ≠ automatic independent approval).
+**Status:** ADOPTED  
+**Current operating mode:** SOLO MAINTAINER  
+**Canonical merge-gate authority:** this document, the live GitHub ruleset, and `docs/governance/solo-maintainer-mode.md`  
+**Maturity authority:** `docs/CURRENT_STATUS.md` plus verified live GitHub state
+
+The repository currently has one maintainer and no genuinely independent human reviewer.
+That is an explicit operating condition, not a defect to conceal and not a reason to stop
+all work indefinitely.
 
 ```text
-Adopted docs policy ≠ GitHub branch-protection already configured
-Docs policy MUST still be enforced in review practice until
-repository rulesets mirror it (tracked in issue #39)
+solo maintainer review ≠ independent human review
+review automation ≠ independent human approval
+green CI ≠ proof of semantic correctness
+merge authority ≠ runtime authority
 ```
+
+Any older repository text that requires an unavailable independent approval for current
+solo operation is superseded by this policy. Historical statements remain provenance,
+not an active merge blocker.
 
 ---
 
-## 1. Audit reconciliation (2026-08-08)
+## 1. Authority order
 
-### 1.1 Old path-scoped policy interpretation
+For merge decisions, use this order:
 
-The previously adopted independent-review rule in `docs/CURRENT_STATUS.md`
-was **path-scoped**, not universal. It required merge-blocking independent
-review only for:
+1. live GitHub ruleset and required checks;
+2. `docs/GOVERNANCE.md`;
+3. `docs/governance/solo-maintainer-mode.md`;
+4. `CODEOWNERS` as ownership/navigation metadata;
+5. PR-local status notes.
 
-```text
-src/mentaury/beliefs/**
-src/mentaury/evidence/**
-src/mentaury/replay/**
-src/mentaury/**/authority/**          # if/when created
-src/mentaury/**/lease/**              # if/when created
-docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
-docs/research/POST_P0_ROADMAP_V0.1.md
-```
+PR-local text may not invent a permanent gate that contradicts this policy. A stale
+`BLOCKED_BY_INDEPENDENT_REVIEW` or `BLOCKED_BY_GOVERNANCE_IDENTITY` statement must be
+reconciled before merge.
 
-### 1.2 Classification of merges #45 / #46 / #50 / #51
+The current live ruleset requires:
 
-| Object | Canonical policy violation | Process inconsistency | Review coverage gap |
-|---|---|---|---|
-| PR #45 | NOT ESTABLISHED | CONFIRMED (PR-local STOP broader than Canon) | n/a for old path rule |
-| PR #46 | NOT ESTABLISHED | CONFIRMED (PR-local STOP broader than Canon) | n/a for old path rule |
-| PR #50 | NOT ESTABLISHED | — | CONFIRMED (0 formal reviews) |
-| PR #51 | NOT ESTABLISHED | — | CONFIRMED (0 formal reviews; integrity-sensitive storage) |
-
-```text
-Technical enforcement gap: CONFIRMED repository-wide
-Branch protection: disabled at audit time
-Bot / automation merge authority: not constrained by repository settings
-```
-
-Do **not** rewrite history as “all four PRs violated adopted policy”.
-Do **not** claim governance was fully obeyed.
-Do **not** treat PR-local STOP text as meaningless.
-
-Post-hoc review obligations:
-- PR #40 → issue #42 (deadline 2026-08-14)
-- PR #50 → issue #52
-- PR #51 → issue #53
+- pull requests before merging to `main`;
+- the required CI check;
+- the PR branch to be up to date with `main`;
+- all review conversations to be resolved;
+- force-push protection;
+- deletion protection;
+- no bypass actors;
+- `required approvals = 0` during solo-maintainer operation.
 
 ---
 
-## 2. Canonical merge-gate authority
+## 2. Standard merge statuses
 
-Order of authority:
-
-1. repository ruleset / branch protection;
-2. `docs/GOVERNANCE.md` risk-tier policy;
-3. `CODEOWNERS`;
-4. PR-local status comment.
-
-PR-local comments may explain the gate but may **not** silently create,
-remove or broaden permanent governance policy.
-
-If PR-local status conflicts with the canonical policy:
-
-- treat the stricter state as temporary STOP;
-- resolve the contradiction before merge;
-- record the resolution in the PR.
-
-### 2.1 Standard merge-status vocabulary
-
-Use only these statuses in PR-local checkpoints:
+Use only clear, evidence-based statuses:
 
 ```text
-READY_FOR_REVIEW
+DRAFT
+READY_FOR_MAINTAINER_REVIEW
 BLOCKED_BY_CI
+BLOCKED_BY_CONFLICT
 BLOCKED_BY_CHANGES_REQUESTED
-BLOCKED_BY_INDEPENDENT_REVIEW
-BLOCKED_BY_STALE_REVIEW
-BLOCKED_BY_ADMIN_ENFORCEMENT
+BLOCKED_BY_UNRESOLVED_CONVERSATION
+BLOCKED_BY_AUTHORIZATION_BOUNDARY
 ACCEPTED_FOR_MERGE
+MERGED
 ```
 
-Vague `BLOCKED_BY_GOVERNANCE_IDENTITY` must not be used without specifying:
-
-- required tier;
-- protected files;
-- current exact head;
-- missing reviewer identity;
-- required review state.
+Do not use missing reviewer identity as a current blocker while the repository remains in
+solo-maintainer mode.
 
 ---
 
-## 3. Risk tiers
+## 3. Risk classification
 
-A change is classified by the **highest-risk file or semantic effect** in the PR.
+A PR is classified by its highest-risk file or semantic effect.
 
-### 3.1 Automatic escalation
+### 3.1 Tier A — integrity, authority, security, governance, or runtime-capable core
 
-If a Tier C (or Tier B) PR also modifies any Tier A path — including
-`docs/CURRENT_STATUS.md`, `docs/GOVERNANCE.md`, `CODEOWNERS`, workflows,
-validators, lockfiles/dependencies, or runtime-capable core code — the
-**entire PR becomes Tier A**.
-
-### 3.2 Tier A — independent APPROVED required
-
-#### Existing protected / high-risk paths
+Typical Tier A paths include:
 
 ```text
 src/mentaury/storage/**
 src/mentaury/replay/**
 src/mentaury/beliefs/**
 src/mentaury/evidence/**
+src/mentaury/**/authority/**
+src/mentaury/**/lease/**
 src/mentaury/contracts/canonical_json.py
 scripts/validate.py
 scripts/check_doc_freshness.py
@@ -128,43 +94,36 @@ pyproject.toml
 CODEOWNERS
 docs/CURRENT_STATUS.md
 docs/GOVERNANCE.md
+docs/governance/**
 docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
 ```
 
-#### Paths reserved if/when created
+Tier A requirements in solo mode:
 
-```text
-src/mentaury/**/authority/**          # if/when created
-src/mentaury/**/lease/**              # if/when created
-src/mentaury/schema/**                # if/when created
-src/mentaury/canonical.py             # if/when created
-src/mentaury/canonical/**             # if/when created
-src/mentaury/integrity/**             # if/when created (top-level package)
-src/mentaury/redaction/**             # if/when created (top-level package)
-```
-
-Note: integrity and redaction logic currently live under
-`src/mentaury/storage/**` and are already Tier A via that glob.
-
-#### Tier A requirements
-
-- green exact-head CI;
-- at least one independent APPROVED;
-- reviewer distinct from the authoring operator;
-- latest reviewed head equals current PR head;
-- stale approvals invalid after any new commit;
+- exact current head SHA recorded;
+- complete final diff inspected;
+- required exact-head CI green;
+- branch up to date with `main`;
 - all review conversations resolved;
-- no merge by automation before the gate is satisfied;
-- emergency security exception only under separately documented carve-out
-  with mandatory post-hoc independent review.
+- two-pass maintainer review completed;
+- architecture, invariant, fail-closed, security, and authorization boundaries checked;
+- no unresolved material concern hidden behind a green test suite;
+- explicit maintainer decision recorded before merge;
+- post-merge `main` CI verified.
 
-Until branch protection/ruleset enforcement exists (issue #39),
-all Tier A PRs remain draft or explicitly non-mergeable by process.
+The two passes must be meaningfully different:
 
-### 3.3 Tier B — owner review + green CI
+1. **Correctness pass** — design, behavior, compatibility, tests, and scope.
+2. **Adversarial pass** — failure modes, integrity, authorization, rollback, security,
+   misleading claims, and hidden privilege expansion.
 
-Examples:
+Automated analysis may support either pass, but the repository must not label it as
+independent human review.
+
+### 3.2 Tier B — bounded tooling and non-authoritative project documentation
+
+Typical Tier B examples:
 
 ```text
 docs/ENVIRONMENT_MANIFEST.md
@@ -175,108 +134,134 @@ developer tooling outside validation/security boundaries
 
 Requirements:
 
-- green CI;
-- at least one formal review or documented owner audit;
-- no unresolved blocking comments;
-- no runtime or authority semantic changes.
+- final diff inspected;
+- green CI where applicable;
+- no unresolved conversations;
+- no runtime, authority, security, or maturity escalation hidden in the change;
+- maintainer acceptance recorded.
 
-### 3.4 Tier C — editorial / research
+### 3.3 Tier C — editorial, navigation, and research capture
 
-Examples:
+Typical Tier C examples:
 
 ```text
-non-authoritative research notes
-navigation-only changes
 spelling and formatting
-candidate capture without selection
+navigation-only changes
+non-authoritative research notes
+candidate capture without implementation selection
 ```
 
 Requirements:
 
+- scope remains editorial or research-only;
+- no Canon, roadmap, backend, runtime, truth, or authority promotion is implied;
 - green CI where applicable;
-- editorial review may be sufficient;
-- no Canon, roadmap, policy, authority, runtime or backend selection change.
+- maintainer acceptance recorded.
+
+A nominal Tier B or Tier C PR automatically escalates to Tier A when it changes Tier A
+paths or has Tier A semantic effect.
 
 ---
 
-## 4. Independent reviewer identity
+## 4. Solo-maintainer review record
 
-### 4.1 Qualifying independent reviewer
-
-- separate human/operator identity; **or**
-- genuinely separately controlled automated reviewer;
-- not the author;
-- not a same-operator service account;
-- not owner self-review;
-- formal GitHub `APPROVED` state required for Tier A.
-
-### 4.2 Second AI reviewer
-
-A second AI reviewer may count only if:
-
-- it is operated independently from the authoring agent/operator;
-- it performs an actual review of the exact head;
-- its GitHub identity can submit `APPROVED`;
-- its evidence is auditable;
-- it is not merely another tool call controlled by the same operator.
-
-If those conditions are not met:
+For Tier A, the PR or linked issue should record:
 
 ```text
-AI assessment = technical evidence
-AI assessment ≠ independent approval
+Review mode: SOLO_MAINTAINER
+Independent human review claimed: NO
+Reviewed head: <SHA>
+Changed files: <LIST>
+Exact-head CI: <RUN / RESULT>
+Correctness pass: PASS / CONCERNS
+Adversarial pass: PASS / CONCERNS
+Authorization boundary: PRESERVED / CHANGED
+Decision: ACCEPTED_FOR_MERGE / STOP
 ```
 
-Non-qualifying examples:
+The reusable checklist is maintained in
+`docs/governance/solo-maintainer-review-checklist.md`.
 
-```text
-Cursor / Copilot / Codex COMMENT
-owner COMMENTED packet
-self-approval
-approval of a superseded head
-```
+A self-review must not be described as independent, external, second-party, or certified.
+Honest attribution is mandatory.
 
 ---
 
-## 5. Bot / automation merge restrictions
+## 5. Security and emergency maintenance
 
-Cursor, Codex, Copilot and other automated agents may:
+A narrowly scoped security or dependency update may be merged after:
 
-- create branches;
-- push commits;
-- open PRs;
-- run validation;
-- update PR descriptions;
-- prepare review packets;
-- respond to review comments.
+- exact scope confirmation;
+- affected/fixed boundary confirmation;
+- exact-head CI;
+- runtime-impact assessment;
+- maintainer security review;
+- post-merge CI.
 
-They may **not** merge Tier A PRs unless all GitHub-enforced gates are
-visibly satisfied.
-
-Bots must not rely only on text parsing of STOP comments.
-The authoritative decision must include:
-
-- changed-file classification;
-- exact current head;
-- current CI conclusion;
-- formal GitHub review state;
-- branch protection / ruleset result.
+A post-hoc review issue may be used when necessary, but it must be completable under the
+current solo mode. It must not require a reviewer who does not exist.
 
 ---
 
-## 6. Explicit non-claims
+## 6. Bots and automation
 
-This governance document does **not** authorize:
+Cursor, Codex, Copilot, ChatGPT, and other agents may:
+
+- inspect repository state;
+- create branches and commits;
+- open and update PRs;
+- run or inspect validation;
+- prepare review evidence;
+- respond to review feedback;
+- merge only when the live ruleset and this policy are satisfied and the operator has
+  authorized autonomous completion.
+
+They may not:
+
+- claim independent human approval;
+- bypass required checks or unresolved conversations;
+- silently broaden scope;
+- interpret green CI as proof of production readiness or runtime authorization;
+- weaken epistemic, integrity, safety, or authorization boundaries merely to merge a PR.
+
+---
+
+## 7. Transition to public or team operation
+
+Independent approval becomes a real gate only when a genuine independent collaborator or
+review team exists.
+
+Before public or multi-contributor operation:
+
+- add a genuinely independent trusted reviewer or team;
+- set required approvals to `1`;
+- enable dismissal of stale approvals;
+- require approval of the latest reviewable push by someone other than its author;
+- enable CODEOWNER review only when CODEOWNERS maps to a distinct trusted identity/team;
+- retain CI, up-to-date branch, conversation-resolution, force-push, and deletion gates;
+- verify the upgraded ruleset with a harmless probe;
+- update GitHub documentation and synchronize Notion.
+
+This transition is tracked by issue #39. Until those conditions exist, issue #39 is a
+future lifecycle trigger, not a current development blocker.
+
+---
+
+## 8. Explicit non-claims
+
+This governance policy does not authorize:
 
 ```text
 identity runtime
 Character runtime
 M3 writes
-Action Gate
+Action Gate or external tool execution
 P1-001 resolver implementation
-PostgreSQL / Graphiti / LadybugDB selection or integration
+backend selection or integration
 production deployment claims
+objective truth claims
 ```
 
-Use “runtime-capable” / “integrity-sensitive” rather than “production”
-unless a production deployment is separately confirmed.
+Use precise terms such as `docs-only`, `research`, `runtime-capable`,
+`integrity-sensitive`, `not implemented`, and `not authorized` according to the verified
+state.
