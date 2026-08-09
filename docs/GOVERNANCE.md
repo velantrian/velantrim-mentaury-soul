@@ -89,6 +89,7 @@ src/mentaury/replay/**
 src/mentaury/beliefs/**
 src/mentaury/evidence/**
 src/mentaury/capabilities/lease/**
+src/mentaury/privacy/reconciliation/**
 src/mentaury/contracts/canonical_json.py
 scripts/validate.py
 scripts/check_doc_freshness.py
@@ -100,6 +101,7 @@ docs/CURRENT_STATUS.md
 docs/GOVERNANCE.md
 docs/governance/**
 docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md
+docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md
 docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
 docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md
 docs/research/POST_P0_ROADMAP_V0.1.md
@@ -108,28 +110,25 @@ docs/research/POST_P0_ROADMAP_V0.1.md
 #### Paths reserved if/when created
 
 ```text
-src/mentaury/privacy/reconciliation/** # P1-002 implementation path; inactive until Owner GO
-src/mentaury/**/authority/**           # if/when created
-src/mentaury/**/lease/**               # if/when created outside the active exact path
-src/mentaury/schema/**                 # if/when created
-src/mentaury/canonical.py              # if/when created
-src/mentaury/canonical/**              # if/when created
-src/mentaury/integrity/**              # if/when created
-src/mentaury/redaction/**              # if/when created
+src/mentaury/**/authority/**          # if/when created
+src/mentaury/**/lease/**              # if/when created outside active exact paths
+src/mentaury/schema/**                # if/when created
+src/mentaury/canonical.py             # if/when created
+src/mentaury/canonical/**             # if/when created
+src/mentaury/integrity/**             # if/when created
+src/mentaury/redaction/**             # if/when created
 ```
 
-The exact `src/mentaury/capabilities/lease/**` path is active because the bounded
-P1-001 owner GO is recorded in `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
-That authorization covers only a pure resolver and its immutable contracts. It does not
-authorize registry persistence, Action Gate, tool execution, external effects, identity
-or M3 mutation, replay integration, backend selection, or deployment.
+The exact `src/mentaury/capabilities/lease/**` path is active only for the
+completed bounded P1-001 pure resolver recorded in
+`docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`.
 
-The P1-002 privacy contract is frozen in
-`docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`, but no P1-002
-implementation authorization exists yet. The reserved
-`src/mentaury/privacy/reconciliation/**` path must remain absent until a separate bounded
-Owner GO and authorization receipt are merged. Contract freeze alone is not permission to
-create runtime code.
+The exact `src/mentaury/privacy/reconciliation/**` path is active only for the
+bounded pure P1-002 classifier recorded in
+`docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`. It may classify caller-supplied
+records but may not persist, scan, delete, redact, quarantine, rebuild, retrieve,
+append events, invoke P1-001 internally, mutate relationship/identity/M3 state,
+execute tools, select backends or deploy.
 
 #### Tier A requirements
 
@@ -220,47 +219,25 @@ Honest attribution is mandatory.
 
 ## 5. Security and emergency maintenance
 
-A narrowly scoped security or dependency update may be merged after:
-
-- exact scope confirmation;
-- affected/fixed boundary confirmation;
-- exact-head CI;
-- runtime-impact assessment;
-- maintainer security review;
-- post-merge CI.
-
-A post-hoc review issue may be used when necessary, but it must be completable under the
-current solo mode. It must not require a reviewer who does not exist.
+A narrowly scoped security or dependency update may be merged after exact scope,
+exact-head CI, runtime-impact assessment, maintainer security review and post-merge CI.
+A post-hoc review issue must remain completable under current solo mode.
 
 ---
 
 ## 6. Bots and automation
 
-Cursor, Codex, Copilot, ChatGPT, and other agents may:
+Cursor, Codex, Copilot, ChatGPT, and other agents may inspect, create branches,
+open/update PRs, prepare evidence and merge only when live rules and this policy
+are satisfied and the operator authorized autonomous completion.
 
-- inspect repository state;
-- create branches and commits;
-- open and update PRs;
-- run or inspect validation;
-- prepare review evidence;
-- respond to review feedback;
-- merge only when the live ruleset and this policy are satisfied and the operator has
-  authorized autonomous completion.
-
-They may not:
-
-- claim independent human approval;
-- bypass required checks or unresolved conversations;
-- silently broaden scope;
-- interpret green CI as proof of production readiness or runtime authorization;
-- weaken epistemic, integrity, safety, or authorization boundaries merely to merge a PR.
+They may not claim independent human approval, bypass checks, silently broaden
+scope, treat green CI as production readiness, or weaken integrity and authority
+boundaries merely to merge.
 
 ---
 
 ## 7. Transition to public or team operation
-
-Independent approval becomes a real gate only when a genuine independent collaborator or
-review team exists.
 
 Before public or multi-contributor operation:
 
@@ -268,34 +245,31 @@ Before public or multi-contributor operation:
 - set required approvals to `1`;
 - enable dismissal of stale approvals;
 - require approval of the latest reviewable push by someone other than its author;
-- enable CODEOWNER review only when CODEOWNERS maps to a distinct trusted identity/team;
-- retain CI, up-to-date branch, conversation-resolution, force-push, and deletion gates;
-- verify the upgraded ruleset with a harmless probe;
-- update GitHub documentation and synchronize Notion.
+- enable CODEOWNER review only for a distinct trusted identity/team;
+- retain CI, up-to-date, conversation, force-push and deletion gates;
+- verify the upgraded ruleset and synchronize GitHub/Notion.
 
-This transition is tracked by issue #39. Until those conditions exist, issue #39 is a
-future lifecycle trigger, not a current development blocker.
+Issue #39 is the future lifecycle trigger, not a current solo-mode blocker.
 
 ---
 
 ## 8. Explicit non-claims
 
-This governance policy and the current bounded authorizations do not authorize:
+Current bounded authorizations do not authorize:
 
 ```text
-identity runtime
-Character runtime
+identity or Character runtime
 M3 writes
 Action Gate or external tool execution
 Capability Lease registry persistence or service
 P1-001 authority outside the pure resolver scope
-P1-002 implementation before a separate Owner GO
-privacy persistence, scanning, deletion, quarantine, rebuilding or retrieval runtime
+P1-002 authority outside the pure classifier scope
+privacy persistence, scanning, deletion, redaction, quarantine, rebuild or retrieval runtime
 backend selection or integration
-production deployment claims
+production deployment
 objective truth claims
 ```
 
-Use precise terms such as `docs-only`, `research`, `runtime-capable`,
-`FROZEN_DOCS`, `AUTHORIZED_BOUNDED`, `implemented`, `not implemented`, and
-`not authorized` according to the verified state.
+Use precise statuses such as `FROZEN_DOCS`, `AUTHORIZED_BOUNDED`,
+`IMPLEMENTED_BOUNDED`, `not implemented`, and `not authorized` according to
+verified state.
