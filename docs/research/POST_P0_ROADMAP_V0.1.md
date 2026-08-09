@@ -2,29 +2,28 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      0.5
+Version:                      0.6
 Updated:                      2026-08-09
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
 P1-001 validation:            EXACT_HEAD_AND_MAIN_CI_PASS
 P1-002 contract:              FROZEN_DOCS
-P1-002 implementation:        NOT AUTHORIZED
-Next runtime milestone:       P1-002 · CONTRACT ONLY · NOT AUTHORIZED
+P1-002 implementation:        AUTHORIZED_BOUNDED · NOT_STARTED
+Next runtime milestone:       P1-002 PURE CLASSIFIER ONLY
 Runtime deployment authority: NONE
-Truth authority:              NONE
-Capability grant authority:   NONE
-Canon modification authority: NONE
+Mutation authority:           NONE
+Retrieval authority:          NONE
 Direct or indirect M3 write:  FORBIDDEN
-Domain runtime:               NOT AUTHORIZED
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
 ```text
-FROZEN_DOCS ≠ implementation authorization
+AUTHORIZED_BOUNDED ≠ implemented
 ALLOW_REFERENCE ≠ retrieval permission
 privacy classification ≠ privacy mutation
-P1-002 selection ≠ later privacy runtime authority
+P1-002 authorization ≠ later privacy runtime authority
 Solo review ≠ independent certification
 ```
 
@@ -45,8 +44,6 @@ P0-001…P0-015 implemented
 → P1-001 IMPLEMENTED_BOUNDED
 ```
 
-Retained implementation evidence:
-
 ```text
 Reviewed head:   e873e43331fa7273b92f896b371707e4779b17d4
 Exact-head CI:   31323051934 · success · 387 passed
@@ -54,41 +51,48 @@ Merge:           f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Post-merge CI:   31323138053 · success
 ```
 
-P1-001 remains limited to pure capability classification. It does not authorize
-registry persistence, Action Gate, tool execution, identity mutation, M3 writes
-or deployment.
+P1-001 owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md).
+
+No registry service, Action Gate, P1-002 remediation execution or tool runtime
+is authorized by P1-001 completion.
 
 ---
 
-## 2. 🧊 Selected P1-002 contract
+## 2. 🧊 P1-002 contract freeze
 
 ```text
 Milestone: P1-002 Privacy Reconciliation Classifier
 Contract:  docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md
-State:     FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
-Owner GO:  NOT RECORDED
+Contract PR: #65
+Reviewed head: 85bf0070e2f15b5ca752b82325337d6ef0190396
+Exact-head CI: 31331396018 · success · 401 passed
+Merge: 1dc7bcf97986f455f48beb121c2048dfc34bd11c
+Post-merge CI: 31331506606 · success
 ```
 
-### Demonstrated gap
+The contract addresses stale privacy copies in backups, forks, indexes,
+embeddings, graph edges, caches and derived summaries through pure fail-closed
+classification only.
 
-P0-010 removes one detached payload from the active SQLite event store while
-preserving immutable event provenance and redaction evidence. It does not prove
-that stale copies are reconciled across:
+---
+
+## 3. 🔐 Bounded P1-002 authorization
+
+Authorization receipt:
+
+- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
+
+Exact authorized implementation paths:
 
 ```text
-backups
-forks
-indexes
-embeddings
-graph edges
-caches
-derived summaries
+src/mentaury/privacy/__init__.py
+src/mentaury/privacy/reconciliation/__init__.py
+src/mentaury/privacy/reconciliation/contracts.py
+src/mentaury/privacy/reconciliation/classifier.py
+tests/test_privacy_reconciliation_classifier.py
 ```
 
-### Minimal bounded slice
-
-A future implementation may classify one caller-supplied material/copy/intent
-triple into exactly one of:
+Authorized output space:
 
 ```text
 ALLOW_REFERENCE
@@ -97,25 +101,13 @@ QUARANTINE_REQUIRED
 REBUILD_REQUIRED
 ```
 
-The classifier must be pure, deterministic, strict and fail closed. It may not
-perform the required remediation.
-
-### Frozen scenario boundary
-
-The contract freezes `PRIV-SC-001…PRIV-SC-015`, including:
-
-- deleted material surviving in backup;
-- third-party testimony without permission;
-- withdrawn purpose surviving in fork;
-- redacted material leaking through a derived summary;
-- stale policy revisions;
-- wrong cross-record linkage;
-- unknown fields and budget exhaustion;
-- allowed-reference and metamorphic invariance cases.
+The implementation must be pure, deterministic, strict and fail closed. It may
+only classify caller-supplied material/copy/intent/budget values and may not
+perform remediation or retrieval.
 
 ---
 
-## 3. 🔐 P1-002 non-goals
+## 4. 🚫 P1-002 non-goals
 
 ```text
 privacy registry persistence
@@ -127,8 +119,8 @@ index/embedding/graph/cache/summary rebuilding
 retrieval execution
 network, filesystem or database access
 ambient clock or environment authority
-relationship reconciliation
-belief or identity mutation
+event append or replay integration
+relationship, belief or identity mutation
 M3 nomination or write
 Capability Lease validation
 Action Gate
@@ -142,58 +134,44 @@ P1-002 must not call P1-001 internally and must not convert a Capability Lease
 
 ---
 
-## 4. ⛔ P1-002 authorization gate
+## 5. 🧪 Implementation gate
 
 ```text
-P1_002_CONTRACT_FROZEN_DOCS
-P1_002_IMPLEMENTATION_NOT_AUTHORIZED
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+P1_002_IMPLEMENTATION_NOT_STARTED
 ```
 
-No registry service, Action Gate, P1-002 implementation, deletion, quarantine,
-rebuild or retrieval runtime is authorized by this contract freeze.
-
-Implementation requires:
+The implementation PR requires:
 
 ```text
-explicit new owner GO
-→ dedicated authorization receipt
-→ clean Tier A implementation branch and PR
-→ exact-head validator, freshness, pytest and compileall
+exact authorized files only
+→ all PRIV-SC-001…PRIV-SC-015 scenarios
+→ strict admission and budget tests
+→ exact first-match precedence
+→ fresh-process no-I/O/no-clock test
+→ exact-head validator/freshness/pytest/compileall
 → distinct correctness pass
 → distinct adversarial pass
 → resolved conversations
-→ unchanged reviewed head merge
+→ unchanged reviewed-head merge
 → green resulting main CI
-→ status and Notion synchronization
 ```
 
-The P1-001 Owner GO is consumed and cannot be reused.
+The Owner GO is consumed only by this exact pure classifier slice.
 
 ---
 
-## 5. 🔄 Status rules
+## 6. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
-| Research captured | no runtime status change |
 | Contract selected and merged | `FROZEN_DOCS` |
 | Bounded Owner GO merged | `AUTHORIZED_BOUNDED` |
 | Code PR merged + main CI | `IMPLEMENTED_BOUNDED` |
-| Deletion/quarantine/rebuild/retrieval proposal | requires a separate later authorization cycle |
+| Deletion/quarantine/rebuild/retrieval proposal | separate future authorization required |
 
 GitHub `main` and `docs/CURRENT_STATUS.md` remain authoritative. Notion is a
 derived navigation/status surface synchronized only after verified evidence.
-
----
-
-## 6. 🔬 Research promotion
-
-The [Research Index](RESEARCH_INDEX.md) preserves hypotheses and candidates.
-P1-002 was selected because it addresses a documented blocker while remaining
-strictly below relationship, identity, Action Gate and tool-execution runtime.
-
-Issue #39 governs only the future transition to genuine independent review. Its
-current absence is not a solo-mode blocker.
 
 ---
 
@@ -202,18 +180,19 @@ current absence is not a solo-mode blocker.
 ```text
 P0 complete
 → P1-001 implemented bounded
-→ privacy reconciliation gap identified
 → P1-002 contract frozen
-→ STOP until a new bounded Owner GO
+→ bounded P1-002 Owner GO
+→ pure classifier implementation PR
+→ STOP before any remediation runtime
 ```
 
 ### Related
 
 - [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
-- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md)
+- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
+- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 - [`../P0_010_ATOMIC_SAME_STREAM_REDACTION.md`](../P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
 - [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)

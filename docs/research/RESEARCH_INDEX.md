@@ -6,7 +6,8 @@ Updated:                      2026-08-09
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
 Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
-Selected execution contract:  P1-002 Privacy Reconciliation Classifier · FROZEN_DOCS · NOT_AUTHORIZED
+Selected execution contract:  P1-002 Privacy Reconciliation Classifier · FROZEN_DOCS
+Implementation authorization: P1-002 · AUTHORIZED_BOUNDED · NOT_STARTED
 Runtime deployment authority: NONE
 Truth authority:              NONE
 Identity authority:           NONE
@@ -15,31 +16,24 @@ Capability grant authority:   NONE
 
 ```text
 Research presence ≠ roadmap priority
-Research adoption ≠ implementation authorization
 P1-001 completion ≠ authority for P1-002
 P1-002 contract freeze ≠ implementation authorization
+P1-002 Owner GO ≠ remediation or retrieval authority
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
 
+Authoritative governance: [`../GOVERNANCE.md`](../GOVERNANCE.md).
+
 ---
 
-## 1. ✅ Completed execution checkpoint
-
-Authoritative P1-001 navigation:
-
-- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md) — maturity and authorization;
-- [`../GOVERNANCE.md`](../GOVERNANCE.md) — risk tiers and review policy;
-- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) — authorization and completion receipt;
-- [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) — frozen P1-001 contract.
+## 1. ✅ Completed P1-001 checkpoint
 
 ```text
 P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
 P1_001_PURE_RESOLVER_VALIDATED
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 ```
-
-Verified implementation evidence:
 
 ```text
 Authorization PR #62
@@ -53,73 +47,83 @@ Implementation PR #63
 → post-merge CI 31323138053 · success
 ```
 
-Implemented only:
-
-```text
-pure caller-supplied capability resolver
-strict immutable contracts
-exact admitted live-head lookup
-canonical digest verification
-exact denial precedence
-all CAP-SC-001…CAP-SC-025 scenarios
-recursive registry snapshot immutability
-ALLOW executes nothing
-```
+P1-001 remains a pure caller-supplied capability resolver. It provides no
+registry service, Action Gate, tool execution, identity/M3 mutation or
+production deployment authority.
 
 ---
 
-## 2. 🧊 Selected P1-002 contract
+## 2. 🔐 P1-002 Privacy Reconciliation Classifier
 
-Selected milestone: **P1-002 Privacy Reconciliation Classifier**.
+Contract authority:
 
-Authoritative navigation:
+- [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
 
-- [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) — frozen contract;
-- [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) — ordering and authorization stop;
-- [`../P0_010_ATOMIC_SAME_STREAM_REDACTION.md`](../P0_010_ATOMIC_SAME_STREAM_REDACTION.md) — existing active-store redaction boundary;
-- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) — owning privacy/fork research source.
+Authorization authority:
+
+- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
 
 ```text
-P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_SELECTED
 P1_002_CONTRACT_FROZEN_DOCS
-P1_002_IMPLEMENTATION_NOT_AUTHORIZED
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+P1_002_IMPLEMENTATION_NOT_STARTED
+P1_002_MUTATION_AUTHORITY_NONE
+P1_002_RETRIEVAL_AUTHORITY_NONE
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
-Selected because:
-
-- P0-010 explicitly does not prove backup-wide deletion;
-- privacy research forbids silent availability through backups, forks, indexes,
-  embeddings, graph edges, caches and derived summaries;
-- relationship continuity is unsafe before privacy/consent copy reconciliation;
-- a pure classifier is the smallest useful mechanism below mutation runtime.
-
-Frozen output space:
+Contract freeze evidence:
 
 ```text
-ALLOW_REFERENCE
-DENY_RETRIEVAL
-QUARANTINE_REQUIRED
-REBUILD_REQUIRED
+PR #65
+→ reviewed head 85bf0070e2f15b5ca752b82325337d6ef0190396
+→ exact-head CI 31331396018 · success · 401 passed
+→ merge 1dc7bcf97986f455f48beb121c2048dfc34bd11c
+→ post-merge CI 31331506606 · success
 ```
 
-`ALLOW_REFERENCE` is privacy classification data only. It is not retrieval,
-capability or Action Gate authority.
+Exact authorized source/test paths:
+
+```text
+src/mentaury/privacy/__init__.py
+src/mentaury/privacy/reconciliation/__init__.py
+src/mentaury/privacy/reconciliation/contracts.py
+src/mentaury/privacy/reconciliation/classifier.py
+tests/test_privacy_reconciliation_classifier.py
+```
+
+Authorized only:
+
+```text
+pure caller-supplied classification
+strict immutable contracts
+exact-field admission
+budget checks
+cross-record linkage
+first-match deny precedence
+surface-specific decision mapping
+PRIV-SC-001…PRIV-SC-015 validation
+```
 
 Still forbidden:
 
 ```text
-P1-002 implementation without separate Owner GO
 privacy persistence or scanning
-content deletion or redaction execution
+content deletion or P0 redaction execution
 quarantine or rebuild execution
 retrieval execution
 network/filesystem/database access
-relationship or identity mutation
+event/replay integration
+relationship, belief or identity mutation
 M3 write
+P1-001 internal invocation
 Action Gate, Tool Receipt or tool execution
 backend selection
 production deployment
 ```
+
+`ALLOW_REFERENCE` is classification data only and cannot be reused as
+permission.
 
 ---
 
@@ -127,20 +131,20 @@ production deployment
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
-| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | execution contract | FROZEN_DOCS | implemented by bounded pure resolver |
-| [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | authorization/evidence | OWNER_GO_CONSUMED | exact P1-001 slice complete |
-| [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) | selected execution contract | FROZEN_DOCS | NOT IMPLEMENTED / NOT AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | P1-002 contract selected; stop gate active | no implementation authority |
-| [`MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md`](MENTAURY_CONTEXTUAL_COGNITION_AND_EPISTEMIC_CONTEXT_NOTES.md) | research side-track | adopted docs-only | NOT IMPLEMENTED |
-| [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
-| [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | active research | adopted docs-only | NOT IMPLEMENTED |
-| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external research input | preserved · non-canonical | NOT AUTHORIZED |
-| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | future profiles | captured · not selected | NOT AUTHORIZED |
-| [`BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md`](BIOLOGICAL_CYBERNETIC_AND_COGNITIVE_CANDIDATES_V0.1.md) | candidates | captured · none selected | NOT AUTHORIZED |
+| [`../GOVERNANCE.md`](../GOVERNANCE.md) | governance authority | ADOPTED | merge/review policy only |
+| [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md) | P1-001 contract | FROZEN_DOCS | implemented bounded |
+| [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | P1-001 receipt | OWNER_GO_CONSUMED | complete |
+| [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) | P1-002 contract | FROZEN_DOCS | code not started |
+| [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md) | P1-002 receipt | AUTHORIZED_BOUNDED | exact pure slice only |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | P1-002 authorized bounded | no later runtime authority |
+| [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | active research | docs-only | NOT IMPLEMENTED |
+| [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | active research | docs-only | NOT IMPLEMENTED |
+| [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | future profiles | not selected | NOT AUTHORIZED |
 
 ---
 
-## 4. 🌱 Backlog
+## 4. 🌱 Research backlog
 
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
@@ -157,69 +161,46 @@ production deployment
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability authority + reversibility |
 
-These entries are not a ranked execution queue. P1-002 is a selected bounded
-contract because it addresses the privacy prerequisite for later relationship
-work without promoting relationship runtime.
-
 ---
 
 ## 5. 🚪 Promotion gate
 
-A frozen contract becomes eligible for implementation only after:
-
 ```text
 problem demonstrated
-+ existing mechanisms insufficient
 + minimal bounded slice
-+ inputs / outputs / invariants
-+ explicit non-goals
++ explicit contracts and non-goals
 + threat model
-+ Canon and P0 compatibility
-+ current-governance correctness review
-+ current-governance adversarial review
-+ explicit new owner authorization
++ Canon/P0 compatibility
++ explicit owner authorization
++ clean implementation PR
++ correctness and adversarial review
++ green resulting main CI
 ```
 
-The P1-001 Owner GO is consumed and cannot be reused for P1-002. During solo
-operation, review remains attributable maintainer review. Issue #39 governs the
-future transition when a genuine independent reviewer/team exists.
+The P1-002 Owner GO is consumed only by the exact authorized pure classifier.
+Issue #39 remains the future transition trigger for genuine independent review.
 
 ---
 
-## 6. 🔗 External and ecosystem boundary
+## 6. 🔗 Boundaries
 
 ```text
-Mentaury research
-≠ Crystal Canon
-≠ Titan runtime
-≠ Native Kernel runtime
-≠ automatic ecosystem authority
-
-Native Kernel input
-≠ Native Kernel integration
-≠ shared runtime
-≠ automatic M2/M3 promotion
+Mentaury research ≠ Crystal Canon ≠ Titan runtime ≠ Native Kernel runtime
+Native Kernel input ≠ integration ≠ shared runtime ≠ automatic M2/M3 promotion
 ```
 
-No backend is selected. PostgreSQL, Graphiti, LadybugDB and other candidates
-remain research-only and provide no implementation authority.
+No backend is selected. Notion remains navigation/research workspace; GitHub
+`main`, `docs/CURRENT_STATUS.md` and owning contracts remain engineering
+authority.
 
 ---
 
-## 7. 🗺️ Notion boundary
-
-Notion is navigation and research workspace. GitHub `main`,
-`docs/CURRENT_STATUS.md` and owning contracts remain engineering authority. A
-Notion page cannot authorize implementation or select a different milestone.
-
----
-
-## 8. 🏁 Rule
+## 7. 🏁 Rule
 
 ```text
 Keep ideas.
-Label their epistemic and implementation status.
+Label their status.
 Promote one bounded milestone at a time.
-Freeze the contract before authorization.
-Stop before implementation until a new bounded Owner GO exists.
+Implement only after explicit Owner GO.
+Stop before any unreviewed authority expansion.
 ```
