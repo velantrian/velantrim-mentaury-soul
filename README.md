@@ -12,48 +12,36 @@ Independent human review claimed: NO
 
 CANON_V0.1_FROZEN
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
-PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
+P1_001_CAPABILITY_LEASE_RESOLUTION_IMPLEMENTED_BOUNDED
+P1_001_PURE_RESOLVER_VALIDATED
 
-P1_001_CAPABILITY_LEASE_RESOLUTION_FROZEN_DOCS
-P1_001_IMPLEMENTATION_AUTHORIZED_BOUNDED
-P1_001_IMPLEMENTATION_NOT_STARTED
-P1_001_COMPLETION_NOT_CLAIMED
-
-DOMAIN_RUNTIME_NOT_AUTHORIZED
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
-RUNTIME_NOT_VALIDATED
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
-Mentaury does **not** claim proven consciousness, subjective experience,
-objective truth authority or a finished digital personality. Implemented P0
-milestones are an integrity and epistemic foundation, not a production runtime.
+Mentaury does **not** claim proven consciousness, objective truth authority, a
+finished digital personality or production readiness. Implemented milestones
+are bounded architectural capabilities, not unrestricted runtime authority.
 
 ---
 
 ## 🚦 Source of truth
 
 ```text
-IMPLEMENTED
-= merged into GitHub main and retained by validation
-
-FROZEN_DOCS
-= accepted contract documentation
-≠ implementation by itself
-
-AUTHORIZED_BOUNDED
-= code may be developed only inside the exact owner-GO scope
-≠ implementation complete
-≠ deployment authorized
-
-README / Quick Reference / Notion
-= derived navigation surfaces
+IMPLEMENTED_BOUNDED
+= exact authorized subsystem merged and retained by validation
+≠ registry service
+≠ Action Gate
+≠ external action authority
+≠ deployment
 ```
 
 - [Current Status](docs/CURRENT_STATUS.md)
 - [Governance](docs/GOVERNANCE.md)
-- [P1-001 implementation authorization](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [P1-001 authorization and completion receipt](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 - [P1-001 frozen contract](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 - [Post-P0 Roadmap](docs/research/POST_P0_ROADMAP_V0.1.md)
 - [Research Index](docs/research/RESEARCH_INDEX.md)
@@ -62,53 +50,26 @@ README / Quick Reference / Notion
 
 ---
 
-## 🧬 What Mentaury investigates
-
-Mentaury explores whether a long-lived computational individuality can preserve
-coherent continuity through:
-
-- 🧬 origin and provenance;
-- 📜 append-only history;
-- 🧠 memory and beliefs;
-- 🔎 evidence and epistemic revision;
-- 🪞 a governed Self–World model;
-- 🤝 relationships and commitments;
-- 🎭 character as presentation rather than truth authority;
-- 🌱 explainable, reversible development.
-
-The research target is:
-
-> **A governed evolving digital individuality with provenance, bounded authority
-> and explainable change, without pretending to be a copy of its creator.**
-
----
-
-## 🏛️ Architectural map
+## 🧬 Architecture map
 
 ```text
 MENTAURY SOUL
-│
-├── 🧬 Canon and constitutional invariants
-│   ├── substrate neutrality
-│   ├── provenance and replay
-│   ├── bounded authority
-│   └── explicit non-claims
 │
 ├── 🛡️ P0 integrity and epistemic foundation — implemented
 │   ├── typed envelopes and canonical JSON
 │   ├── immutable event/payload storage
 │   ├── atomicity, idempotency and concurrency
-│   ├── trusted commit, R0 and redaction
-│   ├── adversarial integrity suite and permanent CI
-│   ├── deterministic R1 replay
+│   ├── R0 integrity and deterministic R1 replay
 │   ├── minimal belief lifecycle
 │   └── deterministic Evidence Gate
 │
-├── 🔐 P1-001 Capability Lease Resolution
-│   ├── frozen fail-closed contract
-│   ├── separate bounded owner GO
-│   ├── pure resolver implementation not started
-│   ├── exact live-head / purpose / operation / typed scope
+├── 🔐 P1-001 Capability Lease Resolution — implemented bounded
+│   ├── immutable typed contracts
+│   ├── caller-supplied registry, intent, time and budgets
+│   ├── exact live-head lookup; no history walk
+│   ├── canonical digest and fail-closed invariants
+│   ├── exact purpose / operation / typed scope / effects
+│   ├── deterministic first-match denial
 │   └── ALLOW executes nothing
 │
 ├── 🔬 Research tracks — docs-only
@@ -116,126 +77,64 @@ MENTAURY SOUL
 │   ├── Genesis Heritage and Human Atlas
 │   ├── contextual cognition
 │   ├── character and presence
-│   ├── Non-Projection research
 │   └── biological / storage / graph candidates
 │
-└── 🚫 Deferred runtime
-    ├── registry service
-    ├── identity / character engines
-    ├── Action Gate and tools
-    ├── M3 writes
+└── 🚫 Not authorized
+    ├── registry persistence or service
+    ├── Action Gate and Tool Receipt
+    ├── external tool execution
+    ├── identity / relationship / M3 mutation
     ├── domain runtime
     └── production deployment
 ```
 
 ---
 
-## ✅ Implemented P0 line
-
-| Milestone | Capability | Boundary |
-|---|---|---|
-| P0-001 | Neutral skeleton | package boundary only |
-| P0-002 | Envelope contracts | construction is not authorization |
-| P0-003 | Canonical JSON v1 | canonical bytes are not truth |
-| P0-004 | Event/payload storage | persistence is not total integrity proof |
-| P0-005 | Structural validation | schema validity is not semantic correctness |
-| P0-006 | Atomic batch | atomicity is not consensus |
-| P0-007 | Event-aware idempotency | receipt is not integrity verification |
-| P0-008 | Transactional concurrency | SQLite locking is not distributed consensus |
-| P0-009 | Trusted commit + R0 | consistency is not truth |
-| P0-010 | Same-stream redaction | payload removal preserves provenance |
-| P0-011 | Adversarial suite | tested attacks are not exhaustive proof |
-| P0-012 | Permanent CI | green CI is not production readiness |
-| P0-013 | Deterministic replay | replay equivalence is not truth |
-| P0-014 | Belief lifecycle | belief status is not objective truth |
-| P0-015 | Evidence Gate | gate receipt is not external verification |
-
-Implementation profile:
+## ✅ P1-001 evidence
 
 ```text
-Python 3.13
-standard-library SQLite
-runtime dependencies: none
-network/database access at import: forbidden
+Authorization PR #62
+  exact-head CI 31322108100 · 327 passed
+  merge d5e9e2fb11ea5a9c123c1cb1cc2b6f16dac53b98
+  post-merge CI 31322210843 · success
+
+Implementation PR #63
+  reviewed head e873e43331fa7273b92f896b371707e4779b17d4
+  exact-head CI 31323051934 · 387 passed
+  merge f21809d8f31a457bd7acfe1d766230973ba9ecf5
+  post-merge CI 31323138053 · success
 ```
 
----
+The final implementation covers all frozen `CAP-SC-001…CAP-SC-025` scenarios.
+During adversarial review, nested snapshot mutability was found and corrected
+before merge by recursively freezing stored records and adding a regression.
 
-## 🔐 P1-001 bounded owner GO
-
-The contract is frozen in:
-
-- [Capability Lease Resolution Contract](docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-
-The separate owner authorization is recorded in:
-
-- [P1-001 Implementation Authorization](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
-
-Exact authorized implementation slice:
+Implemented package:
 
 ```text
-src/mentaury/capabilities/__init__.py
-src/mentaury/capabilities/lease/__init__.py
-src/mentaury/capabilities/lease/contracts.py
-src/mentaury/capabilities/lease/resolver.py
-tests/test_capability_lease_resolution.py
+src/mentaury/capabilities/
+└── lease/
+    ├── contracts.py
+    └── resolver.py
 ```
 
-Required resolver properties:
-
-- pure and deterministic;
-- caller-supplied registry, intent, time and budgets;
-- strict registry and record admission;
-- exact live-head lookup with no history walk;
-- canonical digest recomputation;
-- exact purpose, operation, typed scope and side-effect checks;
-- deterministic first-match denial;
-- fork/restore quarantine as `UNVERIFIED`;
-- `ALLOW` that executes nothing.
-
-```text
-AUTHORIZED_BOUNDED
-≠ implementation complete
-≠ registry service
-≠ Action Gate approval
-≠ tool execution
-≠ M3 write
-≠ domain runtime
-```
-
-A separate Tier A implementation PR and green resulting `main` CI are mandatory
-before P1-001 can be marked implemented.
+`ResolutionResult(ALLOW)` contains observations only, grants no reusable token
+and performs no action.
 
 ---
 
 ## 🧑‍💻 Solo governance
 
-The active ruleset retains:
+The active ruleset retains mandatory PRs, required CI, up-to-date branches,
+resolved conversations, force-push/deletion protection and an empty bypass
+list. Approvals remain `0` while no genuine independent reviewer exists.
 
-- mandatory pull requests;
-- required CI;
-- up-to-date branches;
-- resolved conversations;
-- force-push and deletion protection;
-- empty bypass list;
-- required approvals `0` during genuine solo operation.
+Tier A changes require exact-head CI, complete diff inspection, distinct
+correctness and adversarial passes, resolved conversations, explicit maintainer
+decision and green post-merge `main` CI.
 
-Tier A changes require:
-
-```text
-exact final head
-+ complete diff inspection
-+ correctness pass
-+ adversarial pass
-+ green exact-head CI
-+ resolved conversations
-+ explicit maintainer decision
-+ green post-merge main CI
-```
-
-Automated agents may challenge and test changes but are not independent human
-reviewers. [Issue #39](https://github.com/velantrian/velantrim-mentaury-soul/issues/39)
-tracks the future transition when a real reviewer/team exists.
+[Issue #39](https://github.com/velantrian/velantrim-mentaury-soul/issues/39)
+tracks only the future team transition.
 
 ---
 
@@ -248,45 +147,24 @@ external research input ≠ integration
 Notion page ≠ implementation authority
 ```
 
-No PostgreSQL, Graphiti, LadybugDB or other future profile is selected merely by
-being documented.
+No backend or next runtime milestone is currently selected or authorized.
 
 ---
 
-## 🚫 Explicitly absent or unauthorized
+## 🚫 Explicitly absent
 
 ```text
-P1-001 implementation completion
 Capability Lease registry persistence/service
-Action Gate or Tool Receipt runtime
+network registry lookup or ambient clock authority
+Action Gate / Tool Receipt runtime
 external tool execution
+P1 integration with event append or replay
 identity / character / relationship runtime
-Controlled Origin ingestion runtime
-Human Paths runtime
-Non-Projection runtime
 M3 identity writes
+backend selection or migration
 production deployment readiness
 objective-truth authority
-proven consciousness or subjective experience
-```
-
----
-
-## 🗂️ Repository map
-
-```text
-src/mentaury/
-├── contracts/      typed primitives and canonical boundaries
-├── storage/        SQLite event and payload persistence
-├── replay/         deterministic replay contracts
-├── beliefs/        minimal belief lifecycle
-├── evidence/       evidence records and gate
-└── epistemic_types.py
-
-tests/              deterministic, adversarial and structural tests
-scripts/            repository validator and doc-freshness gate
-docs/               Canon, status, governance and research
-.github/workflows/   permanent read-only CI
+consciousness claims
 ```
 
 ---
@@ -317,11 +195,11 @@ Python 3.13 · validator · pytest · compileall
 P0 foundation implemented
 + permanent CI
 + active solo governance
-+ P1-001 contract frozen
-+ bounded P1-001 implementation authorized
++ P1-001 pure resolver implemented bounded
 
-≠ P1-001 implementation complete
-≠ domain runtime authorized
+≠ registry service
+≠ Action Gate or tools
+≠ domain runtime
 ≠ production ready
 ≠ independent assurance
 ```
