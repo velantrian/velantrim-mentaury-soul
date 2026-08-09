@@ -84,12 +84,13 @@ def classify_privacy_reconciliation(
         "material": admitted_material.to_value(),
         "copy": admitted_copy.to_value(),
         "intent": admitted_intent.to_value(),
+        "budget": admitted_budget.to_value(),
     }
     try:
         serialized_size = len(canonical_json_bytes(canonical_input))
     except (CanonicalJSONError, UnicodeEncodeError) as exc:
         raise PrivacyContractError(
-            "material, copy, and intent must be canonical JSON values"
+            "material, copy, intent, and budget must be canonical JSON values"
         ) from exc
 
     purpose_count = len(admitted_material.permitted_purposes) + len(
