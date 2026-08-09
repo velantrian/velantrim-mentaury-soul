@@ -19,6 +19,9 @@ SOLO_MODE = (
 REVIEW_CHECKLIST = (
     ROOT / "docs" / "governance" / "solo-maintainer-review-checklist.md"
 ).read_text(encoding="utf-8")
+AUTHORIZATION = (ROOT / "docs" / "P1_001_IMPLEMENTATION_AUTHORIZATION.md").read_text(
+    encoding="utf-8"
+)
 
 _ACTIVE_STATUSES = (
     "DRAFT",
@@ -37,6 +40,7 @@ _EXISTING_TIER_A = (
     "src/mentaury/replay/**",
     "src/mentaury/beliefs/**",
     "src/mentaury/evidence/**",
+    "src/mentaury/capabilities/lease/**",
     "src/mentaury/contracts/canonical_json.py",
     "scripts/validate.py",
     "scripts/check_doc_freshness.py",
@@ -47,6 +51,7 @@ _EXISTING_TIER_A = (
     "docs/CURRENT_STATUS.md",
     "docs/GOVERNANCE.md",
     "docs/governance/**",
+    "docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
     "docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "docs/research/POST_P0_ROADMAP_V0.1.md",
 )
@@ -66,6 +71,7 @@ _CODEOWNERS_EXISTING = (
     "/src/mentaury/replay/",
     "/src/mentaury/beliefs/",
     "/src/mentaury/evidence/",
+    "/src/mentaury/capabilities/lease/",
     "/src/mentaury/contracts/canonical_json.py",
     "/scripts/validate.py",
     "/scripts/check_doc_freshness.py",
@@ -76,6 +82,7 @@ _CODEOWNERS_EXISTING = (
     "/docs/CURRENT_STATUS.md",
     "/docs/GOVERNANCE.md",
     "/docs/governance/",
+    "/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md",
     "/docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "/docs/research/POST_P0_ROADMAP_V0.1.md",
 )
@@ -132,6 +139,17 @@ def test_storage_workflows_and_governance_are_tier_a() -> None:
     assert "docs/governance/**" in section
 
 
+def test_capability_lease_path_and_authorization_are_active_tier_a() -> None:
+    section = _between(GOVERNANCE, "### 3.2 Tier A", "### 3.3 Tier B")
+    assert "src/mentaury/capabilities/lease/**" in section
+    assert "docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md" in section
+    assert "/src/mentaury/capabilities/lease/ @velantrian" in CODEOWNERS
+    assert "/docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md @velantrian" in CODEOWNERS
+    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTHORIZATION
+    assert "P1-001 authority outside the pure resolver scope" in GOVERNANCE
+    assert "Capability Lease registry persistence or service" in GOVERNANCE
+
+
 def test_existing_tier_a_paths_are_listed_without_duplicates() -> None:
     section = _between(
         GOVERNANCE,
@@ -184,6 +202,7 @@ def test_codeowners_keeps_if_when_paths_commented() -> None:
         assert reserved not in active
     assert "# /src/mentaury/**/authority/" in CODEOWNERS
     assert "# /src/mentaury/**/lease/" in CODEOWNERS
+    assert "/src/mentaury/capabilities/lease/" in active
 
 
 def test_tier_a_requires_two_distinct_solo_review_passes() -> None:
