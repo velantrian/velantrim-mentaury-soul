@@ -448,6 +448,39 @@ def test_linkage_is_checked_before_budget() -> None:
         )
 
 
+def test_budget_validation_order_is_fixed() -> None:
+    with pytest.raises(PrivacyContractError, match="max_serialized_bytes"):
+        _classify(
+            budget={
+                "max_serialized_bytes": 0,
+                "max_purposes": 0,
+                "max_branches": 0,
+            }
+        )
+
+
+def test_serialized_input_budget_includes_budget_record() -> None:
+    material = PrivacyMaterial.from_value(_material())
+    copy = PrivacyCopy.from_value(_copy())
+    intent = PrivacyAccessIntent.from_value(_intent())
+    size_without_budget = len(
+        canonical_json_bytes(
+            {
+                "material": material.to_value(),
+                "copy": copy.to_value(),
+                "intent": intent.to_value(),
+            }
+        )
+    )
+    result = _classify(
+        material=material,
+        copy=copy,
+        intent=intent,
+        budget=_budget(max_serialized_bytes=size_without_budget),
+    )
+    assert result.reason is PrivacyReason.BUDGET_EXHAUSTED
+
+
 def test_purpose_and_branch_collection_budgets_fail_closed() -> None:
     purpose = _classify(
         material=_material(permitted_purposes=["archive", PURPOSE]),
