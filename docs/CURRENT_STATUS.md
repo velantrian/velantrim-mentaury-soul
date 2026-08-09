@@ -1,753 +1,287 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Дата фиксации:                       2026-08-08
-Репозиторий:                         velantrian/velantrim-mentaury-soul
-Authoritative ref:                   GitHub main
-Verified implementation baseline:   1d3af6f0946e596529b9d40315a83cd3573918db
-Status synchronization provenance:   PR #45
-Live repository head and PR state:   resolved from GitHub, not embedded in this document
-Source documentation head (PR #36 merge): 850cfe439c3bedd6a2bd4e806e9912283ed5be32
-Baseline CI (implementation baseline): 31214550093 · success · 277 passed
-
-CANON_V0.1_FROZEN
-P0-001…P0-015_IMPLEMENTED_IN_MAIN
-P0-014_BELIEF_LIFECYCLE_PR_AND_MAIN_VALIDATION_PASS
-P0-015_EVIDENCE_GATE_PR_AND_MAIN_VALIDATION_PASS
-AUDIT_2026_08_06_HARDENING_MERGED_PR_32
-POST_P0_ROADMAP_V0.1_ADOPTED_DOCS_ONLY
-P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
-GOVERNANCE_INDEPENDENT_REVIEW_POLICY_ADOPTED
-POST_P0_OWNER_PATH_MERGED_PR_34
-CONTEXTUAL_COGNITION_RESEARCH_SIDE_TRACK_ADOPTED_DOCS_ONLY_NOT_IMPLEMENTED
-CONTEXTUAL_COGNITION_PR_36_MERGED
-CONTEXTUAL_COGNITION_REVIEW_ROUND_2_PASS
-CONTEXTUAL_COGNITION_MAIN_CI_31179202276_PASS_277_TESTS
-SECURITY_PYTEST_9_1_1_MERGED_PR_40
-NATIVE_KERNEL_RESEARCH_INPUT_PRESERVED_PR_43
-BRANCH_CLEANUP_COMPLETED_ISSUE_41
-PR_38_OPEN_AWAITING_QUALIFYING_APPROVAL
-POST_HOC_SECURITY_REVIEW_ISSUE_42_OPEN
-STATUS_SYNC_PROVENANCE_PR_45
-VERIFIED_IMPLEMENTATION_BASELINE_1d3af6f
-PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
-DOMAIN_RUNTIME_NOT_AUTHORIZED
-CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
-RUNTIME_NOT_VALIDATED
+Status date:                       2026-08-09
+Repository:                        velantrian/velantrim-mentaury-soul
+Engineering authority:             this file + verified live GitHub state
+Governance authority:              docs/GOVERNANCE.md + live GitHub ruleset
+Current operating mode:            SOLO_MAINTAINER
+Independent human review claimed:  NO
+Live main tip:                      resolved from GitHub; not embedded here
 ```
 
-```text
-1d3af6f… = verified implementation baseline before status-sync content
-Live main tip / open-PR tip / candidate CI
-→ resolved from GitHub Actions and GitHub PR/branch state
-≠ embedded mutable SHA inside this maturity document
-```
-
-## ⚖️ Правило текущей правды
+This document records durable maturity and authorization facts. Mutable branch
+tips, open-PR heads and current workflow state must be read from GitHub rather
+than copied into long-lived maturity text.
 
 ```text
 IMPLEMENTED
-= merged into GitHub main
+= merged into GitHub main and retained by validation
+
+FROZEN_DOCS
+= accepted contract documentation
+≠ implementation authorization
 
 OPEN PR
-≠ implemented in main
-
-VALIDATION-ONLY WORKFLOW
-≠ permanent project CI
+≠ implemented
 
 Notion / README / Quick Reference
-= derived navigation documents
-
-Current maturity authority
-= this file + verified GitHub main state
+= derived navigation surfaces
 ```
 
 ---
 
-# 🧭 Contextual Cognition & Epistemic Context — принятый docs-only research track
+## 1. 🧭 Current checkpoint
 
 ```text
-PR:             #36 · MERGED
-Source head:    2c38fd78da8dd06a8baa468b6ae4387279644214
-Review round 2: PASS · review 4882842702
-Merge commit:   850cfe439c3bedd6a2bd4e806e9912283ed5be32
-Main CI:        31179202276 · success · 277 passed
-Status:         ADOPTED · DOCS_ONLY · NOT IMPLEMENTED
-Runtime:        NOT AUTHORIZED
-P1-001:         PRIORITY UNCHANGED
+CANON_V0.1_FROZEN
+P0-001…P0-015_IMPLEMENTED_IN_MAIN
+P0_014_BELIEF_LIFECYCLE_VALIDATED
+P0_015_EVIDENCE_GATE_VALIDATED
+PERMANENT_GITHUB_ACTIONS_PRESENT_AND_VALIDATED
+
+SOLO_MAINTAINER_GOVERNANCE_ACTIVE
+REQUIRED_APPROVALS_0_BY_EXPLICIT_SOLO_POLICY
+INDEPENDENT_HUMAN_REVIEW_NOT_CLAIMED
+TIER_A_TWO_PASS_MAINTAINER_REVIEW_REQUIRED
+
+POST_P0_ROADMAP_ADOPTED_DOCS_ONLY
+P1_001_CAPABILITY_LEASE_RESOLUTION_DOCS_ONLY_NOT_IMPLEMENTED
+P1_001_CAPABILITY_LEASE_RESOLUTION_FROZEN_DOCS
+CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
+
+DOMAIN_RUNTIME_NOT_AUTHORIZED
+ACTION_GATE_NOT_AUTHORIZED
+TOOL_EXECUTION_NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
+RUNTIME_NOT_VALIDATED
 ```
 
-Owning contracts:
-
-- Contextual Communication Adaptation → Character & Presence §6.4;
-- Cognitive Requirement Profile → Identity Continuity §20;
-- Institutional Epistemic Context → Genesis Heritage §21 Appendix A.
+Accepted governance evidence:
 
 ```text
-Docs adopted ≠ runtime implemented
-Research presence ≠ roadmap priority
-Tool planning ≠ tool authorization ≠ tool execution
+PR #56 → solo-maintainer mode documented
+PR #57 → governance, CODEOWNERS and tests reconciled with solo mode
+PR #58 → P1-001 contract hardened and accepted under Tier A review
+```
+
+Verified PR #58 evidence:
+
+```text
+Reviewed head:   a32b0e4fe55382f76a70b2205104af2e28f99451
+Exact-head CI:   31317003807 · success
+Merge commit:    8e89063fd74f5ae6d337366c299fa5f4e0164618
+Post-merge CI:   31317057193 · success
+Review mode:     SOLO_MAINTAINER · correctness + adversarial passes
+Independent assurance: NOT CLAIMED
 ```
 
 ---
 
-# ✅ Реализовано в `main`
+## 2. 🛡️ Live governance model
 
-| Milestone | Состояние | Проверенная граница |
+The active `Mentaury main governance` ruleset protects `main`:
+
+- pull request required;
+- required check `Python 3.13 · validator · pytest · compileall`;
+- branch must be up to date with `main`;
+- review conversations must be resolved;
+- force pushes blocked;
+- branch deletion blocked;
+- bypass list empty;
+- required approvals set to `0` during the explicit solo-maintainer phase.
+
+Risk-sensitive changes use the Tier A procedure in `docs/GOVERNANCE.md`:
+
+```text
+exact final head
++ exact-head CI
++ complete diff inspection
++ correctness pass
++ adversarial pass
++ resolved conversations
++ explicit maintainer decision
++ post-merge main CI
+```
+
+Automated agents may support review but do not constitute independent human
+approval. Issue #39 is a future transition trigger: when a genuine independent
+reviewer or team exists, approvals and stale/latest-push review gates must be
+restored and verified.
+
+---
+
+## 3. ✅ Implemented milestones
+
+| Milestone | State | Verified boundary |
 |---|---|---|
-| P0-001 Neutral Skeleton | ✅ Implemented | project/package boundary only |
-| P0-002 Envelope Contracts | ✅ Implemented | construction ≠ authority approval |
-| P0-003 Canonical JSON v1 | ✅ Implemented | canonical bytes ≠ truth or authorization |
-| P0-004 Event/Payload Storage | ✅ Implemented | persisted rows ≠ complete integrity proof |
-| P0-005 Structural Schema Validation | ✅ Implemented | schema validity ≠ semantic correctness |
-| P0-006 Atomic Multi-Event Batch | ✅ Implemented | atomicity ≠ idempotency or concurrency |
-| P0-007 Event-Aware Idempotency | ✅ Implemented | replay receipt ≠ integrity verification |
-| P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking ≠ distributed consensus |
-| P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency ≠ epistemic truth |
-| P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal ≠ event-provenance deletion |
-| P0-011 Adversarial Integrity Suite | ✅ Implemented | adversarial PASS ≠ total-database authenticity |
-| P0-012 Permanent GitHub Actions CI | ✅ Implemented | green CI ≠ branch protection or runtime safety |
-| P0-013 R1 Deterministic Replay | ✅ Implemented | deterministic replay ≠ epistemic truth |
-| P0-014 Minimal Belief Lifecycle | ✅ Implemented | belief status ≠ truth or runtime authority |
-| P0-015 Deterministic Evidence Gate | ✅ Implemented | gate receipt ≠ externally verified fact |
+| P0-001 Neutral Skeleton | ✅ Implemented | package/project boundary only |
+| P0-002 Envelope Contracts | ✅ Implemented | construction does not grant authority |
+| P0-003 Canonical JSON v1 | ✅ Implemented | canonical bytes do not prove truth |
+| P0-004 Event/Payload Storage | ✅ Implemented | persistence does not prove total integrity |
+| P0-005 Structural Schema Validation | ✅ Implemented | schema validity does not prove semantics |
+| P0-006 Atomic Multi-Event Batch | ✅ Implemented | atomicity is not idempotency or consensus |
+| P0-007 Event-Aware Idempotency | ✅ Implemented | receipt is not integrity proof |
+| P0-008 Transactional Concurrency | ✅ Implemented | SQLite locking is not distributed consensus |
+| P0-009 Trusted Commit + Full R0 | ✅ Implemented | R0 consistency is not truth |
+| P0-010 Atomic Same-Stream Redaction | ✅ Implemented | payload removal preserves event provenance |
+| P0-011 Adversarial Integrity Suite | ✅ Implemented | tested attack families are not exhaustive proof |
+| P0-012 Permanent GitHub Actions CI | ✅ Implemented | green CI is not production readiness |
+| P0-013 R1 Deterministic Replay | ✅ Implemented | replay equivalence is not epistemic truth |
+| P0-014 Minimal Belief Lifecycle | ✅ Implemented | belief status is not objective truth |
+| P0-015 Deterministic Evidence Gate | ✅ Implemented | gate receipt is not external verification |
 
----
-
-# 🔗 P0-009 — принятый инженерный предел
-
-Merged PR:
+The implementation profile remains:
 
 ```text
-PR:       #15
-Title:    P0-009: trusted commit boundary and full R0 integrity
-Merged:   YES
-Main SHA: 08c0e8b5b33aeaa283de4d9ece1f65669d09afd2
-```
-
-Реализовано:
-
-- mandatory `SchemaRegistry` admission для production writes;
-- canonical payload bytes shared by validation, hashing and persistence;
-- payload digest, previous hash и event hash allocated in the trusted transaction boundary;
-- transactional `stream_meta` schema v3;
-- full R0 verification of canonical payload bytes, schema, digest, chain, versions, batches and metadata;
-- explicit caller-supplied `VerificationBudget` for R0 and populated migration;
-- fail-closed populated v2 → v3 migration;
-- rollback on busy and unexpected `COMMIT` failures;
-- exact-one `OneOfSpec` semantics;
-- controlled cyclic-payload rejection.
-
-Финальная validation-only проверка exact PR head:
-
-```text
-PR head             → 6f8ff1663e161e554c8d4610f1692187c2129b45
-Run                  → 31023788916
-Python 3.13          → PASS
-Locked dependencies  → PASS
-Structural validator → PASS
-Full pytest          → PASS
-Compileall            → PASS
-```
-
-Workflow существовал только на отдельной validation-ветке и не был добавлен в
-PR #15 или `main`.
-
-```text
-R0 consistency ≠ epistemic truth
-Schema admission ≠ authority approval
-Hash continuity ≠ authorization
-Resource budget ≠ Canonical threshold
-Validation-only workflow ≠ P0-012
-R0 PASS ≠ R1 replay equivalence
+Python 3.13
+standard-library SQLite
+runtime dependencies: none
+network at import: forbidden
+database at import: forbidden
 ```
 
 ---
 
-# ✅ P0-010 — Atomic Same-Stream Redaction
+## 4. 🔐 P1-001 Capability Lease Resolution
 
-Merged PR:
+Owning documents:
+
+- `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`;
+- `docs/research/POST_P0_ROADMAP_V0.1.md`;
+- `docs/research/RESEARCH_INDEX.md`.
+
+Accepted docs boundary:
 
 ```text
-PR:                #19
-Final tested head: e141e31f60f7a9aee78642fe3fe3b44570ced733
-Merge SHA:         7f78dd2c7db45206f293f0278a51033474db4918
-Validation run:    31074885346
-Python:            CPython 3.13.14
-Full pytest:       144 passed
-Review:            Copilot 9/9 files, 0 new comments
+Status: FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
+AuthorityRef remains: (capability_lease_id, capability_revision)
+RegistrySnapshot: explicit caller-supplied input
+Lookup: exact live head; no history walk
+Admission: registry and record contracts fail closed
+Digest: canonical recomputation excluding content_digest
+Lifecycle: explicit revoked / expired / active ordering
+Matching: exact purpose, operation and typed scope
+Budgets: explicit and fail closed
+Fork / restore: inherited grants quarantined as UNVERIFIED
+ALLOW: executes nothing
 ```
 
-Реализовано:
+PR #58 corrected two contract ambiguities before acceptance:
 
-- immutable schema-v4 `redactions` evidence;
-- one-transaction payload removal, audit append, `stream_meta` update and linkage write;
-- preservation of the immutable target event row and original hash chain;
-- complete R0 verification of redaction row → target event → audit event → canonical audit payload;
-- fail-closed handling for forged, missing, cross-stream or inconsistent evidence;
-- caller-supplied `VerificationBudget` applied before linked audit-payload decoding;
-- authority-scoped semantic idempotency and deterministic rollback behavior;
-- focused concurrency and adversarial regression coverage.
+1. malformed registry structure now returns
+   `REGISTRY_CONTRACT_VIOLATION`;
+2. premature materialized `EXPIRED` state returns
+   `LEASE_CONTRACT_VIOLATION`, while ACTIVE at/after expiry returns
+   `LEASE_EXPIRED`.
 
-```text
-Governed redaction ≠ epistemic truth
-Payload removal ≠ event-provenance deletion
-SQLite deletion ≠ backup-wide erasure proof
-R0 PASS ≠ R1 replay equivalence
-P0-010 merged ≠ domain consent/privacy runtime
-```
+### Implementation gate
 
----
-
-
-# ✅ P0-011 — Adversarial Integrity Suite
-
-Merged PR:
+No registry or resolver code is authorized. A future implementation requires:
 
 ```text
-PR:                #21
-Final tested head: c21fe2503a31a73e1fe17e89dc92841ed35a65f3
-Merge SHA:         5640bd6ce650818c731e09391434ac12a0aec5e6
-Validation run:    31084297081
-Python:            CPython 3.13.14
-Full pytest:       163 passed
-Review:            two-pass exact-head audit; automated review quota unavailable
-```
-
-Реализовано:
-
-- 19 adversarial attack families across R0, governed redaction and idempotency receipts;
-- actual middle/tail event-deletion detection;
-- malformed, noncanonical and forged payload/chain proofs;
-- redacted-payload reappearance and linked-audit corruption proofs;
-- controlled `IdempotencyReceiptIntegrityError`;
-- canonical stored receipt shape and version-span validation;
-- receipt binding to command target, expected version and fingerprinted pending batch;
-- event existence, batch shape/order, semantics, payload digest, initiator and authority checks;
-- rollback without replacement writes on corrupted replay evidence.
-
-```text
-Adversarial R0 PASS ≠ epistemic truth
-Idempotency receipt verification ≠ full R0 verification
-Local unkeyed hash chain ≠ total-database authenticity
-P0-011 merged ≠ permanent CI
-P0-011 merged ≠ R1 replay
+FROZEN_DOCS on main
++ separate explicit owner GO in this status document
++ bounded pure implementation scope
++ new Tier A review on exact head
++ deterministic / adversarial / metamorphic tests
++ preserved P0 replay compatibility
++ no Action Gate, tools, M3 or domain-runtime expansion
 ```
 
 ---
 
+## 5. 🔬 Research boundary
 
-# ✅ P0-012 — Permanent GitHub Actions CI
-
-Merged PR and retained workflow:
+Active research documents may capture hypotheses and candidates but provide no
+runtime authority.
 
 ```text
-PR:                  #25
-Final tested head:   49d752285e4c1c3fdb59382e916e32e9862d5f89
-Merge SHA:           a536ea0afa526e86827f5ce9d5aa6fd5b7170fab
-PR workflow run:     31085542227
-Main push run:       31085727308
-Python:              CPython 3.13.14
-Full pytest:         163 passed on PR and main
-Token permissions:  contents: read · metadata: read
+Research presence ≠ roadmap priority
+Candidate captured ≠ candidate selected
+External research input ≠ integration
+Notion page ≠ implementation authority
 ```
 
-Реализовано:
+Current retained tracks include:
 
-- retained `.github/workflows/ci.yml` on pull requests and pushes to `main`;
-- explicit immutable PR-head or push-SHA checkout;
-- `persist-credentials: false`;
-- full commit-SHA pins for checkout and Python setup actions;
-- locked development-tool installation and `pip check`;
-- structural validator, complete pytest and compileall;
-- concurrency cancellation and bounded job timeout;
-- no secrets, artifacts, deployments or repository writes.
+- identity continuity and relational architecture;
+- Genesis Heritage / Human Atlas;
+- contextual cognition and epistemic context;
+- character and presence;
+- Native Kernel external research input;
+- storage and graph profile candidates;
+- biological, cybernetic and cognitive candidates.
+
+No PostgreSQL, Graphiti, LadybugDB or other future backend/profile is selected by
+research presence alone.
+
+---
+
+## 6. 🧱 Explicitly not implemented or authorized
 
 ```text
-Green CI ≠ epistemic truth
-Green CI ≠ authority approval
-P0-012 ≠ branch-protection enforcement
-GitHub-hosted runner ≠ production substrate
-P0-012 merged ≠ R1 deterministic replay
-P0-012 merged ≠ domain runtime authorization
+Capability Lease registry / resolver runtime
+Action Gate
+Tool Receipt runtime
+external tool execution
+M3 identity writes
+Character runtime
+Identity Continuity runtime
+Human Paths runtime
+Controlled Origin ingestion runtime
+Non-Projection runtime
+bounded self-development runtime
+LLM-dependent domain runtime
+production deployment readiness
+objective-truth authority
+consciousness or subjective-experience claims
 ```
 
 ---
 
-
-# ✅ P0-013 — R1 Deterministic Replay
-
-Merged PR and retained workflow evidence:
+## 7. 🧹 Completed governance cleanup
 
 ```text
-PR:                  #27
-Final tested head:   d5be2702f71a800c6d171a2c4cbea2cd449a2e64
-Merge SHA:           cd069e97200d6381806642a438ec2bc64b71571e
-PR workflow run:     31087648122
-Main push run:       31087777833
-Python:              CPython 3.13.14
-Full pytest:         186 passed on PR and main
-Review:              exact-head two-pass audit 4872928159
+PR #38 → closed without merge; superseded by merged PR #58
+PR #55 → closed without merge; historical ruleset probe
+Issue #42 → solo security post-hoc review completed
+Issue #52 → solo validator post-hoc review completed
+Issue #53 → solo storage-integrity post-hoc review completed
+Issue #39 → open only as future public/team transition gate
 ```
 
-Реализовано:
-
-- neutral versioned `ReplayReducer`, immutable `ReplaySnapshot`, `ReplayStateBudget` and `R1ReplayReport`;
-- bounded R0 prerequisite and domain-separated canonical projection-state hash;
-- one SQLite read snapshot across R0, event capture, metadata, payload reads and replay;
-- fail-closed refusal to certify outer uncommitted transactions;
-- exact verified-prefix version and tail-event-hash reporting under concurrent append;
-- snapshot reducer/stream/version/anchor/hash verification;
-- full-replay checkpoint equality before snapshot-tail replay;
-- replay-time canonical payload and immutable digest verification;
-- fail-closed state-affecting redaction boundary;
-- immutable reducer inputs and dual transition execution;
-- observable nondeterminism, input reuse, reducer exception and invalid-state rejection;
-- caller-supplied event/payload and projection-state resource budgets;
-- 23 replay-specific tests within the permanent 186-test suite.
-
-```text
-R1 PASS ≠ epistemic truth
-R1 PASS ≠ reducer semantic correctness
-R1 PASS ≠ hidden-side-effect proof
-R1 PASS ≠ snapshot persistence authorization
-P0-013 merged ≠ P0-014 belief lifecycle
-P0-013 merged ≠ domain runtime authorization
-```
-
-Automated external code review remained unavailable because the connected review
-quota was exhausted. Review `4872928159` records a second-pass exact-head audit
-without claiming independent external approval.
+Legacy PR #48 and issue #47 concern a real beliefs/evidence import-order bug.
+They must be handled through a clean current-main successor and Tier A review;
+they are not blocked merely by the absence of an independent reviewer.
 
 ---
 
-# ✅ P0-014 — Minimal Belief Lifecycle
+## 8. 🔗 Authoritative navigation
 
-```text
-PR:                  #29
-Final tested head:   fe3ae74d4ef92fc06ab1bee4def88066ded402a5
-Merge SHA:           3ff90816b8d095987a8adcdc2cb633c128877212
-PR workflow run:     31090898077
-Main push run:       31091006506
-Python:              CPython 3.13.14
-Full pytest:         208 passed on PR and main
-Review:              exact-head audit 4873291547
-```
-
-Реализовано:
-
-- strict belief-domain and non-state decision schemas;
-- pure create, evidence-attach, contradiction and revision decisions;
-- immutable revision, evidence and contradiction history;
-- shared lifecycle/reducer status policy and terminal supersession;
-- fail-closed direct-event policy enforcement;
-- explicit separation of stream CAS version and belief revision;
-- R1-compatible projection where audit events do not mutate domain state;
-- `supported` and `contradicted` reserved for P0-015.
-
-```text
-Belief projection ≠ truth
-AuthorityRef ≠ validated capability lease
-P0-014 merged ≠ domain runtime authorization
-```
+- Canon: `docs/MENTAURY_CANON_V0.1.md`
+- Governance: `docs/GOVERNANCE.md`
+- Solo mode: `docs/governance/solo-maintainer-mode.md`
+- Tier A checklist: `docs/governance/solo-maintainer-review-checklist.md`
+- Environment: `docs/ENVIRONMENT_MANIFEST.md`
+- Quick Reference: `docs/MENTAURY_QUICK_REFERENCE.md`
+- Project history: `docs/PROJECT_HISTORY.md`
+- Research Index: `docs/research/RESEARCH_INDEX.md`
+- P1-001 contract: `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
 
 ---
 
-# ✅ P0-015 — Deterministic Evidence Gate
+## 9. 🏁 Current formula
 
 ```text
-PR:                  #30
-Final tested head:   71acd7410c5080e4ac3245b53534b512b871bae5
-Merge SHA:           d6a07336b5167c5fc1cc8e2f05413a7284bea0ec
-Audit hardening run: 31093091082
-PR workflow run:     31093258104
-Main push run:       31093382362
-Python:              CPython 3.13.14
-Full pytest:         232 passed on PR and main
-Review:              exact-head two-pass audit 4873644214
-```
-
-Реализовано:
-
-- immutable evidence records and closed approved-policy registry;
-- deterministic content-addressed receipts bound to belief, revision, statement, policy, time and complete evidence set;
-- complete record coverage, freshness, revocation, quality and 256-record budget;
-- content/provenance uniqueness and source-group independence controls;
-- fail-closed conflict when qualifying evidence exists on both sides;
-- shipped policy limited to classified contextual claims;
-- pure gate decisions and non-state rejection audits;
-- reducer v2 that binds stream/time/state semantics and recomputes the full receipt during R1 replay;
-- adversarial receipt, policy, record, ordering, time, stream and status tests.
-
-```text
-Evidence Gate receipt ≠ objective truth
-Evidence record ≠ externally authenticated source
-P0-015 merged ≠ M3 update, autonomous learning or runtime authority
-```
-
----
-
-# ✅ P0 implementation line complete
-
-```text
-P0-001…P0-015 → IMPLEMENTED, MERGED AND RETAINED-CI VALIDATED
-```
-
-This closes the current P0 implementation plan. It does not authorize a
-long-running agent, domain service, M3 mutation path, tool execution or external
-action boundary.
-
----
-
-# ✅ Post-P0-015 audit hardening — PR #32
-
-Merged PR:
-
-```text
-PR:                  #32
-Merge SHA:           e15864e7837b2c12e7574b55678340c25e15c003
-Main push run:       31150100906
-Python:              CPython 3.13.14
-Full pytest:         277 passed on main
-Scope:               hardening + derived-doc sync; no new P0 milestone
-```
-
-Реализовано после внешнего аудита линии P0-014/P0-015:
-
-- lifecycle/reducer invariant: `BeliefLifecycle.decide()` now rejects
-  `ATTACH_EVIDENCE` / `REGISTER_CONTRADICTION` / `REVISE_BELIEF` on Evidence
-  Gate-owned (`supported` / `contradicted`) beliefs via
-  `BeliefRejectionCode.EVIDENCE_GATE_OWNED_BELIEF`, matching
-  `BeliefReducer.apply()`;
-- structural `StringSpec.pattern` + shared `sha256_digest_spec()` for all
-  Evidence Gate digest fields at schema-admission boundary;
-- derived-status doc freshness gate (`scripts/check_doc_freshness.py`) wired
-  into permanent CI and `make check`;
-- CI job `timeout-minutes` raised to 30 after a GitHub Actions platform outage
-  left jobs queued with `runner_id=0` and cancelled before any step ran;
-- governance findings initially recorded as recommendations pending owner
-  decision (later adopted as policy in PR #34).
-
-```text
-Audit hardening merged ≠ new P0 milestone
-Green post-merge CI ≠ POST-P0 roadmap authorization
-Governance recommendations ≠ adopted policy
-```
-
----
-
-# 🚫 Domain runtime не авторизован
-
-Пока отсутствуют:
-
-- M0/M1/M2/M3 domain runtime;
-- belief lifecycle runtime;
-- Identity Continuity runtime;
-- relationship and commitment runtime;
-- Controlled Origin ingestion;
-- Genesis Heritage and Human Paths Atlas runtime;
-- Governed Synthesis engine;
-- Capability Lease resolver;
-- Tool Receipt / Action Gate runtime;
-- Character Engine;
-- Curiosity controller;
-- Titan, Crystal или Native Kernel runtime integration;
-- LLM integration и autonomous goals.
-
-Документация этих областей существует как `DOCS_ONLY`, `NON_CANONICAL` или
-`PRESENTATION_ONLY` research. Она не является работающим domain runtime.
-
----
-
-# 🗺️ Контролируемая последовательность
-
-```text
-P0-001…P0-015 ✅ merged and validated in main
-→ define a separate post-P0 roadmap before additional implementation
-→ preserve DOMAIN_RUNTIME_NOT_AUTHORIZED
-```
-
-# 🔍 Governance gap identified by audit (2026-08-06)
-
-Every merged PR from P0-001 through P0-015 was authored, self-reviewed and
-merged by the same operator account (`velantrian`). Starting with PR #27,
-review text has honestly disclosed this: "This is a same-operator audit, not
-an independent third-party approval" (PR #30), and "Automated external code
-review remained unavailable because the connected review quota was
-exhausted" (PR #27, #29). This transparency is good, but the gap itself is
-unresolved, and it already produced a real defect: a P0-014/P0-015 boundary
-bug where `BeliefLifecycle.decide()` accepted `ATTACH_EVIDENCE` and
-`REGISTER_CONTRADICTION` commands against an already Evidence Gate-owned
-(`supported`/`contradicted`) belief, while `BeliefReducer.apply()` correctly
-rejected the same event — a decision/reducer boundary mismatch that the
-same-operator review across two adjacent same-day PRs did not catch. Fixed
-under this audit with a matching lifecycle-side rejection and a whole-status
-matrix regression test; see the belief lifecycle module history for detail.
-
-```text
-Same-operator review ≠ independent third-party approval
-Self-audit passing ≠ absence of cross-PR boundary regressions
-Documented gap ≠ closed gap
-```
-
-# ✅ Owner decisions (2026-08-07) — governance + post-P0 path
-
-Repository owner explicitly accepted the 2026-08-06 audit recommendations
-and authorized the docs-only post-P0 path below. This section is now
-**adopted project policy**, not a pending proposal.
-
-## A. Independent review policy (adopted → risk-tier remediation)
-
-### A.0 Historical path-scoped rule (2026-08-07)
-
-The originally adopted rule required merge-blocking independent review for:
-
-```text
-src/mentaury/beliefs/**
-src/mentaury/evidence/**
-src/mentaury/replay/**
-src/mentaury/**/authority/**          # if/when created
-src/mentaury/**/lease/**              # if/when created
-docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md
-docs/research/POST_P0_ROADMAP_V0.1.md
-```
-
-```text
-That rule was path-scoped, not universal.
-```
-
-### A.1 Audit reconciliation (2026-08-08)
-
-Independent audit of merges #45 / #46 / #50 / #51 established:
-
-```text
-Canonical policy violation: NOT ESTABLISHED for #45/#46/#50/#51
-Process inconsistency:      CONFIRMED for #45/#46
-                            (PR-local STOP broader than canonical path rule)
-Review coverage gap:        CONFIRMED for #50/#51
-                            (#50 validators/freshness; #51 storage core)
-Technical enforcement gap:  CONFIRMED repository-wide
-                            (branch protection disabled)
-```
-
-Do **not** claim all four PRs formally violated the old path rule.
-Do **not** claim governance was fully obeyed.
-Do **not** treat PR-local STOP language as meaningless.
-
-Post-hoc review issues:
-- #42 → PR #40 (deadline 2026-08-14)
-- #52 → PR #50
-- #53 → PR #51
-
-### A.2 Canonical risk-tier policy (authoritative)
-
-Authoritative merge-gate policy:
-
-[`docs/GOVERNANCE.md`](GOVERNANCE.md)
-
-```text
-Tier A → independent APPROVED required
-Tier B → owner review + green CI
-Tier C → editorial/research review may suffice
-Highest-risk file/effect classifies the whole PR
-PR-local status may explain but not silently broaden Canon
-```
-
-Resolved owner answers that remain in force:
-
-```text
-Review mode:              merge-blocking for Tier A
-Second AI reviewer:       may count only if independently operated,
-                          exact-head, GitHub-APPROVED, auditable;
-                          otherwise AI assessment ≠ independent approval
-Fallback if unavailable:  do not merge Tier A changes
-Emergency security fix:   allowed with public disclosure in the PR
-                          and mandatory post-hoc independent review
-                          within 7 days
-Who may lift / amend:     repository owner (velantrian) only, via
-                          explicit CURRENT_STATUS + GOVERNANCE amendment
-```
-
-```text
-Adopted docs policy ≠ GitHub branch-protection already configured
-Docs policy MUST still be enforced in review practice until
-repository rulesets mirror it (issue #39)
-```
-
-## B. Post-P0 Roadmap v0.1 (adopted, docs-only)
-
-Authoritative roadmap:
-
-[`docs/research/POST_P0_ROADMAP_V0.1.md`](research/POST_P0_ROADMAP_V0.1.md)
-
-```text
-POST-P0 ROADMAP REVIEW → CLOSED by adoption of v0.1
-First bounded milestone → P1-001 Capability Lease Resolution (docs-first)
-Domain runtime          → still NOT AUTHORIZED
-```
-
-## C. Capability Lease resolution notes (docs-only, NOT IMPLEMENTED)
-
-Authoritative notes:
-
-[`docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-
-```text
-P1-001 status:     DOCS_ONLY · NOT IMPLEMENTED
-Freshness markers: remain P0-001…P0-015_IMPLEMENTED_IN_MAIN
-Resolver in src/:  NOT AUTHORIZED until separate owner GO after
-                   docs freeze + independent review
-```
-
-As implemented through P0-015 / audit hardening, `capability_lease_id` is
-still only recorded and equality-checked. These notes define how a future
-fail-closed resolver MUST behave; they do not make `AuthorityRef` a
-validated permission grant.
-
-### Merge evidence — PR #34
-
-```text
-PR:                  #34
-Merge SHA:           0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
-Main push run:       31153454503
-Python:              CPython 3.13.14
-Full pytest:         277 passed on main
-Scope:               docs/policy only; no src/ lease resolver
-Copilot review:      4 consistency nits addressed before merge
-```
-
-```text
-Owner path merged ≠ P1-001 Implemented
-Docs adopted ≠ capability lease resolver authorized
-Green CI ≠ domain runtime GO
-```
-
----
-
-# 🔐 Security maintenance — PR #40 (merged)
-
-```text
-PR:                  #40 · MERGED
-Change:              requirements-dev.lock · pytest 9.0.2 → 9.1.1
-PR head:             7591461a299dac68681ad78fac2ef53a6526a9d8
-Merge SHA:           e55b83bc150f06598dd33c05cd73c158ff8e625c
-PR exact-head CI:    31212821469 · success · 277 passed
-Main CI after merge: 31213079708 · success · 277 passed
-Runtime dependencies: EMPTY (unchanged)
-Post-hoc review:     issue #42 · OPEN · due 2026-08-14
-```
-
-```text
-Security pin upgraded ≠ independent post-hoc review complete
-Cursor/bot CI verification ≠ distinct reviewer approval
-Emergency carve-out ≠ relaxation of PR #38 review policy
-```
-
----
-
-# 🧬 Native Kernel external research input — PR #43 (merged)
-
-```text
-PR:             #43 · MERGED
-Merge SHA:      1d3af6f0946e596529b9d40315a83cd3573918db
-Main CI:        31214550093 · success · 277 passed
-File:           docs/research/NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md
-Disposition:    PRESERVED · DOCS_ONLY · NON_CANONICAL · RESEARCH_NOTES
-Promotion:      NOT PROMOTED
-Runtime:        NONE
-Truth:          NONE
-Capability:     NONE
-P1-001:         PRIORITY UNCHANGED
-```
-
-```text
-External research input preserved
-≠ Native Kernel integration
-≠ shared runtime
-≠ authority transfer
-≠ automatic M2/M3 promotion
-```
-
----
-
-# 🧹 Branch cleanup — issue #41 (completed)
-
-```text
-Issue:     #41 · CLOSED · completed
-Deleted:   agent/p0-012-permanent-ci
-           claude/p0-redaction-integrity-kdaps9
-           validation/p0-009-1a4e4af
-           validation/p0-009-a5327e6
-           validation/p0-009-final-6f8ff16
-           validation/p0-010-linkage-f6f341
-           claude/audit-relationships-6866cw
-Remaining: main
-           agent/research-index-p1-001-hardening   # open PR #38
-```
-
-Claude preserve-first branch deleted only after PR #43 merge (condition A).
-
----
-
-# 📂 Open docs hardening — PR #38 (not merged)
-
-```text
-PR:                   #38 · OPEN · MERGEABLE
-Branch:               agent/research-index-p1-001-hardening
-Exact head:           3dd8859d52782576e811f46888d7c8b53df74fad
-Exact-head CI:        31214573368 · success · 277 passed
-Scope:                docs/research only (Research Index, lease notes, roadmap)
-Qualifying APPROVED:  0
-Blocker:              distinct trusted GitHub identity required
-Ops issue:            #39 · branch protection still not enforced
-```
-
-```text
-OPEN PR ≠ implemented in main
-self-review ≠ independent approval
-Cursor / Copilot / Codex COMMENT ≠ APPROVED review
-COMMENTED review ≠ APPROVED review
-P1-001 remains DOCS_ONLY · NOT IMPLEMENTED until merge + owner GO for src/
-```
-
----
-
-# 🌱 Captured future profile candidates (docs-only)
-
-Authoritative capture note:
-
-[`docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md)
-
-```text
-Current reference profile:            Python + SQLite
-PostgreSQL:                           CAPTURED · NOT SELECTED · future storage profile candidate
-Temporal context-graph framework
-candidate (Graphiti):                 CAPTURED · NOT SELECTED
-Embedded graph database/index
-candidate (LadybugDB):                CAPTURED · NOT SELECTED
-Selection:                            NOT MADE
-Runtime wiring:                       FORBIDDEN in this checkpoint
-P1-001 priority:                      UNCHANGED
-```
-
-```text
-Candidate named ≠ profile adopted
-Powerful database ≠ Canon requirement
-Graph product mentioned ≠ relationship runtime authorized
-```
-
----
-
-# 🏁 Следующее действие
-
-```text
-P1-001 Capability Lease Resolution
-Status:              DOCS_ONLY · NOT IMPLEMENTED
-Baseline docs:       merged in main via PR #34
-Hardening PR:        #38 OPEN · head 3dd8859… · awaiting qualifying APPROVED
-Roadmap:             POST_P0_ROADMAP_V0.1 adopted
-Next concrete step:  independent exact-head review of PR #38, then docs freeze
-Ops follow-up:       issue #39 — add second trusted reviewer + branch protection
-Security follow-up:  issue #42 — post-hoc review of PR #40 by 2026-08-14
-Forbidden until GO:  src/ lease registry, resolve(), Action Gate, domain runtime,
-                     PostgreSQL/Graph runtime wiring, Native Kernel integration
+P0-001…P0-015 implemented
++ permanent CI
++ active solo-main ruleset
++ honest two-pass Tier A review
++ P1-001 docs frozen
+
+≠ P1-001 runtime implemented
+≠ domain runtime authorized
+≠ production ready
+≠ independent human assurance
 ```

@@ -1,114 +1,232 @@
-# 🧱 P0 Environment Manifest
+# 🧱 Mentaury Environment Manifest
 
 ```text
 Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Verified implementation baseline:
-                    1d3af6f0946e596529b9d40315a83cd3573918db
-Environment verified against:
-                    main@1d3af6f0946e596529b9d40315a83cd3573918db
-Status synchronization provenance:
-                    PR #45
-Live repository head and PR state:
-                    resolved from GitHub, not embedded in this document
-Profile:            Python 3.13 + standard-library SQLite 3.46.1
+Updated:            2026-08-09
+Authority:          docs/CURRENT_STATUS.md + verified GitHub main
+Profile:            Python 3.13 + standard-library SQLite
 Minimum SQLite:     3.37.0
 Journal mode:       WAL for file databases
 Storage schema:     v4
-Dev toolchain pin:  pytest==9.1.1 (requirements-dev.lock; PR #40)
+Dev toolchain pin:  pytest==9.1.1
 Runtime deps:       NONE
 Network at import:  FORBIDDEN
 Database at import: FORBIDDEN
 Domain runtime:     FORBIDDEN
-Permanent CI:       PRESENT AND VALIDATED (.github/workflows/ci.yml)
+Permanent CI:       PRESENT AND VALIDATED
+Governance mode:    SOLO_MAINTAINER
 ```
 
-```text
-Environment Manifest records the verified implementation baseline and
-status-sync provenance. It does not embed a mutable live main tip or
-candidate CI SHA.
-```
+This manifest records stable environment and implementation boundaries. It does
+not embed a mutable current `main` tip or open-PR head.
 
-This manifest historically documented only the P0-009 baseline. It is now
-kept in sync with `docs/CURRENT_STATUS.md`, the authoritative source for
-per-milestone PR numbers, merge SHAs and validation evidence; see that file
-for P0-010…P0-015 detail.
+---
 
-## Accepted baseline in `main`
+## 1. ✅ Accepted implementation line
 
 ```text
 P0-001 neutral skeleton
 P0-002 typed envelopes
 P0-003 canonical JSON
-P0-004 immutable event/external payload storage
+P0-004 immutable event and external-payload storage
 P0-005 fail-closed structural validation
 P0-006 atomic multi-event batch
 P0-007 semantic idempotency
 P0-008 controlled SQLite concurrency
-P0-009 trusted commit boundary + bounded R0 integrity
-P0-010 atomic same-stream redaction (storage schema v4)
+P0-009 trusted commit + bounded R0 integrity
+P0-010 atomic same-stream redaction
 P0-011 adversarial integrity suite
 P0-012 permanent read-only GitHub Actions CI
 P0-013 R1 deterministic replay
 P0-014 minimal evidence-referenced belief lifecycle
 P0-015 deterministic Evidence Gate
-post-P0-015 audit hardening (PR #32; not a new P0 milestone)
-Post-P0 Roadmap v0.1 adopted (docs-only; PR #34; not a P1 implementation)
-P1-001 Capability Lease Resolution notes (docs-only; NOT IMPLEMENTED; PR #34)
-security pin pytest 9.1.1 (PR #40; post-hoc review issue #42 still open)
-Native Kernel external research input preserved (docs-only; PR #43; NOT PROMOTED)
-storage/graph future profile candidates captured (docs-only; NOT SELECTED)
 ```
 
-## P0-009 implementation boundary
-
-Merged PR #15 provides:
-
-- storage schema v3 with `stream_meta(current_version, last_event_hash, event_count)`;
-- mandatory `SchemaRegistry` admission for production writes;
-- canonical payload bytes shared by validation, hashing, and persistence;
-- payload digest and event hash allocation inside the transactional write boundary;
-- previous-hash allocation from the locked stream tail rather than caller input;
-- single-event batch invariants for `append_one`;
-- sequential sealing of atomic and idempotent batches under one write lock;
-- fail-closed verification before populated v2 → v3 migration;
-- explicit caller-supplied `VerificationBudget` for populated migration and R0;
-- event-count, per-payload and cumulative payload byte limits;
-- R0 verification of canonical payload bytes, schema, digest, chain, batches, versions, budgets and stream metadata.
+Post-P0 accepted documentation:
 
 ```text
-Caller hash fields ≠ committed hash fields
-Post-write verification ≠ trusted commit validation
-No supplied budget ≠ permission to scan without limits
-Test/deployment budget ≠ Canon
-Budget exhaustion ≠ ledger corruption
-R0 consistency ≠ truth
-Hash chain ≠ authority
-stream_meta ≠ source of truth
-Implemented P0-009 ≠ domain runtime
+Post-P0 Roadmap → adopted docs-only
+P1-001 Capability Lease Resolution → FROZEN_DOCS · NOT IMPLEMENTED
+Research Index → navigation-only · non-canonical
+Native Kernel input → preserved · not integrated
+Storage/graph profiles → candidates captured · none selected
+```
+
+---
+
+## 2. 🐍 Python environment
+
+```text
+Interpreter target: Python 3.13
+Package layout:     src/mentaury
+Runtime packages:   standard library only
+Development tool:   pytest==9.1.1
 ```
 
 Supported validation commands:
 
 ```bash
 python3 scripts/validate.py
+python3 scripts/check_doc_freshness.py
 PYTHONPATH=src python3 -m pytest
 python3 -m compileall -q src tests scripts
 ```
 
-Final validation-only run `31023788916` passed Python setup, locked dependency
-installation, structural validation, full pytest and compileall against exact PR
-head `6f8ff1663e161e554c8d4610f1692187c2129b45` for P0-009.
+The permanent workflow runs the required job:
 
-That temporary workflow was not part of PR #15 or `main`. Permanent CI was
-merged separately in P0-012 (PR #25, `.github/workflows/ci.yml`) and now runs
-the same three checks on every pull request and push to `main`.
+```text
+Python 3.13 · validator · pytest · compileall
+```
 
-P0-010 added governed atomic same-stream redaction. P0-014/P0-015 added a
-minimal, evidence-gated belief lifecycle. PR #32 closed a post-merge
-lifecycle/reducer boundary gap, hardened digest schema admission, and added
-a derived-doc freshness CI gate. No identity, relationship, Character,
-Curiosity or Exo-Cortex runtime is present, and none of the P0 milestones
-authorize one. PostgreSQL, the temporal context-graph framework candidate
-Graphiti, and the embedded graph database/index candidate LadybugDB remain
-captured future profile candidates only, each with distinct roles; see
-`docs/research/STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`.
+Green CI proves only that the checked revision passed the repository's current
+structural, test and compilation gates. It does not prove semantic completeness,
+production readiness or independent assurance.
+
+---
+
+## 3. 🗄️ SQLite profile
+
+```text
+Backend:             sqlite3 from the Python standard library
+Minimum version:     3.37.0
+Accepted profile:    SQLite
+File journal mode:   WAL
+Foreign keys:        enabled where required by store setup
+Storage schema:      v4
+```
+
+Current implementation uses SQLite as the first profile. Research mentions of
+PostgreSQL, Graphiti, LadybugDB or other systems are not backend selection and
+do not authorize runtime wiring.
+
+---
+
+## 4. 🔒 Import and dependency boundaries
+
+At module import:
+
+```text
+network access   → forbidden
+database opening → forbidden
+filesystem write → forbidden unless an explicit operation requests it
+ambient authority → forbidden
+```
+
+Runtime dependencies remain empty. Development dependencies are locked
+separately and must not be interpreted as product runtime requirements.
+
+---
+
+## 5. 🛡️ Integrity boundary
+
+Implemented storage and replay capabilities include:
+
+- canonical payload bytes;
+- payload digests and event hashes;
+- previous-hash allocation from the locked stream tail;
+- stream version and event-count tracking;
+- atomic multi-event batches;
+- event-aware idempotency;
+- same-stream redaction events;
+- R0 bounded integrity verification;
+- R1 deterministic full replay and verified snapshot-tail equivalence;
+- explicit caller-supplied verification and replay budgets.
+
+```text
+hash chain ≠ truth
+stream metadata ≠ independent source of truth
+successful replay ≠ authorization
+budget exhaustion ≠ ledger corruption
+redaction ≠ deletion of event provenance
+```
+
+---
+
+## 6. 🧠 Belief and evidence boundary
+
+Implemented P0 contracts include:
+
+- minimal belief lifecycle;
+- evidence references;
+- deterministic Evidence Gate;
+- policy-bound receipts;
+- fail-closed conflict handling.
+
+They do not authorize:
+
+```text
+objective truth claims
+identity runtime
+Character runtime
+M3 writes
+external actions
+```
+
+Legacy PR #48 / issue #47 track an import-order and contradiction-path cleanup.
+That work requires a current-main successor and Tier A review before merge.
+
+---
+
+## 7. 🔐 P1-001 environment boundary
+
+The P1-001 Capability Lease contract is frozen as documentation only.
+
+```text
+registry implementation: NOT PRESENT
+resolver implementation: NOT PRESENT
+network registry lookup: FORBIDDEN BY CONTRACT
+ambient wall clock: FORBIDDEN BY CONTRACT
+Action Gate: NOT AUTHORIZED
+Tool execution: NOT AUTHORIZED
+M3 write: FORBIDDEN
+```
+
+A future implementation requires separate owner authorization in
+`docs/CURRENT_STATUS.md`; this manifest does not grant it.
+
+---
+
+## 8. 🧑‍💻 Governance environment
+
+The active ruleset requires PRs, current branches, the required CI check,
+resolved conversations, deletion protection and force-push protection.
+
+```text
+required approvals: 0
+reason: explicit solo-maintainer phase
+independent human review claimed: no
+Tier A review: correctness + adversarial passes on exact head
+```
+
+When a genuine independent reviewer/team exists, issue #39 defines the future
+transition. Until then, technical work proceeds under documented solo review
+without fabricated approval.
+
+---
+
+## 9. 🚫 Explicit non-environment claims
+
+This manifest does not claim:
+
+```text
+production deployment readiness
+distributed-database equivalence
+cloud service availability
+mobile runtime readiness
+LLM integration
+identity or relationship runtime
+Action Gate or external tools
+independent certification
+```
+
+---
+
+## 10. 🔗 References
+
+- `docs/CURRENT_STATUS.md`
+- `docs/GOVERNANCE.md`
+- `docs/governance/solo-maintainer-mode.md`
+- `docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`
+- `.github/workflows/ci.yml`
+- `requirements-dev.lock`
+- `pyproject.toml`
