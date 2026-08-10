@@ -10,6 +10,8 @@ Completed execution milestone:P1-002 Privacy Reconciliation Classifier · IMPLEM
 Completed execution milestone:P1-003 Pure Governed Constraint Composer · IMPLEMENTED_BOUNDED
 Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
 Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
+P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:              CONSUMED
 P1-003 implementation:         IMPLEMENTED_BOUNDED
 P1-003 runtime assignment:     NOT_ASSIGNED
@@ -40,6 +42,8 @@ ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 PASS_ATTRIBUTED ≠ truth / identity / relationship / action authority
 P1-003 implemented bounded ≠ runtime activation
+P1-003 implemented bounded ≠ Action Gate
+P1-003 implemented bounded ≠ retrieval/tool authority
 P1-003 Owner GO consumed ≠ reusable authority
 Non-Projection readiness ≠ P1-004 assignment
 Non-Projection readiness ≠ Owner GO
@@ -94,40 +98,9 @@ PR #67
 → main CI 31332793742 · success · 461 passed
 ```
 
-### P1-003 Pure Governed Constraint Composer
-
-```text
-P1_003_OWNER_GO           = CONSUMED
-P1_003_IMPLEMENTATION     = IMPLEMENTED_BOUNDED
-P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
-NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
-```
-
-- [Candidate selection](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
-- [Frozen contract](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
-- [Authorization/completion receipt](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
-
-Verified implementation:
-
-```text
-Implementation PR:         #79
-Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
-Exact-head CI:             31394829487 · success · 552 passed
-Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
-Resulting-main CI:         31395291622 · success · 552 passed
-Tier A review:             4897445251
-Correctness:               PASS
-Adversarial:               PASS
-Authorization boundary:    PRESERVED
-```
-
-The implementation performs pure same-attempt composition only. It does not
-activate a runtime, retrieve data, execute tools, pass an Action Gate, mutate
-identity/relationship/M3 state or deploy anything.
-
 ---
 
-## 2. ✅ Completed docs-only readiness checkpoints
+## 2. ✅ Completed docs-only readiness checkpoint
 
 ### Cross-Gate Binding & Composition Readiness
 
@@ -149,7 +122,117 @@ The architecture retains original source inputs in one immutable canonical
 context, evaluates both existing bounded gates in one attempt, binds relevant
 revisions/versions and computes its own fingerprints.
 
-### Non-Projection Gate Contract Readiness
+---
+
+## 3. ✅ P1-003 design checkpoints
+
+### Candidate selection
+
+- [Candidate selection & authorization boundary](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
+
+```text
+P1_003_CANDIDATE_SELECTION = SELECTED
+P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
+```
+
+### Frozen contract
+
+- [Frozen Pure Composer contract](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+
+```text
+P1_003_CONTRACT           = FROZEN_DOCS
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+```
+
+The frozen implementation surface includes the exact immutable context/budget,
+one public API, P1-001 `v0.2`, P1-002 `v0.1`, canonical JSON v1, two targeted
+SHA-256 fingerprints, exact three-state result semantics, T1–T12, M1–M10, full
+`CGC-*` matrix, no-hidden-I/O proof and the compatibility stop.
+
+---
+
+## 4. ✅ P1-003 Owner GO sequence
+
+- [Authorization/completion receipt](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
+- [Current status](../CURRENT_STATUS.md)
+- [Roadmap](POST_P0_ROADMAP_V0.1.md)
+
+### Owner GO — PR #77
+
+```text
+Reviewed head:   79fcedc8fe7dee64acad8dfffd8c8a17122ae97c
+Exact-head CI:   31389769422 · success · 482 passed
+Merge/main:      20a2073ef70eaa0e18ad7e8cf87b728d28617598
+Main CI:         31390149526 · success · 482 passed
+Review:          4896914677
+```
+
+### Receipt reconciliation — PR #78
+
+```text
+Reviewed head:   0f52e683a03fe9fe27428e7effe0349fd496bd26
+Exact-head CI:   31393515732 · success · 482 passed
+Merge/main:      813944b8083406da2ce95948bfb722158493fdb4
+Main CI:         31393836549 · success
+Review:          4897295575
+```
+
+The reconciled full frozen matrix is:
+
+```text
+CGC-CTX-001…014
+CGC-FP-001…010
+CGC-DEC-001…014
+CGC-T-001…012
+CGC-M-001…010
+CGC-PURE-001…008
+```
+
+---
+
+## 5. ✅ P1-003 bounded implementation checkpoint
+
+PR #79 consumed the one-time bounded Owner GO.
+
+```text
+P1_003_OWNER_GO           = CONSUMED
+P1_003_IMPLEMENTATION     = IMPLEMENTED_BOUNDED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+Verified evidence:
+
+```text
+Implementation PR:         #79
+Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
+Exact-head CI:             31394829487 · success · 552 passed
+Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
+Resulting-main CI:         31395291622 · success · 552 passed
+Tier A review:             4897445251
+Correctness:               PASS
+Adversarial:               PASS
+Authorization boundary:    PRESERVED
+Review threads:            0
+Independent human review:  NO
+```
+
+Exact source package:
+
+```text
+src/mentaury/composition/__init__.py
+src/mentaury/composition/governed_constraints/__init__.py
+src/mentaury/composition/governed_constraints/contracts.py
+src/mentaury/composition/governed_constraints/composer.py
+```
+
+The implementation performs pure same-attempt composition only. It does not
+activate a runtime, retrieve data, execute tools, pass an Action Gate, mutate
+identity/relationship/M3 state or deploy anything.
+
+---
+
+## 6. ✅ Non-Projection Gate Contract Readiness
 
 - [Owning post-P1-003 selection](POST_P1_003_MILESTONE_SELECTION.md)
 - [Frozen readiness contract](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
@@ -198,7 +281,7 @@ authority.
 
 ---
 
-## 3. 🧭 Document registry
+## 7. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
@@ -207,7 +290,7 @@ authority.
 | [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | P1-001 receipt | OWNER_GO_CONSUMED | complete |
 | [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) | P1-002 contract | FROZEN_DOCS | implemented bounded |
 | [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md) | P1-002 receipt | OWNER_GO_CONSUMED | complete |
-| [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md) | post-P1-002 selection | COMPLETE | no runtime selected |
+| [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md) | post-P1 selection | COMPLETE | no runtime selected |
 | [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md) | cross-gate readiness | FROZEN_DOCS · READY | architecture only |
 | [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md) | P1-003 candidate | FROZEN_DOCS · SELECTED_CANDIDATE | historical design checkpoint |
 | [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md) | P1-003 contract | FROZEN_DOCS | implemented bounded against exact contract |
@@ -222,7 +305,7 @@ authority.
 
 ---
 
-## 4. 🌱 Research backlog
+## 8. 🌱 Research backlog
 
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
@@ -245,7 +328,7 @@ separate candidate decision; it creates no implementation or runtime authority.
 
 ---
 
-## 5. 🚪 Promotion gate
+## 9. 🚪 Promotion gate
 
 ```text
 problem demonstrated
@@ -269,7 +352,7 @@ genuine independent review.
 
 ---
 
-## 6. 🔗 Boundaries
+## 10. 🔗 Boundaries
 
 ```text
 Mentaury research ≠ external project authority
@@ -286,7 +369,7 @@ authority.
 
 ---
 
-## 7. 🏁 Rule
+## 11. 🏁 Rule
 
 ```text
 Keep ideas.
