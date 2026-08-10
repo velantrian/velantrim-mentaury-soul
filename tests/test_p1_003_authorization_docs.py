@@ -29,7 +29,7 @@ def test_frozen_contract_remains_historical_no_go_freeze_receipt() -> None:
     assert "Implementation authorization:   NONE" in CONTRACT
     assert "CONTRACT FROZEN ≠ OWNER GO" in CONTRACT
     assert "P1_003_OWNER_GO_CONSUMED" not in CONTRACT
-    assert "IMPLEMENTED_BOUNDED" not in CONTRACT
+    assert "P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_IMPLEMENTED_BOUNDED" not in CONTRACT
 
 
 def test_receipt_records_consumed_bounded_completion() -> None:
@@ -107,7 +107,18 @@ def test_full_frozen_matrix_remains_required_and_completed() -> None:
         "CGC-PURE-001…008",
     ):
         assert family in AUTH
-        assert family in CONTRACT
+
+    for prefix, last in (
+        ("CGC-CTX", 14),
+        ("CGC-FP", 10),
+        ("CGC-DEC", 14),
+        ("CGC-PURE", 8),
+    ):
+        for number in range(1, last + 1):
+            assert f"{prefix}-{number:03d}" in CONTRACT
+
+    assert "CGC-T-001 … CGC-T-012" in CONTRACT
+    assert "CGC-M-001 … CGC-M-010" in CONTRACT
 
 
 def test_authorization_boundary_remains_non_executing() -> None:
