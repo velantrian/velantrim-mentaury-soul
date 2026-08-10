@@ -108,12 +108,31 @@ Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Post-merge CI:          31323138053 · success
 ```
 
+Implemented P1-001 source/evidence slice remains explicit:
+
+```text
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
+```
+
 P1-001 remains a pure caller-supplied resolver. `ALLOW` executes nothing and
-contains no reusable capability material.
+contains no reusable capability material. Registry persistence and any registry
+service remain outside the consumed P1-001 authorization.
 
 ---
 
-## 4. 🔐 P1-002 retained evidence
+## 4. 🔐 P1-002 Privacy Reconciliation Classifier — retained evidence
+
+Frozen contract:
+
+`docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
+
+Authorization/completion receipt:
+
+`docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 
 ```text
 Contract PR:            #65
@@ -286,6 +305,8 @@ exact double-positive + valid bind  → ELIGIBLE_FOR_NEXT_GATE
 
 ```text
 privacy registry persistence
+capability registry persistence
+capability registry service
 backup/fork discovery or scanning
 content deletion/redaction/quarantine/rebuild execution
 retrieval execution
@@ -356,6 +377,7 @@ preflight, Tier A evidence and green resulting-main CI.
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
 - P1-001 receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
+- P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-003 authorization/completion receipt: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-003 frozen composer contract: `docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`
@@ -370,7 +392,7 @@ preflight, Tier A evidence and green resulting-main CI.
 ```text
 P0 foundation implemented
 + P1-001 pure capability resolver implemented bounded
-+ P1-002 pure privacy classifier implemented bounded
++ P1-002 Privacy Reconciliation Classifier implemented bounded
 + cross-gate binding/readiness frozen
 + P1-003 pure governed constraint composer implemented bounded
 + all P1-003 frozen CGC families validated
