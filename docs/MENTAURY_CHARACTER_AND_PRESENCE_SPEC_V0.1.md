@@ -735,7 +735,21 @@ same evidence
 
 Переход от `DOCS_ONLY` к экспериментальному runtime запрещён до выполнения всех условий:
 
-1. P0 Event Substrate независимо валидирован.
+> **Independence semantics reference:** See `docs/GOVERNANCE.md` — `merge authority ≠ runtime authority`, `solo maintainer review ≠ independent human review`. Under current solo-maintainer operation (`docs/governance/solo-maintainer-mode.md`), "independently validated substrate" below means validation satisfying this gate's own stated requirements, not an inferred consequence of merge or documentation approval.
+
+```yaml
+CHARACTER_RUNTIME_ACTIVATION_GATE:
+  status: BLOCKED_PENDING_REQUIRED_VALIDATION
+  owner: (to be designated in architecture decision)
+  last_updated: 2026-08-10
+  requires:
+    - independent_technical_validation_of_p0_substrate
+    - character_scenario_contracts_completion
+    - governance_review
+  note: This block is intentional and durable; not a temporary delay
+```
+
+1. P0 Event Substrate валидирован согласно требованиям собственного Evidence Gate (см. `docs/GOVERNANCE.md`, § "Risk classification").
 2. Character Scenario corpus сформирован и версионирован.
 3. Есть blinded human labels и inter-rater agreement report.
 4. Проведены multilingual, paraphrase и adversarial tests.

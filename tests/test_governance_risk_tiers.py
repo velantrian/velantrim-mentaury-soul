@@ -228,3 +228,20 @@ def test_future_team_transition_remains_explicit() -> None:
 def test_current_status_points_to_governance_and_p1_002_receipt() -> None:
     assert "docs/GOVERNANCE.md" in CURRENT_STATUS
     assert "docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md" in CURRENT_STATUS
+
+
+CHARACTER_SPEC = (
+    ROOT / "docs" / "MENTAURY_CHARACTER_AND_PRESENCE_SPEC_V0.1.md"
+).read_text(encoding="utf-8")
+
+
+def test_character_runtime_activation_gate_status_block_present() -> None:
+    """Character runtime activation must stay an explicit, durable gate.
+
+    It must reference this file's authority rather than restating or
+    forking independence semantics of its own.
+    """
+    assert "CHARACTER_RUNTIME_ACTIVATION_GATE" in CHARACTER_SPEC
+    assert "BLOCKED_PENDING_REQUIRED_VALIDATION" in CHARACTER_SPEC
+    assert "docs/GOVERNANCE.md" in CHARACTER_SPEC
+    assert "merge authority" in CHARACTER_SPEC.lower()
