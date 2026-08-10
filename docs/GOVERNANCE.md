@@ -2,7 +2,7 @@
 
 **Status:** ADOPTED  
 **Current operating mode:** SOLO MAINTAINER  
-**Canonical merge-gate authority:** this document, the live GitHub ruleset, and `docs/governance/solo-maintainer-mode.md`  
+**Canonical merge-gate authority:** this document, the live GitHub ruleset, `docs/governance/solo-maintainer-mode.md`, and `docs/governance/multi-agent-serialized-execution.md`  
 **Maturity authority:** `docs/CURRENT_STATUS.md` plus verified live GitHub state
 
 The repository currently has one maintainer and no genuinely independent human reviewer.
@@ -14,6 +14,8 @@ solo maintainer review ≠ independent human review
 review automation ≠ independent human approval
 green CI ≠ proof of semantic correctness
 merge authority ≠ runtime authority
+separate AI session ≠ independent reviewer
+shared GitHub identity ≠ shared live context
 ```
 
 Any older repository text that requires an unavailable independent approval for current
@@ -29,8 +31,9 @@ For merge decisions, use this order:
 1. live GitHub ruleset and required checks;
 2. `docs/GOVERNANCE.md`;
 3. `docs/governance/solo-maintainer-mode.md`;
-4. `CODEOWNERS` as ownership/navigation metadata;
-5. PR-local status notes.
+4. `docs/governance/multi-agent-serialized-execution.md`;
+5. `CODEOWNERS` as ownership/navigation metadata;
+6. PR-local status notes.
 
 PR-local text may not invent a permanent gate that contradicts this policy. A stale
 `BLOCKED_BY_INDEPENDENT_REVIEW` or `BLOCKED_BY_GOVERNANCE_IDENTITY` statement must be
@@ -141,6 +144,7 @@ In solo mode:
 - all review conversations resolved;
 - two-pass maintainer review completed;
 - architecture, invariant, fail-closed, security, and authorization boundaries checked;
+- multi-agent active-writer and main-drift preflight satisfied when applicable;
 - no unresolved material concern hidden behind a green test suite;
 - explicit maintainer decision recorded before merge;
 - post-merge `main` CI verified.
@@ -206,6 +210,8 @@ Exact-head CI: <RUN / RESULT>
 Correctness pass: PASS / CONCERNS
 Adversarial pass: PASS / CONCERNS
 Authorization boundary: PRESERVED / CHANGED
+Multi-agent writer state: SERIALIZED / NOT_APPLICABLE / CONCERN
+Main drift reconciled: YES / NOT_APPLICABLE / NO
 Decision: ACCEPTED_FOR_MERGE / STOP
 ```
 
@@ -227,13 +233,51 @@ A post-hoc review issue must remain completable under current solo mode.
 
 ## 6. Bots and automation
 
-Cursor, Codex, Copilot, ChatGPT, and other agents may inspect, create branches,
+Cursor, Codex, Copilot, ChatGPT, Claude Code, and other agents may inspect, create branches,
 open/update PRs, prepare evidence and merge only when live rules and this policy
 are satisfied and the operator authorized autonomous completion.
 
 They may not claim independent human approval, bypass checks, silently broaden
 scope, treat green CI as production readiness, or weaken integrity and authority
 boundaries merely to merge.
+
+### 6.1 Serialized multi-agent execution
+
+When more than one AI or automation session can write through the operator's GitHub
+authority, execution is serialized by bounded milestone according to
+`docs/governance/multi-agent-serialized-execution.md`.
+
+```text
+MULTI_AGENT_EXECUTION_MODE = SERIALIZED_BY_BOUNDED_MILESTONE
+ONE_BOUNDED_MILESTONE = ONE_ACTIVE_WRITER
+PARALLEL_READ_AUDIT = ALLOWED
+PARALLEL_WRITE_SAME_MILESTONE = FORBIDDEN
+AUTHORITY_MILESTONES = STRICTLY_SERIALIZED
+MAIN_DRIFT = REVERIFY_BEFORE_CONTINUING
+UNKNOWN_OR_CONFLICTING_WRITER_STATE = STOP_AND_RECONCILE
+```
+
+The active writer is a coordination role, not a distinct GitHub security principal or an
+independent reviewer. A second agent may inspect, test, audit, challenge, or report
+concerns, but it must not race a competing write/PR/merge for the same bounded milestone.
+
+Before the first write, the active writer must establish the current `main` SHA, relevant
+open PRs/issues, current contract/authorization state, intended scope and branch. Before
+merge it must re-resolve `main`, exact PR head, up-to-date state, final diff, required CI,
+review threads and authorization boundary.
+
+If `main` changes after the baseline, if competing work appears on the same bounded scope,
+or if writer state becomes uncertain, repository mutation stops until live state is read
+and reconciled. A clean textual merge does not by itself prove semantic compatibility.
+
+Contract freeze/revision, Owner GO, implementation authorization, runtime-capable core
+implementation, runtime activation, governance/security authority changes and deployment
+authorization are always strictly serialized. Each such transition must reach merged
+`main` plus verified resulting-main CI before the next authority transition begins.
+
+A writer transfer requires the previous writer to stop mutations and the new writer to
+reverify live GitHub state before making new commits. Transfer or cross-agent review does
+not create independent human assurance.
 
 ---
 
@@ -269,6 +313,9 @@ backend selection or integration
 production deployment
 objective truth claims
 ```
+
+The multi-agent serialization policy also does not grant P1-003 Owner GO, implementation
+authority, runtime authority, deployment authority, or independent-review status.
 
 Use precise statuses such as `FROZEN_DOCS`, `AUTHORIZED_BOUNDED`,
 `IMPLEMENTED_BOUNDED`, `not implemented`, and `not authorized` according to
