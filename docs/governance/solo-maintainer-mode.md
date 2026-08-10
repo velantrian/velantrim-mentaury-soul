@@ -30,6 +30,37 @@ no independent reviewer available
 Automated assistance may inspect, test, challenge, or prepare changes. It is supporting
 technical evidence and must not be described as independent human approval.
 
+## Multi-agent execution
+
+When more than one AI or automation session can write through the operator's GitHub
+authority, repository mutation is serialized by bounded milestone.
+
+```text
+MULTI_AGENT_EXECUTION_MODE = SERIALIZED_BY_BOUNDED_MILESTONE
+ONE_BOUNDED_MILESTONE = ONE_ACTIVE_WRITER
+PARALLEL_READ_AUDIT = ALLOWED
+PARALLEL_WRITE_SAME_MILESTONE = FORBIDDEN
+AUTHORITY_MILESTONES = STRICTLY_SERIALIZED
+MAIN_DRIFT = REVERIFY_BEFORE_CONTINUING
+```
+
+The full coordination contract is
+`docs/governance/multi-agent-serialized-execution.md`.
+
+A second AI session may audit or challenge the active writer, but it is not an independent
+human reviewer and must not race the active writer with a competing PR or merge for the
+same bounded milestone.
+
+If `main` changes after a milestone baseline is established, or another agent is found to
+be writing the same authority surface, the active writer stops mutation, re-reads live
+state, reconciles the change, and only then continues. A clean textual merge is not enough
+to prove semantic compatibility.
+
+Contract freeze/revision, Owner GO, implementation authorization, runtime-capable core
+implementation, runtime activation, governance/security authority changes and deployment
+authorization are always strictly serialized. Each such transition must reach merged
+`main` plus verified resulting-main CI before the next transition begins.
+
 ## Review depth
 
 Changes are reviewed according to risk, not merely file extension.
@@ -58,6 +89,7 @@ A PR may be accepted in solo mode only when:
 - all conversations are resolved;
 - applicable correctness and adversarial checks pass;
 - no authorization boundary is silently widened;
+- multi-agent active-writer and main-drift preflight is satisfied when applicable;
 - the maintainer records `ACCEPTED_FOR_MERGE` or an equivalent explicit decision;
 - post-merge `main` CI is verified.
 
