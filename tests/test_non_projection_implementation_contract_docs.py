@@ -66,6 +66,19 @@ def test_versions_domains_and_hard_caps_are_exact() -> None:
         assert marker in CONTRACT
 
 
+def test_hard_caps_and_local_budget_have_distinct_fail_closed_semantics() -> None:
+    for marker in (
+        "hard caps are admission constraints; caller local",
+        "limits are classification constraints",
+        "hard-cap overflow   → NonProjectionContractError",
+        "local-budget overflow while still inside hard caps → DEFER · BUDGET_EXHAUSTED",
+        "every string reference is valid UTF-8 and inside **hard caps**",
+        "classified as `DEFER · BUDGET_EXHAUSTED`",
+        "NPC-DEC-014 valid local over-budget input → DEFER without truncation",
+    ):
+        assert marker in CONTRACT
+
+
 def test_readiness_vocabulary_is_preserved() -> None:
     source_classes = (
         "CREATOR_TESTIMONY",
