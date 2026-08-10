@@ -27,7 +27,7 @@ Runtime deployment:                  NOT_AUTHORIZED
 Governance mode:                     SOLO_MAINTAINER = ACTIVE
 Independent human review:            NO
 Issue #39:                           OPEN · FUTURE INDEPENDENT/TEAM REVIEW TRIGGER
-Codex review:                        PRE_PR_NOT_PERFORMED · LAST_CHAIN_SIGNAL_ON_#87_QUOTA_EXHAUSTED
+Codex review:                        NOT PERFORMED · QUOTA EXHAUSTED · PR #88 comment 5246225861
 ```
 
 > **OWNER GO DECISION: GO.**
