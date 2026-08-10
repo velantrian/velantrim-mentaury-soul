@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.0
+Version:                      1.1
 Updated:                      2026-08-10
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -16,9 +16,9 @@ Positive readiness meaning:   ELIGIBLE_FOR_NEXT_GATE only
 P1-003 candidate selection:    SELECTED
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 assignment:             NONE
-P1-003 contract:               NOT FROZEN
+P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:               NOT GRANTED
-Next bounded work:             P1_003_PURE_COMPOSER_CONTRACT_FREEZE · DOCS_ONLY
+Next required decision:        EXPLICIT_P1_003_OWNER_GO
 Next runtime milestone:       NOT SELECTED · NOT AUTHORIZED
 Implementation authorization: NONE
 Runtime deployment authority: NONE
@@ -197,7 +197,7 @@ The post-P1-002 selection first demonstrated a structural composition gap:
 - bare positive results therefore cannot prove common request, purpose, scope,
   branch or freshness.
 
-The docs-only readiness contract now freezes the safe architecture:
+The docs-only readiness contract freezes the safe architecture:
 
 [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 
@@ -223,9 +223,9 @@ CALLER_SUPPLIED_DIGEST        = NOT_AUTHORITY
 FRESHNESS                     = SAME_ATTEMPT + REVISION_BOUND
 ```
 
-The existing frozen P1-001/P1-002 contracts do not need modification to make
-this architecture coherent. A future coordinator can retain and canonicalize
-the original admitted source values while leaving both result shapes unchanged.
+The existing frozen P1-001/P1-002 contracts do not need modification. The
+coordinator architecture retains and canonicalizes original admitted source
+values while leaving both result shapes unchanged.
 
 ---
 
@@ -239,58 +239,77 @@ The candidate-selection decision is frozen in:
 P1_003_CANDIDATE_SELECTION = SELECTED
 P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
-P1_003_CONTRACT            = NOT_FROZEN
+IMPLEMENTATION_AUTHORIZATION = NONE
+```
+
+The candidate is a minimal pure same-attempt coordinator over existing bounded
+P1-001 and P1-002 gates. Bare-result composition remains rejected; Action Gate,
+retrieval, remediation and persistence remain out of scope.
+
+---
+
+## 8. ✅ P1-003 Pure Composer contract freeze
+
+The exact docs-only implementation contract is frozen in:
+
+[`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+
+```text
+P1_003_CONTRACT            = FROZEN_DOCS
+P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
 P1_003_OWNER_GO            = NOT_GRANTED
 IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-Why this candidate is selected:
+The contract freezes all required pre-authorization semantics:
 
-- the cross-gate binding blocker is resolved at the architecture level;
-- one immutable explicit-input coordinator can reuse the existing pure P1 gates;
-- bare-result composition remains rejected;
-- modifying the frozen P1 result shapes is unnecessary;
-- an evidence envelope is useful only as derived evidence, not authority;
-- Action Gate, retrieval, remediation and persistence are broader and are not
-  the next bounded problem.
+- exact immutable `CrossGateEvaluationContext`;
+- exact `CompositionBudget`;
+- reserved package boundary and one-function public API;
+- no bare-result or caller-digest inputs;
+- exact projections into live P1-001 `P1-001-v0.2` and P1-002 `P1-002-v0.1`;
+- fixed domain/version constants and `MENTAURY_CANONICAL_JSON_V1`;
+- common request and targeted evaluation evidence SHA-256 fingerprints;
+- `CALLER_SUPPLIED_VALUE_EVIDENCE_ONLY` source-provenance non-claim;
+- exact `ELIGIBLE_FOR_NEXT_GATE / NOT_ELIGIBLE / DEFER` result contract;
+- exact gate outcome disposition mapping and blocker-over-defer precedence;
+- same-attempt freshness and non-replay rule;
+- T1–T12 executable adversarial requirements;
+- M1–M10 executable metamorphic requirements;
+- mandatory `CGC-*` implementation test matrix;
+- import-time/call-time no-hidden-I/O proof strategy;
+- explicit compatibility stop if frozen P1 contracts would need modification;
+- exact implementation acceptance criteria.
 
-The candidate is not yet a runtime milestone. Candidate selection is only a
-docs-level narrowing of the future design space.
-
----
-
-## 8. ⛔ Authorization gate and next bounded work
-
-The promotion sequence is:
+The promotion sequence is now:
 
 ```text
 CANDIDATE_SELECTED_DOCS_ONLY
-→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY   ← current
 → explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
 → clean Tier A implementation PR
 → IMPLEMENTED_BOUNDED
 ```
 
-Current state remains at the first line only.
+The contract freeze itself is not implementation authority.
 
-The next bounded work is selected as:
+---
+
+## 9. ⛔ Authorization gate / next required decision
+
+No P1-003 Owner GO has been granted.
 
 ```text
-NEXT_BOUNDED_WORK = P1_003_PURE_COMPOSER_CONTRACT_FREEZE
-MODE              = DOCS_ONLY
-IMPLEMENTATION    = NOT_AUTHORIZED
-OWNER_GO          = NOT_GRANTED
+NEXT_REQUIRED_DECISION = EXPLICIT_P1_003_OWNER_GO
+P1_003_OWNER_GO        = NOT_GRANTED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-Before any code authorization, that later contract-freeze block must define the
-exact runtime context schema, public API/package boundary, canonical projections,
-fingerprint domains, source-provenance boundary, result/reason contract,
-freshness/invalidation rules, T1–T12 executable adversarial mappings, M1–M10
-executable metamorphic mappings, no-hidden-I/O proof strategy, malformed-input
-semantics and exact implementation acceptance criteria.
-
-The contract freeze itself still will not authorize code. A separate explicit
-Owner GO is required after the contract is frozen and reviewed.
+A future Owner GO, if the operator chooses to issue one, must reference the
+frozen P1-003 contract exactly and authorize only the package/tests/docs slice
+specified there. The prior P1-001 and P1-002 Owner GO receipts are consumed and
+cannot be reused.
 
 ```text
 Capability ALLOW
@@ -303,19 +322,19 @@ Capability ALLOW
 
 ---
 
-## 9. 🎭 Character / independent-review boundary
+## 10. 🎭 Character / independent-review boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
 ```
 
-P1-003 candidate selection adds no Character evidence and does not alter issue
+The P1-003 contract freeze adds no Character evidence and does not alter issue
 #39. The repository remains in honest `SOLO_MAINTAINER` mode. Historical review
 labels do not create current independent-human assurance.
 
 ---
 
-## 10. 🔄 Status rules
+## 11. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
@@ -332,7 +351,7 @@ derived navigation/status surface synchronized only after verified evidence.
 
 ---
 
-## 11. 🏁 Formula
+## 12. 🏁 Formula
 
 ```text
 P0 complete
@@ -340,16 +359,14 @@ P0 complete
 → P1-002 implemented bounded
 → post-P1-002 selection demonstrated common-binding gap
 → cross-gate binding/readiness contract frozen docs-only
-→ pure coordinator over verified source inputs selected architecturally
-→ bare-result composition rejected
-→ ELIGIBLE_FOR_NEXT_GATE limited to non-execution readiness
 → Pure Governed Constraint Composer selected as sole P1-003 candidate
-→ next bounded work = docs-only P1-003 contract freeze
-→ STOP before P1-003 assignment / Owner GO / implementation
+→ exact P1-003 Pure Composer contract frozen docs-only
+→ STOP before P1-003 runtime assignment / Owner GO / implementation
 ```
 
 ### Related
 
+- [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
 - [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 - [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 - [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md)
