@@ -422,6 +422,14 @@ Rules:
 Budget accounting covers every non-null UTF-8 string, every tuple,
 `review_provenance.reviews`, and the final canonical input projection.
 
+**Normative distinction:** hard caps are admission constraints; caller local
+limits are classification constraints. Therefore:
+
+```text
+hard-cap overflow   → NonProjectionContractError
+local-budget overflow while still inside hard caps → DEFER · BUDGET_EXHAUSTED
+```
+
 ---
 
 ## 7. ✅ Strict admission and malformed-input policy
@@ -442,12 +450,15 @@ Admission rules:
 2. all nested values are exact contract types, not duck-typed mappings;
 3. required strings are non-empty and unpadded;
 4. optional refs are `None` or non-empty unpadded strings;
-5. every string reference is valid UTF-8 and inside hard/local bounds;
+5. every string reference is valid UTF-8 and inside **hard caps**; exceeding a
+   caller local limit while remaining inside hard caps is admitted and later
+   classified as `DEFER · BUDGET_EXHAUSTED`;
 6. every tuple of strings is already lexicographically sorted and unique;
 7. reviews are already sorted and unique by `review_ref`;
 8. enums are exact members; raw strings are not coerced;
 9. booleans are exact `bool`;
-10. budget integers are positive `int`, not `bool`, and within hard caps;
+10. budget integers are positive `int`, not `bool`, and the budget limits
+    themselves are within hard caps;
 11. `claimed_independent_review_count` is a non-negative `int`, not `bool`;
 12. `projection_intent.proposed_applies_to` is non-empty, sorted and unique;
 13. `NON_SELF` or `UNKNOWN` requires `self_basis_ref is None`;
