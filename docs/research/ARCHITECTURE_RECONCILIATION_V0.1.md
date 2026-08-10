@@ -294,7 +294,7 @@ Cross-document reconciliation считается завершённой, ког�
 - Controlled Origin не определяет fork и relationships;
 - Identity track не расширяет P0;
 - skeleton и runtime остаются `NOT_AUTHORIZED`;
-- следующий formal milestone обозначен в `CURRENT_STATUS.md` (дurable reference вместо mutable list).
+- следующий formal milestone обозначен в `CURRENT_STATUS.md` (durable reference вместо mutable list).
 
 ---
 
