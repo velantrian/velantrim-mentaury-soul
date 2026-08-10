@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.2
+Version:                      1.3
 Updated:                      2026-08-10
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -20,6 +20,14 @@ P1-003 Owner GO:               CONSUMED
 P1-003 implementation:         IMPLEMENTED_BOUNDED
 P1-003 validation:             EXACT_HEAD_AND_MAIN_CI_PASS
 P1-003 runtime assignment:     NOT_ASSIGNED
+Post-P1-003 selection:         COMPLETE
+Selected bounded work:        NON_PROJECTION_GATE_CONTRACT_READINESS
+Non-Projection readiness:     READY · FROZEN_DOCS · DOCS_ONLY
+Selected Non-Projection model: ATTRIBUTED_INTERPRETATION_ENVELOPE
+Readiness positive meaning:   PASS_ATTRIBUTED only
+Implementation contract:      NOT_FROZEN
+Non-Projection Owner GO:      NOT_GRANTED
+P1-004 assignment:            NOT_ASSIGNED
 Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED
 Runtime deployment authority: NONE
 Action Gate authority:         NONE
@@ -37,12 +45,15 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 
 ```text
 IMPLEMENTED_BOUNDED ≠ runtime activation
+READINESS_READY ≠ implementation contract
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
+PASS_ATTRIBUTED ≠ truth / identity / action authority
 P1-003 completion ≠ Action Gate authority
 P1-003 completion ≠ retrieval/tool authority
 P1-003 completion ≠ runtime assignment
-P1-003 completion ≠ deployment authority
+Non-Projection readiness ≠ P1-004 assignment
+Non-Projection readiness ≠ implementation authorization
 Solo review ≠ independent certification
 ```
 
@@ -255,7 +266,82 @@ ELIGIBLE_FOR_NEXT_GATE ≠ DEPLOYMENT_AUTHORITY
 
 ---
 
-## 8. 🚫 Work not included
+## 8. 🪞 Post-P1-003 Non-Projection selection
+
+Owning selection:
+
+[`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
+
+The selected next bounded work was docs-only:
+
+```text
+POST_P1_003_SELECTION = COMPLETE
+SELECTED_BOUNDED_WORK = NON_PROJECTION_GATE_CONTRACT_READINESS
+P1_004                 = NOT_ASSIGNED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+OWNER_GO               = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION = NONE
+```
+
+The selection did not freeze an implementation contract or assign a runtime
+milestone.
+
+---
+
+## 9. ✅ Non-Projection Gate Contract Readiness complete
+
+Owning readiness document:
+
+[`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
+
+Selected model:
+
+```text
+ATTRIBUTED_INTERPRETATION_ENVELOPE
+= provenance
++ speaker / subject attribution
++ claim class
++ interpretation provenance
++ contextual distance
++ reviewer-correlation metadata
++ scope limits
++ explicit authority exclusions
+```
+
+Readiness is now complete at docs-only architecture level:
+
+```text
+NON_PROJECTION_GATE_CONTRACT_READINESS = READY
+READINESS_STATUS                        = FROZEN_DOCS · DOCS_ONLY
+SELECTED_MODEL                          = ATTRIBUTED_INTERPRETATION_ENVELOPE
+READINESS_POSITIVE                      = PASS_ATTRIBUTED_ONLY
+IMPLEMENTATION_CONTRACT                 = NOT_FROZEN
+NON_PROJECTION_OWNER_GO                 = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION            = NONE
+P1_004                                  = NOT_ASSIGNED
+```
+
+The model freezes fail-closed source/self attribution, claim classes, reviewer
+correlation semantics, contextual/scope requirements, NPG-T01…T12,
+NPG-SC-001…012 and MT-NPG-001…008.
+
+```text
+PASS_ATTRIBUTED
+= no bounded projection blocker found for the exact attributed interpretation
+≠ factual truth proof
+≠ autobiography or identity authority
+≠ relationship / commitment / consent authority
+≠ M3 authority
+≠ capability / Action Gate PASS
+≠ retrieval / tool / execution authority
+```
+
+Character presentation cannot override this result. Frozen P1 contracts and
+Canon v0.1 remain unchanged.
+
+---
+
+## 10. 🚫 Work not included
 
 ```text
 registry persistence or services
@@ -271,6 +357,9 @@ Action Gate
 Tool Receipt or tool execution
 P1-003 runtime assignment
 P1-003 runtime activation
+Non-Projection implementation contract
+Non-Projection runtime implementation
+P1-004 assignment
 backend/plugin discovery
 backend selection or migration
 production deployment
@@ -278,7 +367,7 @@ production deployment
 
 ---
 
-## 9. 🎭 Character / independent-review boundary
+## 11. 🎭 Character / independent-review boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
@@ -292,12 +381,14 @@ trigger and is not a current solo-maintainer blocker.
 
 ---
 
-## 10. 🔄 Status rules
+## 12. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
 | Research captured | no runtime status change |
-| Contract frozen | `FROZEN_DOCS` |
+| Readiness model frozen | `READINESS_READY · FROZEN_DOCS` only |
+| Candidate selected | docs-only candidate status; no code authority |
+| Implementation contract frozen | `FROZEN_DOCS`; still no Owner GO |
 | Bounded Owner GO merged | `AUTHORIZED_BOUNDED` |
 | Code PR merged + green main CI | `IMPLEMENTED_BOUNDED` |
 | Owner GO used by verified implementation | `OWNER_GO_CONSUMED` |
@@ -309,7 +400,27 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ---
 
-## 11. 🏁 Formula
+## 13. 🚪 Required next authority ladder
+
+The current block stops at readiness completion:
+
+```text
+READINESS_READY_DOCS_ONLY
+→ separate candidate selection
+→ separate implementation-contract freeze
+→ explicit separate Owner GO
+→ clean Tier A implementation PR
+→ exact-head review and CI
+→ protected merge
+→ green resulting-main CI
+→ separate completion/status reconciliation
+```
+
+No step is authorized merely because the previous one is complete.
+
+---
+
+## 14. 🏁 Formula
 
 ```text
 P0 complete
@@ -321,14 +432,21 @@ P0 complete
 → P1-003 Owner GO authorized and reconciled
 → P1-003 Pure Governed Constraint Composer implemented bounded
 → P1-003 Owner GO consumed
+→ post-P1-003 Non-Projection readiness selected
+→ Non-Projection Gate Contract Readiness READY · FROZEN_DOCS
 → STOP
 
-P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+P1_004 = NOT_ASSIGNED
+NON_PROJECTION_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+NON_PROJECTION_OWNER_GO = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION = NONE
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 ### Related
 
+- [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
+- [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
 - [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 - [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
 - [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
