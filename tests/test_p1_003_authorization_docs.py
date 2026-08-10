@@ -73,14 +73,17 @@ def test_owner_go_preserves_frozen_implementation_contract() -> None:
     assert "exact frozen context and budget schemas remain unchanged" in AUTH
 
     for family in (
-        "CGC-CTX-001…012",
+        "CGC-CTX-001…014",
         "CGC-FP-001…010",
-        "CGC-DEC-001…012",
+        "CGC-DEC-001…014",
         "CGC-T-001…012",
         "CGC-M-001…010",
-        "CGC-PURE-001…006",
+        "CGC-PURE-001…008",
     ):
         assert family in AUTH
+
+    assert "before any P1-003\nimplementation is merged" in AUTH
+    assert "grants no new semantics" in AUTH
 
 
 def test_authorization_boundary_remains_non_executing() -> None:
@@ -98,7 +101,7 @@ def test_authorization_boundary_remains_non_executing() -> None:
         assert marker in combined
 
 
-def test_owner_go_milestone_contains_no_p1_003_runtime_implementation() -> None:
+def test_owner_go_reconciliation_contains_no_runtime_implementation() -> None:
     assert not (ROOT / "src" / "mentaury" / "composition").exists()
     assert "No `src/mentaury/composition/**` file is created" in AUTH
 
