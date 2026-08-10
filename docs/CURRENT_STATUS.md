@@ -45,11 +45,17 @@ P1_002_RETRIEVAL_AUTHORITY_NONE
 NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 
 POST_P1_002_SELECTION_COMPLETE
+CROSS_GATE_BINDING_AND_COMPOSITION_READINESS_FROZEN_DOCS
+CROSS_GATE_BINDING_READINESS_READY
+SELECTED_BINDING_STRATEGY_PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
+BARE_RESULT_COMPOSITION_REJECTED
+POSITIVE_READINESS_ELIGIBLE_FOR_NEXT_GATE_ONLY
 NO_RUNTIME_MILESTONE_SELECTED
-NEXT_BOUNDED_WORK_CROSS_GATE_BINDING_AND_COMPOSITION_READINESS_DOCS_ONLY
 P1_003_NOT_ASSIGNED
+IMPLEMENTATION_AUTHORIZATION_NONE
 
 ACTION_GATE_NOT_AUTHORIZED
+RETRIEVAL_EXECUTION_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
 DOMAIN_RUNTIME_NOT_AUTHORIZED
@@ -67,7 +73,8 @@ RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 | P0-015 | ✅ Implemented | deterministic Evidence Gate |
 | P1-001 | ✅ Implemented bounded | pure Capability Lease classification only |
 | P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
-| Post-P1-002 selection | ✅ Docs-only decision | no runtime milestone selected; cross-gate binding/composition readiness is next bounded work |
+| Post-P1-002 selection | ✅ Docs-only decision | no runtime milestone selected; cross-gate binding/composition readiness selected |
+| Cross-gate binding/composition readiness | ✅ Frozen docs-only | common binding/freshness contract ready; runtime still not authorized |
 
 ---
 
@@ -135,6 +142,14 @@ Review threads:         0
 Independent assurance:  NOT CLAIMED
 ```
 
+Historical checkpoint preserved as provenance only; it is superseded by the
+implemented-bounded evidence above and is not current authority:
+
+```text
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+P1_002_IMPLEMENTATION_NOT_STARTED
+```
+
 ---
 
 ## 5. ✅ Implemented P1-002 slice
@@ -183,7 +198,7 @@ retrieve and contains no token, credential, capability or mutation instruction.
 
 ---
 
-## 6. 🛡️ Adversarial findings resolved before merge
+## 6. 🛡️ Adversarial findings resolved before P1-002 merge
 
 The implementation review found and fixed:
 
@@ -226,56 +241,117 @@ consciousness or subjective-experience claims
 
 ---
 
-## 8. ⛔ Post-P1-002 selection and next execution gate
+## 8. 🔗 Cross-gate binding/composition readiness
 
-The post-P1-002 architectural selection found one concrete blocker to safe
-cross-gate composition: the current P1 result objects do not prove that their
-positive decisions belong to the same intent/context or freshness epoch.
+The docs-only readiness contract is now frozen in:
+
+`docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
+
+The confirmed source-level problem remains:
 
 ```text
-POST_P1_002_SELECTION_COMPLETE
-SELECTION_RESULT = NO_RUNTIME_MILESTONE_SELECTED
-NEXT_BOUNDED_WORK = CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · DOCS_ONLY
-P1_003 = NOT_ASSIGNED
+P1-001 ResolutionResult
+→ does not retain the evaluated ActionIntent binding
+
+P1-002 PrivacyReconciliationResult
+→ contains only decision + reason
+
+bare positive result A + bare positive result B
+→ cannot prove common request/context/freshness
+```
+
+The selected safe architecture is:
+
+```text
+one immutable canonical evaluation context
+→ project original source inputs into P1-001 and P1-002
+→ invoke both existing pure classifiers in the same evaluation attempt
+→ verify common request/purpose/operation/scope/side-effect/branch binding
+→ bind lease and privacy revisions + contract versions + canonical profile
+→ emit at most ELIGIBLE_FOR_NEXT_GATE
+```
+
+A caller-supplied digest is not authority evidence. Any future fingerprint must
+be recomputed from versioned admitted canonical values. A derived evidence
+envelope may support audit, but a caller-asserted wrapper around bare results is
+not a valid composition input.
+
+Freshness is same-attempt and revision-bound. No durable authorization token or
+arbitrary TTL is created. Any authority/freshness mutation requires a new full
+evaluation attempt.
+
+```text
+CROSS_GATE_BINDING_READINESS = READY
+RUNTIME_IMPLEMENTATION       = NOT_AUTHORIZED
+P1_003                       = NOT_ASSIGNED
 IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-Owning decision:
-
-`docs/research/POST_P1_002_MILESTONE_SELECTION.md`
-
-The selected readiness work must define common request binding, stale-result
-invalidation, fail-closed composition semantics and explicit non-permission
-result vocabulary before any composer can be selected for implementation.
-Bare P1-001/P1-002 positive result objects are not sufficient authorization
-inputs by themselves.
-
-No deletion, quarantine, rebuild, retrieval, relationship, identity, Action
-Gate, tool or deployment work follows automatically. Any future runtime-capable
-milestone still requires a new bounded contract, threat model, explicit Owner
-GO, clean Tier A implementation PR, exact-head review and green resulting-main
-CI.
-
-Historical checkpoint (superseded, preserved as provenance): before PR #67
-merged, this document recorded the pre-implementation authorization state:
+Potential future decision only:
 
 ```text
-P1_002_OWNER_GO_AUTHORIZED_BOUNDED
-P1_002_IMPLEMENTATION_NOT_STARTED
+Pure Governed Constraint Composer
 ```
+
+It requires a separate bounded contract and explicit Owner GO before any code is
+written.
 
 ---
 
-## 9. 🛡️ Governance state
+## 9. 🧱 Action Gate / retrieval boundary
+
+```text
+Capability ALLOW
++ Privacy ALLOW_REFERENCE
++ ELIGIBLE_FOR_NEXT_GATE
+≠ Action Gate PASS
+```
+
+A complete Action Gate may include constitutional,
+relationship/commitment, side-effect and other authority layers. This readiness
+contract does not implement or collapse them.
+
+Likewise:
+
+```text
+ALLOW_REFERENCE ≠ retrieval permission
+ELIGIBLE_FOR_NEXT_GATE ≠ retrieval permission
+```
+
+No deletion, quarantine, rebuild, retrieval, relationship, identity, Action
+Gate, tool or deployment work follows automatically.
+
+---
+
+## 10. 🎭 Character / identity boundary
+
+```text
+CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
+```
+
+No Character validation, identity/relationship runtime, Genesis Heritage runtime,
+Human Paths Atlas runtime or direct/indirect M3 write is created by cross-gate
+readiness.
+
+Issue #39 remains the future transition trigger for genuine independent/team
+review and is not a current solo-mode blocker.
+
+---
+
+## 11. 🛡️ Governance state
 
 The live solo ruleset retains mandatory PRs, exact required CI, up-to-date
 branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
-exists. Issue #39 is the future public/team transition trigger only.
+exists.
+
+Tier A docs that affect authority/readiness require the same exact-head,
+correctness, adversarial and resulting-main evidence discipline as other Tier A
+work.
 
 ---
 
-## 10. 🔗 Authoritative navigation
+## 12. 🔗 Authoritative navigation
 
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
@@ -283,24 +359,29 @@ exists. Issue #39 is the future public/team transition trigger only.
 - P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - Post-P1-002 selection: `docs/research/POST_P1_002_MILESTONE_SELECTION.md`
+- Cross-gate readiness: `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 - Environment: `docs/ENVIRONMENT_MANIFEST.md`
 
 ---
 
-## 11. 🏁 Current formula
+## 13. 🏁 Current formula
 
 ```text
 P0 foundation implemented
 + P1-001 pure capability resolver implemented bounded
 + P1-002 pure privacy classifier implemented bounded
 + post-P1-002 selection completed
-+ cross-gate binding/composition readiness selected docs-only
++ cross-gate binding/composition readiness frozen docs-only
++ pure coordinator strategy selected architecturally
++ bare-result composition rejected
++ ELIGIBLE_FOR_NEXT_GATE limited to next-gate readiness
 + permanent CI
 + active solo governance
 
 ≠ runtime composition authorization
+≠ P1-003 assignment
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
 ≠ identity or M3 mutation

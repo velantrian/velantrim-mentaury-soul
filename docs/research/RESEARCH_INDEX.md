@@ -2,12 +2,14 @@
 
 ```text
 Status:                       ADOPTED NAVIGATION · DOCS_ONLY · NON_CANONICAL
-Updated:                      2026-08-09
+Updated:                      2026-08-10
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
 Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
 Completed execution milestone:P1-002 Privacy Reconciliation Classifier · IMPLEMENTED_BOUNDED
+Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
 Next execution milestone:     NOT SELECTED · NOT AUTHORIZED
+P1-003 assignment:            NONE
 Runtime deployment authority: NONE
 Mutation authority:           NONE
 Retrieval authority:          NONE
@@ -18,6 +20,8 @@ Identity authority:           NONE
 Research presence ≠ roadmap priority
 P1-002 completion ≠ remediation authority
 ALLOW_REFERENCE ≠ retrieval permission
+ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
+Readiness contract ≠ implementation GO
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
@@ -106,7 +110,38 @@ backend selection and deployment
 
 ---
 
-## 2. 🧭 Document registry
+## 2. ✅ Completed docs-only readiness checkpoint
+
+### Cross-Gate Binding & Composition Readiness
+
+- [Frozen readiness contract](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
+- [Owning selection](POST_P1_002_MILESTONE_SELECTION.md)
+- [Current status](../CURRENT_STATUS.md)
+- [Roadmap](POST_P0_ROADMAP_V0.1.md)
+
+```text
+CROSS_GATE_BINDING_READINESS = READY
+SELECTED_STRATEGY             = PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
+BARE_RESULT_COMPOSITION       = REJECTED
+EVIDENCE_ENVELOPE             = DERIVED_EVIDENCE_ONLY
+CALLER_SUPPLIED_DIGEST        = NOT_AUTHORITY
+POSITIVE_READINESS            = ELIGIBLE_FOR_NEXT_GATE
+P1_003                        = NOT_ASSIGNED
+IMPLEMENTATION_AUTHORIZATION  = NONE
+```
+
+The readiness contract binds the future architecture to one immutable canonical
+evaluation context, same-attempt gate evaluation, revision/version freshness,
+coordinator-computed fingerprints and fail-closed handling of mismatch, stale,
+unknown, missing or contradictory evidence.
+
+It does not modify the frozen P1 result shapes and does not authorize a runtime
+composer, retrieval, Action Gate, tools, identity/relationship runtime, M3
+writes, persistence, I/O or deployment.
+
+---
+
+## 3. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
@@ -115,7 +150,9 @@ backend selection and deployment
 | [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md) | P1-001 receipt | OWNER_GO_CONSUMED | complete |
 | [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md) | P1-002 contract | FROZEN_DOCS | implemented bounded |
 | [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md) | P1-002 receipt | OWNER_GO_CONSUMED | complete |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | P1-002 complete; stop active | no next authority |
+| [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md) | post-P1 selection | COMPLETE | no runtime selected |
+| [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md) | cross-gate readiness | FROZEN_DOCS · READY | NOT AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | readiness complete; stop active | no next authority |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -123,7 +160,7 @@ backend selection and deployment
 
 ---
 
-## 3. 🌱 Research backlog
+## 4. 🌱 Research backlog
 
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
@@ -135,16 +172,25 @@ backend selection and deployment
 | `R-VHE-001` | Volumetric Humor | CAPTURED | safety + factuality tests |
 | `R-ECN-001` | Epistemic Conflict Navigator | CAPTURED | symmetric evidence protocol |
 | `R-MM-001` | Memory Metabolism | CAPTURED | retention + replay + rollback |
-| `R-CHAR-001` | Character runtime | DEFERRED | Non-Projection and belief boundaries |
+| `R-CHAR-001` | Character runtime | DEFERRED | required Character validation discipline |
 | `R-ID-001` | Identity / M2→M3 runtime | DEFERRED | evidence + authority + rollback |
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
 These entries are not a ranked execution queue.
 
+A possible future runtime candidate may be evaluated separately:
+
+```text
+Pure Governed Constraint Composer
+```
+
+It is **not** P1-003 until a separate owner decision assigns it, and it has no
+implementation authority now.
+
 ---
 
-## 4. 🚪 Promotion gate
+## 5. 🚪 Promotion gate
 
 ```text
 problem demonstrated
@@ -159,16 +205,16 @@ problem demonstrated
 ```
 
 Each Owner GO is consumed once. Both P1-001 and P1-002 Owner GO receipts are
-consumed. Issue #39 remains the
-future transition trigger for genuine independent review.
+consumed. Cross-gate readiness grants no reusable Owner GO. Issue #39 remains
+the future transition trigger for genuine independent review.
 
 ---
 
-## 5. 🔗 Boundaries
+## 6. 🔗 Boundaries
 
 ```text
 Mentaury research ≠ Crystal Canon ≠ Titan runtime ≠ Native Kernel runtime
-Native Kernel input ≠ integration ≠ shared runtime ≠ automatic M2/M3 promotion
+external research input ≠ integration ≠ shared runtime ≠ automatic M2/M3 promotion
 ```
 
 No backend is selected. Notion remains a navigation/research workspace; GitHub
@@ -177,11 +223,12 @@ authority.
 
 ---
 
-## 6. 🏁 Rule
+## 7. 🏁 Rule
 
 ```text
 Keep ideas.
 Label their status.
+Bind gate evidence before composition.
 Promote one bounded milestone at a time.
 Consume each Owner GO once.
 Stop before any unreviewed authority expansion.
