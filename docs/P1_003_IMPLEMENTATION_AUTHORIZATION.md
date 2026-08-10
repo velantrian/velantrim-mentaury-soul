@@ -1,8 +1,9 @@
-# 🔐 P1-003 Pure Governed Constraint Composer — Bounded Implementation Authorization Receipt
+# 🔐 P1-003 Pure Governed Constraint Composer — Authorization and Completion Receipt
 
 ```text
-Status:                       OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED
+Status:                       OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED
 Authorization date:           2026-08-10
+Completion date:              2026-08-10
 Milestone:                    P1-003 Pure Governed Constraint Composer v0.1
 Contract authority:           docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md
 Contract version:             P1-003-v0.1
@@ -12,7 +13,7 @@ Status authority:             docs/CURRENT_STATUS.md
 Governance:                   SOLO_MAINTAINER · TIER_A
 Independent human assurance:  NOT CLAIMED
 P1-003 runtime assignment:    NOT_ASSIGNED
-Implementation authorization: AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
+Implementation authorization: CONSUMED · P1-003-v0.1 ONLY
 Runtime deployment:           NOT AUTHORIZED
 Action Gate authority:        NONE
 Retrieval authority:          NONE
@@ -23,59 +24,62 @@ Direct or indirect M3 write:  FORBIDDEN
 Character runtime activation: BLOCKED_PENDING_REQUIRED_VALIDATION
 ```
 
-> **CONTRACT FROZEN ≠ OWNER GO.**
+> **IMPLEMENTED_BOUNDED ≠ RUNTIME ACTIVATED.**
 >
-> **OWNER GO ≠ IMPLEMENTATION COMPLETE.**
+> **ELIGIBLE_FOR_NEXT_GATE ≠ ACTION GATE PASS.**
 >
-> This receipt grants exactly one bounded, consumable authorization for a later
-> separate implementation milestone against the already frozen P1-003 v0.1
-> contract. It does not itself implement, activate, deploy, retrieve, execute or
-> mutate anything.
+> The one-time P1-003 Owner GO has been consumed by exactly the frozen v0.1 pure
+> composer implementation. No later runtime, retrieval, tool, identity,
+> relationship, M3, Character or deployment authority is inherited from it.
 
 ---
 
-## 1. 🎯 Explicit Owner GO
+## 0. 📜 Historical authorization provenance
 
-The repository owner explicitly authorized the next bounded implementation
-milestone for the frozen `P1-003-v0.1` Pure Governed Constraint Composer.
+The original bounded Owner GO was recorded by PR #77 after the P1-003 v0.1
+contract freeze. PR #78 then reconciled only the explicit `CGC-*` shorthand in
+that receipt to the ranges that were already frozen in the contract.
+
+Historical pre-implementation state:
 
 ```text
 P1_003_CONTRACT = FROZEN_DOCS
 P1_003_OWNER_GO = AUTHORIZED_BOUNDED
 P1_003_OWNER_GO_AUTHORIZED_BOUNDED
 P1_003_IMPLEMENTATION_NOT_STARTED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
 IMPLEMENTATION_AUTHORIZATION = AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
 ```
 
-This Owner GO is:
-
-```text
-exact-contract-bound
-scope-bound
-one-time / consumable
-non-transferable to broader milestones
-```
-
-It may be consumed only by the next separate bounded P1-003 implementation
-milestone. It does not roll forward to any later runtime, Action Gate,
-retrieval, tool, identity, relationship, M3, Character or deployment milestone.
-
-The repository has no established `ASSIGNED_BOUNDED` runtime-assignment
-vocabulary. Therefore this docs-only Owner GO does not invent one and does not
-claim an active runtime assignment:
-
-```text
-P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
-```
-
-The future implementation milestone may implement the frozen bounded package,
-but runtime activation/deployment remains a separate authority transition.
+That state is preserved as provenance only. It is superseded by the verified
+completion state at the top of this receipt.
 
 ---
 
-## 2. 🧬 Exact frozen contract binding
+## 1. ✅ Completion disposition
 
-This authorization is valid only for:
+The authorization was consumed once by PR #79 and only by the exact frozen
+P1-003 package and conformance tests.
+
+```text
+P1_003_CONTRACT = FROZEN_DOCS
+P1_003_OWNER_GO = CONSUMED
+P1_003_OWNER_GO_CONSUMED
+P1_003_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_IMPLEMENTED_BOUNDED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+`NOT_ASSIGNED` is intentional. Bounded source implementation is not runtime
+activation, deployment, composition-root wiring or permission to call the
+composer from a broader runtime.
+
+---
+
+## 2. 🧬 Frozen contract retained unchanged
+
+The implementation remains bound to:
 
 ```text
 COMPOSER_CONTRACT_VERSION  = P1-003-v0.1
@@ -87,18 +91,17 @@ P1_001_EXPECTED_VERSION    = P1-001-v0.2
 P1_002_EXPECTED_VERSION    = P1-002-v0.1
 ```
 
-The authoritative frozen contract remains:
+The frozen authority remains:
 
 `docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`
 
-This receipt does not revise or supersede that contract.
+PR #79 did not revise P1-001, P1-002, canonical JSON or the P1-003 contract.
 
 ---
 
-## 3. 📦 Exact future implementation scope
+## 3. 📦 Exact completed source scope
 
-The future implementation milestone may modify only the frozen bounded package
-and the tests/docs needed to prove conformance:
+The completed runtime-capable source slice is exactly:
 
 ```text
 src/mentaury/composition/__init__.py
@@ -107,7 +110,22 @@ src/mentaury/composition/governed_constraints/contracts.py
 src/mentaury/composition/governed_constraints/composer.py
 ```
 
-The exact public API remains:
+Conformance evidence is primarily:
+
+```text
+tests/test_governed_constraint_composer.py
+tests/test_p1_003_authorization_docs.py
+```
+
+No service, repository, adapter, worker, transport, persistence layer, database
+integration, network integration, tool adapter, retrieval adapter, plugin
+framework or deployment wiring was added by P1-003.
+
+---
+
+## 4. 🔌 Exact completed API and context
+
+The only public composition operation is:
 
 ```python
 def compose_governed_constraints(
@@ -117,20 +135,20 @@ def compose_governed_constraints(
     ...
 ```
 
-The exact frozen context and budget schemas remain unchanged. Bare P1 results,
-caller digests/fingerprints, callback injection, ambient clock authority,
-repository/service inputs, tool/backend handles and hidden discovery are not
-authorized.
+The frozen immutable `CrossGateEvaluationContext` and `CompositionBudget`
+schemas are implemented without caller-supplied positive results, digests,
+fingerprints, callbacks, ambient clock authority, repositories, services,
+tool/backend handles or dynamic discovery.
+
+P1-001 `ActionIntent` and P1-002 `PrivacyAccessIntent` are derived internally
+from the same context and both existing bounded gates are evaluated within one
+composer call.
 
 ---
 
-## 4. 🔗 Composition and result boundary
+## 5. 🔗 Result and authority boundary retained
 
-The future implementation must derive the existing gate intents from one
-`CrossGateEvaluationContext` and evaluate both bounded gates in the same
-attempt.
-
-The strongest positive result remains exactly:
+The strongest positive result remains:
 
 ```text
 Capability ALLOW
@@ -139,7 +157,7 @@ Capability ALLOW
 = at most ELIGIBLE_FOR_NEXT_GATE
 ```
 
-And explicitly:
+And still:
 
 ```text
 ELIGIBLE_FOR_NEXT_GATE ≠ ACTION_GATE_PASS
@@ -152,7 +170,7 @@ ELIGIBLE_FOR_NEXT_GATE ≠ M3_AUTHORITY
 ELIGIBLE_FOR_NEXT_GATE ≠ DEPLOYMENT_AUTHORITY
 ```
 
-The exact decision vocabulary remains:
+Exact decisions remain:
 
 ```text
 ELIGIBLE_FOR_NEXT_GATE
@@ -162,9 +180,9 @@ DEFER
 
 ---
 
-## 5. 🔥 Frozen fail-closed semantics
+## 6. 🔥 Fail-closed semantics retained
 
-The implementation authorization preserves the frozen precedence:
+The implementation preserves the frozen precedence:
 
 ```text
 binding mismatch
@@ -189,18 +207,16 @@ exact double-positive + valid binding/fingerprints
 → ELIGIBLE_FOR_NEXT_GATE
 ```
 
-No implementation PR may weaken or reinterpret these semantics.
+Unknown, malformed or contract-unverified nested gate conditions cannot become a
+positive composition result.
 
 ---
 
-## 6. 🛡️ Mandatory threat, metamorphic and purity evidence
+## 7. 🧪 Complete frozen executable matrix
 
-The future implementation milestone must satisfy all frozen requirements exactly
-as enumerated by Section 16 of the frozen P1-003 v0.1 contract:
+PR #79 validated every frozen P1-003 family:
 
 ```text
-T1…T12
-M1…M10
 CGC-CTX-001…014
 CGC-FP-001…010
 CGC-DEC-001…014
@@ -209,29 +225,70 @@ CGC-M-001…010
 CGC-PURE-001…008
 ```
 
-Reconciliation note (2026-08-10): PR #77 correctly bound this authorization to
-**all frozen CGC-* requirements**, but its explicit shorthand ranges accidentally
-stopped at `CGC-CTX-012`, `CGC-DEC-012`, and `CGC-PURE-006`. The frozen contract
-already required `CTX-013…014`, `DEC-013…014`, and `PURE-007…008`. This docs-only
-reconciliation corrects that internal receipt inconsistency **before any P1-003
-implementation is merged**. It grants no new semantics, runtime surface or
-authority beyond the already frozen `P1-003-v0.1` contract.
-
-The implementation must also prove the frozen no-hidden-I/O boundary. It may not
-use filesystem authority, `sqlite3.connect`, network/socket, subprocess,
-environment as authority, ambient time, ambient randomness/UUID, persistence,
-event append, retrieval adapters, tool adapters, backend discovery, plugin
-discovery or a dynamic DI container.
-
-Pure deterministic imports required by the frozen P1 contracts/resolvers,
-classifier and canonical JSON helpers remain the only intended dependency
-surface.
+The suite also proves deterministic repeatability, targeted evidence isolation,
+no authority amplification and fresh-process/call-time no-hidden-I/O behavior.
 
 ---
 
-## 7. ⛔ Compatibility stop
+## 8. 🧾 Verified implementation evidence
 
-If implementation requires any change to:
+### Owner GO
+
+```text
+Authorization PR:          #77
+Reviewed head:             79fcedc8fe7dee64acad8dfffd8c8a17122ae97c
+Exact-head CI:             31389769422 · SUCCESS · 482 passed
+Authorization merge/main:  20a2073ef70eaa0e18ad7e8cf87b728d28617598
+Resulting-main CI:         31390149526 · SUCCESS · 482 passed
+Tier A review:             4896914677
+```
+
+### Receipt reconciliation
+
+```text
+Reconciliation PR:         #78
+Reviewed head:             0f52e683a03fe9fe27428e7effe0349fd496bd26
+Exact-head CI:             31393515732 · SUCCESS · 482 passed
+Reconciliation merge/main: 813944b8083406da2ce95948bfb722158493fdb4
+Resulting-main CI:         31393836549 · SUCCESS
+Tier A review:             4897295575
+```
+
+### Bounded implementation
+
+```text
+Implementation PR:         #79
+Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
+Exact-head CI:             31394829487 · SUCCESS · 552 passed
+Correctness pass:          PASS
+Adversarial pass:          PASS
+Authorization boundary:    PRESERVED
+Review threads:            0
+Tier A review:             4897445251
+Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
+Resulting-main CI:         31395291622 · SUCCESS · 552 passed
+Independent human review:  NO
+```
+
+The implementation is therefore `IMPLEMENTED_BOUNDED`; the Owner GO is consumed.
+
+---
+
+## 9. 🛡️ No-hidden-I/O and non-amplification boundary
+
+The accepted package does not use filesystem authority, `sqlite3.connect`,
+network/socket, subprocess, environment as authority, ambient time, ambient
+randomness/UUID, persistence, event append, retrieval adapters, tool adapters,
+backend/plugin discovery or a dynamic DI container.
+
+It imports only deterministic contracts/resolvers/classifier/canonical helpers
+needed by the frozen P1-003 design.
+
+---
+
+## 10. ⛔ Compatibility stop remains binding
+
+Any future change that requires modifying:
 
 ```text
 P1-001 semantics
@@ -242,9 +299,7 @@ MENTAURY_CANONICAL_JSON_V1
 frozen P1-003 v0.1 semantics
 ```
 
-then this authorization is insufficient.
-
-Required disposition:
+requires a new authority cycle:
 
 ```text
 STOP_CURRENT_IMPLEMENTATION
@@ -253,11 +308,11 @@ STOP_CURRENT_IMPLEMENTATION
 → NEW_OWNER_DECISION
 ```
 
-A compatibility tweak may not be smuggled into the implementation PR.
+The completed v0.1 receipt is not reusable authority for such a change.
 
 ---
 
-## 8. 🚫 Explicitly not authorized
+## 11. 🚫 Explicitly still not authorized
 
 ```text
 services
@@ -284,10 +339,11 @@ direct or indirect M3 write
 P1-001 changes
 P1-002 changes
 canonical JSON changes
+runtime activation
 runtime deployment
 ```
 
-The following repository boundaries remain unchanged:
+Repository boundaries remain:
 
 ```text
 ACTION_GATE = NOT_AUTHORIZED
@@ -305,35 +361,16 @@ trigger and is not a current solo-maintainer blocker.
 
 ---
 
-## 9. 🎟️ Consumption rule
-
-This Owner GO is not reusable authority.
+## 12. 🛑 Completion stop
 
 ```text
-Owner GO receipt merged + resulting-main CI success
-→ authorization becomes available to exactly one separate bounded implementation milestone
-
-implementation milestone consumes the authorization
-→ receipt later becomes OWNER_GO_CONSUMED only after verified implementation completion
+P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_IMPLEMENTED_BOUNDED
+P1_003_OWNER_GO_CONSUMED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
-The implementation milestone must start with a fresh live-state preflight and
-must bind itself to this exact receipt and the frozen P1-003 v0.1 contract.
-
----
-
-## 10. 🛑 Mandatory stop after this authorization milestone
-
-This authorization PR must stop before implementation.
-
-```text
-P1_003_OWNER_GO_AUTHORIZED_BOUNDED
-P1_003_IMPLEMENTATION_NOT_STARTED
-NEXT_BOUNDED_MILESTONE = P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_BOUNDED_IMPLEMENTATION
-```
-
-No `src/mentaury/composition/**` file is created by this Owner GO milestone.
-
-Any implementation is a new strictly serialized authority milestone with a new
-live preflight, separate branch/PR, exact-head Tier A evidence and resulting-main
-CI.
+No next runtime-capable milestone follows automatically. Any future Action Gate,
+retrieval, tool, runtime assignment/activation, identity/relationship, M3,
+Character or deployment work requires a new bounded authority decision and a
+fresh serialized live preflight.
