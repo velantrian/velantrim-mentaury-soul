@@ -68,10 +68,11 @@ Owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMEN
 
 P1-001 remains a pure capability classifier without registry persistence,
 Action Gate, tool execution, identity/M3 mutation or deployment authority.
+The consumed P1-001 authorization rolls forward to **no registry service, Action Gate, P1-002** or later runtime milestone.
 
 ---
 
-## 2. ✅ P1-002 retained checkpoint
+## 2. ✅ P1-002 Privacy Reconciliation Classifier retained checkpoint
 
 ```text
 Contract PR:            #65
