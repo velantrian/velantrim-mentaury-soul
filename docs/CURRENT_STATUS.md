@@ -16,6 +16,12 @@ IMPLEMENTED_BOUNDED
 ≠ broader runtime authority
 ≠ remediation or action authority
 ≠ deployment authority
+
+READINESS_READY
+= docs-only architecture requirements are complete enough for later candidate selection
+≠ implementation contract
+≠ Owner GO
+≠ runtime assignment
 ```
 
 ---
@@ -64,6 +70,16 @@ P1_003_NOT_ASSIGNED
 P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 
+POST_P1_003_SELECTION_COMPLETE
+NON_PROJECTION_GATE_CONTRACT_READINESS_FROZEN_DOCS
+NON_PROJECTION_GATE_READINESS_READY
+SELECTED_NON_PROJECTION_MODEL_ATTRIBUTED_INTERPRETATION_ENVELOPE
+NON_PROJECTION_POSITIVE_RESULT_PASS_ATTRIBUTED_ONLY
+NON_PROJECTION_IMPLEMENTATION_CONTRACT_NOT_FROZEN
+NON_PROJECTION_OWNER_GO_NOT_GRANTED
+NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION_NONE
+P1_004_NOT_ASSIGNED
+
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
@@ -92,6 +108,8 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | P1-003 pure composer contract | ✅ Frozen docs-only | exact context/API/fingerprint/result/threat/metamorphic/purity contract |
 | P1-003 bounded Owner GO | ✅ Consumed | one-time P1-003-v0.1 authorization consumed by PR #79 only |
 | P1-003 Pure Governed Constraint Composer | ✅ Implemented bounded | pure same-attempt composition only; no runtime assignment or activation |
+| Post-P1-003 selection | ✅ Docs-only decision | Non-Projection Gate Contract Readiness selected; no P1-004 assignment |
+| Non-Projection Gate Contract Readiness | ✅ Frozen docs-only · Ready | attributed interpretation/provenance model + fail-closed threat/scenario/metamorphic semantics; no implementation contract |
 
 ---
 
@@ -301,7 +319,77 @@ exact double-positive + valid bind  → ELIGIBLE_FOR_NEXT_GATE
 
 ---
 
-## 9. 🚫 Explicitly not implemented or authorized
+## 9. 🪞 Non-Projection Gate Contract Readiness
+
+Owning selection:
+
+`docs/research/POST_P1_003_MILESTONE_SELECTION.md`
+
+Owning frozen readiness document:
+
+`docs/research/NON_PROJECTION_GATE_CONTRACT_READINESS.md`
+
+The selected docs-only model is:
+
+```text
+ATTRIBUTED_INTERPRETATION_ENVELOPE
+= source provenance
++ speaker / subject attribution
++ claim class
++ interpretation provenance
++ contextual distance
++ reviewer correlation metadata
++ scope limits
++ explicit authority exclusions
+```
+
+Readiness status:
+
+```text
+NON_PROJECTION_GATE_CONTRACT_READINESS = READY
+SELECTED_MODEL                         = ATTRIBUTED_INTERPRETATION_ENVELOPE
+READINESS_POSITIVE                     = PASS_ATTRIBUTED_ONLY
+IMPLEMENTATION_CONTRACT                = NOT_FROZEN
+NON_PROJECTION_OWNER_GO                = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION           = NONE
+P1_004                                 = NOT_ASSIGNED
+```
+
+Self/non-self attribution is fail-closed. Imported Creator, historical, current-user,
+literary, research, model or reviewer material cannot become `VERIFIED_SELF` by
+prestige, instruction, narrative similarity, model/provider identity or shared
+project lineage. Under the current authority state such imported material is
+`NON_SELF` or `UNKNOWN` unless a separately authorized future identity/continuation
+layer supplies authoritative branch-bound evidence.
+
+Frozen readiness families:
+
+```text
+NPG-T01…NPG-T12
+NPG-SC-001…NPG-SC-012
+MT-NPG-001…MT-NPG-008
+```
+
+Frozen readiness result ceiling:
+
+```text
+PASS_ATTRIBUTED
+= at most no bounded projection blocker found for an attributed interpretation
+≠ factual truth proof
+≠ Mentaury autobiography
+≠ identity / M3 authority
+≠ relationship / commitment / consent authority
+≠ capability or Action Gate PASS
+≠ retrieval / tool / execution authority
+≠ deployment authority
+```
+
+Character Policy remains downstream presentation only and cannot alter the
+Non-Projection result. P1-001, P1-002, P1-003 and Canon v0.1 remain unchanged.
+
+---
+
+## 10. 🚫 Explicitly not implemented or authorized
 
 ```text
 privacy registry persistence
@@ -320,6 +408,9 @@ Tool Receipt runtime
 tool execution
 P1-003 runtime assignment
 P1-003 runtime activation
+Non-Projection implementation contract
+Non-Projection runtime implementation
+P1-004 assignment
 backend discovery or plugin discovery
 backend selection or migration
 production deployment
@@ -329,23 +420,25 @@ consciousness or subjective-experience claims
 
 ---
 
-## 10. 🧱 Action Gate / retrieval boundary
+## 11. 🧱 Action Gate / retrieval boundary
 
 ```text
 Capability ALLOW
 + Privacy ALLOW_REFERENCE
 + P1-003 ELIGIBLE_FOR_NEXT_GATE
++ possible future Non-Projection PASS_ATTRIBUTED
 ≠ Action Gate PASS
 
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ retrieval permission
+PASS_ATTRIBUTED ≠ retrieval or execution permission
 ```
 
 No next gate or execution authority follows automatically.
 
 ---
 
-## 11. 🎭 Character / identity boundary
+## 12. 🎭 Character / identity boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
@@ -359,20 +452,21 @@ review and is not a current solo-mode blocker.
 
 ---
 
-## 12. 🛡️ Governance state
+## 13. 🛡️ Governance state
 
 The live solo ruleset retains mandatory PRs, strict required CI, up-to-date
 branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
 exists.
 
-P1-003 completion consumes its one-time Owner GO. Any new runtime-capable
-milestone requires a new bounded contract/decision as applicable, fresh live
-preflight, Tier A evidence and green resulting-main CI.
+P1-003 completion consumed its one-time Owner GO. Non-Projection readiness
+completion grants no implementation authorization. Any later candidate selection,
+implementation-contract freeze or Owner GO is a separate authority milestone
+starting from a fresh live preflight.
 
 ---
 
-## 13. 🔗 Authoritative navigation
+## 14. 🔗 Authoritative navigation
 
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
@@ -382,12 +476,14 @@ preflight, Tier A evidence and green resulting-main CI.
 - P1-003 authorization/completion receipt: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-003 frozen composer contract: `docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`
 - Cross-gate readiness: `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
+- Post-P1-003 selection: `docs/research/POST_P1_003_MILESTONE_SELECTION.md`
+- Non-Projection readiness: `docs/research/NON_PROJECTION_GATE_CONTRACT_READINESS.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
 ---
 
-## 14. 🏁 Current formula
+## 15. 🏁 Current formula
 
 ```text
 P0 foundation implemented
@@ -398,9 +494,16 @@ P0 foundation implemented
 + all P1-003 frozen CGC families validated
 + P1-003 Owner GO consumed
 + P1-003 runtime assignment remains NOT_ASSIGNED
++ post-P1-003 Non-Projection readiness selected
++ Non-Projection Gate Contract Readiness READY · FROZEN_DOCS
++ Attributed Interpretation Envelope selected
++ PASS_ATTRIBUTED positive ceiling frozen
++ P1-004 remains NOT_ASSIGNED
 + permanent CI
 + active solo governance
 
+≠ Non-Projection implementation contract
+≠ Non-Projection Owner GO or runtime implementation
 ≠ P1-003 runtime activation
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
