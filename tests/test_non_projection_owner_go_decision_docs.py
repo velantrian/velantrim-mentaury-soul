@@ -13,6 +13,12 @@ CONTRACT = (
     / "research"
     / "NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
+RECONCILIATION = (
+    ROOT
+    / "docs"
+    / "research"
+    / "NON_PROJECTION_IMPLEMENTATION_ADMISSION_COMPATIBILITY_RECONCILIATION.md"
+).read_text(encoding="utf-8")
 
 
 def test_owner_go_is_explicit_exact_and_bounded() -> None:
@@ -122,8 +128,31 @@ def test_p1_canon_and_governance_boundaries_are_preserved() -> None:
         assert marker in DECISION
 
 
-def test_owner_go_pr_contains_no_non_projection_implementation_package_yet() -> None:
-    assert not (ROOT / "src" / "mentaury" / "non_projection").exists()
+def test_owner_go_package_absence_is_historical_not_perpetual() -> None:
+    for marker in (
+        "Owner GO revalidation:                VALID_UNCHANGED",
+        "Implementation admission compatibility: READY",
+        "PR #88 itself was docs-only",
+        "#88 did not start implementation",
+        "later creation of the exact reserved package is allowed only in a fresh separate bounded implementation milestone",
+        "HISTORICAL #88 PACKAGE ABSENCE\n≠ PERPETUAL PACKAGE PROHIBITION",
+        "NON_PROJECTION_IMPLEMENTATION = NOT_STARTED",
+        "NON_PROJECTION_RUNTIME = NOT_AUTHORIZED",
+        "P1_004 = NOT_ASSIGNED",
+    ):
+        assert marker in RECONCILIATION
+
+
+def test_reconciliation_does_not_mutate_frozen_semantics_or_authority() -> None:
+    for marker in (
+        "NPG-v0.1 = FROZEN · UNCHANGED",
+        "OWNER GO = GRANTED · NPG-v0.1_ONLY · VALID_UNCHANGED",
+        "IMPLEMENTATION_ADMISSION_COMPATIBILITY = READY",
+        "RECONCILED IMPLEMENTATION ADMISSION\n≠ IMPLEMENTATION STARTED",
+        "OWNER GO REMAINS VALID\n≠ RUNTIME AUTHORITY\n≠ ACTION AUTHORITY",
+        "No `src/**` file is created or changed by this reconciliation milestone.",
+    ):
+        assert marker in RECONCILIATION
 
 
 def test_stop_boundary_is_explicit() -> None:
