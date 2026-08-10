@@ -1,11 +1,14 @@
-"""Structural assertions for the docs-only NPG-v0.1 implementation contract."""
+"""Structural assertions for the reconciled docs-only NPG-v0.1 contract."""
 
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = (
-    ROOT / "docs" / "research" / "NON_PROJECTION_IMPLEMENTATION_CONTRACT.md"
+    ROOT
+    / "docs"
+    / "research"
+    / "NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
 READINESS = (
     ROOT / "docs" / "research" / "NON_PROJECTION_GATE_CONTRACT_READINESS.md"
@@ -15,16 +18,19 @@ SELECTION = (
 ).read_text(encoding="utf-8")
 
 
-def test_contract_is_frozen_docs_only_without_owner_go_or_p1_004() -> None:
+def test_contract_freezes_docs_only_without_owner_go_or_p1_004() -> None:
     for marker in (
         "FROZEN_DOCS · DOCS_ONLY · IMPLEMENTATION_CONTRACT",
-        "Selected candidate:                  PURE_NON_PROJECTION_CLASSIFIER",
         "Contract version:                    NPG-v0.1",
+        "Candidate:                           PURE_NON_PROJECTION_CLASSIFIER",
+        "Implementation contract:             FROZEN_DOCS",
         "P1-004 assignment:                   NOT_ASSIGNED",
         "Non-Projection Owner GO:             NOT_GRANTED",
         "Implementation authorization:        NONE",
         "Runtime implementation:              NOT_AUTHORIZED",
         "Runtime activation:                  NOT_AUTHORIZED",
+        "CONTRACT FROZEN ≠ OWNER GO.",
+        "THIS DOCUMENT DOES NOT AUTHORIZE IMPLEMENTATION.",
     ):
         assert marker in CONTRACT
 
@@ -47,21 +53,20 @@ def test_exact_package_and_public_api_are_frozen() -> None:
 
 def test_versions_domains_and_hard_caps_are_exact() -> None:
     for marker in (
-        'NON_PROJECTION_CONTRACT_VERSION              = "NPG-v0.1"',
-        'ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION   = "AIE-v0.1"',
-        'CANONICAL_PROFILE                            = "MENTAURY_CANONICAL_JSON_V1"',
-        'ENVELOPE_FINGERPRINT_DOMAIN                  = "MENTAURY_NPG_ENVELOPE_V1"',
-        'CLASSIFICATION_FINGERPRINT_DOMAIN            = "MENTAURY_NPG_CLASSIFICATION_V1"',
-        "HARD_MAX_ENVELOPE_BYTES                      = 262144",
-        "HARD_MAX_REVIEW_RECORDS                      = 64",
-        "HARD_MAX_SCOPE_ENTRIES                       = 128",
-        "HARD_MAX_REFERENCE_COUNT                     = 512",
-        "MAX_REFERENCE_UTF8_BYTES                     = 4096",
+        'NON_PROJECTION_CONTRACT_VERSION            = "NPG-v0.1"',
+        'ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION = "AIE-v0.1"',
+        'CANONICAL_PROFILE                          = "MENTAURY_CANONICAL_JSON_V1"',
+        'INPUT_FINGERPRINT_DOMAIN                   = "MENTAURY_NPG_INPUT_V1"',
+        'SOURCE_PROVENANCE_SCOPE                    = "CALLER_SUPPLIED_ATTRIBUTED_VALUES_ONLY"',
+        "HARD_MAX_STRING_BYTES                      = 4096",
+        "HARD_MAX_TUPLE_ITEMS                       = 512",
+        "HARD_MAX_REVIEW_RECORDS                    = 64",
+        "HARD_MAX_CANONICAL_INPUT_BYTES             = 262144",
     ):
         assert marker in CONTRACT
 
 
-def test_frozen_readiness_vocabulary_is_retained() -> None:
+def test_readiness_vocabulary_is_preserved() -> None:
     source_classes = (
         "CREATOR_TESTIMONY",
         "CURRENT_USER_TESTIMONY",
@@ -98,8 +103,8 @@ def test_frozen_readiness_vocabulary_is_retained() -> None:
         assert marker in READINESS
 
 
-def test_exact_immutable_schema_is_frozen() -> None:
-    classes = (
+def test_exact_immutable_contract_types_are_frozen() -> None:
+    for marker in (
         "class SourceProvenance:",
         "class Attribution:",
         "class Claim:",
@@ -109,178 +114,166 @@ def test_exact_immutable_schema_is_frozen() -> None:
         "class ReviewProvenance:",
         "class ScopeBoundary:",
         "class AuthorityExclusions:",
-        "class ProposedUse:",
+        "class ProjectionIntent:",
         "class AttributedInterpretationEnvelope:",
         "class NonProjectionBudget:",
         "class NonProjectionResult:",
-    )
-    for marker in classes:
-        assert marker in CONTRACT
-
-    for marker in (
-        "source_provenance: SourceProvenance",
-        "attribution: Attribution",
-        "claim: Claim",
-        "interpretation: Interpretation",
-        "contextual_distance: ContextualDistance",
-        "review_provenance: ReviewProvenance",
-        "scope: ScopeBoundary",
-        "authority_exclusions: AuthorityExclusions",
-        "proposed_use: ProposedUse",
+        "provider_ref: str | None",
+        "claimed_independent_review_count: int",
+        "effective_independent_review_count: int",
     ):
         assert marker in CONTRACT
 
 
-def test_malformed_policy_and_no_hidden_normalization_are_explicit() -> None:
+def test_malformed_policy_and_no_hidden_normalization_are_frozen() -> None:
     for marker in (
         "class NonProjectionContractError(ValueError):",
-        "It does **not** return a classification.",
-        "every tuple of string references is already sorted and unique",
-        "no hidden trimming, sorting, aliasing, case folding, semantic mapping or",
-        "normalization is allowed",
-        '"creator:1" ≠ "CREATOR:1"',
+        "A contract error returns no ordinary classification",
+        "every tuple of strings is already lexicographically sorted and unique",
+        "no hidden trimming, sorting, aliasing, case folding, translation or semantic",
+        '"creator-1" ≠ " creator-1 "',
+        "reordered tuples ≠ silently repaired tuples",
     ):
         assert marker in CONTRACT
 
 
-def test_verified_self_is_fail_closed_in_v0_1() -> None:
+def test_verified_self_is_fail_closed() -> None:
     for marker in (
-        "`NPG-v0.1` intentionally contains **no identity/continuation binding**.",
+        "NPG-v0.1 intentionally owns no identity/continuation binder.",
         "NON_SELF      → eligible for bounded evaluation",
         "UNKNOWN       → DEFER · SUBJECT_RELATION_UNKNOWN",
-        "VERIFIED_SELF → DEFER · SELF_EVIDENCE_BINDING_UNSUPPORTED",
+        "VERIFIED_SELF → DEFER · SELF_BASIS_UNVERIFIED",
     ):
         assert marker in CONTRACT
 
 
-def test_reviewer_correlation_algorithm_is_exact() -> None:
+def test_reviewer_correlation_is_computed_not_trusted() -> None:
     for marker in (
-        "effective_independent_review_count",
-        "independence_class == INDEPENDENT",
+        "computes `effective_independent_review_count`",
+        "independence == INDEPENDENT",
         "saw_prior_output == False",
-        "provider_ref` occurs in exactly one review record",
-        "prompt_family_ref` occurs in exactly one review record",
-        "context_snapshot_ref` occurs in exactly one review record",
-        "claimed_independent_review_count > effective_independent_review_count",
-        "Repeated correlated evidence never becomes independent by quantity.",
+        "provider_ref occurs exactly once among non-null provider refs",
+        "prompt_family_ref occurs exactly once among non-null prompt-family refs",
+        "context_snapshot_ref occurs exactly once among non-null context-snapshot refs",
+        "> effective_independent_review_count",
+        "same provider/model only  ≠ independent convergence",
+        "repeated derived reviews  ≠ additional independent evidence",
     ):
         assert marker in CONTRACT
 
 
-def test_all_twelve_threats_have_exact_executable_mapping() -> None:
+def test_all_twelve_threats_are_mapped_and_inherited() -> None:
     for number in range(1, 13):
-        threat = f"NPG-T{number:02d}"
-        assert threat in CONTRACT
-        assert threat in READINESS
+        marker = f"NPG-T{number:02d}"
+        assert marker in CONTRACT
+        assert marker in READINESS
 
-    mappings = (
-        "present_as_mentaury_autobiography == True",
-        "authority_exclusions.capability_authority",
-        "proposed_use.truth_mode == UNIVERSAL_FACT",
-        "proposed_use.adopt_source_emotion_as_drive == True",
-        "proposed_use.character_override_evidence == True",
-        "proposed_use.generalize_beyond_scope == True",
+    for marker in (
+        "adopt_as_self_experience == True",
+        "inherit_source_authority == True",
+        "assert_as_objective_truth == True",
+        "adopt_source_emotion_as_drive == True",
+        "style_changes_evidence_status == True",
+        "generalize_beyond_scope == True",
         "claimed_independent_review_count > effective_independent_review_count",
-        "proposed_use.context_collapsed == True",
-        "proposed_use.relationship_adoption == True",
-        "proposed_use.identity_trait_adoption == True",
-        "proposed_use.interpretation_as_direct_source == True",
-        "proposed_use.consent_transfer == True",
-    )
-    for marker in mappings:
+        "discard_relevant_context == True",
+        "inherit_relationship_or_commitment == True",
+        "promote_to_stable_identity_trait == True",
+        "present_interpretation_as_direct_testimony == True",
+        "inherit_consent == True",
+    ):
         assert marker in CONTRACT
 
 
-def test_fail_closed_precedence_and_reason_families_are_frozen() -> None:
-    assert (
-        "REJECT\n> DEFER\n> CONTESTED\n> REVISE_REQUIRED\n> PASS_ATTRIBUTED"
-        in CONTRACT
-    )
+def test_fail_closed_precedence_and_reason_families_are_exact() -> None:
+    assert "REJECT\n> DEFER\n> CONTESTED\n> REVISE_REQUIRED\n> PASS_ATTRIBUTED" in CONTRACT
     for marker in (
+        "ENVELOPE_VERSION_UNVERIFIED",
         "BUDGET_EXHAUSTED",
-        "SUBJECT_RELATION_UNKNOWN",
-        "SELF_EVIDENCE_BINDING_UNSUPPORTED",
-        "PROVENANCE_UNKNOWN",
+        "CANONICALIZATION_FAILED",
         "SOURCE_CLASS_UNKNOWN",
         "SOURCE_ORIGIN_UNKNOWN",
-        "CONTEXT_DISTANCE_UNKNOWN",
-        "SCOPE_UNRESOLVED",
+        "PROVENANCE_UNKNOWN",
+        "PROVENANCE_MATERIAL_GAP",
+        "SUBJECT_RELATION_UNKNOWN",
+        "SELF_BASIS_UNVERIFIED",
+        "INTERPRETATION_UNKNOWN",
+        "CONTEXT_UNKNOWN",
+        "SCOPE_UNKNOWN",
         "PROVENANCE_CONFLICTING",
         "INTERPRETATION_CONTESTED",
-        "PROVENANCE_PARTIAL",
         "ATTRIBUTION_REPAIR_REQUIRED",
-        "CONTEXT_ACKNOWLEDGEMENT_REQUIRED",
+        "CONTEXT_SCOPE_REPAIR_REQUIRED",
     ):
         assert marker in CONTRACT
 
 
-def test_fingerprints_are_derived_not_caller_authority() -> None:
+def test_partial_provenance_and_historical_repair_match_readiness() -> None:
     for marker in (
-        "MENTAURY_NPG_ENVELOPE_V1",
-        "MENTAURY_NPG_CLASSIFICATION_V1",
+        "provenance_state == PARTIAL and material_gaps != ()",
+        "`PARTIAL` provenance with `material_gaps == ()` is not automatically deferred",
+        "scope.transfer_limits == ()",
+        "source_class == HISTORICAL_PRIMARY",
+        "source_class == HISTORICAL_SECONDARY",
+        "→ REVISE_REQUIRED · CONTEXT_SCOPE_REPAIR_REQUIRED",
+    ):
+        assert marker in CONTRACT
+
+
+def test_input_fingerprint_is_derived_evidence_only() -> None:
+    for marker in (
+        "MENTAURY_NPG_INPUT_V1",
+        "CALLER_SUPPLIED_ATTRIBUTED_VALUES_ONLY",
+        "canonical_json_bytes(...) ",
         "hashlib.sha256(bytes).hexdigest()",
-        "lowercase 64-character SHA-256 hex strings",
-        "Fingerprints are derived evidence only and grant no authority.",
-        "caller fingerprint                             = FORBIDDEN API",
+        "lowercase 64-character SHA-256 hex",
+        "fingerprint is derived audit evidence only",
     ):
-        assert marker in CONTRACT
+        assert marker.strip() in CONTRACT
 
 
-def test_inherited_scenario_outcomes_are_preserved() -> None:
-    expected = {
-        "NPG-SC-001": "`PASS_ATTRIBUTED` | `PASS_ATTRIBUTED`",
-        "NPG-SC-002": "`PASS_ATTRIBUTED` | `PASS_ATTRIBUTED`",
-        "NPG-SC-003": "`REJECT` | `NPG-T07`",
-        "NPG-SC-004": "`REJECT` | `NPG-T03`",
-        "NPG-SC-005": "`REJECT` | `NPG-T04`",
-        "NPG-SC-006": "`REJECT` | `NPG-T01`",
-        "NPG-SC-007": "`PASS_ATTRIBUTED` | `PASS_ATTRIBUTED`",
-        "NPG-SC-009": "`REJECT` | `NPG-T09`",
-        "NPG-SC-010": "`REJECT` | `NPG-T05`",
-        "NPG-SC-012": "`REJECT` | `NPG-T02`",
-    }
-    for scenario, suffix in expected.items():
-        assert f"| `{scenario}` | {suffix} |" in CONTRACT
+def test_exact_readiness_scenarios_are_preserved_without_013() -> None:
+    for number in range(1, 13):
+        assert f"`NPG-SC-{number:03d}`" in CONTRACT
+        assert f"`NPG-SC-{number:03d}`" in READINESS
 
-    assert "| `NPG-SC-008` | `REVISE_REQUIRED` |" in CONTRACT
-    assert "CONTEXT_ACKNOWLEDGEMENT_REQUIRED" in CONTRACT
-    assert "| `NPG-SC-011` | `DEFER` |" in CONTRACT
-    assert "PROVENANCE_UNKNOWN" in CONTRACT
     assert "NPG-SC-CONTESTED-001" in CONTRACT
-    assert "→ CONTESTED · INTERPRETATION_CONTESTED" in CONTRACT
+    assert "No `NPG-SC-013` is created by this contract." in CONTRACT
+    assert "`NPG-SC-008` | historical advice lacks transfer limits" in CONTRACT
+    assert "REVISE_REQUIRED · CONTEXT_SCOPE_REPAIR_REQUIRED" in CONTRACT
+    assert "`NPG-SC-011` | materially unknown source identity/provenance" in CONTRACT
+    assert "DEFER · PROVENANCE_UNKNOWN" in CONTRACT
 
 
-def test_executable_matrix_families_are_frozen() -> None:
-    for marker in (
-        "NPG-ADM-001…NPG-ADM-020",
-        "NPG-THR-001…NPG-THR-012",
-        "NPG-SC-001…NPG-SC-012",
-        "NPG-SC-CONTESTED-001",
-        "NPG-DEC-001…NPG-DEC-012",
-        "NPG-FP-001…NPG-FP-008",
-        "MT-NPG-001…MT-NPG-008",
-        "NPG-PURE-001…NPG-PURE-010",
-    ):
-        assert marker in CONTRACT
-
+def test_metamorphic_and_executable_families_are_frozen() -> None:
     for number in range(1, 9):
         marker = f"MT-NPG-{number:03d}"
         assert marker in CONTRACT
         assert marker in READINESS
 
-
-def test_purity_boundary_is_explicit() -> None:
     for marker in (
-        "no network access",
-        "no filesystem access",
-        "no database / vector / graph access",
-        "no model / LLM call",
-        "no retrieval / Atlas lookup",
-        "no persistence / event append / M2/M3 mutation",
-        "no identity / relationship registry lookup",
-        "no Action Gate / capability / tool invocation",
-        "no ambient clock / random / environment dependency",
-        "import has no side effects and same input is deterministic",
+        "NPC-CTX-001…022",
+        "NPC-FP-001…008",
+        "NPC-DEC-001…016",
+        "NPC-T-001…012",
+        "NPC-SC-001…NPC-SC-012",
+        "NPC-SC-CONTESTED-001",
+        "NPC-M-001…008",
+        "NPC-PURE-001…010",
+    ):
+        assert marker in CONTRACT
+
+
+def test_purity_and_no_hidden_authority_are_explicit() -> None:
+    for marker in (
+        "no ambient filesystem/database/network use",
+        "no vector/graph/Atlas retrieval",
+        "no ambient clock/random dependency",
+        "no environment-variable authority",
+        "no model/LLM invocation",
+        "no persistence/event/replay/belief/identity/relationship/M2/M3 mutation",
+        "no Action Gate/capability/tool/subprocess/dynamic-plugin invocation",
+        "canonical_json dependency",
     ):
         assert marker in CONTRACT
 
@@ -292,21 +285,20 @@ def test_p1_character_canon_and_authority_boundaries_remain_closed() -> None:
         "P1-003 contract = unchanged",
         "MENTAURY_CANON_V0.1 = unchanged",
         "P1_003_ELIGIBLE_FOR_NEXT_GATE\n+ PASS_ATTRIBUTED\n≠ Action Gate PASS",
-        "Character presentation\n→ cannot change envelope provenance",
-        "P1_004 = NOT_ASSIGNED",
-        "NON_PROJECTION_OWNER_GO = NOT_GRANTED",
-        "IMPLEMENTATION_AUTHORIZATION = NONE",
-        "NON_PROJECTION_RUNTIME = NOT_AUTHORIZED",
+        "Character presentation\n→ cannot alter provenance",
+        "P1_004                                 = NOT_ASSIGNED",
+        "NON_PROJECTION_OWNER_GO                = NOT_GRANTED",
+        "IMPLEMENTATION_AUTHORIZATION           = NONE",
+        "NON_PROJECTION_RUNTIME                 = NOT_AUTHORIZED",
     ):
         assert marker in CONTRACT
 
 
-def test_next_step_is_owner_go_only_not_implementation() -> None:
+def test_next_step_is_separate_owner_go_only() -> None:
     for marker in (
         "NON_PROJECTION_IMPLEMENTATION_CONTRACT_FROZEN_DOCS_ONLY",
-        "explicit separate NON_PROJECTION_OWNER_GO_AUTHORIZED_BOUNDED",
-        "No later state follows automatically.",
-        "CONTRACT FROZEN ≠ OWNER GO.",
-        "THIS DOCUMENT DOES NOT AUTHORIZE IMPLEMENTATION.",
+        "separate explicit Owner GO decision",
+        "only if GO: clean Tier A bounded implementation milestone",
+        "No wording in this document constitutes that GO.",
     ):
         assert marker in CONTRACT
