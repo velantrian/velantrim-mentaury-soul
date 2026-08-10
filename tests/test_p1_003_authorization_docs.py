@@ -101,9 +101,23 @@ def test_authorization_boundary_remains_non_executing() -> None:
         assert marker in combined
 
 
-def test_owner_go_reconciliation_contains_no_runtime_implementation() -> None:
-    assert not (ROOT / "src" / "mentaury" / "composition").exists()
-    assert "No `src/mentaury/composition/**` file is created" in AUTH
+def test_candidate_implementation_exists_without_completion_claim() -> None:
+    package = ROOT / "src" / "mentaury" / "composition"
+    assert package.is_dir()
+    expected = {
+        "__init__.py",
+        "governed_constraints/__init__.py",
+        "governed_constraints/contracts.py",
+        "governed_constraints/composer.py",
+    }
+    actual = {
+        path.relative_to(package).as_posix()
+        for path in package.rglob("*.py")
+    }
+    assert actual == expected
+    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTH
+    assert "OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED" not in AUTH
+    assert "P1_003_IMPLEMENTATION_NOT_STARTED" in CURRENT_STATUS
 
 
 def test_compatibility_stop_is_explicit() -> None:
