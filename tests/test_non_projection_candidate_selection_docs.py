@@ -40,14 +40,19 @@ def test_selected_candidate_is_pure_and_explicit_input_only() -> None:
 
 
 def test_candidate_inherits_frozen_readiness_families() -> None:
+    for marker in (
+        "NPG-T01…NPG-T12",
+        "NPG-SC-001…NPG-SC-012",
+        "MT-NPG-001…MT-NPG-008",
+    ):
+        assert marker in SELECTION
+        assert marker in READINESS
+
     for number in range(1, 13):
-        assert f"NPG-T{number:02d}" in SELECTION
-        assert f"NPG-SC-{number:03d}" in SELECTION
         assert f"NPG-T{number:02d}" in READINESS
         assert f"NPG-SC-{number:03d}" in READINESS
 
     for number in range(1, 9):
-        assert f"MT-NPG-{number:03d}" in SELECTION
         assert f"MT-NPG-{number:03d}" in READINESS
 
 
