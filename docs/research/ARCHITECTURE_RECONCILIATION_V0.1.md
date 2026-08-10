@@ -259,7 +259,7 @@ Architecture
 → Architecture Readiness Review
 → neutral technical skeleton decision
 → P0 Event Substrate implementation
-→ validation under owning gate's requirements (see GOVERNANCE.md § 3.2)
+→ validation under owning gate's own stated requirements (see `docs/GOVERNANCE.md`)
 → post-P0 domain specifications
 → bounded runtime experiments
 ```

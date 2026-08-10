@@ -1,358 +1,498 @@
-# 🔐 Capability Lease Resolution — Research Notes
+# 🔐 Capability Lease Resolution — Contract
 
 ```text
-Статус:                       ADOPTED · RESEARCH_NOTES · NON_CANONICAL · DOCS_ONLY · NOT_IMPLEMENTED
-Версия:                       0.1
-Дата:                         2026-08-07
-Целевая фаза:                 POST_P0 / P1-001 (docs-first)
+Status:                       ADOPTED · FROZEN_DOCS · DOCS_ONLY · NOT_IMPLEMENTED
+Version:                      0.2
+Frozen by:                    PR #58
+Reviewed head:                a32b0e4fe55382f76a70b2205104af2e28f99451
+Exact-head CI:                31317003807 · success
+Merge:                        8e89063fd74f5ae6d337366c299fa5f4e0164618
+Post-merge CI:                31317057193 · success
+Target milestone:             POST_P0 / P1-001
 Runtime authority:            NONE
 Truth authority:              NONE
+Identity authority:           NONE
 Capability authority:         NONE
 Canon modification authority: NONE
-Прямая запись в M3:           FORBIDDEN
+Direct or indirect M3 write:  FORBIDDEN
 Implementation in src/:       NOT AUTHORIZED
+Review mode:                  SOLO_MAINTAINER · TIER_A
+Independent assurance:        NOT CLAIMED
 ```
 
-> Этот документ — **owner-adopted** docs authority для P1-001 Capability
-> Lease Resolution (см. [`CURRENT_STATUS.md`](../CURRENT_STATUS.md) и
-> [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md)). Он разворачивает
-> stub Identity Continuity §12.3 в полный **resolution contract**.
-> `ADOPTED` относится только к docs-контракту: lease registry / `resolve()`
-> в `src/` **не** авторизованы, runtime permissions этим документом
-> **не** выдаются.
+```text
+FROZEN_DOCS ≠ implementation permission
+AuthorityRef ≠ permission blob
+Resolution ALLOW ≠ action execution
+Maintainer review ≠ independent human review
+```
 
 ---
 
-## 1. 🎯 Проблема
+## 1. 🎯 Problem
 
-В P0 `AuthorityRef` уже существует:
+P0 stores an immutable reference:
 
 ```text
+AuthorityRef = capability_lease_id + capability_revision
+```
+
+It provides provenance and equality checks, but not an enforceable grant. P1-001
+freezes a future pure resolver contract without implementing it.
+
+---
+
+## 2. 🪞 Scope
+
+In scope:
+
+- immutable `CapabilityLeaseRecord`;
+- explicit caller-supplied `RegistrySnapshot`;
+- versioned snapshot and record admission;
+- exact live-head lookup;
+- canonical digest recomputation;
+- caller-supplied time and budgets;
+- exact purpose, operation, typed scope and side-effect checks;
+- deterministic first-match denial;
+- fork/restore quarantine.
+
+Out of scope:
+
+```text
+registry or resolver code
+network lookup or ambient clock
+environment-variable authority
+Action Gate or Tool Receipt runtime
+tool execution or external effects
+belief / identity / relationship mutation
+direct or indirect M3 write
+operator override inside resolve()
+backend selection
+Canon modification
+```
+
+Snapshot provenance remains an upstream caller-side boundary. The resolver can
+validate supplied structure but cannot prove who produced it.
+
+---
+
+## 3. 📚 Typed inputs
+
+```text
+RegistrySnapshot
 AuthorityRef
-= capability_lease_id + capability_revision
+ActionIntent
+evaluated_at
+ResolutionBudget
+→ ResolutionResult
 ```
 
-Фактически сегодня:
+Reference shape:
+
+```yaml
+registry_snapshot:
+  availability: "AVAILABLE"
+  unavailable_reason: null
+  registry_schema_version: 1
+  live_heads:
+    "CAP-...": 3
+  records:
+    - capability_lease_record
+
+authority_ref:
+  capability_lease_id: "CAP-..."
+  capability_revision: 3
+
+action_intent:
+  purpose_id: "PURPOSE-..."
+  operation_id: "OP-..."
+  data_scope:
+    - kind: "stream"
+      identifier: "..."
+  requested_side_effects: []
+
+evaluated_at: "2026-08-09T12:00:00Z"
+
+resolution_budget:
+  max_registry_lookups: 1
+  max_record_bytes: 65536
+  max_scope_items: 128
+```
+
+No ambient default may expand permission.
+
+### 3.1 RegistrySnapshot admission
+
+An AVAILABLE snapshot is admitted before lookup:
 
 ```text
-✅ запись lease_id / revision на envelopes и linked records
-✅ equality-check между связанными записями (например redaction ↔ evidence)
-❌ lookup в registry
-❌ проверка expiration / revocation
-❌ проверка purpose / data_scope / allowed_operations
-❌ fail-closed deny с machine-readable reason
+supported exact registry_schema_version
+availability is AVAILABLE or UNAVAILABLE
+UNAVAILABLE carries no grantable records
+bounded unique live-head map
+unique records indexed by (lease_id, revision)
+no duplicate record keys
+live-head entries point to existing exact records
+unknown snapshot fields rejected
 ```
 
-Следствие (зафиксировано аудитом 2026-08-06):
+Malformed structure returns `REGISTRY_CONTRACT_VIOLATION`.
 
 ```text
-capability_lease_id сейчас
-= opaque provenance string
-≠ enforceable permission grant
+REGISTRY_UNAVAILABLE ≠ REGISTRY_CONTRACT_VIOLATION
+REGISTRY_CONTRACT_VIOLATION ≠ UNKNOWN_LEASE
+UNKNOWN_LEASE ≠ REVISION_MISMATCH
 ```
+
+The resolver never repairs, merges or infers registry state.
 
 ---
 
-## 2. 🪞 Scope и Non-claims
-
-### ✅ В scope (docs)
-
-- контракт записи Capability Lease;
-- lifecycle states;
-- pure resolution algorithm и rejection codes;
-- fork / restore → `UNVERIFIED`;
-- adversarial / scenario contracts;
-- граница с Tool Receipt и Action Gate (**без** их runtime);
-- критерии будущего Evidence Gate перед `src/` GO.
-
-### ❌ Non-claims
-
-```text
-❌ этот документ выдаёт permissions
-❌ AuthorityRef становится self-authenticating blob
-❌ Tool availability = personal ability
-❌ Exo-Cortex expansion = identity expansion
-❌ Action Gate execution authorized
-❌ domain runtime authorized
-❌ Canon v0.1 изменён
-❌ P1-001 ✅ Implemented
-```
-
----
-
-## 3. 📚 Vocabulary
-
-```text
-AuthorityRef
-→ ссылка на внешнюю lease-запись (id + revision)
-
-Capability Lease record
-→ registry-запись о выданном, ограниченном праве
-
-Resolution request
-→ (AuthorityRef, action_intent, time, budgets, registry_snapshot)
-
-Resolution result
-→ ALLOW | DENY + reason_code + observed lease revision/status
-
-Tool Receipt
-→ доказательство попытки/результата tool operation (отдельный трек)
-
-Action Gate
-→ будущий runtime-путь внешних side effects (НЕ авторизован здесь)
-```
-
-```text
-AuthorityRef ≠ permission copy
-Lease record ≠ truth
-ALLOW ≠ identity authority
-ALLOW ≠ M3 write
-ALLOW ≠ objective fact
-```
-
----
-
-## 4. 🧾 Lease record contract
-
-Расширение Identity Continuity §12.3:
+## 4. 🧾 CapabilityLeaseRecord
 
 ```yaml
 capability_lease:
-  lease_id: "CAP-..."                    # стабильный id
-  revision: 1                            # монотонная ревизия записи
-  status: "ACTIVE"                       # см. §5
-  tool_id: "..."                         # optional; null = non-tool grant
-  granted_by:                            # ActorRef
-    actor_type: "..."
+  lease_id: "CAP-..."
+  revision: 1
+  supersedes_revision: null
+  status: "ACTIVE"
+  tool_id: null
+  granted_by:
+    actor_type: "operator"
     actor_id: "..."
-  purpose: "..."                         # обязательная цель
-  allowed_operations: []                 # закрытый список операций
-  data_scope: []                         # допустимые stream/data классы
-  allowed_side_effects: []               # пусто = side effects запрещены
-  not_before: "RFC3339 / profile time"
-  expires_at: "RFC3339 / profile time"   # обязателен; open-ended FORBIDDEN
+  purpose_id: "PURPOSE-..."
+  allowed_operations: []
+  data_scope: []
+  allowed_side_effects: []
+  not_before: "2026-08-09T00:00:00Z"
+  expires_at: "2026-08-10T00:00:00Z"
   revocation_conditions: []
   revoked_at: null
-  delegation_allowed: false              # default false
-  branch_transfer_allowed: false         # default false
+  delegation_allowed: false
+  branch_transfer_allowed: false
   audit_required: true
-  identity_authority: "NONE"             # всегда NONE в v0.1
-  direct_m3_write: false                 # всегда false в v0.1
-  supersedes_revision: null              # если rotate
-  content_digest: "sha256:..."           # canonical digest записи
+  identity_authority: "NONE"
+  direct_m3_write: false
+  content_digest: "sha256:..."
 ```
 
-Инварианты записи:
+### 4.1 Record admission
+
+Before digest or semantic authorization:
 
 ```text
-expires_at MUST be present
-identity_authority MUST be NONE (v0.1)
-direct_m3_write MUST be false (v0.1)
-delegation_allowed default false
-branch_transfer_allowed default false
-revision increments only via superseding write
+unknown / missing fields rejected
+wrong scalar or collection type rejected
+duplicate set-like members rejected
+non-canonical set ordering rejected
+invalid RFC3339 UTC Z timestamps rejected
+non-positive revision rejected
+lookup key / record key mismatch rejected
+record exceeding max_record_bytes → BUDGET_EXHAUSTED
 ```
+
+Admission failure returns `LEASE_CONTRACT_VIOLATION`. An outer parser must
+already enforce a bounded total input size.
+
+### 4.2 Invariants
+
+```text
+revision 1 → supersedes_revision null
+revision n > 1 → supersedes_revision = n - 1
+no revision gaps or branches in v0.1
+purpose_id is exact, not semantic free text
+operations / side effects are unique and sorted
+data_scope is unique and sorted by (kind, identifier)
+not_before < expires_at
+expires_at required
+delegation_allowed = false by default
+branch_transfer_allowed = false by default
+identity_authority = NONE
+direct_m3_write = false
+revoked_at non-null iff status = REVOKED
+```
+
+Set-like ordering is schema admission, not a canonical-JSON side effect.
+
+### 4.3 Digest domain
+
+```text
+lease_digest_payload
+= admitted record without top-level content_digest
+
+canonical_bytes
+= MENTAURY_CANONICAL_JSON_V1(lease_digest_payload)
+
+content_digest
+= "sha256:" + lowercase_hex(SHA-256(canonical_bytes))
+```
+
+Stored digest is never trusted without recomputation.
 
 ---
 
-## 5. 🔄 Lifecycle states
+## 5. 🔄 Lifecycle and lookup
+
+States:
 
 ```text
-PROPOSED     → записан, ещё не действует
-ACTIVE       → может пройти resolution (если все checks ok)
-SUSPENDED    → временно недействителен
-REVOKED      → окончательно отозван
-EXPIRED      → время вышло (может вычисляться; см. ниже)
-SUPERSEDED   → заменён большей revision
-UNVERIFIED   → унаследован после fork/restore; требует revalidation
+PROPOSED · ACTIVE · SUSPENDED · REVOKED · EXPIRED · SUPERSEDED · UNVERIFIED
 ```
 
-Правила:
+Only ACTIVE may reach the grant path. Historical audit resolution is outside
+P1-001.
+
+Exact lookup:
 
 ```text
-EXPIRED может быть derived-at-resolution от expires_at
-  или материализован registry-переходом — профиль обязан выбрать одно
-  и применять детерминированно.
-
-Fork / restore:
-  inherited ACTIVE|SUSPENDED claims → UNVERIFIED
-  external side effects FORBIDDEN until revalidation or new lease.
-
-SUPERSEDED:
-  AuthorityRef.revision must match the live head unless
-  profile explicitly allows historical resolve-for-audit (default: NO).
+one lookup by lease_id
+→ admitted live-head revision
+→ requested revision must equal live head
+→ exact record by (lease_id, revision)
 ```
+
+No history walk, fallback, nearest revision, wildcard or semantic lookup.
+
+### 5.1 Time and lifecycle consistency
+
+The resolver receives `evaluated_at`; it never reads the system clock.
+
+```text
+valid ACTIVE interval:
+not_before <= evaluated_at < expires_at
+
+status EXPIRED while evaluated_at < expires_at
+→ LEASE_CONTRACT_VIOLATION
+
+status ACTIVE while evaluated_at >= expires_at
+→ LEASE_EXPIRED
+
+status REVOKED with revoked_at null
+or non-REVOKED with revoked_at non-null
+→ LEASE_CONTRACT_VIOLATION
+```
+
+The resolver mutates no state.
+
+### 5.2 Fork / restore quarantine
+
+```text
+source record remains audit-readable
+→ destination creates a new revision
+→ destination revision = UNVERIFIED
+→ old ref returns REVISION_MISMATCH
+→ new UNVERIFIED ref returns LEASE_NOT_ACTIVE
+```
+
+Reactivation requires explicit revalidation outside the resolver.
 
 ---
 
-## 6. ⚙️ Resolution algorithm (docs)
-
-Pure function:
+## 6. ⚙️ Pure resolver
 
 ```text
 resolve(
   registry_snapshot,
-  authority_ref,          # lease_id + revision
-  action_intent,          # purpose, operation, data_scope, side_effects?
-  now,
-  budgets
+  authority_ref,
+  action_intent,
+  evaluated_at,
+  resolution_budget
 ) → ResolutionResult
 ```
 
-### 6.1 Ordered checks (fail-closed, first match wins)
+Properties:
 
-| # | Check | DENY reason |
+```text
+pure and deterministic
+fail closed
+no network
+no system clock
+no environment authority
+no registry mutation
+no event append
+no belief / identity / relationship / M3 mutation
+no tool execution
+no operator override
+```
+
+---
+
+## 7. 🚦 Normative deny precedence
+
+First matching failure supplies the single primary reason.
+
+| Order | Check | Primary result |
+|---:|---|---|
+| 1 | request shape and required fields admitted | `REQUEST_INVALID` |
+| 2 | budget object present | `BUDGET_MISSING` |
+| 3 | budget values admitted and one lookup permitted | `BUDGET_EXHAUSTED` |
+| 4 | registry snapshot available | `REGISTRY_UNAVAILABLE` |
+| 5 | registry snapshot admitted | `REGISTRY_CONTRACT_VIOLATION` |
+| 6 | exact lease id exists | `UNKNOWN_LEASE` |
+| 7 | requested revision equals admitted live head | `REVISION_MISMATCH` |
+| 8 | selected record fits `max_record_bytes` | `BUDGET_EXHAUSTED` |
+| 9 | selected record admitted | `LEASE_CONTRACT_VIOLATION` |
+| 10 | recomputed digest matches | `LEASE_DIGEST_MISMATCH` |
+| 11 | semantic invariants and supersession valid | `LEASE_CONTRACT_VIOLATION` |
+| 12 | lifecycle status and timestamps consistent | `LEASE_CONTRACT_VIOLATION` |
+| 13 | not revoked | `LEASE_REVOKED` |
+| 14 | not materialized or derived expired | `LEASE_EXPIRED` |
+| 15 | status exactly ACTIVE | `LEASE_NOT_ACTIVE` |
+| 16 | `evaluated_at >= not_before` | `NOT_YET_VALID` |
+| 17 | exact purpose equality | `PURPOSE_MISMATCH` |
+| 18 | exact operation membership | `OPERATION_NOT_ALLOWED` |
+| 19 | scope counts fit `max_scope_items` | `BUDGET_EXHAUSTED` |
+| 20 | requested typed scope is allowed subset | `DATA_SCOPE_VIOLATION` |
+| 21 | requested side effects are allowed subset | `SIDE_EFFECT_NOT_ALLOWED` |
+| 22 | every check passes | `ALLOW` |
+
+```text
+BUDGET_MISSING ≠ BUDGET_EXHAUSTED
+revision behind or ahead → REVISION_MISMATCH
+purpose → exact identifier equality
+scope → exact typed-set containment
+wildcard / hierarchy / semantic similarity → forbidden
+```
+
+---
+
+## 8. 📤 ResolutionResult
+
+```yaml
+resolution_result:
+  decision: "DENY"
+  primary_reason: "REVISION_MISMATCH"
+  lease_id: "CAP-..."
+  requested_revision: 2
+  observed_live_revision: 3
+  observed_status: "ACTIVE"
+  observed_digest: "sha256:..."
+  evaluated_at: "2026-08-09T12:00:00Z"
+  resolver_contract_version: "P1-001-v0.2"
+```
+
+No result may contain permission material reusable as authority.
+
+```text
+ALLOW ≠ Tool Receipt
+ALLOW ≠ Action Gate approval
+ALLOW ≠ execution success
+ALLOW ≠ truth or identity authority
+```
+
+---
+
+## 9. 🧪 Scenario contract
+
+| ID | Scenario | Expected primary result |
 |---|---|---|
-| 1 | budgets present and not exhausted | `BUDGET_EXHAUSTED` |
-| 2 | `lease_id` exists in snapshot | `UNKNOWN_LEASE` |
-| 3 | lease status ∈ {ACTIVE} for grant path | `LEASE_NOT_ACTIVE` (+ status) |
-| 4 | `authority_ref.revision == lease.revision` | `REVISION_MISMATCH` |
-| 5 | `now >= not_before` | `NOT_YET_VALID` |
-| 6 | `now < expires_at` | `LEASE_EXPIRED` |
-| 7 | `revoked_at is null` | `LEASE_REVOKED` |
-| 8 | `action_intent.purpose` compatible with `lease.purpose` | `PURPOSE_MISMATCH` |
-| 9 | operation ∈ `allowed_operations` | `OPERATION_NOT_ALLOWED` |
-| 10 | data targets ⊆ `data_scope` | `DATA_SCOPE_VIOLATION` |
-| 11 | requested side effects ⊆ `allowed_side_effects` | `SIDE_EFFECT_NOT_ALLOWED` |
-| 12 | `identity_authority == NONE` и `direct_m3_write == false` | `LEASE_CONTRACT_VIOLATION` |
-| 13 | canonical `content_digest` matches snapshot bytes | `LEASE_DIGEST_MISMATCH` |
+| `CAP-SC-001` | unavailable registry | `REGISTRY_UNAVAILABLE` |
+| `CAP-SC-002` | unsupported registry schema | `REGISTRY_CONTRACT_VIOLATION` |
+| `CAP-SC-003` | duplicate key or broken live-head target | `REGISTRY_CONTRACT_VIOLATION` |
+| `CAP-SC-004` | unknown lease in admitted registry | `UNKNOWN_LEASE` |
+| `CAP-SC-005` | revision behind live head | `REVISION_MISMATCH` |
+| `CAP-SC-006` | revision ahead of live head | `REVISION_MISMATCH` |
+| `CAP-SC-007` | oversized record | `BUDGET_EXHAUSTED` |
+| `CAP-SC-008` | malformed lease schema | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-009` | forged digest | `LEASE_DIGEST_MISMATCH` |
+| `CAP-SC-010` | malformed supersession | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-011` | premature materialized `EXPIRED` status | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-012` | revoked lease | `LEASE_REVOKED` |
+| `CAP-SC-013` | ACTIVE at/after expiry | `LEASE_EXPIRED` |
+| `CAP-SC-014` | other non-ACTIVE state | `LEASE_NOT_ACTIVE` |
+| `CAP-SC-015` | before `not_before` | `NOT_YET_VALID` |
+| `CAP-SC-016` | purpose mismatch | `PURPOSE_MISMATCH` |
+| `CAP-SC-017` | operation not allowed | `OPERATION_NOT_ALLOWED` |
+| `CAP-SC-018` | scope budget exceeded | `BUDGET_EXHAUSTED` |
+| `CAP-SC-019` | typed-scope violation | `DATA_SCOPE_VIOLATION` |
+| `CAP-SC-020` | undeclared side effect | `SIDE_EFFECT_NOT_ALLOWED` |
+| `CAP-SC-021` | missing budget | `BUDGET_MISSING` |
+| `CAP-SC-022` | identity authority or direct M3 write | `LEASE_CONTRACT_VIOLATION` |
+| `CAP-SC-023` | identical admitted inputs repeated | byte-equivalent result |
+| `CAP-SC-024` | unrelated admitted record added | result unchanged |
+| `CAP-SC-025` | fork old ref / new UNVERIFIED ref | `REVISION_MISMATCH` / `LEASE_NOT_ACTIVE` |
 
-Если все checks проходят → `ALLOW` с echo `lease_id`, `revision`, `content_digest`.
+In-flight invalidation belongs to future Action Gate / execution-receipt research.
 
-### 6.2 Обязательные свойства
+---
+
+## 10. 🧱 P0 compatibility
 
 ```text
-No registry → DENY (UNKNOWN_LEASE / registry unavailable)
-No ambient “operator override” inside resolve()
-No network I/O inside resolve()
-No mutation of registry or domain state inside resolve()
-Deterministic on identical inputs
+src/mentaury/contracts/primitives.py → AuthorityRef
+P0 records lease_id + revision only
 ```
 
-### 6.3 Связь с P0
+Forbidden without separate owner GO:
 
 ```text
-P0 events MAY continue to RECORD AuthorityRef without calling resolve()
-P0 equality-checks remain valid provenance hygiene
-Calling resolve() is a NEW, separately authorized boundary
+adding grant fields to AuthorityRef
+embedding lease payload in P0 envelopes
+implicit resolve() from append or replay
+rewriting historical hashes or projections
+```
+
+P0 events remain replayable without a registry.
+
+---
+
+## 11. 🔍 Freeze receipt
+
+All freeze conditions were satisfied on PR #58:
+
+- exact-head CI passed;
+- complete diff inspected;
+- correctness and adversarial passes recorded;
+- malformed-registry and lifecycle ambiguities corrected;
+- scenario/deny consistency enforced by tests;
+- conversations resolved;
+- `CURRENT_STATUS` retained NOT_IMPLEMENTED / NOT_AUTHORIZED;
+- post-merge main CI passed.
+
+```text
+FROZEN_DOCS ≠ implementation GO
+solo acceptance ≠ independent certification
 ```
 
 ---
 
-## 7. 🌿 Fork / restore / migration
+## 12. 🚪 Future implementation gate
+
+A future registry/resolver PR requires:
 
 ```text
-After fork or restore:
-  any inherited lease claim status → UNVERIFIED
-  resolve(UNVERIFIED) → DENY (LEASE_NOT_ACTIVE / UNVERIFIED)
-  revalidation OR new lease issuance required before external effects
+separate explicit owner GO in docs/CURRENT_STATUS.md
++ bounded pure implementation
++ new Tier A exact-head review
++ deterministic / adversarial / metamorphic tests
++ preserved P0 replay compatibility
++ no network, ambient clock or mutable external authority
++ no Action Gate, tools, M3 or domain-runtime expansion
 ```
 
-Migration профиля:
-
-```text
-Registry schema changes MUST bump an explicit registry schema version
-Old snapshots remain readable for audit
-Live grants require re-issue or documented migrate-and-revalidate procedure
-```
+Issue #39 applies when a genuine independent reviewer/team exists. Until then,
+solo review remains honest and attributable.
 
 ---
 
-## 8. 🧪 Adversarial / scenario contracts
-
-Минимум для docs freeze (имена стабильны; реализация тестов — только после GO):
-
-| ID | Сценарий | Ожидание |
-|---|---|---|
-| CAP-SC-001 | unknown `lease_id` | `UNKNOWN_LEASE` |
-| CAP-SC-002 | revision behind live head | `REVISION_MISMATCH` |
-| CAP-SC-003 | revision ahead of registry | `REVISION_MISMATCH` / `UNKNOWN_LEASE` |
-| CAP-SC-004 | expired by `expires_at` | `LEASE_EXPIRED` |
-| CAP-SC-005 | revoked lease | `LEASE_REVOKED` |
-| CAP-SC-006 | suspended lease | `LEASE_NOT_ACTIVE` |
-| CAP-SC-007 | purpose mismatch | `PURPOSE_MISMATCH` |
-| CAP-SC-008 | operation not in allow-list | `OPERATION_NOT_ALLOWED` |
-| CAP-SC-009 | data_scope violation | `DATA_SCOPE_VIOLATION` |
-| CAP-SC-010 | undeclared side effect | `SIDE_EFFECT_NOT_ALLOWED` |
-| CAP-SC-011 | forged content_digest | `LEASE_DIGEST_MISMATCH` |
-| CAP-SC-012 | lease after fork still ACTIVE claim | must be `UNVERIFIED` → DENY |
-| CAP-SC-013 | missing caller budget | `BUDGET_EXHAUSTED` / reject |
-| CAP-SC-014 | lease with `direct_m3_write=true` | `LEASE_CONTRACT_VIOLATION` |
-| EXO-SC-002 | lease becomes invalid during operation | deny further effects; receipt = DENIED/FAILED |
-
-`EXO-SC-002` унаследован из Identity Continuity; здесь подтверждается как
-обязательный cross-doc scenario.
-
----
-
-## 9. 🧱 P0 substrate touchpoints
-
-Уже в `main` (не ломать без отдельного GO):
+## 13. 🏁 Formula
 
 ```text
-src/mentaury/contracts/primitives.py  → AuthorityRef
-envelope / storage / redaction / idempotency
-→ persist + equality of capability_lease_id
+AuthorityRef stays (lease_id, revision)
+Registry and record admission fail closed
+Exact live-head lookup; no history walk
+Digest excludes content_digest
+Lifecycle consistency precedes lifecycle denial
+Purpose / operation / scope are exact
+Budgets fail closed
+Fork/restore quarantines grants as UNVERIFIED
+ALLOW executes nothing
+Implementation remains unauthorized
 ```
 
-Запрещено этим docs-треком:
+### Related documents
 
-```text
-❌ трактовать непустой capability_lease_id как ALLOW
-❌ вшивать permission blob в EventEnvelope
-❌ добавлять silent resolve() в append path без owner GO
-```
-
----
-
-## 10. 🚪 Evidence Gate для будущего runtime PR
-
-До authorization implementation PR owner должен увидеть:
-
-1. этот документ frozen + independent review;
-2. registry schema + pure resolver design review;
-3. suite, покрывающий CAP-SC-001…014 (и EXO-SC-002);
-4. явную запись в `CURRENT_STATUS`: implementation authorized;
-5. сохранение `identity_authority=NONE`, `direct_m3_write=false`.
-
-```text
-Docs exist ≠ resolver may merge
-Tests sketched ≠ runtime safe
-```
-
----
-
-## 11. 🚫 Не принимается этим документом
-
-```text
-❌ open-ended leases without expires_at
-❌ delegation_allowed=true by default
-❌ branch_transfer_allowed=true by default
-❌ identity_authority other than NONE (v0.1)
-❌ direct M3 write via lease
-❌ Action Gate auto-pass from ALLOW
-❌ operator ambient override inside resolve()
-❌ marking P1-001 Implemented without code
-❌ Canon modification
-```
-
----
-
-## 12. 🏁 Итоговая формула
-
-```text
-AuthorityRef remains a reference
-Lease record carries bounded, expiring, revocable grant data
-resolve() is pure, fail-closed, budgeted, deterministic
-Fork makes inherited leases UNVERIFIED
-ALLOW ≠ truth ≠ identity ≠ M3
-Docs-only until explicit owner GO for src/
-```
-
-### Связанные документы
-
+- [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md)
-- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §12.3–12.5
-- [`P0_002_ENVELOPE_CONTRACTS.md`](../P0_002_ENVELOPE_CONTRACTS.md)
-- [`CURRENT_STATUS.md`](../CURRENT_STATUS.md)
-- [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md)
+- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
+- [`../GOVERNANCE.md`](../GOVERNANCE.md)

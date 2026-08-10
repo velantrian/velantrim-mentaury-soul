@@ -1,94 +1,95 @@
-# 🧱 P0 Environment Manifest
+# ⚙️ Mentaury Environment Manifest
 
 ```text
-Status:             P0-001…P0-015 IMPLEMENTED IN MAIN
-Main SHA:           0e29c9ebc9c9f2ab9a228a32899e9db8021923c1
-Profile:            Python 3.13 + standard-library SQLite 3.46.1
-Minimum SQLite:     3.37.0
-Journal mode:       WAL for file databases
-Storage schema:     v4
-Runtime deps:       NONE
-Network at import:  FORBIDDEN
-Database at import: FORBIDDEN
-Domain runtime:     FORBIDDEN
-Permanent CI:       PRESENT AND VALIDATED (.github/workflows/ci.yml)
+P0-001…P0-015_IMPLEMENTED_IN_MAIN
+P1-001…P1-001_IMPLEMENTED_IN_MAIN
+P1-002…P1-002_IMPLEMENTED_IN_MAIN
 ```
 
-This manifest historically documented only the P0-009 baseline. It is now
-kept in sync with `docs/CURRENT_STATUS.md`, the authoritative source for
-per-milestone PR numbers, merge SHAs and validation evidence; see that file
-for P0-010…P0-015 detail.
-
-## Accepted baseline in `main`
+## Runtime profile
 
 ```text
-P0-001 neutral skeleton
-P0-002 typed envelopes
-P0-003 canonical JSON
-P0-004 immutable event/external payload storage
-P0-005 fail-closed structural validation
-P0-006 atomic multi-event batch
-P0-007 semantic idempotency
-P0-008 controlled SQLite concurrency
-P0-009 trusted commit boundary + bounded R0 integrity
-P0-010 atomic same-stream redaction (storage schema v4)
-P0-011 adversarial integrity suite
-P0-012 permanent read-only GitHub Actions CI
-P0-013 R1 deterministic replay
-P0-014 minimal evidence-referenced belief lifecycle
-P0-015 deterministic Evidence Gate
-post-P0-015 audit hardening (PR #32; not a new P0 milestone)
-Post-P0 Roadmap v0.1 adopted (docs-only; PR #34; not a P1 implementation)
-P1-001 Capability Lease Resolution notes (docs-only; NOT IMPLEMENTED; PR #34)
+Language:                    Python 3.13
+Runtime dependencies:        none
+P0 storage profile:          standard-library SQLite
+Permanent CI:                GitHub Actions
+Required check:              Python 3.13 · validator · pytest · compileall
+Import-time external I/O:    forbidden
+Production deployment:       not authorized
 ```
 
-## P0-009 implementation boundary
-
-Merged PR #15 provides:
-
-- storage schema v3 with `stream_meta(current_version, last_event_hash, event_count)`;
-- mandatory `SchemaRegistry` admission for production writes;
-- canonical payload bytes shared by validation, hashing, and persistence;
-- payload digest and event hash allocation inside the transactional write boundary;
-- previous-hash allocation from the locked stream tail rather than caller input;
-- single-event batch invariants for `append_one`;
-- sequential sealing of atomic and idempotent batches under one write lock;
-- fail-closed verification before populated v2 → v3 migration;
-- explicit caller-supplied `VerificationBudget` for populated migration and R0;
-- event-count, per-payload and cumulative payload byte limits;
-- R0 verification of canonical payload bytes, schema, digest, chain, batches, versions, budgets and stream metadata.
+## Implemented bounded source surfaces
 
 ```text
-Caller hash fields ≠ committed hash fields
-Post-write verification ≠ trusted commit validation
-No supplied budget ≠ permission to scan without limits
-Test/deployment budget ≠ Canon
-Budget exhaustion ≠ ledger corruption
-R0 consistency ≠ truth
-Hash chain ≠ authority
-stream_meta ≠ source of truth
-Implemented P0-009 ≠ domain runtime
+src/mentaury/capabilities/lease/
+src/mentaury/privacy/reconciliation/
 ```
 
-Supported validation commands:
+### Capability Lease resolver
 
-```bash
-python3 scripts/validate.py
-PYTHONPATH=src python3 -m pytest
-python3 -m compileall -q src tests scripts
+```text
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
 ```
 
-Final validation-only run `31023788916` passed Python setup, locked dependency
-installation, structural validation, full pytest and compileall against exact PR
-head `6f8ff1663e161e554c8d4610f1692187c2129b45` for P0-009.
+Pure caller-supplied classification only. No registry persistence, network
+lookup, execution, event append, identity/M3 mutation or deployment authority.
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED.
 
-That temporary workflow was not part of PR #15 or `main`. Permanent CI was
-merged separately in P0-012 (PR #25, `.github/workflows/ci.yml`) and now runs
-the same three checks on every pull request and push to `main`.
+### Privacy Reconciliation Classifier
 
-P0-010 added governed atomic same-stream redaction. P0-014/P0-015 added a
-minimal, evidence-gated belief lifecycle. PR #32 closed a post-merge
-lifecycle/reducer boundary gap, hardened digest schema admission, and added
-a derived-doc freshness CI gate. No identity, relationship, Character,
-Curiosity or Exo-Cortex runtime is present, and none of the P0 milestones
-authorize one.
+```text
+Inputs:
+- PrivacyMaterial
+- PrivacyCopy
+- PrivacyAccessIntent
+- PrivacyReconciliationBudget
+
+Output:
+- PrivacyReconciliationResult(decision, reason)
+```
+
+The classifier is deterministic and fail closed. It performs no deletion,
+redaction, quarantine, rebuilding or retrieval.
+
+## P1-002 verification
+
+```text
+Contract PR:             #65
+Authorization PR:        #66
+Implementation PR:       #67
+Reviewed implementation: 74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:           31332728486 · success · 461 passed
+Merge/main:              d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:           31332793742 · success · 461 passed
+```
+
+Validation covers all frozen `PRIV-SC-001…PRIV-SC-015` scenarios, exact
+precedence, typed/mapping equivalence, deterministic repeatability, canonical
+budgets, empty-allowlist denial, impossible-result rejection and fresh-process
+imports with ambient I/O/clock access blocked.
+
+## Explicitly absent
+
+```text
+privacy registry or copy inventory service
+backup/fork scanning
+content inspection
+deletion/redaction/quarantine/rebuild execution
+retrieval execution
+network, filesystem or database authority in P1-002
+event/replay integration from P1 classifiers
+relationship, identity or M3 mutation
+Action Gate or tool runtime
+backend migration or production deployment
+```
+
+## Governance
+
+The repository operates in explicit solo-maintainer mode. Tier A work requires
+exact-head CI, correctness and adversarial passes, resolved conversations,
+explicit acceptance and green post-merge `main` CI. Independent human assurance
+is not claimed.

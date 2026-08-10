@@ -1,268 +1,225 @@
-# 🗺️ Post-P0 Roadmap v0.1
+# 🗺️ Post-P0 Roadmap
 
 ```text
-Статус:                       ADOPTED · ROADMAP · NON_CANONICAL · DOCS_ONLY
-Версия:                       0.1
-Дата:                         2026-08-07
-Owner decision:               ACCEPTED (repository owner)
-Runtime authority:            NONE
-Truth authority:              NONE
-Capability authority:         NONE
-Canon modification authority: NONE
-Прямая запись в M3:           FORBIDDEN
-Domain runtime:               STILL NOT AUTHORIZED
-```
-
-> Этот документ закрывает precondition `POST-P0 ROADMAP REVIEW` из
-> [`CURRENT_STATUS.md`](../CURRENT_STATUS.md). Он определяет **один**
-> следующий bounded milestone и явно **не** разрешает domain runtime,
-> Tool execution, Action Gate или автоматические внешние side effects.
-
----
-
-## 1. 🎯 Назначение
-
-После P0-001…P0-015 в `main` есть replay-проверяемый event substrate,
-минимальный belief lifecycle и Evidence Gate. Следующий шаг — не
-«подключить runtime», а выбрать **один** ограниченный milestone с явными:
-
-- threat model;
-- authority boundary;
-- resource budgets;
-- rollback / replay criteria;
-- exit criteria до любого `src/` wiring.
-
-```text
-Roadmap adopted
-≠
-runtime authorized
-
-First milestone named
-≠
-milestone implemented
-```
-
----
-
-## 2. 🚫 Non-claims
-
-Этот документ **не**:
-
-```text
-❌ авторизует domain runtime / M0–M3 engines
-❌ меняет Canon v0.1
-❌ делает AuthorityRef «валидированным permission grant»
-❌ добавляет Tool Receipt / Action Gate runtime
-❌ помечает P1-001 как ✅ Implemented
-❌ поднимает freshness-markers выше P0-015
-❌ разрешает LLM-integration или autonomous goals
-```
-
----
-
-## 3. 📦 Закрытие P0 (входные условия)
-
-```text
-P0-001…P0-015     → IMPLEMENTED IN MAIN
-PR #32            → post-P0-015 audit hardening merged
-PR #33            → authoritative status sync merged
-DOMAIN_RUNTIME    → NOT AUTHORIZED (сохраняется)
-```
-
-Оставшийся критический gap (из аудита 2026-08-06):
-
-```text
-AuthorityRef.capability_lease_id
-→ записывается и сравнивается на equality
-→ НЕ резолвится против lease registry
-→ сейчас НЕ несёт enforceable permission
-```
-
----
-
-## 4. ✅ Выбор первого milestone
-
-**P1-001 — Capability Lease Resolution (docs-first).**
-
-Почему именно он:
-
-1. уже записан как owner-accepted governance recommendation;
-2. блокирует любой честный authority-sensitive runtime;
-3. расширяет существующий stub Identity Continuity §12.3 без domain engines;
-4. узкий scope: resolution contract, lifecycle, fail-closed outcomes, adversarial scenarios — без Action Gate execution.
-
-```text
-P1-001 docs freeze
-→ независимый review
-→ только затем возможен отдельный, явно авторизованный
-   implementation PR (если owner даст GO)
-```
-
-Отложено (не часть P1-001):
-
-```text
-Identity Continuity engine
-Controlled Origin ingestion
-Character / Curiosity engines
-Tool Receipt runtime
-Action Gate execution
-Governed Synthesis engine
-LLM integration
-```
-
----
-
-## 5. 🃏 Карточка milestone: P1-001
-
-### 5.1 Goal
-
-Заморозить docs-only спецификацию **разрешения** `AuthorityRef` против
-записи Capability Lease так, чтобы будущий resolver мог быть fail-closed,
-replay-aware и adversarial-testable — **без** выдачи runtime permissions
-этим документом.
-
-Authoritative notes:
-
-[`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-
-### 5.2 Threat model (кратко)
-
-| Угроза | Почему важна | Требование к спеке |
-|---|---|---|
-| Поддельный / неизвестный `lease_id` | equality ≠ existence | fail-closed `UNKNOWN_LEASE` |
-| Stale `capability_revision` | старый grant после revoke/rotate | fail-closed `REVISION_MISMATCH` |
-| Expired / revoked lease | side effect после отзыва | fail-closed; fork → `UNVERIFIED` |
-| Cross-stream / cross-purpose reuse | lease выдан на другое | purpose + scope match required |
-| Embedded permission copy | обход registry | `AuthorityRef` остаётся ссылкой |
-| Docs → silent runtime GO | authority expansion | явный owner GO на `src/` |
-
-### 5.3 Authority boundary
-
-```text
-AuthorityRef
-→ ссылка (lease_id + revision)
-
-Capability Lease record
-→ внешняя (будущая) registry-запись
-
-Resolution result
-→ ALLOW / DENY + machine reason code
-≠ truth
-≠ identity authority
-≠ M3 write permission
-≠ automatic Action Gate pass
-```
-
-### 5.4 In scope / Out of scope
-
-**In scope (docs):**
-
-- lease record contract и lifecycle states;
-- pure resolution algorithm (inputs → fail-closed outcomes);
-- fork / restore → `UNVERIFIED`;
-- adversarial scenario IDs;
-- P0 touchpoints (что уже есть; чего нельзя трогать без GO);
-- Evidence Gate / exit criteria для будущего runtime PR.
-
-**Out of scope:**
-
-- любой production resolver в `src/`;
-- Tool execution, network, side effects;
-- branch protection / GitHub settings automation;
-- изменение Canon.
-
-### 5.5 Resource budgets (для будущего runtime; фиксируются уже сейчас)
-
-```text
-max leases consulted per resolution     ≤ 1 exact lease_id lookup
-max revision history walk               ≤ 32
-max wall-clock (caller-supplied)        required; no unbounded scan
-max adversarial cases in first suite    ≥ 12 named scenarios
-```
-
-Бюджеты — контракт спеки. Числа могут быть уточнены до implementation GO,
-но «без бюджета» не допускается.
-
-### 5.6 Rollback / replay criteria
-
-```text
-Resolution MUST be a pure function of:
-  (lease registry snapshot, AuthorityRef, action intent, time, budgets)
-
-R1 replay of events that only *record* AuthorityRef
-→ не требует lease registry (P0 поведение сохраняется)
-
-Future events that *depend* on resolution
-→ MUST embed enough evidence (receipt) to re-verify without ambient trust
-```
-
-Rollback: отказ resolution **никогда** не пишет domain state и не
-создаёт side effects.
-
-### 5.7 Exit criteria (docs freeze)
-
-P1-001 docs считаются frozen, когда:
-
-1. notes имеют явные Non-claims и rejection codes;
-2. lifecycle + resolution algorithm полны для fail-closed решений;
-3. ≥ 12 adversarial / scenario contracts названы;
-4. независимый review по adopted governance policy пройден
-   (см. `CURRENT_STATUS.md` § Governance policy);
-5. `CURRENT_STATUS` **не** помечает P1-001 как `✅ Implemented`
-   до появления кода в `main`.
-
-```text
-Docs freeze ≠ runtime GO
-Independent review of docs ≠ permission to merge resolver code
-```
-
----
-
-## 6. 🔐 Authorization gate перед `src/`
-
-Любой PR, добавляющий lease registry / resolver в `src/mentaury/`, требует:
-
-1. frozen P1-001 docs + independent review;
-2. отдельный owner GO в `CURRENT_STATUS` («P1-001 implementation authorized»);
-3. threat model / budgets / replay criteria из §5 без ослабления;
-4. merge-blocking review на путях `beliefs` / `evidence` / `replay` /
-   и на новом authority/lease пути.
-
-До выполнения всех четырёх пунктов:
-
-```text
+Status:                       ADOPTED ROADMAP · DOCS_ONLY
+Version:                      0.7
+Updated:                      2026-08-09
+Current review mode:          SOLO_MAINTAINER · TIER_A
+P1-001 implementation:        IMPLEMENTED_BOUNDED
+P1-002 implementation:        IMPLEMENTED_BOUNDED
+P1-002 validation:            EXACT_HEAD_AND_MAIN_CI_PASS
+P1-002 Owner GO:              CONSUMED
+Next runtime milestone:       NOT SELECTED · NOT AUTHORIZED
+Runtime deployment authority: NONE
+Mutation authority:           NONE
+Retrieval authority:          NONE
+Direct or indirect M3 write:  FORBIDDEN
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
-CAPABILITY_LEASE_RESOLVER_NOT_AUTHORIZED
 ```
-
----
-
-## 7. 🧭 Правила sync статусной документации
-
-| Событие | Что делать с markers |
-|---|---|
-| Этот roadmap принят | **не** менять `P0-001…P0-015_IMPLEMENTED_IN_MAIN` |
-| P1-001 docs merged | статус `DOCS_ONLY · NOT IMPLEMENTED` |
-| P1-001 code merged | только тогда `✅ Implemented` + bump derived markers на P1 |
-
-`scripts/check_doc_freshness.py` остаётся на P0-015, пока нет кода P1.
-
----
-
-## 8. 🏁 Итоговая формула
 
 ```text
-P0 closed
-→ Post-P0 Roadmap v0.1 adopted (docs-only)
-→ first milestone = P1-001 Capability Lease Resolution (docs-first)
-→ domain runtime still forbidden
-→ AuthorityRef still ≠ validated permission
+IMPLEMENTED_BOUNDED ≠ remediation execution
+ALLOW_REFERENCE ≠ retrieval permission
+privacy classification ≠ privacy mutation
+P1-002 completion ≠ authority for a later milestone
+Solo review ≠ independent certification
 ```
 
-### Связанные документы
+The filename retains `V0.1` for stable historical links. Document metadata is
+the current version authority.
 
-- [`CURRENT_STATUS.md`](../CURRENT_STATUS.md)
-- [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
-- [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) §12.3
-- [`P0_002_ENVELOPE_CONTRACTS.md`](../P0_002_ENVELOPE_CONTRACTS.md)
-- [`ARCHITECTURE_RECONCILIATION_V0.1.md`](ARCHITECTURE_RECONCILIATION_V0.1.md)
+---
+
+## 1. ✅ P1-001 retained checkpoint
+
+```text
+Authorization PR:       #62
+Implementation PR:      #63
+Reviewed head:          e873e43331fa7273b92f896b371707e4779b17d4
+Exact-head CI:          31323051934 · success · 387 passed
+Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Post-merge CI:          31323138053 · success
+```
+
+Frozen contract: [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md).
+Owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md).
+
+P1-001 remains a pure capability classifier without registry persistence,
+Action Gate, tool execution, identity/M3 mutation or deployment authority.
+No registry service, Action Gate, P1-002 remediation execution or tool runtime
+follows automatically from P1-001.
+
+---
+
+## 2. ✅ Completed P1-002 Privacy Reconciliation Classifier sequence
+
+```text
+P0-010 active-store redaction boundary
+→ privacy copy-reconciliation gap identified
+→ P1-002 contract frozen in PR #65
+→ bounded Owner GO merged in PR #66
+→ pure classifier implemented in PR #67
+→ exact-head correctness and adversarial review passed
+→ resulting main CI passed
+→ P1-002 IMPLEMENTED_BOUNDED
+```
+
+### Contract freeze
+
+```text
+Reviewed head:   85bf0070e2f15b5ca752b82325337d6ef0190396
+Exact-head CI:   31331396018 · success · 401 passed
+Merge:           1dc7bcf97986f455f48beb121c2048dfc34bd11c
+Post-merge CI:   31331506606 · success
+```
+
+### Authorization
+
+```text
+Reviewed head:   670b10c7ea69e3c609453e979a8de6853b23c6bc
+Exact-head CI:   31331910395 · success · 398 passed
+Merge:           8f4c444e2144d1dffde20fc60d6d5250148d07e6
+Post-merge CI:   31331973557 · success
+```
+
+### Implementation
+
+```text
+Reviewed head:   74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:   31332728486 · success · 461 passed
+Merge:           d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:   31332793742 · success · 461 passed
+Correctness:     PASS
+Adversarial:     PASS
+Review threads:  0
+```
+
+Owning surfaces:
+
+- [Frozen contract](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
+- [Authorization and completion receipt](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
+- [Current status](../CURRENT_STATUS.md)
+
+---
+
+## 3. 🧱 Implemented P1-002 boundary
+
+The pure classifier accepts caller-supplied material, copy, access intent and
+budget records. It returns exactly one classification:
+
+```text
+ALLOW_REFERENCE
+DENY_RETRIEVAL
+QUARANTINE_REQUIRED
+REBUILD_REQUIRED
+```
+
+Implemented guarantees:
+
+- strict typed-or-exact-mapping admission;
+- immutable contracts and canonical sorted/unique collections;
+- exact cross-record linkage;
+- future-revision rejection;
+- canonical byte-budget over all four inputs;
+- fixed budget validation order;
+- exact purpose and branch allowlists;
+- empty allowlists grant nothing;
+- normative first-match precedence;
+- surface-specific fail-closed classification;
+- minimal two-field result without permission material;
+- all `PRIV-SC-001…PRIV-SC-015` frozen scenarios;
+- no ambient I/O or clock access at import.
+
+---
+
+## 4. 🛡️ Adversarial corrections retained
+
+Before merge, review found and fixed:
+
+1. an implicit-wildcard interpretation of empty allowlists;
+2. manually constructible impossible decision/reason pairs;
+3. raw canonical JSON exceptions crossing the contract boundary;
+4. nondeterministic multi-budget validation order;
+5. byte-budget accounting that initially excluded the budget record.
+
+---
+
+## 5. 🚫 Work not included
+
+```text
+privacy registry persistence
+backup/fork discovery or scanning
+content inspection
+content deletion or P0 redaction execution
+quarantine execution
+index/embedding/graph/cache/summary rebuilding
+retrieval execution
+network, filesystem or database access
+ambient clock or environment authority
+event append or replay/projection integration
+belief, relationship or identity mutation
+M3 nomination or write
+Capability Lease invocation from P1-002
+Action Gate
+Tool Receipt or tool execution
+backend selection or migration
+production deployment
+```
+
+---
+
+## 6. ⛔ Next execution gate
+
+```text
+P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
+P1_002_PURE_CLASSIFIER_VALIDATED
+P1_002_OWNER_GO_CONSUMED
+P1_002_MUTATION_AUTHORITY_NONE
+P1_002_RETRIEVAL_AUTHORITY_NONE
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+No deletion, quarantine, rebuild, retrieval, relationship/identity runtime,
+Action Gate, tool or deployment work follows automatically. A new runtime step
+requires a separate bounded contract, threat model, Owner GO, Tier A PR and
+green resulting-main CI.
+
+---
+
+## 7. 🔄 Status rules
+
+| Event | Status result |
+|---|---|
+| Research captured | no runtime status change |
+| Contract frozen | `FROZEN_DOCS` |
+| Bounded Owner GO merged | `AUTHORIZED_BOUNDED` |
+| Code PR merged + green main CI | `IMPLEMENTED_BOUNDED` |
+| Remediation/retrieval proposal | new independent authorization cycle required |
+
+GitHub `main` and `docs/CURRENT_STATUS.md` remain authoritative. Notion is a
+derived navigation/status surface synchronized only after verified evidence.
+
+---
+
+## 8. 🏁 Formula
+
+```text
+P0 complete
+→ P1-001 implemented bounded
+→ P1-002 contract frozen
+→ bounded P1-002 Owner GO
+→ pure classifier implemented and validated
+→ STOP before remediation runtime
+```
+
+### Related
+
+- [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
+- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
+- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [`../P0_010_ATOMIC_SAME_STREAM_REDACTION.md`](../P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
+- [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
+- [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
+- [`../GOVERNANCE.md`](../GOVERNANCE.md)

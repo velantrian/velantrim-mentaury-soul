@@ -150,3 +150,41 @@ def test_evaluate_is_stage_generic_beyond_p0() -> None:
         {"docs/A.md": _derived("P1-001…P1-002_IMPLEMENTED_IN_MAIN")},
     )
     assert caught_up == []
+
+
+def test_readme_marker_behind_current_status_fails() -> None:
+    problems = evaluate(
+        _AUTHORITATIVE_P0_015,
+        {"README.md": _derived("P0-001…P0-008_IMPLEMENTED_IN_MAIN")},
+    )
+    assert len(problems) == 1
+    assert "README.md" in problems[0]
+    assert "P0-008" in problems[0] and "P0-015" in problems[0]
+
+
+def test_readme_marker_ahead_of_current_status_fails() -> None:
+    problems = evaluate(
+        _AUTHORITATIVE_P0_015,
+        {"README.md": _derived("P0-001…P0-999_IMPLEMENTED_IN_MAIN")},
+    )
+    assert len(problems) == 1
+    assert "README.md" in problems[0]
+    assert "ahead of" in problems[0]
+
+
+def test_readme_marker_equal_passes() -> None:
+    problems = evaluate(
+        _AUTHORITATIVE_P0_015,
+        {"README.md": _derived("P0-001…P0-015_IMPLEMENTED_IN_MAIN")},
+    )
+    assert problems == []
+
+
+def test_readme_missing_marker_fails() -> None:
+    problems = evaluate(
+        _AUTHORITATIVE_P0_015,
+        {"README.md": "README without a freshness marker."},
+    )
+    assert len(problems) == 1
+    assert "README.md" in problems[0]
+    assert "missing a well-formed" in problems[0]
