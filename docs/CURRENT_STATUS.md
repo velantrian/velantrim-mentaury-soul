@@ -142,6 +142,14 @@ Review threads:         0
 Independent assurance:  NOT CLAIMED
 ```
 
+Historical checkpoint preserved as provenance only; it is superseded by the
+implemented-bounded evidence above and is not current authority:
+
+```text
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED
+P1_002_IMPLEMENTATION_NOT_STARTED
+```
+
 ---
 
 ## 5. ✅ Implemented P1-002 slice
