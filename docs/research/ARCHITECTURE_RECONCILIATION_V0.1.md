@@ -259,7 +259,7 @@ Architecture
 → Architecture Readiness Review
 → neutral technical skeleton decision
 → P0 Event Substrate implementation
-→ independently validated substrate
+→ validation under owning gate's requirements (see GOVERNANCE.md § 3.2)
 → post-P0 domain specifications
 → bounded runtime experiments
 ```
@@ -294,7 +294,7 @@ Cross-document reconciliation считается завершённой, ког�
 - Controlled Origin не определяет fork и relationships;
 - Identity track не расширяет P0;
 - skeleton и runtime остаются `NOT_AUTHORIZED`;
-- следующий formal milestone обозначен как `ARCHITECTURE_READINESS_REVIEW`.
+- следующий formal milestone обозначен в `CURRENT_STATUS.md` (дurable reference вместо mutable list).
 
 ---
 
