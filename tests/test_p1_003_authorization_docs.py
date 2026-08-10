@@ -1,4 +1,4 @@
-"""Structural assertions for the bounded P1-003 Owner GO receipt."""
+"""Structural assertions for the completed bounded P1-003 receipt."""
 
 from __future__ import annotations
 
@@ -23,55 +23,81 @@ INDEX = (ROOT / "docs" / "research" / "RESEARCH_INDEX.md").read_text(
 )
 
 
-def test_frozen_contract_remains_the_no_go_freeze_receipt() -> None:
-    """The contract-freeze document is historical evidence, not rewritten GO."""
-
+def test_frozen_contract_remains_historical_no_go_freeze_receipt() -> None:
     assert "P1-003 contract:                FROZEN_DOCS" in CONTRACT
     assert "Owner GO:                       NOT_GRANTED" in CONTRACT
     assert "Implementation authorization:   NONE" in CONTRACT
     assert "CONTRACT FROZEN ≠ OWNER GO" in CONTRACT
-    assert "P1_003_OWNER_GO_AUTHORIZED_BOUNDED" not in CONTRACT
+    assert "P1_003_OWNER_GO_CONSUMED" not in CONTRACT
+    assert "IMPLEMENTED_BOUNDED" not in CONTRACT
 
 
-def test_owner_go_is_separate_bounded_and_not_started() -> None:
-    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTH
-    assert "P1_003_CONTRACT = FROZEN_DOCS" in AUTH
-    assert "P1_003_OWNER_GO = AUTHORIZED_BOUNDED" in AUTH
-    assert "P1_003_OWNER_GO_AUTHORIZED_BOUNDED" in AUTH
-    assert "P1_003_IMPLEMENTATION_NOT_STARTED" in AUTH
+def test_receipt_records_consumed_bounded_completion() -> None:
+    assert "OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED" in AUTH
+    assert "P1_003_OWNER_GO = CONSUMED" in AUTH
+    assert "P1_003_OWNER_GO_CONSUMED" in AUTH
+    assert "P1_003_IMPLEMENTATION = IMPLEMENTED_BOUNDED" in AUTH
+    assert "P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_IMPLEMENTED_BOUNDED" in AUTH
     assert "P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED" in AUTH
-    assert "AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY" in AUTH
-    assert "one-time / consumable" in AUTH
-    assert "OWNER GO ≠ IMPLEMENTATION COMPLETE" in AUTH
+    assert "NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED" in AUTH
+    assert "Implementation authorization: CONSUMED · P1-003-v0.1 ONLY" in AUTH
 
 
-def test_authoritative_surfaces_reference_the_receipt_and_same_state() -> None:
+def test_completion_evidence_is_exact_and_reviewed() -> None:
+    for marker in (
+        "Implementation PR:         #79",
+        "9855f766f2bf801c8297c4f870b21d3ed37911fb",
+        "31394829487 · SUCCESS · 552 passed",
+        "4897445251",
+        "59f2caa4deacd06aee0bbfc8dae1221edcb666eb",
+        "31395291622 · SUCCESS · 552 passed",
+        "Correctness pass:          PASS",
+        "Adversarial pass:          PASS",
+        "Authorization boundary:    PRESERVED",
+        "Independent human review:  NO",
+    ):
+        assert marker in AUTH
+
+
+def test_authoritative_surfaces_share_completed_state() -> None:
     for document in (CURRENT_STATUS, ROADMAP, INDEX):
         assert "P1_003_IMPLEMENTATION_AUTHORIZATION.md" in document
-        assert "P1_003_OWNER_GO_AUTHORIZED_BOUNDED" in document
-        assert "P1_003_IMPLEMENTATION_NOT_STARTED" in document
-        assert "P1_003_RUNTIME_ASSIGNMENT" in document or "P1-003 assignment" in document
-        assert "P1-003-v0.1" in document
+        assert "IMPLEMENTED_BOUNDED" in document
+        assert "P1_003_RUNTIME_ASSIGNMENT" in document or "P1-003 runtime assignment" in document
+        assert "NOT_ASSIGNED" in document
+        assert "NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED" in document
+
+    assert "P1_003_OWNER_GO_CONSUMED" in CURRENT_STATUS
+    assert "P1-003 Owner GO:               CONSUMED" in ROADMAP
+    assert "P1-003 Owner GO:              CONSUMED" in INDEX
 
 
-def test_owner_go_preserves_frozen_implementation_contract() -> None:
-    for token in (
-        "P1-003-v0.1",
-        "CROSS-GATE-BINDING-v0.1",
-        "MENTAURY_CANONICAL_JSON_V1",
-        "MENTAURY_P1_003_COMMON_REQUEST_V1",
-        "MENTAURY_P1_003_EVALUATION_EVIDENCE_V1",
-        "P1-001-v0.2",
-        "P1-002-v0.1",
-        "compose_governed_constraints",
-        "CrossGateEvaluationContext",
-    ):
-        assert token in CONTRACT
-        assert token in AUTH
+def test_historical_authorization_provenance_is_preserved_but_superseded() -> None:
+    assert "Historical authorization provenance" in AUTH
+    assert "P1_003_OWNER_GO_AUTHORIZED_BOUNDED" in AUTH
+    assert "P1_003_IMPLEMENTATION_NOT_STARTED" in AUTH
+    assert "superseded by the verified\ncompletion state" in AUTH
+    assert "Historical pre-implementation markers" in CURRENT_STATUS
 
-    assert "CompositionBudget" in CONTRACT
-    assert "exact frozen context and budget schemas remain unchanged" in AUTH
 
+def test_completed_scope_is_exact_four_file_package() -> None:
+    package = ROOT / "src" / "mentaury" / "composition"
+    expected = {
+        "__init__.py",
+        "governed_constraints/__init__.py",
+        "governed_constraints/contracts.py",
+        "governed_constraints/composer.py",
+    }
+    actual = {
+        path.relative_to(package).as_posix()
+        for path in package.rglob("*.py")
+    }
+    assert actual == expected
+    for path in expected:
+        assert (package / path).is_file()
+
+
+def test_full_frozen_matrix_remains_required_and_completed() -> None:
     for family in (
         "CGC-CTX-001…014",
         "CGC-FP-001…010",
@@ -81,9 +107,7 @@ def test_owner_go_preserves_frozen_implementation_contract() -> None:
         "CGC-PURE-001…008",
     ):
         assert family in AUTH
-
-    assert "before any P1-003\nimplementation is merged" in AUTH
-    assert "grants no new semantics" in AUTH
+        assert family in CONTRACT
 
 
 def test_authorization_boundary_remains_non_executing() -> None:
@@ -101,26 +125,7 @@ def test_authorization_boundary_remains_non_executing() -> None:
         assert marker in combined
 
 
-def test_candidate_implementation_exists_without_completion_claim() -> None:
-    package = ROOT / "src" / "mentaury" / "composition"
-    assert package.is_dir()
-    expected = {
-        "__init__.py",
-        "governed_constraints/__init__.py",
-        "governed_constraints/contracts.py",
-        "governed_constraints/composer.py",
-    }
-    actual = {
-        path.relative_to(package).as_posix()
-        for path in package.rglob("*.py")
-    }
-    assert actual == expected
-    assert "OWNER_GO · AUTHORIZED_BOUNDED · NOT_STARTED" in AUTH
-    assert "OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED" not in AUTH
-    assert "P1_003_IMPLEMENTATION_NOT_STARTED" in CURRENT_STATUS
-
-
-def test_compatibility_stop_is_explicit() -> None:
+def test_compatibility_stop_is_retained_after_completion() -> None:
     for marker in (
         "STOP_CURRENT_IMPLEMENTATION",
         "NEW_DOCS_ONLY_CONTRACT_REVISION",
