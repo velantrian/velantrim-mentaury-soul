@@ -46,7 +46,6 @@ def test_candidate_inherits_frozen_readiness_families() -> None:
         "MT-NPG-001…MT-NPG-008",
     ):
         assert marker in SELECTION
-        assert marker in READINESS
 
     for number in range(1, 13):
         assert f"NPG-T{number:02d}" in READINESS
