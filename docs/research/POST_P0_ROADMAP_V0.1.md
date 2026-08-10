@@ -2,18 +2,20 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      0.8
+Version:                      0.9
 Updated:                      2026-08-10
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
 P1-002 implementation:        IMPLEMENTED_BOUNDED
-P1-002 validation:            EXACT_HEAD_AND_MAIN_CI_PASS
 P1-002 Owner GO:              CONSUMED
 Post-P1-002 selection:         COMPLETE
-Selection result:             NO_RUNTIME_MILESTONE_SELECTED
-Next bounded work:            CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · DOCS_ONLY
+Cross-gate readiness:         READY · FROZEN_DOCS · DOCS_ONLY
+Selected binding strategy:    PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
+Bare-result composition:      REJECTED
+Positive readiness meaning:   ELIGIBLE_FOR_NEXT_GATE only
 P1-003 assignment:            NONE
 Next runtime milestone:       NOT SELECTED · NOT AUTHORIZED
+Implementation authorization: NONE
 Runtime deployment authority: NONE
 Mutation authority:           NONE
 Retrieval authority:          NONE
@@ -26,10 +28,10 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```text
 IMPLEMENTED_BOUNDED ≠ remediation execution
 ALLOW_REFERENCE ≠ retrieval permission
-privacy classification ≠ privacy mutation
 positive classifier results ≠ common-bound authorization
-selection decision ≠ implementation GO
-P1-002 completion ≠ authority for a later milestone
+ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
+readiness contract ≠ implementation GO
+P1-003 NOT_ASSIGNED ≠ missing work
 Solo review ≠ independent certification
 ```
 
@@ -54,8 +56,6 @@ Owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMEN
 
 P1-001 remains a pure capability classifier without registry persistence,
 Action Gate, tool execution, identity/M3 mutation or deployment authority.
-No registry service, Action Gate, P1-002 remediation execution or tool runtime
-follows automatically from P1-001.
 
 ---
 
@@ -140,15 +140,18 @@ Implemented guarantees:
 
 ---
 
-## 4. 🛡️ Adversarial corrections retained
+## 4. 🛡️ P1 adversarial corrections retained
 
-Before merge, review found and fixed:
+Before P1-002 merge, review found and fixed:
 
 1. an implicit-wildcard interpretation of empty allowlists;
 2. manually constructible impossible decision/reason pairs;
 3. raw canonical JSON exceptions crossing the contract boundary;
 4. nondeterministic multi-budget validation order;
 5. byte-budget accounting that initially excluded the budget record.
+
+P1-001 retains its own exact-live-head, canonical-digest, lifecycle and immutable
+snapshot checks from its bounded implementation review.
 
 ---
 
@@ -176,76 +179,102 @@ production deployment
 
 ---
 
-## 6. 🔗 Post-P1-002 selection — binding before composition
+## 6. ✅ Cross-gate binding/composition readiness
 
-The next architectural review tested whether P1-001 and P1-002 can already be
-safely composed into a new runtime authorization layer.
+The post-P1-002 selection first demonstrated a structural composition gap:
 
-Result:
+- P1-001 `ResolutionResult` does not carry the evaluated `ActionIntent` binding;
+- P1-002 `PrivacyReconciliationResult` contains only `decision` and `reason`;
+- bare positive results therefore cannot prove common request, purpose, scope,
+  branch or freshness.
+
+The docs-only readiness contract now freezes the safe architecture:
+
+[`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 
 ```text
-NO_RUNTIME_MILESTONE_SELECTED
-NEXT_BOUNDED_WORK = CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · DOCS_ONLY
+one immutable canonical evaluation context
+→ exact common purpose / operation / scope / side-effect / branch binding
+→ original source inputs projected into existing pure P1 gates
+→ same-attempt evaluation
+→ verified lease revision/digest + privacy policy revisions
+→ explicit gate/canonical/binding versions
+→ coordinator-computed canonical fingerprints
+→ at most ELIGIBLE_FOR_NEXT_GATE
+```
+
+Architectural decisions:
+
+```text
+CROSS_GATE_BINDING_READINESS = READY
+STRATEGY_A_PURE_COORDINATOR  = SELECTED
+STRATEGY_B_EVIDENCE_ENVELOPE = DERIVED_EVIDENCE_ONLY
+STRATEGY_C_BARE_RESULTS       = REJECTED
+CALLER_SUPPLIED_DIGEST        = NOT_AUTHORITY
+FRESHNESS                     = SAME_ATTEMPT + REVISION_BOUND
+```
+
+The existing frozen P1-001/P1-002 contracts do not need modification to make
+this architecture coherent. A future coordinator can retain and canonicalize
+the original admitted source values while leaving both result shapes unchanged.
+
+---
+
+## 7. ⛔ Next decision gate
+
+Readiness does not automatically select a runtime milestone.
+
+```text
 P1_003 = NOT_ASSIGNED
-```
-
-The blocker is structural rather than procedural:
-
-- P1-001 `ResolutionResult` does not carry a canonical fingerprint of the
-  evaluated purpose, operation, data scope and requested side effects;
-- P1-002 `PrivacyReconciliationResult` intentionally contains only `decision`
-  and `reason`, with no material/copy/purpose/branch binding;
-- therefore independently valid positive results can belong to different
-  intents, branches, policy revisions or evaluation moments.
-
-```text
-Capability ALLOW for A
-+
-Privacy ALLOW_REFERENCE for B
-≠ authorization for A or B
-```
-
-Before any composer is selected for implementation, the architecture must
-freeze common request binding, freshness invalidation and fail-closed positive
-semantics that cannot be mistaken for execution permission.
-
-Owning decision:
-[`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md).
-
----
-
-## 7. ⛔ Next execution gate
-
-```text
-P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
-P1_002_PURE_CLASSIFIER_VALIDATED
-P1_002_OWNER_GO_CONSUMED
-P1_002_MUTATION_AUTHORITY_NONE
-P1_002_RETRIEVAL_AUTHORITY_NONE
-POST_P1_002_SELECTION_COMPLETE
+IMPLEMENTATION_AUTHORIZATION = NONE
 NO_RUNTIME_MILESTONE_SELECTED
-P1_003_NOT_ASSIGNED
-NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
-No deletion, quarantine, rebuild, retrieval, relationship/identity runtime,
-Action Gate, tool or deployment work follows automatically. The current next
-bounded activity is research/readiness only.
+A possible later owner decision may evaluate one candidate only:
 
-Any future runtime step requires a separate bounded contract, threat model,
-Owner GO, Tier A implementation PR and green resulting-main CI. If solving the
-binding problem would require changing either frozen P1 contract, that contract
-change must be proposed and authorized separately rather than hidden inside a
-composer.
+```text
+Potential future P1-003 candidate:
+Pure Governed Constraint Composer
+```
+
+Before any code authorization, a separate proposal must freeze the exact
+runtime context schema, fingerprint domains, result contract, source-provenance
+boundary, T1–T12 adversarial cases and M1–M10 metamorphic properties, and must
+receive a new explicit Owner GO.
+
+The candidate must remain pure and explicit-input only. It may not perform
+retrieval, persistence, network/file/database access, Action Gate execution,
+tool execution, identity/relationship mutation or direct/indirect M3 writes.
+
+```text
+Capability ALLOW
++ Privacy ALLOW_REFERENCE
++ cross-gate ELIGIBLE_FOR_NEXT_GATE
+≠ Action Gate PASS
+≠ retrieval permission
+≠ tool/action permission
+```
 
 ---
 
-## 8. 🔄 Status rules
+## 8. 🎭 Character / independent-review boundary
+
+```text
+CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
+```
+
+Cross-gate readiness adds no Character evidence and does not alter issue #39.
+The repository remains in honest `SOLO_MAINTAINER` mode. Historical review
+labels do not create current independent-human assurance.
+
+---
+
+## 9. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
 | Research captured | no runtime status change |
-| Readiness/selection decision merged | may select docs-only next work; no implementation authority |
+| Readiness/selection decision merged | may freeze docs-only architecture; no implementation authority |
 | Contract frozen | `FROZEN_DOCS` |
 | Bounded Owner GO merged | `AUTHORIZED_BOUNDED` |
 | Code PR merged + green main CI | `IMPLEMENTED_BOUNDED` |
@@ -256,27 +285,27 @@ derived navigation/status surface synchronized only after verified evidence.
 
 ---
 
-## 9. 🏁 Formula
+## 10. 🏁 Formula
 
 ```text
 P0 complete
 → P1-001 implemented bounded
-→ P1-002 contract frozen
-→ bounded P1-002 Owner GO
-→ pure classifier implemented and validated
-→ post-P1-002 architecture selection
-→ common binding/freshness gap demonstrated
-→ docs-only binding/composition readiness selected
-→ STOP before any new runtime milestone
+→ P1-002 implemented bounded
+→ post-P1-002 selection demonstrated common-binding gap
+→ cross-gate binding/readiness contract frozen docs-only
+→ pure coordinator over verified source inputs selected architecturally
+→ bare-result composition rejected
+→ ELIGIBLE_FOR_NEXT_GATE limited to non-execution readiness
+→ STOP before runtime selection
 ```
 
 ### Related
 
+- [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 - [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md)
 - [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
 - [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
 - [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
-- [`../P0_010_ATOMIC_SAME_STREAM_REDACTION.md`](../P0_010_ATOMIC_SAME_STREAM_REDACTION.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
