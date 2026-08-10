@@ -109,7 +109,7 @@ Post-merge CI:   31331973557 · success
 ```text
 Reviewed head:   74662fb626a545ed63b426e98aa03524449019db
 Exact-head CI:   31332728486 · success · 461 passed
-Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
+Merge:           d64679fd745e859527a70746df5e69dc9aca0408
 Post-merge CI:   31332793742 · success · 461 passed
 Correctness:     PASS
 Adversarial:     PASS
