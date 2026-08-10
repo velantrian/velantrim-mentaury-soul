@@ -56,6 +56,9 @@ NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 - [Frozen contract](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 - [Authorization/completion receipt](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 
+The P1-001 Owner GO is consumed and does not authorize any later registry service,
+Action Gate, P1-002 or subsequent runtime milestone.
+
 ### P1-002 Privacy Reconciliation Classifier
 
 ```text
