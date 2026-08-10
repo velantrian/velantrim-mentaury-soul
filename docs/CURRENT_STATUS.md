@@ -57,18 +57,22 @@ P1_003_CONTRACT_FROZEN_DOCS
 P1_003_EXACT_CONTEXT_API_FINGERPRINT_RESULT_CONTRACT_FROZEN
 P1_003_T1_T12_AND_M1_M10_EXECUTABLE_REQUIREMENTS_FROZEN
 P1_003_NO_HIDDEN_IO_PROOF_REQUIREMENT_FROZEN
-P1_003_OWNER_GO_NOT_GRANTED
+P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+P1_003_IMPLEMENTATION_NOT_STARTED
 P1_003_NOT_ASSIGNED
-NEXT_REQUIRED_DECISION_EXPLICIT_P1_003_OWNER_GO
-NO_RUNTIME_MILESTONE_SELECTED
-IMPLEMENTATION_AUTHORIZATION_NONE
+IMPLEMENTATION_AUTHORIZATION = AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
+NEXT_BOUNDED_MILESTONE = P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_BOUNDED_IMPLEMENTATION
+NEXT_BOUNDED_MILESTONE_MUST_START_WITH_FRESH_LIVE_PREFLIGHT
 
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
+IDENTITY_RUNTIME_NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME_NOT_AUTHORIZED
 DOMAIN_RUNTIME_NOT_AUTHORIZED
 RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
+CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 ```
 
 ---
@@ -84,8 +88,9 @@ RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 | P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
 | Post-P1-002 selection | ✅ Docs-only decision | no runtime milestone selected; cross-gate binding/composition readiness selected |
 | Cross-gate binding/composition readiness | ✅ Frozen docs-only | common binding/freshness contract ready; runtime still not authorized |
-| P1-003 candidate selection | ✅ Frozen docs-only | Pure Governed Constraint Composer selected as candidate; P1-003 still not assigned; no Owner GO |
-| P1-003 pure composer contract | ✅ Frozen docs-only | exact context/API/fingerprint/result/threat/metamorphic/purity contract frozen; Owner GO still absent |
+| P1-003 candidate selection | ✅ Frozen docs-only | Pure Governed Constraint Composer selected as candidate |
+| P1-003 pure composer contract | ✅ Frozen docs-only | exact context/API/fingerprint/result/threat/metamorphic/purity contract frozen |
+| P1-003 bounded Owner GO | ✅ Authorized bounded · not started | one-time P1-003-v0.1 implementation authorization; no implementation, activation or deployment |
 
 ---
 
@@ -295,31 +300,35 @@ evaluation attempt.
 CROSS_GATE_BINDING_READINESS = READY
 RUNTIME_IMPLEMENTATION       = NOT_AUTHORIZED
 P1_003                       = NOT_ASSIGNED
-IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
 ---
 
-## 9. 🧩 P1-003 candidate and frozen contract
+## 9. 🧩 P1-003 candidate, frozen contract, and bounded Owner GO
 
 Candidate selection remains frozen in:
 
 `docs/research/P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`
 
-The exact implementation contract is now frozen in:
+The exact implementation contract remains frozen in:
 
 `docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`
+
+The separate bounded authorization receipt is:
+
+`docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 
 ```text
 P1_003_CANDIDATE_SELECTION = SELECTED
 P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
 P1_003_CONTRACT            = FROZEN_DOCS
-P1_003_OWNER_GO            = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION = NONE
+P1_003_OWNER_GO            = AUTHORIZED_BOUNDED
+IMPLEMENTATION_AUTHORIZATION = AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
+P1_003_IMPLEMENTATION      = NOT_STARTED
 ```
 
-The frozen contract defines:
+The frozen contract still defines, without modification:
 
 - exact `CrossGateEvaluationContext` and `CompositionBudget` schemas;
 - the only public API `compose_governed_constraints(*, context=...)`;
@@ -332,7 +341,7 @@ The frozen contract defines:
 - executable T1–T12 and M1–M10 requirements;
 - mandatory `CGC-*` implementation test matrix;
 - no-hidden-I/O/import/call proof strategy;
-- explicit non-goals and implementation acceptance criteria.
+- explicit compatibility stop and implementation acceptance criteria.
 
 The API explicitly forbids bare-result composition and caller-supplied digests.
 The source-provenance scope remains `CALLER_SUPPLIED_VALUE_EVIDENCE_ONLY`; a pure
@@ -342,19 +351,20 @@ The promotion ladder is now:
 
 ```text
 CANDIDATE_SELECTED_DOCS_ONLY
-→ P1_003_CONTRACT_FROZEN_DOCS_ONLY   ← current
-→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
-→ clean Tier A implementation PR
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED   ← current
+→ clean Tier A implementation PR in a new bounded milestone
 → IMPLEMENTED_BOUNDED only after exact-head + resulting-main evidence
 ```
 
-The next possible step is not implementation. It is a separate Owner GO
-decision against the frozen contract:
+The Owner GO is one-time, contract-bound and consumable. It authorizes only the
+next separate bounded implementation milestone. It does not implement the
+composer and does not grant runtime activation or deployment authority.
 
 ```text
-NEXT_REQUIRED_DECISION = EXPLICIT_P1_003_OWNER_GO
-IMPLEMENTATION         = NOT_AUTHORIZED
-OWNER_GO               = NOT_GRANTED
+NEXT_BOUNDED_MILESTONE = P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_BOUNDED_IMPLEMENTATION
+IMPLEMENTATION         = NOT_STARTED
+OWNER_GO               = AUTHORIZED_BOUNDED
 ```
 
 ---
@@ -370,7 +380,7 @@ Capability ALLOW
 
 A complete Action Gate may include constitutional,
 relationship/commitment, side-effect and other authority layers. The P1-003
-contract does not implement or collapse them.
+contract and its bounded Owner GO do not implement or collapse them.
 
 Likewise:
 
@@ -388,11 +398,14 @@ Gate, tool or deployment work follows automatically.
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
+IDENTITY_RUNTIME = NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME = NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE = FORBIDDEN
 ```
 
 No Character validation, identity/relationship runtime, Genesis Heritage runtime,
 Human Paths Atlas runtime or direct/indirect M3 write is created by cross-gate
-readiness, P1-003 candidate selection or the P1-003 contract freeze.
+readiness, P1-003 candidate selection, the P1-003 contract freeze or this Owner GO.
 
 Issue #39 remains the future transition trigger for genuine independent/team
 review and is not a current solo-mode blocker.
@@ -410,6 +423,11 @@ Tier A docs that affect authority/readiness require the same exact-head,
 correctness, adversarial and resulting-main evidence discipline as other Tier A
 work.
 
+Owner GO is a strictly serialized authority transition. The implementation
+milestone may not overlap this authorization milestone and must begin with a
+fresh live-state preflight after this receipt is merged and resulting-main CI is
+verified.
+
 ---
 
 ## 13. 🔗 Authoritative navigation
@@ -418,6 +436,7 @@ work.
 - Governance: `docs/GOVERNANCE.md`
 - P1-001 receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
+- P1-003 bounded Owner GO receipt: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - Post-P1-002 selection: `docs/research/POST_P1_002_MILESTONE_SELECTION.md`
 - Cross-gate readiness: `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
@@ -442,16 +461,18 @@ P0 foundation implemented
 + ELIGIBLE_FOR_NEXT_GATE limited to next-gate readiness
 + Pure Governed Constraint Composer selected as P1-003 candidate docs-only
 + exact P1-003 composer contract frozen docs-only
-+ P1-003 remains unassigned; Owner GO not granted
++ P1-003 bounded Owner GO granted for exactly P1-003-v0.1
++ implementation remains NOT_STARTED
++ P1-003 runtime assignment remains NOT_ASSIGNED
 + permanent CI
 + active solo governance
 
-≠ runtime composition authorization
-≠ P1-003 runtime assignment
-≠ Owner GO
+= exactly one consumable bounded authorization for the next separate P1-003 implementation milestone
+≠ P1-003 implementation complete
+≠ runtime activation
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
-≠ identity or M3 mutation
+≠ identity, relationship, Character or M3 authority
 ≠ domain runtime or deployment
 ≠ independent human assurance
 ```
