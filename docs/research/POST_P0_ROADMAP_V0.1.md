@@ -59,7 +59,7 @@ Authorization PR:       #62
 Implementation PR:      #63
 Reviewed head:          e873e43331fa7273b92f896b371707e4779b17d4
 Exact-head CI:          31323051934 · success · 387 passed
-Implementation merge:   f21809d8f31fa457bd7acfe1d766230973ba9ecf5
+Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
 Post-merge CI:          31323138053 · success
 ```
 
@@ -109,7 +109,7 @@ Post-merge CI:   31331973557 · success
 ```text
 Reviewed head:   74662fb626a545ed63b426e98aa03524449019db
 Exact-head CI:   31332728486 · success · 461 passed
-Merge:           d64679fd745e859527a70746df5e69dc9aca0408
+Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
 Post-merge CI:   31332793742 · success · 461 passed
 Correctness:     PASS
 Adversarial:     PASS
