@@ -65,10 +65,12 @@ def test_owner_go_preserves_frozen_implementation_contract() -> None:
         "P1-002-v0.1",
         "compose_governed_constraints",
         "CrossGateEvaluationContext",
-        "CompositionBudget",
     ):
         assert token in CONTRACT
         assert token in AUTH
+
+    assert "CompositionBudget" in CONTRACT
+    assert "exact frozen context and budget schemas remain unchanged" in AUTH
 
     for family in (
         "CGC-CTX-001…012",
