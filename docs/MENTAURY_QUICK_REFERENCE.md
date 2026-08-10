@@ -4,6 +4,7 @@
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P1-001…P1-001_IMPLEMENTED_IN_MAIN
 P1-002…P1-002_IMPLEMENTED_IN_MAIN
+P1-003…P1-003_IMPLEMENTED_IN_MAIN
 ```
 
 ## Current state
@@ -14,6 +15,8 @@ P1-002…P1-002_IMPLEMENTED_IN_MAIN
 | P0 foundation | IMPLEMENTED |
 | P1-001 Capability Lease resolver | IMPLEMENTED_BOUNDED |
 | P1-002 Privacy Reconciliation Classifier | IMPLEMENTED_BOUNDED |
+| P1-003 Pure Governed Constraint Composer | IMPLEMENTED_BOUNDED |
+| P1-003 runtime assignment | NOT_ASSIGNED |
 | Governance | SOLO_MAINTAINER · TIER_A |
 | Next runtime milestone | NOT SELECTED · NOT AUTHORIZED |
 
@@ -44,38 +47,62 @@ pure fail-closed classifier
               └─ REBUILD_REQUIRED
 ```
 
-The result performs no action and grants no retrieval permission.
+`ALLOW_REFERENCE` performs no action and grants no retrieval permission.
 
-## Verified evidence
+## P1-003 in one diagram
 
 ```text
-Contract PR #65
-→ CI 31331396018 · 401 passed
-→ merge 1dc7bcf97986f455f48beb121c2048dfc34bd11c
+immutable CrossGateEvaluationContext
+              │
+              ├─ derive P1-001 ActionIntent
+              ├─ derive P1-002 PrivacyAccessIntent
+              │
+              ▼
+same-attempt pure bounded evaluation
+              │
+              ├─ NOT_ELIGIBLE
+              ├─ DEFER
+              └─ ELIGIBLE_FOR_NEXT_GATE
+```
 
-Authorization PR #66
-→ CI 31331910395 · 398 passed
-→ merge 8f4c444e2144d1dffde20fc60d6d5250148d07e6
+`ELIGIBLE_FOR_NEXT_GATE` remains next-gate readiness only.
 
-Implementation PR #67
-→ reviewed head 74662fb626a545ed63b426e98aa03524449019db
-→ CI 31332728486 · 461 passed
-→ merge d64679fd745e859527a70746df5e69dc9aca0408
-→ main CI 31332793742 · success · 461 passed
+## P1-003 verified evidence
+
+```text
+Owner GO PR #77
+→ reviewed head 79fcedc8fe7dee64acad8dfffd8c8a17122ae97c
+→ CI 31389769422 · 482 passed
+
+Receipt reconciliation PR #78
+→ reviewed head 0f52e683a03fe9fe27428e7effe0349fd496bd26
+→ CI 31393515732 · 482 passed
+
+Implementation PR #79
+→ reviewed head 9855f766f2bf801c8297c4f870b21d3ed37911fb
+→ CI 31394829487 · 552 passed
+→ merge/main 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
+→ main CI 31395291622 · success · 552 passed
+→ review 4897445251 · correctness PASS · adversarial PASS
+```
+
+```text
+P1_003_OWNER_GO = CONSUMED
+P1_003_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
+NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 ## Fail-closed properties
 
-- exact typed-or-mapping admission;
-- immutable values;
-- sorted unique allowlists;
-- exact linkage and policy revision checks;
-- canonical byte-budget across all four inputs;
-- fixed budget validation order;
-- empty allowlists grant nothing;
-- exact first-match precedence;
-- impossible result pairs rejected;
-- no network, database, filesystem, environment or clock authority.
+- immutable admitted context;
+- exact P1-001/P1-002 projections;
+- deterministic domain-separated fingerprints;
+- same-attempt binding and freshness;
+- blocker-over-defer precedence;
+- complete `CGC-CTX/FP/DEC/T/M/PURE` frozen matrix;
+- no hidden network, database, filesystem, environment or clock authority;
+- no authority amplification from positive gate results.
 
 ## Not authorized
 
@@ -83,10 +110,11 @@ Implementation PR #67
 deletion or redaction execution
 quarantine or rebuild execution
 retrieval execution
-registry persistence or copy scanning
+registry persistence or scanning
 Action Gate, Tool Receipt or tools
 event/replay integration
 belief, relationship, identity or M3 mutation
+P1-003 runtime assignment or activation
 backend selection or deployment
 ```
 
@@ -94,6 +122,7 @@ backend selection or deployment
 
 - `docs/CURRENT_STATUS.md`
 - `docs/GOVERNANCE.md`
-- `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
-- `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
+- `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
+- `docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`
 - `docs/research/POST_P0_ROADMAP_V0.1.md`
+- `docs/research/RESEARCH_INDEX.md`
