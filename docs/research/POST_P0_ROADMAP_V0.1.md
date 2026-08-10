@@ -17,13 +17,17 @@ P1-003 candidate selection:    SELECTED
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 assignment:             NONE
 P1-003 contract:               FROZEN_DOCS
-P1-003 Owner GO:               NOT GRANTED
-Next required decision:        EXPLICIT_P1_003_OWNER_GO
-Next runtime milestone:       NOT SELECTED · NOT AUTHORIZED
-Implementation authorization: NONE
+P1-003 Owner GO:               AUTHORIZED_BOUNDED
+P1-003 implementation:         NOT_STARTED
+Next bounded milestone:        P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_BOUNDED_IMPLEMENTATION
+Implementation authorization: AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
 Runtime deployment authority: NONE
+Action Gate authority:         NONE
 Mutation authority:           NONE
 Retrieval authority:          NONE
+Tool authority:               NONE
+Identity authority:           NONE
+Relationship authority:       NONE
 Direct or indirect M3 write:  FORBIDDEN
 NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
@@ -38,6 +42,7 @@ ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 readiness contract ≠ implementation GO
 candidate selected ≠ P1-003 assigned
 contract freeze ≠ Owner GO
+Owner GO ≠ implementation complete
 P1-003 NOT_ASSIGNED ≠ missing work
 Solo review ≠ independent certification
 ```
@@ -54,7 +59,7 @@ Authorization PR:       #62
 Implementation PR:      #63
 Reviewed head:          e873e43331fa7273b92f896b371707e4779b17d4
 Exact-head CI:          31323051934 · success · 387 passed
-Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
+Implementation merge:   f21809d8f31fa457bd7acfe1d766230973ba9ecf5
 Post-merge CI:          31323138053 · success
 ```
 
@@ -239,7 +244,6 @@ The candidate-selection decision is frozen in:
 P1_003_CANDIDATE_SELECTION = SELECTED
 P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
-IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
 The candidate is a minimal pure same-attempt coordinator over existing bounded
@@ -250,18 +254,21 @@ retrieval, remediation and persistence remain out of scope.
 
 ## 8. ✅ P1-003 Pure Composer contract freeze
 
-The exact docs-only implementation contract is frozen in:
+The exact docs-only implementation contract remains frozen in:
 
 [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+
+The contract-freeze document remains historical evidence of the state at freeze
+time and is intentionally not rewritten by the later Owner GO receipt. Its core
+contract is unchanged.
 
 ```text
 P1_003_CONTRACT            = FROZEN_DOCS
 P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
-P1_003_OWNER_GO            = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION = NONE
+CONTRACT_FROZEN            ≠ OWNER_GO
 ```
 
-The contract freezes all required pre-authorization semantics:
+The contract freezes all required implementation semantics:
 
 - exact immutable `CrossGateEvaluationContext`;
 - exact `CompositionBudget`;
@@ -281,35 +288,39 @@ The contract freezes all required pre-authorization semantics:
 - explicit compatibility stop if frozen P1 contracts would need modification;
 - exact implementation acceptance criteria.
 
+---
+
+## 9. ✅ P1-003 bounded Owner GO
+
+The separate Owner GO receipt is:
+
+[`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
+
+```text
+P1_003_CONTRACT              = FROZEN_DOCS
+P1_003_OWNER_GO              = AUTHORIZED_BOUNDED
+P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+P1_003_IMPLEMENTATION_NOT_STARTED
+P1_003_RUNTIME_ASSIGNMENT    = NOT_ASSIGNED
+IMPLEMENTATION_AUTHORIZATION = AUTHORIZED_BOUNDED · P1-003-v0.1 ONLY
+```
+
+The authorization is exact-contract-bound, scope-bound, one-time/consumable and
+non-transferable. It authorizes only the next separate bounded implementation
+milestone for the frozen `P1-003-v0.1` Pure Governed Constraint Composer.
+
 The promotion sequence is now:
 
 ```text
 CANDIDATE_SELECTED_DOCS_ONLY
-→ P1_003_CONTRACT_FROZEN_DOCS_ONLY   ← current
-→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
-→ clean Tier A implementation PR
-→ IMPLEMENTED_BOUNDED
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ P1_003_OWNER_GO_AUTHORIZED_BOUNDED   ← current
+→ clean Tier A implementation PR in a new bounded milestone
+→ IMPLEMENTED_BOUNDED only after exact-head + resulting-main evidence
 ```
 
-The contract freeze itself is not implementation authority.
-
----
-
-## 9. ⛔ Authorization gate / next required decision
-
-No P1-003 Owner GO has been granted.
-
-```text
-NEXT_REQUIRED_DECISION = EXPLICIT_P1_003_OWNER_GO
-P1_003_OWNER_GO        = NOT_GRANTED
-P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
-IMPLEMENTATION_AUTHORIZATION = NONE
-```
-
-A future Owner GO, if the operator chooses to issue one, must reference the
-frozen P1-003 contract exactly and authorize only the package/tests/docs slice
-specified there. The prior P1-001 and P1-002 Owner GO receipts are consumed and
-cannot be reused.
+The implementation milestone must begin with a fresh live-state preflight and
+consume this exact receipt. It is not started by this Owner GO block.
 
 ```text
 Capability ALLOW
@@ -318,6 +329,9 @@ Capability ALLOW
 ≠ Action Gate PASS
 ≠ retrieval permission
 ≠ tool/action permission
+≠ identity or relationship authority
+≠ M3 authority
+≠ deployment authority
 ```
 
 ---
@@ -326,11 +340,14 @@ Capability ALLOW
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
+IDENTITY_RUNTIME = NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME = NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE = FORBIDDEN
 ```
 
-The P1-003 contract freeze adds no Character evidence and does not alter issue
+The P1-003 bounded Owner GO adds no Character evidence and does not alter issue
 #39. The repository remains in honest `SOLO_MAINTAINER` mode. Historical review
-labels do not create current independent-human assurance.
+labels and AI analysis do not create current independent-human assurance.
 
 ---
 
@@ -361,11 +378,14 @@ P0 complete
 → cross-gate binding/readiness contract frozen docs-only
 → Pure Governed Constraint Composer selected as sole P1-003 candidate
 → exact P1-003 Pure Composer contract frozen docs-only
-→ STOP before P1-003 runtime assignment / Owner GO / implementation
+→ bounded Owner GO authorized for exactly P1-003-v0.1
+→ STOP with P1-003 implementation NOT_STARTED
+→ next implementation only as a separate bounded milestone after fresh live preflight
 ```
 
 ### Related
 
+- [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 - [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
 - [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 - [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
