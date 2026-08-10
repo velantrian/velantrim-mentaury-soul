@@ -195,18 +195,27 @@ No implementation PR may weaken or reinterpret these semantics.
 
 ## 6. 🛡️ Mandatory threat, metamorphic and purity evidence
 
-The future implementation milestone must satisfy all frozen requirements:
+The future implementation milestone must satisfy all frozen requirements exactly
+as enumerated by Section 16 of the frozen P1-003 v0.1 contract:
 
 ```text
 T1…T12
 M1…M10
-CGC-CTX-001…012
+CGC-CTX-001…014
 CGC-FP-001…010
-CGC-DEC-001…012
+CGC-DEC-001…014
 CGC-T-001…012
 CGC-M-001…010
-CGC-PURE-001…006
+CGC-PURE-001…008
 ```
+
+Reconciliation note (2026-08-10): PR #77 correctly bound this authorization to
+**all frozen CGC-* requirements**, but its explicit shorthand ranges accidentally
+stopped at `CGC-CTX-012`, `CGC-DEC-012`, and `CGC-PURE-006`. The frozen contract
+already required `CTX-013…014`, `DEC-013…014`, and `PURE-007…008`. This docs-only
+reconciliation corrects that internal receipt inconsistency **before any P1-003
+implementation is merged**. It grants no new semantics, runtime surface or
+authority beyond the already frozen `P1-003-v0.1` contract.
 
 The implementation must also prove the frozen no-hidden-I/O boundary. It may not
 use filesystem authority, `sqlite3.connect`, network/socket, subprocess,
