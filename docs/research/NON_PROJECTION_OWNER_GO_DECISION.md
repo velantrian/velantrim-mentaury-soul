@@ -7,7 +7,7 @@ Review tier:                         TIER_A
 Baseline main SHA:                   1c8016b32e9b0ddc641af4a4410a5bdae05fd625
 Owning contract PR:                  #86
 Budget clarification PR:             #87
-Owner GO PR:                         PENDING_PR_NUMBER
+Owner GO PR:                         #88
 Candidate:                           PURE_NON_PROJECTION_CLASSIFIER
 Contract version:                    NPG-v0.1
 Envelope version:                    AIE-v0.1
