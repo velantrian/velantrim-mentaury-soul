@@ -56,6 +56,8 @@ Owning receipt: [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMEN
 
 P1-001 remains a pure capability classifier without registry persistence,
 Action Gate, tool execution, identity/M3 mutation or deployment authority.
+No registry service, Action Gate, P1-002 remediation execution or tool runtime
+follows automatically from P1-001.
 
 ---
 
