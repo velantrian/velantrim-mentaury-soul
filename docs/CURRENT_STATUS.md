@@ -50,8 +50,14 @@ CROSS_GATE_BINDING_READINESS_READY
 SELECTED_BINDING_STRATEGY_PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
 BARE_RESULT_COMPOSITION_REJECTED
 POSITIVE_READINESS_ELIGIBLE_FOR_NEXT_GATE_ONLY
-NO_RUNTIME_MILESTONE_SELECTED
+
+P1_003_CANDIDATE_SELECTION_COMPLETE
+P1_003_CANDIDATE_PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1_003_CONTRACT_NOT_FROZEN
+P1_003_OWNER_GO_NOT_GRANTED
 P1_003_NOT_ASSIGNED
+NEXT_BOUNDED_WORK_P1_003_PURE_COMPOSER_CONTRACT_FREEZE_DOCS_ONLY
+NO_RUNTIME_MILESTONE_SELECTED
 IMPLEMENTATION_AUTHORIZATION_NONE
 
 ACTION_GATE_NOT_AUTHORIZED
@@ -75,6 +81,7 @@ RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 | P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
 | Post-P1-002 selection | ✅ Docs-only decision | no runtime milestone selected; cross-gate binding/composition readiness selected |
 | Cross-gate binding/composition readiness | ✅ Frozen docs-only | common binding/freshness contract ready; runtime still not authorized |
+| P1-003 candidate selection | ✅ Frozen docs-only | Pure Governed Constraint Composer selected as candidate; P1-003 still not assigned; no Owner GO |
 
 ---
 
@@ -243,7 +250,7 @@ consciousness or subjective-experience claims
 
 ## 8. 🔗 Cross-gate binding/composition readiness
 
-The docs-only readiness contract is now frozen in:
+The docs-only readiness contract is frozen in:
 
 `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
 
@@ -287,18 +294,54 @@ P1_003                       = NOT_ASSIGNED
 IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-Potential future decision only:
+---
+
+## 9. 🧩 P1-003 candidate selection
+
+The docs-only candidate decision is frozen in:
+
+`docs/research/P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`
 
 ```text
-Pure Governed Constraint Composer
+P1_003_CANDIDATE_SELECTION = SELECTED
+P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
+P1_003_CONTRACT            = NOT_FROZEN
+P1_003_OWNER_GO            = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-It requires a separate bounded contract and explicit Owner GO before any code is
-written.
+The candidate is a minimal pure coordinator over original admitted P1-001 and
+P1-002 source inputs. Candidate selection does not assign P1-003 and does not
+consume or imply an Owner GO.
+
+The exact promotion ladder is:
+
+```text
+CANDIDATE_SELECTED_DOCS_ONLY
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+→ clean Tier A implementation PR
+→ IMPLEMENTED_BOUNDED only after exact-head + resulting-main evidence
+```
+
+The only selected next bounded work is a **docs-only contract freeze** for the
+candidate. That future block must define exact context/API schemas, canonical
+projections, fingerprint domains, source-provenance boundary, result/reason
+contract, freshness/invalidation rules, T1–T12 executable adversarial mappings,
+M1–M10 executable metamorphic mappings, hidden-I/O proof strategy and exact
+implementation acceptance criteria.
+
+```text
+NEXT_BOUNDED_WORK = P1_003_PURE_COMPOSER_CONTRACT_FREEZE
+MODE              = DOCS_ONLY
+IMPLEMENTATION    = NOT_AUTHORIZED
+OWNER_GO          = NOT_GRANTED
+```
 
 ---
 
-## 9. 🧱 Action Gate / retrieval boundary
+## 10. 🧱 Action Gate / retrieval boundary
 
 ```text
 Capability ALLOW
@@ -323,7 +366,7 @@ Gate, tool or deployment work follows automatically.
 
 ---
 
-## 10. 🎭 Character / identity boundary
+## 11. 🎭 Character / identity boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
@@ -331,14 +374,14 @@ CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
 
 No Character validation, identity/relationship runtime, Genesis Heritage runtime,
 Human Paths Atlas runtime or direct/indirect M3 write is created by cross-gate
-readiness.
+readiness or P1-003 candidate selection.
 
 Issue #39 remains the future transition trigger for genuine independent/team
 review and is not a current solo-mode blocker.
 
 ---
 
-## 11. 🛡️ Governance state
+## 12. 🛡️ Governance state
 
 The live solo ruleset retains mandatory PRs, exact required CI, up-to-date
 branches, resolved conversations, deletion/force-push protection and empty
@@ -351,7 +394,7 @@ work.
 
 ---
 
-## 12. 🔗 Authoritative navigation
+## 13. 🔗 Authoritative navigation
 
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
 - Governance: `docs/GOVERNANCE.md`
@@ -360,13 +403,14 @@ work.
 - P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - Post-P1-002 selection: `docs/research/POST_P1_002_MILESTONE_SELECTION.md`
 - Cross-gate readiness: `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
+- P1-003 candidate selection: `docs/research/P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 - Environment: `docs/ENVIRONMENT_MANIFEST.md`
 
 ---
 
-## 13. 🏁 Current formula
+## 14. 🏁 Current formula
 
 ```text
 P0 foundation implemented
@@ -377,6 +421,8 @@ P0 foundation implemented
 + pure coordinator strategy selected architecturally
 + bare-result composition rejected
 + ELIGIBLE_FOR_NEXT_GATE limited to next-gate readiness
++ Pure Governed Constraint Composer selected as P1-003 candidate docs-only
++ P1-003 remains unassigned; contract not frozen; Owner GO not granted
 + permanent CI
 + active solo governance
 

@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      0.9
+Version:                      1.0
 Updated:                      2026-08-10
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -13,7 +13,12 @@ Cross-gate readiness:         READY · FROZEN_DOCS · DOCS_ONLY
 Selected binding strategy:    PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
 Bare-result composition:      REJECTED
 Positive readiness meaning:   ELIGIBLE_FOR_NEXT_GATE only
-P1-003 assignment:            NONE
+P1-003 candidate selection:    SELECTED
+P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1-003 assignment:             NONE
+P1-003 contract:               NOT FROZEN
+P1-003 Owner GO:               NOT GRANTED
+Next bounded work:             P1_003_PURE_COMPOSER_CONTRACT_FREEZE · DOCS_ONLY
 Next runtime milestone:       NOT SELECTED · NOT AUTHORIZED
 Implementation authorization: NONE
 Runtime deployment authority: NONE
@@ -31,6 +36,8 @@ ALLOW_REFERENCE ≠ retrieval permission
 positive classifier results ≠ common-bound authorization
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 readiness contract ≠ implementation GO
+candidate selected ≠ P1-003 assigned
+contract freeze ≠ Owner GO
 P1-003 NOT_ASSIGNED ≠ missing work
 Solo review ≠ independent certification
 ```
@@ -222,31 +229,68 @@ the original admitted source values while leaving both result shapes unchanged.
 
 ---
 
-## 7. ⛔ Next decision gate
+## 7. ✅ P1-003 candidate selection
 
-Readiness does not automatically select a runtime milestone.
+The candidate-selection decision is frozen in:
+
+[`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 
 ```text
-P1_003 = NOT_ASSIGNED
+P1_003_CANDIDATE_SELECTION = SELECTED
+P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
+P1_003_CONTRACT            = NOT_FROZEN
+P1_003_OWNER_GO            = NOT_GRANTED
 IMPLEMENTATION_AUTHORIZATION = NONE
-NO_RUNTIME_MILESTONE_SELECTED
 ```
 
-A possible later owner decision may evaluate one candidate only:
+Why this candidate is selected:
+
+- the cross-gate binding blocker is resolved at the architecture level;
+- one immutable explicit-input coordinator can reuse the existing pure P1 gates;
+- bare-result composition remains rejected;
+- modifying the frozen P1 result shapes is unnecessary;
+- an evidence envelope is useful only as derived evidence, not authority;
+- Action Gate, retrieval, remediation and persistence are broader and are not
+  the next bounded problem.
+
+The candidate is not yet a runtime milestone. Candidate selection is only a
+docs-level narrowing of the future design space.
+
+---
+
+## 8. ⛔ Authorization gate and next bounded work
+
+The promotion sequence is:
 
 ```text
-Potential future P1-003 candidate:
-Pure Governed Constraint Composer
+CANDIDATE_SELECTED_DOCS_ONLY
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+→ clean Tier A implementation PR
+→ IMPLEMENTED_BOUNDED
 ```
 
-Before any code authorization, a separate proposal must freeze the exact
-runtime context schema, fingerprint domains, result contract, source-provenance
-boundary, T1–T12 adversarial cases and M1–M10 metamorphic properties, and must
-receive a new explicit Owner GO.
+Current state remains at the first line only.
 
-The candidate must remain pure and explicit-input only. It may not perform
-retrieval, persistence, network/file/database access, Action Gate execution,
-tool execution, identity/relationship mutation or direct/indirect M3 writes.
+The next bounded work is selected as:
+
+```text
+NEXT_BOUNDED_WORK = P1_003_PURE_COMPOSER_CONTRACT_FREEZE
+MODE              = DOCS_ONLY
+IMPLEMENTATION    = NOT_AUTHORIZED
+OWNER_GO          = NOT_GRANTED
+```
+
+Before any code authorization, that later contract-freeze block must define the
+exact runtime context schema, public API/package boundary, canonical projections,
+fingerprint domains, source-provenance boundary, result/reason contract,
+freshness/invalidation rules, T1–T12 executable adversarial mappings, M1–M10
+executable metamorphic mappings, no-hidden-I/O proof strategy, malformed-input
+semantics and exact implementation acceptance criteria.
+
+The contract freeze itself still will not authorize code. A separate explicit
+Owner GO is required after the contract is frozen and reviewed.
 
 ```text
 Capability ALLOW
@@ -259,25 +303,26 @@ Capability ALLOW
 
 ---
 
-## 8. 🎭 Character / independent-review boundary
+## 9. 🎭 Character / independent-review boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
 ```
 
-Cross-gate readiness adds no Character evidence and does not alter issue #39.
-The repository remains in honest `SOLO_MAINTAINER` mode. Historical review
+P1-003 candidate selection adds no Character evidence and does not alter issue
+#39. The repository remains in honest `SOLO_MAINTAINER` mode. Historical review
 labels do not create current independent-human assurance.
 
 ---
 
-## 9. 🔄 Status rules
+## 10. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
 | Research captured | no runtime status change |
 | Readiness/selection decision merged | may freeze docs-only architecture; no implementation authority |
-| Contract frozen | `FROZEN_DOCS` |
+| Candidate selected | design space narrowed; P1-003 remains unassigned |
+| Contract frozen | `FROZEN_DOCS`; still no implementation authority |
 | Bounded Owner GO merged | `AUTHORIZED_BOUNDED` |
 | Code PR merged + green main CI | `IMPLEMENTED_BOUNDED` |
 | Remediation/retrieval proposal | new independent authorization cycle required |
@@ -287,7 +332,7 @@ derived navigation/status surface synchronized only after verified evidence.
 
 ---
 
-## 10. 🏁 Formula
+## 11. 🏁 Formula
 
 ```text
 P0 complete
@@ -298,11 +343,14 @@ P0 complete
 → pure coordinator over verified source inputs selected architecturally
 → bare-result composition rejected
 → ELIGIBLE_FOR_NEXT_GATE limited to non-execution readiness
-→ STOP before runtime selection
+→ Pure Governed Constraint Composer selected as sole P1-003 candidate
+→ next bounded work = docs-only P1-003 contract freeze
+→ STOP before P1-003 assignment / Owner GO / implementation
 ```
 
 ### Related
 
+- [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 - [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 - [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md)
 - [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)

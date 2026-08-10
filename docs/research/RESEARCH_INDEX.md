@@ -8,8 +8,11 @@ Current governance:           SOLO_MAINTAINER
 Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
 Completed execution milestone:P1-002 Privacy Reconciliation Classifier · IMPLEMENTED_BOUNDED
 Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
-Next execution milestone:     NOT SELECTED · NOT AUTHORIZED
+P1-003 candidate selection:    SELECTED
+P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 assignment:            NONE
+Next bounded work:            P1_003_PURE_COMPOSER_CONTRACT_FREEZE · DOCS_ONLY
+Next execution milestone:     NOT SELECTED · NOT AUTHORIZED
 Runtime deployment authority: NONE
 Mutation authority:           NONE
 Retrieval authority:          NONE
@@ -22,6 +25,8 @@ P1-002 completion ≠ remediation authority
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 Readiness contract ≠ implementation GO
+candidate selected ≠ P1-003 assigned
+contract freeze ≠ Owner GO
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
@@ -141,7 +146,42 @@ writes, persistence, I/O or deployment.
 
 ---
 
-## 3. 🧭 Document registry
+## 3. ✅ P1-003 candidate selection checkpoint
+
+- [Candidate selection & authorization boundary](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
+- [Current status](../CURRENT_STATUS.md)
+- [Roadmap](POST_P0_ROADMAP_V0.1.md)
+
+```text
+P1_003_CANDIDATE_SELECTION = SELECTED
+P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
+P1_003_CONTRACT            = NOT_FROZEN
+P1_003_OWNER_GO            = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION = NONE
+```
+
+The selected candidate is a minimal pure same-attempt coordinator over the
+existing bounded P1-001 and P1-002 gates. It may eventually produce only bounded
+readiness and derived evidence. It is not an Action Gate, retrieval service,
+persistence service, execution layer or identity/relationship runtime.
+
+The promotion sequence is intentionally separated:
+
+```text
+CANDIDATE_SELECTED_DOCS_ONLY
+→ P1_003_CONTRACT_FROZEN_DOCS_ONLY
+→ explicit separate P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+→ clean Tier A implementation PR
+→ IMPLEMENTED_BOUNDED
+```
+
+Current state stops at the first line. The selected next bounded work is the
+**docs-only** P1-003 pure-composer contract freeze. No Owner GO exists yet.
+
+---
+
+## 4. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
 |---|---|---|---|
@@ -152,7 +192,8 @@ writes, persistence, I/O or deployment.
 | [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md) | P1-002 receipt | OWNER_GO_CONSUMED | complete |
 | [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md) | post-P1 selection | COMPLETE | no runtime selected |
 | [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md) | cross-gate readiness | FROZEN_DOCS · READY | NOT AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | readiness complete; stop active | no next authority |
+| [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md) | P1-003 candidate | FROZEN_DOCS · SELECTED_CANDIDATE | NOT ASSIGNED / NOT AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | candidate selected; contract freeze next | no implementation authority |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -160,7 +201,7 @@ writes, persistence, I/O or deployment.
 
 ---
 
-## 4. 🌱 Research backlog
+## 5. 🌱 Research backlog
 
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
@@ -179,18 +220,13 @@ writes, persistence, I/O or deployment.
 
 These entries are not a ranked execution queue.
 
-A possible future runtime candidate may be evaluated separately:
-
-```text
-Pure Governed Constraint Composer
-```
-
-It is **not** P1-003 until a separate owner decision assigns it, and it has no
-implementation authority now.
+`Pure Governed Constraint Composer` has moved out of the generic candidate
+backlog into the bounded P1-003 candidate-selection checkpoint above. It is still
+not assigned as a runtime milestone and has no implementation authority.
 
 ---
 
-## 5. 🚪 Promotion gate
+## 6. 🚪 Promotion gate
 
 ```text
 problem demonstrated
@@ -205,12 +241,13 @@ problem demonstrated
 ```
 
 Each Owner GO is consumed once. Both P1-001 and P1-002 Owner GO receipts are
-consumed. Cross-gate readiness grants no reusable Owner GO. Issue #39 remains
-the future transition trigger for genuine independent review.
+consumed. Cross-gate readiness and P1-003 candidate selection grant no reusable
+Owner GO. Issue #39 remains the future transition trigger for genuine independent
+review.
 
 ---
 
-## 6. 🔗 Boundaries
+## 7. 🔗 Boundaries
 
 ```text
 Mentaury research ≠ Crystal Canon ≠ Titan runtime ≠ Native Kernel runtime
@@ -223,13 +260,14 @@ authority.
 
 ---
 
-## 7. 🏁 Rule
+## 8. 🏁 Rule
 
 ```text
 Keep ideas.
 Label their status.
 Bind gate evidence before composition.
-Promote one bounded milestone at a time.
+Select one bounded candidate at a time.
+Freeze its contract before any Owner GO.
 Consume each Owner GO once.
 Stop before any unreviewed authority expansion.
 ```
