@@ -1,7 +1,7 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Status date:                       2026-08-09
+Status date:                       2026-08-10
 Repository:                        velantrian/velantrim-mentaury-soul
 Engineering authority:             this file + verified live GitHub state
 Governance authority:              docs/GOVERNANCE.md + live GitHub ruleset
@@ -44,6 +44,11 @@ P1_002_MUTATION_AUTHORITY_NONE
 P1_002_RETRIEVAL_AUTHORITY_NONE
 NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 
+POST_P1_002_SELECTION_COMPLETE
+NO_RUNTIME_MILESTONE_SELECTED
+NEXT_BOUNDED_WORK_CROSS_GATE_BINDING_AND_COMPOSITION_READINESS_DOCS_ONLY
+P1_003_NOT_ASSIGNED
+
 ACTION_GATE_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE_FORBIDDEN
@@ -62,6 +67,7 @@ RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 | P0-015 | ✅ Implemented | deterministic Evidence Gate |
 | P1-001 | ✅ Implemented bounded | pure Capability Lease classification only |
 | P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
+| Post-P1-002 selection | ✅ Docs-only decision | no runtime milestone selected; cross-gate binding/composition readiness is next bounded work |
 
 ---
 
@@ -220,18 +226,35 @@ consciousness or subjective-experience claims
 
 ---
 
-## 8. ⛔ Next execution gate
+## 8. ⛔ Post-P1-002 selection and next execution gate
+
+The post-P1-002 architectural selection found one concrete blocker to safe
+cross-gate composition: the current P1 result objects do not prove that their
+positive decisions belong to the same intent/context or freshness epoch.
 
 ```text
-P1_002_IMPLEMENTED_BOUNDED
-P1_002_OWNER_GO_CONSUMED
-NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
+POST_P1_002_SELECTION_COMPLETE
+SELECTION_RESULT = NO_RUNTIME_MILESTONE_SELECTED
+NEXT_BOUNDED_WORK = CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · DOCS_ONLY
+P1_003 = NOT_ASSIGNED
+IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
+Owning decision:
+
+`docs/research/POST_P1_002_MILESTONE_SELECTION.md`
+
+The selected readiness work must define common request binding, stale-result
+invalidation, fail-closed composition semantics and explicit non-permission
+result vocabulary before any composer can be selected for implementation.
+Bare P1-001/P1-002 positive result objects are not sufficient authorization
+inputs by themselves.
+
 No deletion, quarantine, rebuild, retrieval, relationship, identity, Action
-Gate, tool or deployment work follows automatically. Any next runtime-capable
-milestone requires a new bounded contract, threat model, explicit Owner GO,
-clean Tier A implementation PR, exact-head review and green resulting-main CI.
+Gate, tool or deployment work follows automatically. Any future runtime-capable
+milestone still requires a new bounded contract, threat model, explicit Owner
+GO, clean Tier A implementation PR, exact-head review and green resulting-main
+CI.
 
 Historical checkpoint (superseded, preserved as provenance): before PR #67
 merged, this document recorded the pre-implementation authorization state:
@@ -259,6 +282,7 @@ exists. Issue #39 is the future public/team transition trigger only.
 - P1-001 receipt: `docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
+- Post-P1-002 selection: `docs/research/POST_P1_002_MILESTONE_SELECTION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 - Environment: `docs/ENVIRONMENT_MANIFEST.md`
@@ -271,9 +295,12 @@ exists. Issue #39 is the future public/team transition trigger only.
 P0 foundation implemented
 + P1-001 pure capability resolver implemented bounded
 + P1-002 pure privacy classifier implemented bounded
++ post-P1-002 selection completed
++ cross-gate binding/composition readiness selected docs-only
 + permanent CI
 + active solo governance
 
+≠ runtime composition authorization
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
 ≠ identity or M3 mutation
