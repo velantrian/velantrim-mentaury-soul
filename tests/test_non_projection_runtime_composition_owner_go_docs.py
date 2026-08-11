@@ -58,9 +58,16 @@ def test_authorized_surface_matches_frozen_contract() -> None:
         assert marker in CONTRACT
 
 
-def test_owner_go_itself_creates_no_reserved_source_package() -> None:
+def test_owner_go_record_remains_pre_implementation_provenance() -> None:
+    assert "Owner GO itself creates no implementation" in GO
+    assert "Phase 2 implementation:         NOT_STARTED" in GO
     reserved = ROOT / "src" / "mentaury" / "composition" / "non_projection_shadow"
-    assert not reserved.exists()
+    assert reserved.is_dir()
+    assert {path.name for path in reserved.glob("*.py")} == {
+        "__init__.py",
+        "contracts.py",
+        "coordinator.py",
+    }
 
 
 def test_implementation_must_cover_frozen_matrices() -> None:
