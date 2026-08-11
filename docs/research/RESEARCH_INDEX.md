@@ -11,6 +11,7 @@ Completed execution milestone:P1-003 Pure Governed Constraint Composer · IMPLEM
 Completed execution milestone:NPG-v0.1 Pure Non-Projection Classifier · IMPLEMENTED_BOUNDED
 Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
 Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
+Completed readiness block:    NPG-COMP-v0.1 RUNTIME_COMPOSITION_READINESS · READY
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:              CONSUMED
@@ -26,9 +27,14 @@ Envelope version:             AIE-v0.1
 Non-Projection Owner GO:      CONSUMED_BY_PR_90
 Implementation authorization: CONSUMED · NPG-v0.1_ONLY
 Non-Projection implementation:IMPLEMENTED_BOUNDED
+NPG-COMP contract:             FROZEN_DOCS · NPG-COMP-v0.1
+NPG-COMP strategy:             SAME_ATTEMPT_SHADOW_COORDINATOR
+Phase 2 Owner GO:             GRANTED_BY_PR_94
+Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · SINGLE_USE
+Phase 2 implementation:       NOT_STARTED
+Next execution milestone:     NPG-COMP-v0.1_SHADOW · AUTHORIZED_NOT_STARTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
-Next execution milestone:      NOT_SELECTED · NOT_AUTHORIZED
 Runtime deployment authority: NONE
 Action Gate authority:         NONE
 Mutation authority:           NONE
@@ -52,6 +58,8 @@ P1-003 implemented bounded ≠ retrieval/tool authority
 P1-003 Owner GO consumed ≠ reusable authority
 NPG-v0.1 implemented bounded ≠ runtime activation
 NPG-v0.1 Owner GO consumed ≠ reusable authority
+NPG-COMP-v0.1 Owner GO = one bounded implementation authorization only
+NPG-COMP-v0.1 Owner GO ≠ runtime activation / Action Gate / retrieval / tools / identity / M3
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
@@ -302,6 +310,30 @@ Imported human/source material cannot become `VERIFIED_SELF` through prestige,
 operator instruction, narrative similarity, model identity or shared project
 lineage. NPG-v0.1 creates no identity runtime or self-attribution authority.
 
+### Phase 1 composition contract + Phase 2 Owner GO
+
+- [Runtime-composition readiness](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md)
+- [Frozen NPG-COMP-v0.1 contract](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
+- [Explicit Phase 2 Owner GO](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
+
+```text
+NON_PROJECTION_RUNTIME_COMPOSITION_READINESS = READY
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT = FROZEN_DOCS · NPG-COMP-v0.1
+STRATEGY = SAME_ATTEMPT_SHADOW_COORDINATOR
+WHO = NON_PROJECTION_SHADOW_COORDINATOR_ONLY
+WHAT = exact caller-supplied AIE-v0.1 + exact NonProjectionBudget
+WHERE = same-attempt bound shadow observation only
+PHASE_2_OWNER_GO = GRANTED_BY_PR_94
+OWNER_GO_SCOPE = NPG-COMP-v0.1_ONLY · SINGLE_USE
+PHASE_2_IMPLEMENTATION = NOT_STARTED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+P1_004 = NOT_ASSIGNED
+```
+
+PR #94 authorizes only the next separate bounded implementation of the frozen
+shadow coordinator package. It does not authorize runtime activation, retrieval,
+Action Gate, tools, identity/relationship/Character, M3, persistence or deployment.
+
 ---
 
 ## 7. 🧭 Document registry
@@ -323,7 +355,10 @@ lineage. NPG-v0.1 creates no identity runtime or self-attribution authority.
 | [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md) | Non-Projection candidate | SELECTED | pure classifier selected; historical pre-contract checkpoint |
 | [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md) | Non-Projection contract | FROZEN_DOCS · NPG-v0.1 | implemented bounded; runtime NOT_AUTHORIZED |
 | [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md) | Non-Projection receipt | OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED | pure classifier complete; runtime NOT_AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | NPG-v0.1 bounded implementation complete; stop active | no next runtime authority |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md) | Phase 1 composition readiness | READY · DOCS_ONLY | no runtime authority |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md) | Phase 1 composition contract | FROZEN_DOCS · NPG-COMP-v0.1 | implementation contract only |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md) | Phase 2 authority | OWNER_GO_GRANTED · NPG-COMP-v0.1_ONLY | implementation authorized; runtime NOT_AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 2 NPG-COMP implementation authorized, not started | runtime activation NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -336,7 +371,7 @@ lineage. NPG-v0.1 creates no identity runtime or self-attribution authority.
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
 | `R-ELIDA-001` | Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification |
-| `R-NPG-001` | Non-Projection Gate | **IMPLEMENTED_BOUNDED** | any runtime composition/activation requires a new separate readiness/contract/Owner-GO cycle |
+| `R-NPG-001` | Non-Projection Gate | **IMPLEMENTED_BOUNDED · PHASE_2_AUTHORIZED_NOT_STARTED** | exact NPG-COMP-v0.1 shadow implementation + exact-head/main CI; runtime activation still separate |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -349,8 +384,9 @@ lineage. NPG-v0.1 creates no identity runtime or self-attribution authority.
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
 These entries are not a ranked execution queue. `IMPLEMENTED_BOUNDED` for
-R-NPG-001 means only that the exact pure `NPG-v0.1` classifier is present and
-validated. It creates no runtime, retrieval, action, identity, relationship, M3
+R-NPG-001 still means only the pure `NPG-v0.1` classifier is implemented. The
+separate #94 grant authorizes exactly one `NPG-COMP-v0.1` shadow implementation;
+it creates no runtime activation, retrieval, action, identity, relationship, M3
 or deployment authority.
 
 ---
@@ -372,9 +408,11 @@ problem demonstrated
 + green resulting main CI
 ```
 
-P1-001, P1-002, P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed. A
-consumed receipt cannot authorize a later runtime-capable milestone. Issue #39
-remains the future transition trigger for genuine independent review.
+P1-001, P1-002, P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed.
+The separate `NPG-COMP-v0.1_ONLY` Owner GO from PR #94 is active and single-use
+for the next bounded shadow implementation only. It cannot authorize runtime
+activation or any later milestone. Issue #39 remains the future transition
+trigger for genuine independent review.
 
 ---
 
@@ -387,6 +425,7 @@ READINESS_READY ≠ implementation authorization
 ELIGIBLE_FOR_NEXT_GATE ≠ Action Gate PASS
 ALLOW_REFERENCE ≠ retrieval authority
 PASS_ATTRIBUTED ≠ identity, relationship, consent or execution authority
+NPG-COMP Owner GO ≠ runtime activation / retrieval / tools / identity / M3
 ```
 
 No backend is selected. Notion remains a navigation/research workspace; GitHub
@@ -412,6 +451,9 @@ P1_004 = NOT_ASSIGNED
 NON_PROJECTION_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · NPG-v0.1
 NON_PROJECTION_OWNER_GO = CONSUMED_BY_PR_90
 NON_PROJECTION_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT = FROZEN_DOCS · NPG-COMP-v0.1
+PHASE_2_OWNER_GO = GRANTED_BY_PR_94 · NPG-COMP-v0.1_ONLY · SINGLE_USE
+PHASE_2_IMPLEMENTATION = NOT_STARTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
