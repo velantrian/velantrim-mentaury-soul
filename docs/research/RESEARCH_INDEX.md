@@ -2,12 +2,13 @@
 
 ```text
 Status:                       ADOPTED NAVIGATION · DOCS_ONLY · NON_CANONICAL
-Updated:                      2026-08-10
+Updated:                      2026-08-12
 Purpose:                      separate research from execution
 Current governance:           SOLO_MAINTAINER
 Completed execution milestone:P1-001 · IMPLEMENTED_BOUNDED
 Completed execution milestone:P1-002 Privacy Reconciliation Classifier · IMPLEMENTED_BOUNDED
 Completed execution milestone:P1-003 Pure Governed Constraint Composer · IMPLEMENTED_BOUNDED
+Completed execution milestone:NPG-v0.1 Pure Non-Projection Classifier · IMPLEMENTED_BOUNDED
 Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
 Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
@@ -16,12 +17,16 @@ P1-003 Owner GO:              CONSUMED
 P1-003 implementation:         IMPLEMENTED_BOUNDED
 P1-003 runtime assignment:     NOT_ASSIGNED
 Post-P1-003 selection:         COMPLETE
-Selected bounded work:        NON_PROJECTION_GATE_CONTRACT_READINESS
 Selected Non-Projection model: ATTRIBUTED_INTERPRETATION_ENVELOPE
 Non-Projection readiness:     READY · FROZEN_DOCS · DOCS_ONLY
 Readiness positive meaning:   PASS_ATTRIBUTED only
-Implementation contract:      NOT_FROZEN
-Non-Projection Owner GO:      NOT_GRANTED
+Non-Projection candidate:     PURE_NON_PROJECTION_CLASSIFIER · SELECTED
+Implementation contract:      FROZEN_DOCS · NPG-v0.1
+Envelope version:             AIE-v0.1
+Non-Projection Owner GO:      CONSUMED_BY_PR_90
+Implementation authorization: CONSUMED · NPG-v0.1_ONLY
+Non-Projection implementation:IMPLEMENTED_BOUNDED
+Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Next execution milestone:      NOT_SELECTED · NOT_AUTHORIZED
 Runtime deployment authority: NONE
@@ -36,7 +41,7 @@ Direct or indirect M3 write:  FORBIDDEN
 
 ```text
 Research presence ≠ roadmap priority
-READINESS_READY ≠ implementation contract
+READINESS_READY ≠ implementation authority
 P1-002 completion ≠ remediation authority
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
@@ -45,8 +50,8 @@ P1-003 implemented bounded ≠ runtime activation
 P1-003 implemented bounded ≠ Action Gate
 P1-003 implemented bounded ≠ retrieval/tool authority
 P1-003 Owner GO consumed ≠ reusable authority
-Non-Projection readiness ≠ P1-004 assignment
-Non-Projection readiness ≠ Owner GO
+NPG-v0.1 implemented bounded ≠ runtime activation
+NPG-v0.1 Owner GO consumed ≠ reusable authority
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
@@ -232,10 +237,18 @@ identity/relationship/M3 state or deploy anything.
 
 ---
 
-## 6. ✅ Non-Projection Gate Contract Readiness
+## 6. ✅ Non-Projection Gate — readiness through bounded implementation
 
-- [Owning post-P1-003 selection](POST_P1_003_MILESTONE_SELECTION.md)
+Historical owning records:
+
+- [Post-P1-003 selection](POST_P1_003_MILESTONE_SELECTION.md)
 - [Frozen readiness contract](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
+- [Candidate selection](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
+
+Current owning contract/receipt:
+
+- [Frozen NPG-v0.1 implementation contract](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
+- [NPG-v0.1 authorization/completion receipt](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
 - [Current status](../CURRENT_STATUS.md)
 - [Roadmap](POST_P0_ROADMAP_V0.1.md)
 
@@ -244,25 +257,36 @@ NON_PROJECTION_GATE_CONTRACT_READINESS = READY
 READINESS_STATUS                        = FROZEN_DOCS · DOCS_ONLY
 SELECTED_MODEL                          = ATTRIBUTED_INTERPRETATION_ENVELOPE
 READINESS_POSITIVE                      = PASS_ATTRIBUTED_ONLY
-IMPLEMENTATION_CONTRACT                 = NOT_FROZEN
-NON_PROJECTION_OWNER_GO                 = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION            = NONE
+NON_PROJECTION_CANDIDATE_SELECTION      = SELECTED
+NON_PROJECTION_CANDIDATE                = PURE_NON_PROJECTION_CLASSIFIER
+NON_PROJECTION_IMPLEMENTATION_CONTRACT  = FROZEN_DOCS
+NON_PROJECTION_CONTRACT_VERSION         = NPG-v0.1
+ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION = AIE-v0.1
+NON_PROJECTION_OWNER_GO                 = CONSUMED_BY_PR_90
+IMPLEMENTATION_AUTHORIZATION            = CONSUMED · NPG-v0.1_ONLY
+NON_PROJECTION_IMPLEMENTATION           = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME                  = NOT_AUTHORIZED
 P1_004                                  = NOT_ASSIGNED
 ```
 
-The readiness model freezes:
+Verified NPG implementation evidence:
 
-- provenance state and source classes;
-- speaker/subject attribution with `VERIFIED_SELF | NON_SELF | UNKNOWN`;
-- claim classes including testimony, relationship, consent, interpretation and metaphor;
-- reviewer-correlation semantics distinct from GitHub governance review;
-- scope and contextual-distance boundaries;
-- fail-closed vocabulary `PASS_ATTRIBUTED | REVISE_REQUIRED | CONTESTED | DEFER | REJECT`;
-- precedence `REJECT > DEFER > CONTESTED > REVISE_REQUIRED > PASS_ATTRIBUTED`;
-- NPG-T01…T12 threat taxonomy;
-- exact NPG-SC-001…012 readiness outcomes plus a required contested-conflict case;
-- MT-NPG-001…008 metamorphic properties;
-- Character non-override, no-hidden-authority and compatibility-stop requirements.
+```text
+Implementation PR:             #90
+Reviewed exact head:           a61427f85c70531b329894d5dc310e43bcc9d7de
+Exact-head CI:                 31438692348 · success · 762 passed
+Implementation merge/main:    cfb59fb7a49166d55360c6a8843269ab8f18b9e0
+Resulting-main CI:             31438898049 · success · 762 passed
+Completion PR:                 #91
+Pre-Phase-0 main:              a8891793532a47ed682a0b713a587d08f16a23bc
+Pre-Phase-0 main CI:           31439211018 · success · 768 passed
+Independent human review:      NO
+```
+
+The readiness model still freezes provenance state/source classes,
+speaker/subject attribution, claim classes, reviewer-correlation semantics,
+scope/contextual-distance boundaries, fail-closed vocabulary and the complete
+`NPG-T01…NPG-T12`, `NPG-SC-001…NPG-SC-012`, `MT-NPG-001…MT-NPG-008` families.
 
 ```text
 PASS_ATTRIBUTED
@@ -276,8 +300,7 @@ PASS_ATTRIBUTED
 
 Imported human/source material cannot become `VERIFIED_SELF` through prestige,
 operator instruction, narrative similarity, model identity or shared project
-lineage. This readiness block creates no identity runtime or self-attribution
-authority.
+lineage. NPG-v0.1 creates no identity runtime or self-attribution authority.
 
 ---
 
@@ -295,9 +318,12 @@ authority.
 | [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md) | P1-003 candidate | FROZEN_DOCS · SELECTED_CANDIDATE | historical design checkpoint |
 | [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md) | P1-003 contract | FROZEN_DOCS | implemented bounded against exact contract |
 | [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md) | P1-003 receipt | OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED | source implemented; runtime NOT_ASSIGNED |
-| [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md) | post-P1-003 selection | COMPLETE | Non-Projection readiness selected; P1-004 not assigned |
-| [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md) | Non-Projection readiness | FROZEN_DOCS · READY | architecture only; implementation contract NOT_FROZEN |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Non-Projection readiness complete; stop active | no next runtime authority |
+| [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md) | post-P1-003 selection | COMPLETE | historical Non-Projection readiness selection; P1-004 not assigned |
+| [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md) | Non-Projection readiness | FROZEN_DOCS · READY | historical readiness checkpoint |
+| [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md) | Non-Projection candidate | SELECTED | pure classifier selected; historical pre-contract checkpoint |
+| [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md) | Non-Projection contract | FROZEN_DOCS · NPG-v0.1 | implemented bounded; runtime NOT_AUTHORIZED |
+| [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md) | Non-Projection receipt | OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED | pure classifier complete; runtime NOT_AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | NPG-v0.1 bounded implementation complete; stop active | no next runtime authority |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -310,7 +336,7 @@ authority.
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
 | `R-ELIDA-001` | Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification |
-| `R-NPG-001` | Non-Projection Gate | **READINESS_READY** | separate candidate selection + implementation-contract freeze + Owner GO before code |
+| `R-NPG-001` | Non-Projection Gate | **IMPLEMENTED_BOUNDED** | any runtime composition/activation requires a new separate readiness/contract/Owner-GO cycle |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -322,9 +348,10 @@ authority.
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
-These entries are not a ranked execution queue. `READINESS_READY` for R-NPG-001
-means only that the docs-only prerequisite model is complete enough for a later
-separate candidate decision; it creates no implementation or runtime authority.
+These entries are not a ranked execution queue. `IMPLEMENTED_BOUNDED` for
+R-NPG-001 means only that the exact pure `NPG-v0.1` classifier is present and
+validated. It creates no runtime, retrieval, action, identity, relationship, M3
+or deployment authority.
 
 ---
 
@@ -345,10 +372,9 @@ problem demonstrated
 + green resulting main CI
 ```
 
-P1-001, P1-002 and P1-003 Owner GO receipts are consumed. A consumed receipt
-cannot authorize a later runtime-capable milestone. Non-Projection readiness has
-no Owner GO to consume. Issue #39 remains the future transition trigger for
-genuine independent review.
+P1-001, P1-002, P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed. A
+consumed receipt cannot authorize a later runtime-capable milestone. Issue #39
+remains the future transition trigger for genuine independent review.
 
 ---
 
@@ -383,7 +409,9 @@ Treat IMPLEMENTED_BOUNDED as narrower than runtime activation.
 Stop before any unreviewed authority expansion.
 
 P1_004 = NOT_ASSIGNED
-NON_PROJECTION_IMPLEMENTATION_CONTRACT = NOT_FROZEN
-NON_PROJECTION_OWNER_GO = NOT_GRANTED
+NON_PROJECTION_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · NPG-v0.1
+NON_PROJECTION_OWNER_GO = CONSUMED_BY_PR_90
+NON_PROJECTION_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
