@@ -98,7 +98,9 @@ NON_PROJECTION_RUNTIME_COMPOSITION_OUTPUT_SAME_ATTEMPT_BOUND_SHADOW_OBSERVATION_
 NON_PROJECTION_PRIOR_RESULT_INPUT_FORBIDDEN
 NON_PROJECTION_RESULT_REPLAY_AS_AUTHORITY_FORBIDDEN
 PHASE_2_IMPLEMENTATION_NOT_STARTED
-PHASE_2_OWNER_GO_NOT_GRANTED
+PHASE_2_OWNER_GO_GRANTED_BY_PR_94
+PHASE_2_OWNER_GO_SCOPE_NPG_COMP_V0_1_ONLY
+PHASE_2_IMPLEMENTATION_AUTHORIZATION_GRANTED_FOR_NEXT_SEPARATE_BOUNDED_IMPLEMENTATION
 
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
@@ -135,7 +137,8 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Non-Projection bounded Owner GO | ✅ Consumed | one-time `NPG-v0.1_ONLY` authorization consumed by PR #90 |
 | Non-Projection Pure Classifier | ✅ Implemented bounded | pure caller-supplied deterministic classifier; runtime remains NOT_AUTHORIZED |
 | Phase 1 NPG runtime-composition readiness | ✅ Frozen docs-only · Ready | WHO/WHAT/WHERE bounded; no runtime authority |
-| Phase 1 `NPG-COMP-v0.1` contract | ✅ Frozen docs-only | same-attempt shadow composition only; Owner GO not granted |
+| Phase 1 `NPG-COMP-v0.1` contract | ✅ Frozen docs-only | same-attempt shadow composition only; contract freeze itself granted no Owner GO |
+| Phase 2 `NPG-COMP-v0.1` Owner GO | ✅ Granted | one-time `NPG-COMP-v0.1_ONLY` authorization for the next separate bounded implementation |
 
 ---
 
@@ -478,10 +481,11 @@ branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
 exists.
 
-P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed. Neither receipt is
-reusable authority. Any runtime composition, P1-004 assignment, Action Gate,
-retrieval, tools, identity/relationship mutation, M3 or deployment transition
-requires a new explicit bounded authority cycle beginning with a fresh preflight.
+P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed and not reusable.
+The separate `NPG-COMP-v0.1_ONLY` Phase 2 Owner GO was granted by PR #94 and is
+single-use for the next separate bounded implementation only. Runtime activation,
+P1-004 assignment, Action Gate, retrieval, tools, identity/relationship mutation,
+M3 or deployment still require their own later explicit authority cycles.
 
 ---
 
@@ -502,6 +506,7 @@ requires a new explicit bounded authority cycle beginning with a fresh preflight
 - Non-Projection completion receipt: `docs/NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`
 - Phase 1 runtime-composition readiness: `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`
 - Phase 1 frozen composition contract: `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`
+- Phase 2 Owner GO: `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -533,13 +538,14 @@ P0 foundation implemented
 + WHAT = exact caller-supplied AIE-v0.1 + NonProjectionBudget
 + WHERE = same-attempt bound shadow observation only
 + Phase 2 implementation NOT_STARTED
-+ Phase 2 Owner GO NOT_GRANTED
++ Phase 2 Owner GO GRANTED · NPG-COMP-v0.1_ONLY · single-use
++ Phase 2 implementation authorization GRANTED_FOR_NEXT_SEPARATE_BOUNDED_IMPLEMENTATION
 + Non-Projection runtime remains NOT_AUTHORIZED
 + P1-004 remains NOT_ASSIGNED
 + permanent CI
 + active solo governance
 
-≠ Phase 2 implementation
+≠ Phase 2 implementation completion
 ≠ runtime composition activation
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
@@ -552,7 +558,7 @@ NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 
 ---
 
-## 16. 🧩 Phase 1 — NPG Runtime Composition Contract frozen
+## 16. 🧩 Historical Phase 1 — NPG Runtime Composition Contract freeze state
 
 Owning readiness:
 
@@ -561,6 +567,9 @@ Owning readiness:
 Owning implementation contract:
 
 `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`
+
+At the Phase 1 contract-freeze milestone, before the later #94 Owner GO, the state
+was correctly:
 
 ```text
 PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE
@@ -596,6 +605,45 @@ persistence or ambient I/O are outside the frozen contract.
 `PASS_ATTRIBUTED` remains unchanged classification data. The bound shadow
 observation is not a reusable permission token.
 
-> **CONTRACT FROZEN ≠ OWNER GO.** Phase 1 stops here. Any Phase 2 implementation
-> requires a fresh preflight and a new explicit Owner GO for exactly
-> `NPG-COMP-v0.1`.
+> This `PHASE_2_OWNER_GO = NOT_GRANTED` value is historical Phase-1 freeze
+> provenance only. PR #94 later granted one exact `NPG-COMP-v0.1_ONLY` Owner GO.
+
+---
+
+## 17. 🟢 Current Phase 2 Owner GO checkpoint
+
+Owning decision:
+
+`docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`
+
+```text
+Authorization PR:          #94
+Reviewed exact head:       25a8cbf58fbdbee9fafc9ca41aa9575d47cd9450
+Exact-head CI:             31547098692 · success · 783 passed
+Tier A review:             4911669134
+Authorization merge/main:  d0be41a0712d076101d508812a7eb491558b4f57
+Resulting-main CI:         31547170338 · success · 783 passed
+Owner GO:                  GRANTED
+Owner GO scope:            NPG-COMP-v0.1_ONLY
+Implementation:            NOT_STARTED
+Non-Projection runtime:    NOT_AUTHORIZED
+P1-004:                     NOT_ASSIGNED
+Independent human review:  NO
+```
+
+The #94 authorization is single-use and may be consumed only by a separate
+bounded implementation that matches the frozen `NPG-COMP-v0.1` contract and
+passes exact-head CI, Tier A correctness/adversarial review, protected merge and
+resulting-main CI.
+
+```text
+OWNER_GO_GRANTED
+≠ IMPLEMENTATION_COMPLETED
+≠ RUNTIME_ACTIVATED
+≠ ACTION_GATE_PASS
+≠ RETRIEVAL_PERMISSION
+≠ TOOL_PERMISSION
+≠ IDENTITY_OR_RELATIONSHIP_AUTHORITY
+≠ M3_AUTHORITY
+≠ DEPLOYMENT_AUTHORITY
+```
