@@ -64,8 +64,14 @@ def test_reconciliation_adds_no_implementation_or_runtime_authority() -> None:
         assert marker in RECON
 
 
-def test_reconciliation_precedes_clean_implementation_restart() -> None:
+def test_reconciliation_precedes_later_clean_implementation() -> None:
     assert "STOP_AND_RECONCILE" in RECON
     assert "fresh exact-main compatibility check" in RECON
+    assert "Source/runtime code:      NONE" in RECON
     reserved = ROOT / "src" / "mentaury" / "composition" / "non_projection_shadow"
-    assert not reserved.exists()
+    assert reserved.is_dir()
+    assert {path.name for path in reserved.glob("*.py")} == {
+        "__init__.py",
+        "contracts.py",
+        "coordinator.py",
+    }
