@@ -2,8 +2,8 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.3
-Updated:                      2026-08-10
+Version:                      1.4
+Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
 P1-002 implementation:        IMPLEMENTED_BOUNDED
@@ -21,12 +21,16 @@ P1-003 implementation:         IMPLEMENTED_BOUNDED
 P1-003 validation:             EXACT_HEAD_AND_MAIN_CI_PASS
 P1-003 runtime assignment:     NOT_ASSIGNED
 Post-P1-003 selection:         COMPLETE
-Selected bounded work:        NON_PROJECTION_GATE_CONTRACT_READINESS
 Non-Projection readiness:     READY · FROZEN_DOCS · DOCS_ONLY
 Selected Non-Projection model: ATTRIBUTED_INTERPRETATION_ENVELOPE
 Readiness positive meaning:   PASS_ATTRIBUTED only
-Implementation contract:      NOT_FROZEN
-Non-Projection Owner GO:      NOT_GRANTED
+Non-Projection candidate:     PURE_NON_PROJECTION_CLASSIFIER · SELECTED
+Implementation contract:      FROZEN_DOCS · NPG-v0.1
+Envelope version:             AIE-v0.1
+Non-Projection Owner GO:      CONSUMED_BY_PR_90
+Implementation authorization: CONSUMED · NPG-v0.1_ONLY
+Non-Projection implementation:IMPLEMENTED_BOUNDED
+Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED
 Runtime deployment authority: NONE
@@ -45,20 +49,23 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 
 ```text
 IMPLEMENTED_BOUNDED ≠ runtime activation
-READINESS_READY ≠ implementation contract
+READINESS_READY ≠ implementation authority
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 PASS_ATTRIBUTED ≠ truth / identity / action authority
 P1-003 completion ≠ Action Gate authority
 P1-003 completion ≠ retrieval/tool authority
 P1-003 completion ≠ runtime assignment
-Non-Projection readiness ≠ P1-004 assignment
-Non-Projection readiness ≠ implementation authorization
+NPG-v0.1 implementation ≠ NPG runtime activation
+NPG-v0.1 implementation ≠ P1-004 assignment
+NPG-v0.1 Owner GO consumed ≠ reusable authority
 Solo review ≠ independent certification
 ```
 
 The filename retains `V0.1` for stable historical links. Document metadata is
-the current version authority.
+the current version authority. Historical readiness/selection sections below
+retain the state that was true at those milestones; current authority is the
+header, completion section, current formula and owning receipts.
 
 ---
 
@@ -266,13 +273,13 @@ ELIGIBLE_FOR_NEXT_GATE ≠ DEPLOYMENT_AUTHORITY
 
 ---
 
-## 8. 🪞 Post-P1-003 Non-Projection selection
+## 8. 🪞 Historical Post-P1-003 Non-Projection selection
 
-Owning selection:
+Owning historical selection:
 
 [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
 
-The selected next bounded work was docs-only:
+At that milestone, the selected bounded work was docs-only:
 
 ```text
 POST_P1_003_SELECTION = COMPLETE
@@ -283,47 +290,63 @@ OWNER_GO               = NOT_GRANTED
 IMPLEMENTATION_AUTHORIZATION = NONE
 ```
 
-The selection did not freeze an implementation contract or assign a runtime
-milestone.
+Those `NOT_GRANTED/NONE` values are historical selection-time provenance only;
+they are not the current NPG authority state after PRs #86–#91.
 
 ---
 
-## 9. ✅ Non-Projection Gate Contract Readiness complete
+## 9. ✅ Non-Projection readiness, contract and bounded implementation
 
-Owning readiness document:
+Owning historical readiness document:
 
 [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
 
-Selected model:
+Owning candidate, frozen contract and completion receipt:
 
-```text
-ATTRIBUTED_INTERPRETATION_ENVELOPE
-= provenance
-+ speaker / subject attribution
-+ claim class
-+ interpretation provenance
-+ contextual distance
-+ reviewer-correlation metadata
-+ scope limits
-+ explicit authority exclusions
-```
+- [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
+- [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
+- [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
 
-Readiness is now complete at docs-only architecture level:
+The readiness model remains `ATTRIBUTED_INTERPRETATION_ENVELOPE` with
+`PASS_ATTRIBUTED` as the bounded positive result. Subsequent bounded milestones
+selected the pure classifier, froze `NPG-v0.1`, granted one exact Owner GO, and
+consumed that GO through PR #90 implementation plus PR #91 completion receipt.
+
+Current state:
 
 ```text
 NON_PROJECTION_GATE_CONTRACT_READINESS = READY
 READINESS_STATUS                        = FROZEN_DOCS · DOCS_ONLY
 SELECTED_MODEL                          = ATTRIBUTED_INTERPRETATION_ENVELOPE
 READINESS_POSITIVE                      = PASS_ATTRIBUTED_ONLY
-IMPLEMENTATION_CONTRACT                 = NOT_FROZEN
-NON_PROJECTION_OWNER_GO                 = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION            = NONE
+NON_PROJECTION_CANDIDATE_SELECTION      = SELECTED
+NON_PROJECTION_CANDIDATE                = PURE_NON_PROJECTION_CLASSIFIER
+NON_PROJECTION_IMPLEMENTATION_CONTRACT  = FROZEN_DOCS
+NON_PROJECTION_CONTRACT_VERSION         = NPG-v0.1
+ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION = AIE-v0.1
+NON_PROJECTION_OWNER_GO                 = CONSUMED_BY_PR_90
+IMPLEMENTATION_AUTHORIZATION            = CONSUMED · NPG-v0.1_ONLY
+NON_PROJECTION_IMPLEMENTATION           = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME                  = NOT_AUTHORIZED
 P1_004                                  = NOT_ASSIGNED
 ```
 
-The model freezes fail-closed source/self attribution, claim classes, reviewer
+Verified implementation checkpoint:
+
+```text
+Implementation PR:             #90
+Reviewed exact head:           a61427f85c70531b329894d5dc310e43bcc9d7de
+Exact-head CI:                 31438692348 · success · 762 passed
+Implementation merge/main:    cfb59fb7a49166d55360c6a8843269ab8f18b9e0
+Resulting-main CI:             31438898049 · success · 762 passed
+Completion PR:                 #91
+Pre-Phase-0 main:              a8891793532a47ed682a0b713a587d08f16a23bc
+Pre-Phase-0 main CI:           31439211018 · success · 768 passed
+```
+
+The frozen fail-closed source/self attribution, claim classes, reviewer
 correlation semantics, contextual/scope requirements, NPG-T01…T12,
-NPG-SC-001…012 and MT-NPG-001…008.
+NPG-SC-001…012 and MT-NPG-001…008 remain unchanged.
 
 ```text
 PASS_ATTRIBUTED
@@ -357,8 +380,7 @@ Action Gate
 Tool Receipt or tool execution
 P1-003 runtime assignment
 P1-003 runtime activation
-Non-Projection implementation contract
-Non-Projection runtime implementation
+Non-Projection runtime composition / activation
 P1-004 assignment
 backend/plugin discovery
 backend selection or migration
@@ -402,18 +424,20 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 13. 🚪 Required next authority ladder
 
-The current block stops at readiness completion:
+The bounded NPG-v0.1 implementation cycle is complete. No runtime milestone is
+selected or authorized. A later proposal to wire or activate NPG must begin a
+new bounded cycle rather than reuse the consumed #88/#90 authority:
 
 ```text
-READINESS_READY_DOCS_ONLY
-→ separate candidate selection
-→ separate implementation-contract freeze
+CURRENT = NPG-v0.1 IMPLEMENTED_BOUNDED · RUNTIME NOT_AUTHORIZED
+→ fresh live preflight
+→ separate runtime-composition readiness/contract if selected
 → explicit separate Owner GO
-→ clean Tier A implementation PR
+→ bounded implementation only if authorized
 → exact-head review and CI
 → protected merge
 → green resulting-main CI
-→ separate completion/status reconciliation
+→ completion/status reconciliation
 ```
 
 No step is authorized merely because the previous one is complete.
@@ -434,18 +458,30 @@ P0 complete
 → P1-003 Owner GO consumed
 → post-P1-003 Non-Projection readiness selected
 → Non-Projection Gate Contract Readiness READY · FROZEN_DOCS
+→ PURE_NON_PROJECTION_CLASSIFIER selected
+→ NPG-v0.1 implementation contract FROZEN_DOCS
+→ NPG-v0.1 Owner GO consumed by PR #90
+→ NPG-v0.1 Pure Classifier IMPLEMENTED_BOUNDED
 → STOP
 
 P1_004 = NOT_ASSIGNED
-NON_PROJECTION_IMPLEMENTATION_CONTRACT = NOT_FROZEN
-NON_PROJECTION_OWNER_GO = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION = NONE
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+ACTION_GATE = NOT_AUTHORIZED
+RETRIEVAL_EXECUTION = NOT_AUTHORIZED
+TOOL_EXECUTION = NOT_AUTHORIZED
+IDENTITY_RUNTIME = NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME = NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE = FORBIDDEN
+RUNTIME_DEPLOYMENT = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
 ### Related
 
 - [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
+- [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
+- [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
+- [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
 - [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
 - [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 - [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
