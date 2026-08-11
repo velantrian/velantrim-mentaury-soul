@@ -17,9 +17,6 @@ STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
 ROADMAP = (ROOT / "docs" / "research" / "POST_P0_ROADMAP_V0.1.md").read_text(
     encoding="utf-8"
 )
-INDEX = (ROOT / "docs" / "research" / "RESEARCH_INDEX.md").read_text(
-    encoding="utf-8"
-)
 
 
 def test_phase_1_readiness_answers_who_what_where() -> None:
@@ -61,7 +58,7 @@ def test_frozen_contract_preserves_npg_authority_ceiling() -> None:
 
 
 def test_phase_1_is_frozen_without_owner_go_or_runtime_implementation() -> None:
-    for document in (CONTRACT, STATUS, ROADMAP, INDEX):
+    for document in (CONTRACT, STATUS):
         assert "NPG-COMP-v0.1" in document
         assert "FROZEN_DOCS" in document
         assert "NOT_GRANTED" in document
@@ -69,8 +66,15 @@ def test_phase_1_is_frozen_without_owner_go_or_runtime_implementation() -> None:
         assert "NOT_ASSIGNED" in document
 
     assert "PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE" in CONTRACT
+    assert "PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE" in STATUS
     assert "PHASE_2_IMPLEMENTATION = NOT_STARTED" in CONTRACT
     assert "PHASE_2_OWNER_GO = NOT_GRANTED" in CONTRACT
+    assert "PHASE_2_IMPLEMENTATION_NOT_STARTED" in STATUS
+    assert "PHASE_2_OWNER_GO_NOT_GRANTED" in STATUS
+
+    # Phase 1 is docs-only. The older roadmap's "next runtime milestone" marker
+    # remains correct because no Phase 2 runtime milestone is selected/authorized.
+    assert "Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
 
 
 def test_no_phase_2_source_package_or_runtime_wiring_exists() -> None:
