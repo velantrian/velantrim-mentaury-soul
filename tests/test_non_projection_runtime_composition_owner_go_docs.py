@@ -59,7 +59,7 @@ def test_authorized_surface_matches_frozen_contract() -> None:
 
 
 def test_owner_go_record_remains_pre_implementation_provenance() -> None:
-    assert "Owner GO itself creates no implementation" in GO
+    assert "It does not itself implement" in GO
     assert "Phase 2 implementation:         NOT_STARTED" in GO
     reserved = ROOT / "src" / "mentaury" / "composition" / "non_projection_shadow"
     assert reserved.is_dir()
