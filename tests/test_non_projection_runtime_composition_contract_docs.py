@@ -59,11 +59,10 @@ def test_frozen_contract_preserves_npg_authority_ceiling() -> None:
         assert marker in CONTRACT
 
 
-def test_phase_1_is_frozen_without_owner_go_or_runtime_implementation() -> None:
+def test_phase_1_freeze_remains_historical_after_separate_owner_go() -> None:
     for document in (CONTRACT, STATUS):
         assert "NPG-COMP-v0.1" in document
         assert "FROZEN_DOCS" in document
-        assert "NOT_GRANTED" in document
         assert "NOT_AUTHORIZED" in document
         assert "NOT_ASSIGNED" in document
 
@@ -72,11 +71,11 @@ def test_phase_1_is_frozen_without_owner_go_or_runtime_implementation() -> None:
     assert "PHASE_2_IMPLEMENTATION = NOT_STARTED" in CONTRACT
     assert "PHASE_2_OWNER_GO = NOT_GRANTED" in CONTRACT
     assert "PHASE_2_IMPLEMENTATION_NOT_STARTED" in STATUS
-    assert "PHASE_2_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "PHASE_2_OWNER_GO_GRANTED_BY_PR_94" in STATUS
+    assert "historical Phase-1 freeze" in STATUS
 
-    # Phase 1 is docs-only. The older roadmap's "next runtime milestone" marker
-    # remains correct because no Phase 2 runtime milestone is selected/authorized.
-    assert "Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
+    assert "Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
+    assert "Phase 2 Owner GO:             GRANTED_BY_PR_94" in ROADMAP
 
 
 def test_no_phase_2_source_package_or_runtime_wiring_exists() -> None:

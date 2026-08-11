@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.4
+Version:                      1.5
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -30,9 +30,15 @@ Envelope version:             AIE-v0.1
 Non-Projection Owner GO:      CONSUMED_BY_PR_90
 Implementation authorization: CONSUMED · NPG-v0.1_ONLY
 Non-Projection implementation:IMPLEMENTED_BOUNDED
+Phase 1 composition readiness: READY
+Phase 1 composition contract: FROZEN_DOCS · NPG-COMP-v0.1
+Phase 2 Owner GO:             GRANTED_BY_PR_94
+Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · SINGLE_USE
+Phase 2 implementation:       NOT_STARTED
+Next bounded implementation:  NPG-COMP-v0.1_SHADOW · AUTHORIZED_NOT_STARTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
-Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED
+Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
 Runtime deployment authority: NONE
 Action Gate authority:         NONE
 Mutation authority:           NONE
@@ -59,13 +65,15 @@ P1-003 completion ≠ runtime assignment
 NPG-v0.1 implementation ≠ NPG runtime activation
 NPG-v0.1 implementation ≠ P1-004 assignment
 NPG-v0.1 Owner GO consumed ≠ reusable authority
+NPG-COMP-v0.1 Owner GO = one bounded implementation authorization only
+NPG-COMP-v0.1 Owner GO ≠ runtime activation / Action Gate / retrieval / tools / identity / M3
 Solo review ≠ independent certification
 ```
 
 The filename retains `V0.1` for stable historical links. Document metadata is
 the current version authority. Historical readiness/selection sections below
 retain the state that was true at those milestones; current authority is the
-header, completion section, current formula and owning receipts.
+header, current next-authority section, current formula and owning receipts.
 
 ---
 
@@ -380,7 +388,8 @@ Action Gate
 Tool Receipt or tool execution
 P1-003 runtime assignment
 P1-003 runtime activation
-Non-Projection runtime composition / activation
+Phase 2 NPG-COMP-v0.1 implementation (authorized, not yet started)
+Non-Projection runtime activation
 P1-004 assignment
 backend/plugin discovery
 backend selection or migration
@@ -424,23 +433,27 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 13. 🚪 Required next authority ladder
 
-The bounded NPG-v0.1 implementation cycle is complete. No runtime milestone is
-selected or authorized. A later proposal to wire or activate NPG must begin a
-new bounded cycle rather than reuse the consumed #88/#90 authority:
+The NPG-v0.1 classifier cycle is complete. Phase 1 runtime-composition readiness
+and `NPG-COMP-v0.1` contract freeze are complete, and PR #94 granted the one-time
+`NPG-COMP-v0.1_ONLY` Phase 2 implementation authorization.
 
 ```text
-CURRENT = NPG-v0.1 IMPLEMENTED_BOUNDED · RUNTIME NOT_AUTHORIZED
-→ fresh live preflight
-→ separate runtime-composition readiness/contract if selected
-→ explicit separate Owner GO
-→ bounded implementation only if authorized
+CURRENT = NPG-COMP-v0.1 FROZEN_DOCS · OWNER_GO GRANTED · IMPLEMENTATION NOT_STARTED
+→ fresh exact-main compatibility check
+→ separate clean bounded implementation branch
+→ exact reserved three-file shadow package only
+→ executable NRC-T01…T12 + NRC-M01…M10 validation
 → exact-head review and CI
 → protected merge
 → green resulting-main CI
 → completion/status reconciliation
+→ Notion sync
+→ Owner GO consumed
+→ STOP
 ```
 
-No step is authorized merely because the previous one is complete.
+No runtime activation, retrieval, Action Gate, tool, identity/relationship, M3,
+persistence or deployment step is authorized by completing this ladder.
 
 ---
 
@@ -462,10 +475,16 @@ P0 complete
 → NPG-v0.1 implementation contract FROZEN_DOCS
 → NPG-v0.1 Owner GO consumed by PR #90
 → NPG-v0.1 Pure Classifier IMPLEMENTED_BOUNDED
-→ STOP
+→ Phase 0 NPG status reconciliation COMPLETE
+→ Phase 1 NPG runtime-composition readiness READY
+→ NPG-COMP-v0.1 contract FROZEN_DOCS
+→ Phase 2 NPG-COMP-v0.1 Owner GO GRANTED by PR #94
+→ NEXT: separate bounded NPG-COMP-v0.1 shadow implementation
 
-P1_004 = NOT_ASSIGNED
+PHASE_2_IMPLEMENTATION = NOT_STARTED
+PHASE_2_OWNER_GO = GRANTED · NPG-COMP-v0.1_ONLY · SINGLE_USE
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
 RETRIEVAL_EXECUTION = NOT_AUTHORIZED
 TOOL_EXECUTION = NOT_AUTHORIZED
@@ -482,6 +501,9 @@ NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 - [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
 - [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
 - [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
+- [`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md)
+- [`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
+- [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
 - [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
 - [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 - [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
