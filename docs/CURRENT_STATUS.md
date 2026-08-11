@@ -86,6 +86,20 @@ NON_PROJECTION_IMPLEMENTATION_IMPLEMENTED_BOUNDED
 NON_PROJECTION_RUNTIME_NOT_AUTHORIZED
 P1_004_NOT_ASSIGNED
 
+PHASE_0_STATUS_RECONCILIATION_COMPLETE
+PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION_COMPLETE
+NON_PROJECTION_RUNTIME_COMPOSITION_READINESS_READY
+NON_PROJECTION_RUNTIME_COMPOSITION_STRATEGY_SAME_ATTEMPT_SHADOW_COORDINATOR
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_FROZEN_DOCS
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_VERSION_NPG_COMP_V0_1
+NON_PROJECTION_RUNTIME_COMPOSITION_CALLER_NON_PROJECTION_SHADOW_COORDINATOR_ONLY
+NON_PROJECTION_RUNTIME_COMPOSITION_INPUT_EXACT_AIE_V0_1_AND_BUDGET
+NON_PROJECTION_RUNTIME_COMPOSITION_OUTPUT_SAME_ATTEMPT_BOUND_SHADOW_OBSERVATION_ONLY
+NON_PROJECTION_PRIOR_RESULT_INPUT_FORBIDDEN
+NON_PROJECTION_RESULT_REPLAY_AS_AUTHORITY_FORBIDDEN
+PHASE_2_IMPLEMENTATION_NOT_STARTED
+PHASE_2_OWNER_GO_NOT_GRANTED
+
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
@@ -120,6 +134,8 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Non-Projection implementation contract | ✅ Frozen docs-only | exact `NPG-v0.1` / `AIE-v0.1` contract; no runtime authority |
 | Non-Projection bounded Owner GO | ✅ Consumed | one-time `NPG-v0.1_ONLY` authorization consumed by PR #90 |
 | Non-Projection Pure Classifier | ✅ Implemented bounded | pure caller-supplied deterministic classifier; runtime remains NOT_AUTHORIZED |
+| Phase 1 NPG runtime-composition readiness | ✅ Frozen docs-only · Ready | WHO/WHAT/WHERE bounded; no runtime authority |
+| Phase 1 `NPG-COMP-v0.1` contract | ✅ Frozen docs-only | same-attempt shadow composition only; Owner GO not granted |
 
 ---
 
@@ -484,6 +500,8 @@ requires a new explicit bounded authority cycle beginning with a fresh preflight
 - Non-Projection candidate selection: `docs/research/NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`
 - Non-Projection frozen contract: `docs/research/NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`
 - Non-Projection completion receipt: `docs/NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`
+- Phase 1 runtime-composition readiness: `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`
+- Phase 1 frozen composition contract: `docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -507,13 +525,22 @@ P0 foundation implemented
 + NPG-v0.1 bounded Owner GO consumed by PR #90
 + NPG-v0.1 Pure Classifier IMPLEMENTED_BOUNDED
 + PASS_ATTRIBUTED authority ceiling retained
++ Phase 0 status reconciliation COMPLETE
++ Phase 1 NPG runtime-composition readiness READY
++ Phase 1 strategy SAME_ATTEMPT_SHADOW_COORDINATOR
++ NPG-COMP-v0.1 composition contract FROZEN_DOCS
++ WHO = NON_PROJECTION_SHADOW_COORDINATOR_ONLY
++ WHAT = exact caller-supplied AIE-v0.1 + NonProjectionBudget
++ WHERE = same-attempt bound shadow observation only
++ Phase 2 implementation NOT_STARTED
++ Phase 2 Owner GO NOT_GRANTED
 + Non-Projection runtime remains NOT_AUTHORIZED
 + P1-004 remains NOT_ASSIGNED
 + permanent CI
 + active solo governance
 
-≠ P1-003 runtime activation
-≠ Non-Projection runtime composition or activation
+≠ Phase 2 implementation
+≠ runtime composition activation
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
 ≠ identity, relationship, Character or M3 authority
@@ -522,3 +549,53 @@ P0 foundation implemented
 
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
+
+---
+
+## 16. 🧩 Phase 1 — NPG Runtime Composition Contract frozen
+
+Owning readiness:
+
+`docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`
+
+Owning implementation contract:
+
+`docs/research/NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`
+
+```text
+PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE
+NON_PROJECTION_RUNTIME_COMPOSITION_READINESS = READY
+NON_PROJECTION_RUNTIME_COMPOSITION_STRATEGY = SAME_ATTEMPT_SHADOW_COORDINATOR
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT = FROZEN_DOCS
+NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_VERSION = NPG-COMP-v0.1
+WHO = NON_PROJECTION_SHADOW_COORDINATOR_ONLY
+WHAT = EXACT_CALLER_SUPPLIED_AIE_V0_1_AND_NON_PROJECTION_BUDGET
+WHERE = SAME_ATTEMPT_BOUND_SHADOW_OBSERVATION_ONLY
+PRIOR_RESULT_INPUT = FORBIDDEN
+RESULT_REPLAY_AS_AUTHORITY = FORBIDDEN
+PHASE_2_IMPLEMENTATION = NOT_STARTED
+PHASE_2_OWNER_GO = NOT_GRANTED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+P1_004 = NOT_ASSIGNED
+ACTION_GATE = NOT_AUTHORIZED
+RETRIEVAL_EXECUTION = NOT_AUTHORIZED
+TOOL_EXECUTION = NOT_AUTHORIZED
+IDENTITY_RUNTIME = NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME = NOT_AUTHORIZED
+DIRECT_OR_INDIRECT_M3_WRITE = FORBIDDEN
+RUNTIME_DEPLOYMENT = NOT_AUTHORIZED
+CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
+```
+
+The future bounded caller role may invoke `NPG-v0.1` only in one explicit
+same-attempt shadow evaluation over exact caller-supplied `AIE-v0.1` and
+`NonProjectionBudget`. A prior `NonProjectionResult`, caller-supplied fingerprint,
+dynamic action/tool destination, hidden retrieval, identity/relationship/M3 state,
+persistence or ambient I/O are outside the frozen contract.
+
+`PASS_ATTRIBUTED` remains unchanged classification data. The bound shadow
+observation is not a reusable permission token.
+
+> **CONTRACT FROZEN ≠ OWNER GO.** Phase 1 stops here. Any Phase 2 implementation
+> requires a fresh preflight and a new explicit Owner GO for exactly
+> `NPG-COMP-v0.1`.
