@@ -32,18 +32,20 @@ def test_phase_1_readiness_answers_who_what_where() -> None:
 
 
 def test_frozen_contract_preserves_npg_authority_ceiling() -> None:
-    for marker in (
-        "PASS_ATTRIBUTED",
-        "≠ truth proof",
-        "≠ autobiography",
-        "≠ stable identity trait",
-        "≠ Action Gate PASS",
-        "≠ retrieval permission",
-        "≠ tool permission",
-        "≠ execution permission",
-        "≠ deployment permission",
+    assert "PASS_ATTRIBUTED" in CONTRACT
+    assert "= at most no bounded Non-Projection blocker found" in CONTRACT
+
+    for forbidden_strengthening in (
+        "AUTHORIZED",
+        "ALLOW_ACTION",
+        "ALLOW_RETRIEVAL",
+        "SUPPORTED_TRUTH",
+        "IDENTITY_CONFIRMED",
+        "RELATIONSHIP_CONFIRMED",
+        "CONSENT_CONFIRMED",
+        "M3_APPROVED",
     ):
-        assert marker in CONTRACT
+        assert forbidden_strengthening in CONTRACT
 
     for marker in (
         "ACTION_GATE = NOT_AUTHORIZED",
