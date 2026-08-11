@@ -1,7 +1,7 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Status date:                       2026-08-10
+Status date:                       2026-08-12
 Repository:                        velantrian/velantrim-mentaury-soul
 Engineering authority:             this file + verified live GitHub state
 Governance authority:              docs/GOVERNANCE.md + live GitHub ruleset
@@ -18,9 +18,9 @@ IMPLEMENTED_BOUNDED
 ≠ deployment authority
 
 READINESS_READY
-= docs-only architecture requirements are complete enough for later candidate selection
-≠ implementation contract
-≠ Owner GO
+= docs-only architecture requirements complete enough for the next bounded design step
+≠ implementation authority
+≠ reusable Owner GO
 ≠ runtime assignment
 ```
 
@@ -75,9 +75,15 @@ NON_PROJECTION_GATE_CONTRACT_READINESS_FROZEN_DOCS
 NON_PROJECTION_GATE_READINESS_READY
 SELECTED_NON_PROJECTION_MODEL_ATTRIBUTED_INTERPRETATION_ENVELOPE
 NON_PROJECTION_POSITIVE_RESULT_PASS_ATTRIBUTED_ONLY
-NON_PROJECTION_IMPLEMENTATION_CONTRACT_NOT_FROZEN
-NON_PROJECTION_OWNER_GO_NOT_GRANTED
-NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION_NONE
+NON_PROJECTION_CANDIDATE_SELECTION_SELECTED
+NON_PROJECTION_CANDIDATE_PURE_NON_PROJECTION_CLASSIFIER
+NON_PROJECTION_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
+NON_PROJECTION_CONTRACT_VERSION_NPG_V0_1
+ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION_AIE_V0_1
+NON_PROJECTION_OWNER_GO_CONSUMED_BY_PR_90
+NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION_CONSUMED_NPG_V0_1_ONLY
+NON_PROJECTION_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME_NOT_AUTHORIZED
 P1_004_NOT_ASSIGNED
 
 ACTION_GATE_NOT_AUTHORIZED
@@ -109,7 +115,11 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | P1-003 bounded Owner GO | ✅ Consumed | one-time P1-003-v0.1 authorization consumed by PR #79 only |
 | P1-003 Pure Governed Constraint Composer | ✅ Implemented bounded | pure same-attempt composition only; no runtime assignment or activation |
 | Post-P1-003 selection | ✅ Docs-only decision | Non-Projection Gate Contract Readiness selected; no P1-004 assignment |
-| Non-Projection Gate Contract Readiness | ✅ Frozen docs-only · Ready | attributed interpretation/provenance model + fail-closed threat/scenario/metamorphic semantics; no implementation contract |
+| Non-Projection Gate Contract Readiness | ✅ Frozen docs-only · Ready | attributed interpretation/provenance model + fail-closed threat/scenario/metamorphic semantics |
+| Non-Projection candidate selection | ✅ Docs-only decision | `PURE_NON_PROJECTION_CLASSIFIER` selected |
+| Non-Projection implementation contract | ✅ Frozen docs-only | exact `NPG-v0.1` / `AIE-v0.1` contract; no runtime authority |
+| Non-Projection bounded Owner GO | ✅ Consumed | one-time `NPG-v0.1_ONLY` authorization consumed by PR #90 |
+| Non-Projection Pure Classifier | ✅ Implemented bounded | pure caller-supplied deterministic classifier; runtime remains NOT_AUTHORIZED |
 
 ---
 
@@ -319,62 +329,59 @@ exact double-positive + valid bind  → ELIGIBLE_FOR_NEXT_GATE
 
 ---
 
-## 9. 🪞 Non-Projection Gate Contract Readiness
+## 9. 🪞 Non-Projection Gate — readiness through bounded implementation
 
-Owning selection:
+Historical readiness and selection records remain immutable provenance:
 
-`docs/research/POST_P1_003_MILESTONE_SELECTION.md`
+- `docs/research/POST_P1_003_MILESTONE_SELECTION.md`
+- `docs/research/NON_PROJECTION_GATE_CONTRACT_READINESS.md`
+- `docs/research/NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`
 
-Owning frozen readiness document:
+Owning frozen implementation contract and completion receipt:
 
-`docs/research/NON_PROJECTION_GATE_CONTRACT_READINESS.md`
+- `docs/research/NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`
+- `docs/NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`
 
-The selected docs-only model is:
-
-```text
-ATTRIBUTED_INTERPRETATION_ENVELOPE
-= source provenance
-+ speaker / subject attribution
-+ claim class
-+ interpretation provenance
-+ contextual distance
-+ reviewer correlation metadata
-+ scope limits
-+ explicit authority exclusions
-```
-
-Readiness status:
+Current authority state after PR #90 implementation and PR #91 completion reconciliation:
 
 ```text
 NON_PROJECTION_GATE_CONTRACT_READINESS = READY
-SELECTED_MODEL                         = ATTRIBUTED_INTERPRETATION_ENVELOPE
-READINESS_POSITIVE                     = PASS_ATTRIBUTED_ONLY
-IMPLEMENTATION_CONTRACT                = NOT_FROZEN
-NON_PROJECTION_OWNER_GO                = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION           = NONE
+NON_PROJECTION_CANDIDATE_SELECTION     = SELECTED
+NON_PROJECTION_CANDIDATE               = PURE_NON_PROJECTION_CLASSIFIER
+NON_PROJECTION_IMPLEMENTATION_CONTRACT = FROZEN_DOCS
+NON_PROJECTION_CONTRACT_VERSION        = NPG-v0.1
+ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION = AIE-v0.1
+NON_PROJECTION_OWNER_GO                = CONSUMED_BY_PR_90
+OWNER_GO_SCOPE                         = NPG-v0.1_ONLY
+IMPLEMENTATION_AUTHORIZATION           = CONSUMED · NPG-v0.1_ONLY
+NON_PROJECTION_IMPLEMENTATION          = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME                 = NOT_AUTHORIZED
 P1_004                                 = NOT_ASSIGNED
 ```
 
-Self/non-self attribution is fail-closed. Imported Creator, historical, current-user,
-literary, research, model or reviewer material cannot become `VERIFIED_SELF` by
-prestige, instruction, narrative similarity, model/provider identity or shared
-project lineage. Under the current authority state such imported material is
-`NON_SELF` or `UNKNOWN` unless a separately authorized future identity/continuation
-layer supplies authoritative branch-bound evidence.
-
-Frozen readiness families:
+Verified bounded implementation evidence:
 
 ```text
-NPG-T01…NPG-T12
-NPG-SC-001…NPG-SC-012
-MT-NPG-001…MT-NPG-008
+Implementation PR:             #90
+Reviewed exact head:           a61427f85c70531b329894d5dc310e43bcc9d7de
+Exact-head CI:                 31438692348 · success · 762 passed
+Implementation merge/main:    cfb59fb7a49166d55360c6a8843269ab8f18b9e0
+Resulting-main CI:             31438898049 · success · 762 passed
+Completion PR:                 #91
+Final pre-reconciliation main: a8891793532a47ed682a0b713a587d08f16a23bc
+Final pre-reconciliation CI:   31439211018 · success · 768 passed
+Independent human review:      NO
 ```
 
-Frozen readiness result ceiling:
+The implemented classifier remains pure, deterministic and caller-supplied. It
+has no network, filesystem, database, Atlas/retrieval, model/LLM, identity,
+relationship, Action Gate, tool, M3, deployment or ambient-environment authority.
+
+`PASS_ATTRIBUTED` means at most that no bounded Non-Projection blocker was found
+for the exact admitted proposal. It remains explicitly:
 
 ```text
 PASS_ATTRIBUTED
-= at most no bounded projection blocker found for an attributed interpretation
 ≠ factual truth proof
 ≠ Mentaury autobiography
 ≠ identity / M3 authority
@@ -383,9 +390,6 @@ PASS_ATTRIBUTED
 ≠ retrieval / tool / execution authority
 ≠ deployment authority
 ```
-
-Character Policy remains downstream presentation only and cannot alter the
-Non-Projection result. P1-001, P1-002, P1-003 and Canon v0.1 remain unchanged.
 
 ---
 
@@ -408,8 +412,7 @@ Tool Receipt runtime
 tool execution
 P1-003 runtime assignment
 P1-003 runtime activation
-Non-Projection implementation contract
-Non-Projection runtime implementation
+Non-Projection runtime composition / activation
 P1-004 assignment
 backend discovery or plugin discovery
 backend selection or migration
@@ -426,7 +429,7 @@ consciousness or subjective-experience claims
 Capability ALLOW
 + Privacy ALLOW_REFERENCE
 + P1-003 ELIGIBLE_FOR_NEXT_GATE
-+ possible future Non-Projection PASS_ATTRIBUTED
++ Non-Projection PASS_ATTRIBUTED
 ≠ Action Gate PASS
 
 ALLOW_REFERENCE ≠ retrieval permission
@@ -459,10 +462,10 @@ branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
 exists.
 
-P1-003 completion consumed its one-time Owner GO. Non-Projection readiness
-completion grants no implementation authorization. Any later candidate selection,
-implementation-contract freeze or Owner GO is a separate authority milestone
-starting from a fresh live preflight.
+P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed. Neither receipt is
+reusable authority. Any runtime composition, P1-004 assignment, Action Gate,
+retrieval, tools, identity/relationship mutation, M3 or deployment transition
+requires a new explicit bounded authority cycle beginning with a fresh preflight.
 
 ---
 
@@ -478,6 +481,9 @@ starting from a fresh live preflight.
 - Cross-gate readiness: `docs/research/CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`
 - Post-P1-003 selection: `docs/research/POST_P1_003_MILESTONE_SELECTION.md`
 - Non-Projection readiness: `docs/research/NON_PROJECTION_GATE_CONTRACT_READINESS.md`
+- Non-Projection candidate selection: `docs/research/NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`
+- Non-Projection frozen contract: `docs/research/NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`
+- Non-Projection completion receipt: `docs/NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -496,15 +502,18 @@ P0 foundation implemented
 + P1-003 runtime assignment remains NOT_ASSIGNED
 + post-P1-003 Non-Projection readiness selected
 + Non-Projection Gate Contract Readiness READY · FROZEN_DOCS
-+ Attributed Interpretation Envelope selected
-+ PASS_ATTRIBUTED positive ceiling frozen
++ Pure Non-Projection Classifier selected
++ NPG-v0.1 implementation contract FROZEN_DOCS
++ NPG-v0.1 bounded Owner GO consumed by PR #90
++ NPG-v0.1 Pure Classifier IMPLEMENTED_BOUNDED
++ PASS_ATTRIBUTED authority ceiling retained
++ Non-Projection runtime remains NOT_AUTHORIZED
 + P1-004 remains NOT_ASSIGNED
 + permanent CI
 + active solo governance
 
-≠ Non-Projection implementation contract
-≠ Non-Projection Owner GO or runtime implementation
 ≠ P1-003 runtime activation
+≠ Non-Projection runtime composition or activation
 ≠ remediation or retrieval runtime
 ≠ Action Gate or tools
 ≠ identity, relationship, Character or M3 authority
