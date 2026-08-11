@@ -118,7 +118,8 @@ def test_character_and_p1_contracts_cannot_be_silently_widened() -> None:
 
 def test_existing_repository_runtime_stop_remains_current() -> None:
     assert "NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED" in CURRENT_STATUS
-    assert "Next runtime milestone:        NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
+    assert "Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
+    assert "Next bounded implementation:  NPG-COMP-v0.1_SHADOW · AUTHORIZED_NOT_STARTED" in ROADMAP
     for marker in (
         "Action Gate:                     NOT_AUTHORIZED",
         "Retrieval execution:             NOT_AUTHORIZED",
