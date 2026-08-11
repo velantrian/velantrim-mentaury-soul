@@ -19,6 +19,10 @@ P1-001 Capability Lease resolver   IMPLEMENTED_BOUNDED
 P1-002 Privacy classifier          IMPLEMENTED_BOUNDED
 P1-003 Pure Constraint Composer    IMPLEMENTED_BOUNDED
 P1-003 runtime assignment          NOT_ASSIGNED
+NPG-v0.1 Pure Classifier           IMPLEMENTED_BOUNDED
+NPG-v0.1 Owner GO                  CONSUMED_BY_PR_90
+Non-Projection runtime             NOT_AUTHORIZED
+P1-004                             NOT_ASSIGNED
 Governance                         SOLO_MAINTAINER · TIER_A
 Permanent CI                       ACTIVE
 Independent human assurance        NOT CLAIMED
@@ -94,6 +98,37 @@ NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 `ELIGIBLE_FOR_NEXT_GATE` is bounded readiness only. It is not Action Gate PASS,
 retrieval permission, tool/execution permission or deployment authority.
 
+### NPG-v0.1
+
+The Pure Non-Projection Classifier is implemented as a deterministic,
+caller-supplied component over `AttributedInterpretationEnvelope` and
+`NonProjectionBudget`.
+
+```text
+Candidate              PURE_NON_PROJECTION_CLASSIFIER
+Contract               FROZEN_DOCS · NPG-v0.1
+Envelope               AIE-v0.1
+Owner GO               CONSUMED_BY_PR_90
+Implementation         IMPLEMENTED_BOUNDED
+Runtime                NOT_AUTHORIZED
+P1_004                 NOT_ASSIGNED
+```
+
+Verified implementation evidence:
+
+```text
+Implementation PR #90  CI 31438692348 · 762 passed
+Reviewed head          a61427f85c70531b329894d5dc310e43bcc9d7de
+Merge/main             cfb59fb7a49166d55360c6a8843269ab8f18b9e0
+Post-merge CI          31438898049 · success · 762 passed
+Completion PR #91      final pre-Phase-0 main a8891793532a47ed682a0b713a587d08f16a23bc
+Final main CI          31439211018 · success · 768 passed
+```
+
+`PASS_ATTRIBUTED` means only that no bounded Non-Projection blocker was found
+for the exact admitted proposal. It is not truth, autobiography, identity,
+relationship, retrieval, tool, action or deployment authority.
+
 ## 🛑 Explicit boundaries
 
 ```text
@@ -101,15 +136,17 @@ no privacy persistence or scanning
 no deletion/redaction/quarantine/rebuild execution
 no retrieval execution
 no Action Gate or tool execution
-no event/replay integration from P1 classifiers/composer
+no event/replay integration from P1 classifiers/composer/NPG
 no belief, relationship, identity or M3 mutation
 no P1-003 runtime activation or assignment
+no Non-Projection runtime composition or activation
+no P1-004 assignment
 no backend selection or production deployment
 ```
 
-P1-001, P1-002 and P1-003 Owner GO receipts are consumed. Any new
-runtime-capable milestone needs a new bounded authority cycle, Tier A evidence
-and green resulting-main CI.
+P1-001, P1-002, P1-003 and NPG-v0.1 bounded Owner GO receipts are consumed. Any
+new runtime-capable milestone needs a new bounded authority cycle, Tier A
+evidence and green resulting-main CI.
 
 ## 🔗 Authoritative documents
 
@@ -119,6 +156,8 @@ and green resulting-main CI.
 - [P1-002 receipt](docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md)
 - [P1-003 authorization/completion receipt](docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 - [P1-003 frozen contract](docs/research/P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+- [NPG-v0.1 completion receipt](docs/NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
+- [NPG-v0.1 frozen contract](docs/research/NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
 - [Post-P0 roadmap](docs/research/POST_P0_ROADMAP_V0.1.md)
 - [Research Index](docs/research/RESEARCH_INDEX.md)
 - [Environment manifest](docs/ENVIRONMENT_MANIFEST.md)
