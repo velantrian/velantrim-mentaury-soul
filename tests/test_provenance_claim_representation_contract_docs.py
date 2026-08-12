@@ -38,8 +38,9 @@ def test_claim_axes_are_explicitly_distinct() -> None:
     for document in (READINESS, CONTRACT):
         assert "ClaimClass" in document
         assert "ClaimType" in document
-        assert "EpistemicRole" in document
-        assert "ClaimClass\n≠ ClaimType\n≠ EpistemicRole" in CONTRACT
+    assert "epistemic role" in READINESS.lower()
+    assert "EpistemicRole" in CONTRACT
+    assert "ClaimClass\n≠ ClaimType\n≠ EpistemicRole" in CONTRACT
     for role in (
         "OBSERVATION",
         "TESTIMONY",
@@ -58,7 +59,7 @@ def test_evidence_gate_remains_the_only_support_owner() -> None:
         assert "Evidence Gate" in document
         assert "SUPPORTED" in document
         assert "CONTRADICTED" in document
-    assert "evidence_refs are references only" in CONTRACT
+    assert "`evidence_refs` are references only" in CONTRACT
     assert "≠ EvidenceGateOutcome.SUPPORTED" in CONTRACT
     assert "≠ EvidenceGateOutcome.CONTRADICTED" in CONTRACT
 
@@ -126,7 +127,9 @@ def test_current_navigation_surfaces_share_frozen_phase3_state() -> None:
 
 
 def test_phase3_contract_does_not_authorize_phase4_or_runtime() -> None:
-    for document in (CONTRACT, STATUS, ROADMAP, INDEX):
+    assert "Belief promotion/revision authority: NONE" in CONTRACT
+    assert "Runtime activation:                  NOT_AUTHORIZED" in CONTRACT
+    for document in (STATUS, ROADMAP, INDEX):
         assert "Phase 4" in document or "PHASE_4" in document
     assert "PHASE_4_EPISTEMIC_PROMOTION_REVISION_NOT_STARTED" in STATUS
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
