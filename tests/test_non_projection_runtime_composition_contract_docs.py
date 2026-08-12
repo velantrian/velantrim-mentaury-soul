@@ -17,6 +17,9 @@ STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
 ROADMAP = (ROOT / "docs" / "research" / "POST_P0_ROADMAP_V0.1.md").read_text(
     encoding="utf-8"
 )
+RECEIPT = (
+    ROOT / "docs" / "NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md"
+).read_text(encoding="utf-8")
 
 
 def test_phase_1_readiness_answers_who_what_where() -> None:
@@ -59,23 +62,18 @@ def test_frozen_contract_preserves_npg_authority_ceiling() -> None:
         assert marker in CONTRACT
 
 
-def test_phase_1_freeze_remains_historical_after_separate_owner_go() -> None:
-    for document in (CONTRACT, STATUS):
-        assert "NPG-COMP-v0.1" in document
-        assert "FROZEN_DOCS" in document
-        assert "NOT_AUTHORIZED" in document
-        assert "NOT_ASSIGNED" in document
-
+def test_phase_1_freeze_is_historical_and_phase_2_is_now_bounded_complete() -> None:
     assert "PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE" in CONTRACT
-    assert "PHASE_1_NON_PROJECTION_RUNTIME_COMPOSITION = COMPLETE" in STATUS
     assert "PHASE_2_IMPLEMENTATION = NOT_STARTED" in CONTRACT
     assert "PHASE_2_OWNER_GO = NOT_GRANTED" in CONTRACT
-    assert "PHASE_2_IMPLEMENTATION_NOT_STARTED" in STATUS
-    assert "PHASE_2_OWNER_GO_GRANTED_BY_PR_94" in STATUS
     assert "historical Phase-1 freeze" in STATUS
 
+    assert "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED" in STATUS
+    assert "PHASE_2_OWNER_GO_CONSUMED_BY_PR_96" in STATUS
+    assert "Phase 2 Owner GO:             CONSUMED_BY_PR_96" in ROADMAP
+    assert "Phase 2 implementation:       IMPLEMENTED_BOUNDED" in ROADMAP
     assert "Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
-    assert "Phase 2 Owner GO:             GRANTED_BY_PR_94" in ROADMAP
+    assert "OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED" in RECEIPT
 
 
 def test_reserved_phase_2_package_matches_frozen_surface_without_broader_wiring() -> None:
