@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.5
+Version:                      1.6
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -32,10 +32,12 @@ Implementation authorization: CONSUMED · NPG-v0.1_ONLY
 Non-Projection implementation:IMPLEMENTED_BOUNDED
 Phase 1 composition readiness: READY
 Phase 1 composition contract: FROZEN_DOCS · NPG-COMP-v0.1
-Phase 2 Owner GO:             GRANTED_BY_PR_94
-Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · SINGLE_USE
-Phase 2 implementation:       NOT_STARTED
-Next bounded implementation:  NPG-COMP-v0.1_SHADOW · AUTHORIZED_NOT_STARTED
+Phase 2 Owner GO:             CONSUMED_BY_PR_96
+Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · CONSUMED
+Phase 2 implementation:       IMPLEMENTED_BOUNDED
+Phase 2 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
+Next bounded milestone:       NOT_SELECTED · NOT_AUTHORIZED
+Phase 3:                      NOT_STARTED · OWNER_GO_NOT_GRANTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -65,15 +67,16 @@ P1-003 completion ≠ runtime assignment
 NPG-v0.1 implementation ≠ NPG runtime activation
 NPG-v0.1 implementation ≠ P1-004 assignment
 NPG-v0.1 Owner GO consumed ≠ reusable authority
-NPG-COMP-v0.1 Owner GO = one bounded implementation authorization only
-NPG-COMP-v0.1 Owner GO ≠ runtime activation / Action Gate / retrieval / tools / identity / M3
+NPG-COMP-v0.1 implementation ≠ runtime activation
+NPG-COMP-v0.1 implementation ≠ Action Gate / retrieval / tools / identity / M3
+NPG-COMP-v0.1 Owner GO consumed ≠ reusable authority
 Solo review ≠ independent certification
 ```
 
 The filename retains `V0.1` for stable historical links. Document metadata is
-the current version authority. Historical readiness/selection sections below
-retain the state that was true at those milestones; current authority is the
-header, current next-authority section, current formula and owning receipts.
+the current version authority. Historical readiness, selection and Owner-GO
+sections retain the state that was true at their milestones; current authority
+is the header, completion checkpoint, current formula and owning receipts.
 
 ---
 
@@ -100,24 +103,30 @@ The consumed P1-001 authorization rolls forward to **no registry service, Action
 
 ## 2. ✅ P1-002 Privacy Reconciliation Classifier retained checkpoint
 
-```text
-Contract PR:            #65
-Authorization PR:       #66
-Implementation PR:      #67
-Reviewed head:          74662fb626a545ed63b426e98aa03524449019db
-Exact-head CI:          31332728486 · success · 461 passed
-Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
-Post-merge CI:          31332793742 · success · 461 passed
-Correctness:            PASS
-Adversarial:            PASS
-P1-002 Owner GO:        CONSUMED
-```
-
 Owning surfaces:
 
 - [Frozen contract](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
 - [Authorization and completion receipt](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
 - [Current status](../CURRENT_STATUS.md)
+
+```text
+P1_002_OWNER_GO_AUTHORIZED_BOUNDED   # historical authorization-time provenance
+P1_002_IMPLEMENTATION_NOT_STARTED    # historical authorization-time provenance
+P1_002_OWNER_GO_CONSUMED             # current completion meaning
+P1_002_MUTATION_AUTHORITY_NONE
+P1_002_RETRIEVAL_AUTHORITY_NONE
+NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
+```
+
+Verified implementation:
+
+```text
+Implementation PR:      #67
+Reviewed head:          74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:          31332728486 · success · 461 passed
+Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:          31332793742 · success · 461 passed
+```
 
 `ALLOW_REFERENCE` remains classification data only and performs no retrieval or
 remediation.
@@ -125,9 +134,6 @@ remediation.
 ---
 
 ## 3. ✅ Cross-gate binding/composition readiness
-
-The post-P1-002 work demonstrated that bare P1 results cannot prove a common
-request/context/freshness binding. The frozen docs-only architecture is:
 
 [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
 
@@ -151,57 +157,41 @@ FRESHNESS                     = SAME_ATTEMPT + REVISION_BOUND
 
 ---
 
-## 4. ✅ P1-003 candidate and contract checkpoints
+## 4. ✅ P1-003 retained checkpoints
 
 Candidate selection:
-
 [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 
 Frozen implementation contract:
-
 [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+
+Owning completion receipt:
+[`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
 
 ```text
 P1_003_CANDIDATE_SELECTION = SELECTED
 P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1_003_CONTRACT            = FROZEN_DOCS
+P1_003_OWNER_GO            = CONSUMED
+P1_003_IMPLEMENTATION      = IMPLEMENTED_BOUNDED
 P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
+NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
 
-The frozen contract retains exact context/API/result/fingerprint semantics,
-P1-001 `v0.2`, P1-002 `v0.1`, `MENTAURY_CANONICAL_JSON_V1`, T1–T12, M1–M10,
-all `CGC-*` families, no-hidden-I/O proof and the compatibility stop.
-
----
-
-## 5. ✅ P1-003 Owner GO and reconciliation sequence
-
-Owning receipt:
-
-[`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
-
-### Owner GO — PR #77
+Verified implementation:
 
 ```text
-Reviewed head:   79fcedc8fe7dee64acad8dfffd8c8a17122ae97c
-Exact-head CI:   31389769422 · success · 482 passed
-Merge/main:      20a2073ef70eaa0e18ad7e8cf87b728d28617598
-Post-merge CI:   31390149526 · success · 482 passed
-Tier A review:   4896914677
+Implementation PR:         #79
+Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
+Exact-head CI:             31394829487 · success · 552 passed
+Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
+Post-merge CI:             31395291622 · success · 552 passed
+Tier A review:             4897445251
+Correctness:               PASS
+Adversarial:               PASS
 ```
 
-### Receipt reconciliation — PR #78
-
-```text
-Reviewed head:   0f52e683a03fe9fe27428e7effe0349fd496bd26
-Exact-head CI:   31393515732 · success · 482 passed
-Merge/main:      813944b8083406da2ce95948bfb722158493fdb4
-Post-merge CI:   31393836549 · success
-Tier A review:   4897295575
-```
-
-PR #78 changed no P1-003 semantics. It only aligned the authorization receipt's
-explicit shorthand with the already frozen complete matrix:
+The frozen matrix remains:
 
 ```text
 CGC-CTX-001…014
@@ -214,50 +204,7 @@ CGC-PURE-001…008
 
 ---
 
-## 6. ✅ P1-003 bounded implementation complete
-
-Implementation PR #79 consumed the one-time Owner GO and implemented only the
-frozen pure composer slice.
-
-```text
-Implementation PR:         #79
-Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
-Exact-head CI:             31394829487 · success · 552 passed
-Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
-Post-merge CI:             31395291622 · success · 552 passed
-Tier A review:             4897445251
-Correctness:               PASS
-Adversarial:               PASS
-Authorization boundary:    PRESERVED
-Review threads:            0
-Independent human review:  NO
-```
-
-Exact completed source package:
-
-```text
-src/mentaury/composition/__init__.py
-src/mentaury/composition/governed_constraints/__init__.py
-src/mentaury/composition/governed_constraints/contracts.py
-src/mentaury/composition/governed_constraints/composer.py
-```
-
-Current state:
-
-```text
-P1_003_OWNER_GO              = CONSUMED
-P1_003_IMPLEMENTATION        = IMPLEMENTED_BOUNDED
-P1_003_RUNTIME_ASSIGNMENT    = NOT_ASSIGNED
-NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
-```
-
-`IMPLEMENTED_BOUNDED` means the pure package exists and is retained by exact-head
-and resulting-main validation. It does not mean runtime activation or broader
-authority.
-
----
-
-## 7. 🧱 P1-003 retained result boundary
+## 5. 🧱 P1-003 retained result boundary
 
 ```text
 Capability ALLOW
@@ -265,8 +212,6 @@ Capability ALLOW
 + verified same-attempt binding
 = at most ELIGIBLE_FOR_NEXT_GATE
 ```
-
-Still explicitly:
 
 ```text
 ELIGIBLE_FOR_NEXT_GATE ≠ ACTION_GATE_PASS
@@ -281,52 +226,21 @@ ELIGIBLE_FOR_NEXT_GATE ≠ DEPLOYMENT_AUTHORITY
 
 ---
 
-## 8. 🪞 Historical Post-P1-003 Non-Projection selection
+## 6. ✅ Non-Projection readiness, contract and pure classifier
 
-Owning historical selection:
+Historical owning records:
 
-[`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
-
-At that milestone, the selected bounded work was docs-only:
-
-```text
-POST_P1_003_SELECTION = COMPLETE
-SELECTED_BOUNDED_WORK = NON_PROJECTION_GATE_CONTRACT_READINESS
-P1_004                 = NOT_ASSIGNED
-NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
-OWNER_GO               = NOT_GRANTED
-IMPLEMENTATION_AUTHORIZATION = NONE
-```
-
-Those `NOT_GRANTED/NONE` values are historical selection-time provenance only;
-they are not the current NPG authority state after PRs #86–#91.
-
----
-
-## 9. ✅ Non-Projection readiness, contract and bounded implementation
-
-Owning historical readiness document:
-
-[`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
-
-Owning candidate, frozen contract and completion receipt:
-
+- [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
+- [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
 - [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
+
+Current owning contract/receipt:
+
 - [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
 - [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
 
-The readiness model remains `ATTRIBUTED_INTERPRETATION_ENVELOPE` with
-`PASS_ATTRIBUTED` as the bounded positive result. Subsequent bounded milestones
-selected the pure classifier, froze `NPG-v0.1`, granted one exact Owner GO, and
-consumed that GO through PR #90 implementation plus PR #91 completion receipt.
-
-Current state:
-
 ```text
 NON_PROJECTION_GATE_CONTRACT_READINESS = READY
-READINESS_STATUS                        = FROZEN_DOCS · DOCS_ONLY
-SELECTED_MODEL                          = ATTRIBUTED_INTERPRETATION_ENVELOPE
-READINESS_POSITIVE                      = PASS_ATTRIBUTED_ONLY
 NON_PROJECTION_CANDIDATE_SELECTION      = SELECTED
 NON_PROJECTION_CANDIDATE                = PURE_NON_PROJECTION_CLASSIFIER
 NON_PROJECTION_IMPLEMENTATION_CONTRACT  = FROZEN_DOCS
@@ -339,22 +253,16 @@ NON_PROJECTION_RUNTIME                  = NOT_AUTHORIZED
 P1_004                                  = NOT_ASSIGNED
 ```
 
-Verified implementation checkpoint:
+Verified classifier checkpoint:
 
 ```text
-Implementation PR:             #90
-Reviewed exact head:           a61427f85c70531b329894d5dc310e43bcc9d7de
-Exact-head CI:                 31438692348 · success · 762 passed
-Implementation merge/main:    cfb59fb7a49166d55360c6a8843269ab8f18b9e0
-Resulting-main CI:             31438898049 · success · 762 passed
-Completion PR:                 #91
-Pre-Phase-0 main:              a8891793532a47ed682a0b713a587d08f16a23bc
-Pre-Phase-0 main CI:           31439211018 · success · 768 passed
+Implementation PR:          #90
+Reviewed exact head:        a61427f85c70531b329894d5dc310e43bcc9d7de
+Exact-head CI:              31438692348 · success · 762 passed
+Implementation merge/main: cfb59fb7a49166d55360c6a8843269ab8f18b9e0
+Resulting-main CI:          31438898049 · success · 762 passed
+Completion PR:              #91
 ```
-
-The frozen fail-closed source/self attribution, claim classes, reviewer
-correlation semantics, contextual/scope requirements, NPG-T01…T12,
-NPG-SC-001…012 and MT-NPG-001…008 remain unchanged.
 
 ```text
 PASS_ATTRIBUTED
@@ -367,38 +275,162 @@ PASS_ATTRIBUTED
 ≠ retrieval / tool / execution authority
 ```
 
-Character presentation cannot override this result. Frozen P1 contracts and
-Canon v0.1 remain unchanged.
+---
+
+## 7. ✅ Phase 1 NPG runtime-composition contract
+
+Owning readiness:
+[`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md)
+
+Frozen contract:
+[`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
+
+```text
+NON_PROJECTION_RUNTIME_COMPOSITION_READINESS = READY
+CONTRACT = FROZEN_DOCS · NPG-COMP-v0.1
+STRATEGY = SAME_ATTEMPT_SHADOW_COORDINATOR
+WHO = NON_PROJECTION_SHADOW_COORDINATOR_ONLY
+WHAT = exact caller-supplied AIE-v0.1 + exact NonProjectionBudget
+WHERE = same-attempt bound shadow observation only
+PRIOR_RESULT_INPUT = FORBIDDEN
+RESULT_REPLAY_AS_AUTHORITY = FORBIDDEN
+```
 
 ---
 
-## 10. 🚫 Work not included
+## 8. 🪞 Historical Post-P1-003 Non-Projection selection
+
+At the selection milestone the bounded work was only readiness:
+
+```text
+POST_P1_003_SELECTION = COMPLETE
+SELECTED_BOUNDED_WORK = NON_PROJECTION_GATE_CONTRACT_READINESS
+P1_004                 = NOT_ASSIGNED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+OWNER_GO               = NOT_GRANTED
+IMPLEMENTATION_AUTHORIZATION = NONE
+```
+
+Those values are **historical selection-time provenance only**. They are not the
+current NPG or NPG-COMP completion state.
+
+---
+
+## 9. 🟢 Phase 2 Owner GO chain
+
+Owning decision:
+[`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
+
+Post-GO reconciliation:
+[`NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md`](NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md)
+
+```text
+Owner GO PR:             #94
+Reviewed head:           25a8cbf58fbdbee9fafc9ca41aa9575d47cd9450
+Exact-head CI:           31547098692 · success · 783 passed
+Review:                  4911669134
+Authorization merge:     d0be41a0712d076101d508812a7eb491558b4f57
+Resulting-main CI:       31547170338 · success · 783 passed
+Post-GO recon PR:        #95
+Recon reviewed head:     88b68a363981ff3c3b8f66259e06def49208af1b
+Recon exact-head CI:     31548130967 · success · 788 passed
+Recon review:            4911758911
+Recon merge/main:        8c2be99b03e0dc5eee614b757060d8569bb88596
+Recon resulting-main CI: 31548204752 · success · 788 passed
+```
+
+At that time:
+
+```text
+PHASE_2_OWNER_GO = GRANTED_BY_PR_94
+OWNER_GO_SCOPE = NPG-COMP-v0.1_ONLY · SINGLE_USE
+PHASE_2_IMPLEMENTATION = NOT_STARTED
+```
+
+That state is now historical; the one-time GO was consumed by PR #96.
+
+---
+
+## 10. ✅ Phase 2 bounded NPG-COMP implementation complete
+
+Owning receipt:
+[`../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md)
+
+```text
+Implementation PR:         #96
+Reviewed exact head:       8a7b524de46c042e0479186ea4564f363248a366
+Exact-head CI:             31548525699 · success · 842 passed
+Tier A review:             4911798445
+Correctness:               PASS
+Adversarial:               PASS
+Authorization boundary:    PRESERVED
+Review threads:            0
+Implementation merge/main: 153d64d142e5b5555bc3a942cb0beedce89b91e0
+Resulting-main CI:         31548659423 · success · 842 passed
+Independent human review:  NO
+```
+
+Exact completed source package:
+
+```text
+src/mentaury/composition/non_projection_shadow/__init__.py
+src/mentaury/composition/non_projection_shadow/contracts.py
+src/mentaury/composition/non_projection_shadow/coordinator.py
+```
+
+Executable frozen validation:
+
+```text
+NRC-T01…NRC-T12
+NRC-M01…NRC-M10
+```
+
+Current result:
+
+```text
+PHASE_2_OWNER_GO = CONSUMED_BY_PR_96
+OWNER_GO_SCOPE = NPG-COMP-v0.1_ONLY
+IMPLEMENTATION_AUTHORIZATION = CONSUMED · NPG-COMP-v0.1_ONLY
+PHASE_2_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+P1_004 = NOT_ASSIGNED
+```
+
+The bound observation remains same-attempt evidence only and is not a reusable
+permission token.
+
+---
+
+## 11. 🚫 Work not included
 
 ```text
 registry persistence or services
 backup/fork discovery or scanning
 content remediation execution
 retrieval execution
+Atlas access
 network/filesystem/database authority
 ambient clock/environment authority
 event append or replay/projection integration
 belief/relationship/identity mutation
 M3 nomination or write
 Action Gate
-Tool Receipt or tool execution
+Tool Receipt or tool/plugin/subprocess execution
 P1-003 runtime assignment
 P1-003 runtime activation
-Phase 2 NPG-COMP-v0.1 implementation (authorized, not yet started)
 Non-Projection runtime activation
 P1-004 assignment
+NPG shadow observation persistence
+background/autonomous cognitive loop
 backend/plugin discovery
 backend selection or migration
 production deployment
+Phase 3 Provenance + Claim Representation
 ```
 
 ---
 
-## 11. 🎭 Character / independent-review boundary
+## 12. 🎭 Character / independent-review boundary
 
 ```text
 CHARACTER_RUNTIME_ACTIVATION_GATE = BLOCKED_PENDING_REQUIRED_VALIDATION
@@ -412,7 +444,7 @@ trigger and is not a current solo-maintainer blocker.
 
 ---
 
-## 12. 🔄 Status rules
+## 13. 🔄 Status rules
 
 | Event | Status result |
 |---|---|
@@ -431,33 +463,31 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ---
 
-## 13. 🚪 Required next authority ladder
+## 14. 🚪 Required next authority ladder
 
-The NPG-v0.1 classifier cycle is complete. Phase 1 runtime-composition readiness
-and `NPG-COMP-v0.1` contract freeze are complete, and PR #94 granted the one-time
-`NPG-COMP-v0.1_ONLY` Phase 2 implementation authorization.
+The `NPG-COMP-v0.1` bounded implementation cycle is complete and its Owner GO is
+consumed. There is no selected or authorized next milestone.
 
 ```text
-CURRENT = NPG-COMP-v0.1 FROZEN_DOCS · OWNER_GO GRANTED · IMPLEMENTATION NOT_STARTED
-→ fresh exact-main compatibility check
-→ separate clean bounded implementation branch
-→ exact reserved three-file shadow package only
-→ executable NRC-T01…T12 + NRC-M01…M10 validation
-→ exact-head review and CI
-→ protected merge
-→ green resulting-main CI
-→ completion/status reconciliation
-→ Notion sync
-→ Owner GO consumed
+CURRENT = NPG-COMP-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED
 → STOP
+→ fresh live preflight for any later milestone
+→ separate readiness/contract where applicable
+→ explicit separate Owner GO
+→ separate bounded implementation only if authorized
 ```
 
-No runtime activation, retrieval, Action Gate, tool, identity/relationship, M3,
-persistence or deployment step is authorized by completing this ladder.
+```text
+NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED
+PHASE_3_OWNER_GO = NOT_GRANTED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
+P1_004 = NOT_ASSIGNED
+```
 
 ---
 
-## 14. 🏁 Formula
+## 15. 🏁 Formula
 
 ```text
 P0 complete
@@ -466,23 +496,24 @@ P0 complete
 → cross-gate binding/readiness frozen
 → P1-003 candidate selected
 → P1-003 contract frozen
-→ P1-003 Owner GO authorized and reconciled
 → P1-003 Pure Governed Constraint Composer implemented bounded
 → P1-003 Owner GO consumed
-→ post-P1-003 Non-Projection readiness selected
 → Non-Projection Gate Contract Readiness READY · FROZEN_DOCS
 → PURE_NON_PROJECTION_CLASSIFIER selected
 → NPG-v0.1 implementation contract FROZEN_DOCS
-→ NPG-v0.1 Owner GO consumed by PR #90
 → NPG-v0.1 Pure Classifier IMPLEMENTED_BOUNDED
+→ NPG-v0.1 Owner GO consumed by PR #90
 → Phase 0 NPG status reconciliation COMPLETE
-→ Phase 1 NPG runtime-composition readiness READY
-→ NPG-COMP-v0.1 contract FROZEN_DOCS
-→ Phase 2 NPG-COMP-v0.1 Owner GO GRANTED by PR #94
-→ NEXT: separate bounded NPG-COMP-v0.1 shadow implementation
+→ Phase 1 NPG-COMP-v0.1 runtime-composition contract FROZEN_DOCS
+→ Phase 2 Owner GO granted by PR #94
+→ Phase 2 status reconciled by PR #95
+→ NPG-COMP-v0.1 shadow composition IMPLEMENTED_BOUNDED by PR #96
+→ Phase 2 Owner GO CONSUMED_BY_PR_96
+→ STOP
 
-PHASE_2_IMPLEMENTATION = NOT_STARTED
-PHASE_2_OWNER_GO = GRANTED · NPG-COMP-v0.1_ONLY · SINGLE_USE
+NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED
+PHASE_3_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -493,10 +524,18 @@ RELATIONSHIP_RUNTIME = NOT_AUTHORIZED
 DIRECT_OR_INDIRECT_M3_WRITE = FORBIDDEN
 RUNTIME_DEPLOYMENT = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
+DOMAIN_RUNTIME_NOT_AUTHORIZED
 ```
 
 ### Related
 
+- [`MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md`](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
+- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [`P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
+- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
+- [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
+- [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
+- [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
 - [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
 - [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
 - [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
@@ -504,14 +543,8 @@ NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 - [`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md)
 - [`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
 - [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
-- [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md)
-- [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md)
-- [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
-- [`P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md`](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
-- [`CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md`](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
-- [`POST_P1_002_MILESTONE_SELECTION.md`](POST_P1_002_MILESTONE_SELECTION.md)
-- [`../P1_002_IMPLEMENTATION_AUTHORIZATION.md`](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
-- [`../P1_001_IMPLEMENTATION_AUTHORIZATION.md`](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
+- [`NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md`](NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md)
+- [`../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
