@@ -45,7 +45,7 @@ def test_phase4_freeze_preserves_existing_owners() -> None:
         assert "P0_015" in document or "P0-015" in document
     assert "Evidence Gate remains sole support/contradiction authority" in STATUS
     assert "P0-015 remains sole owner" in ROADMAP
-    assert "P0-015 remains sole owner" in INDEX
+    assert "produce an Evidence Gate\noutcome" in INDEX
     assert "P0-015 Evidence Gate authority:      UNCHANGED" in CONTRACT
 
 
