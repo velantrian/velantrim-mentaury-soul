@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.8
+Version:                      1.9
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -44,8 +44,15 @@ Phase 3 Owner GO scope:       PCR-v0.1_ONLY · CONSUMED
 Phase 3 implementation:       IMPLEMENTED_BOUNDED
 Phase 3 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
 Phase 3 runtime:              NOT_AUTHORIZED
-Next bounded milestone:       NOT_SELECTED · NOT_AUTHORIZED
-Phase 4:                      NOT_STARTED · OWNER_GO_NOT_GRANTED
+Phase 4 readiness:            READY · FROZEN_DOCS · DOCS_ONLY
+Phase 4 candidate:            PURE_EPISTEMIC_CHANGE_ROUTER · SELECTED
+Phase 4 contract:             FROZEN_DOCS · EPR-v0.1
+Phase 4 implementation:       NOT_STARTED
+Phase 4 Owner GO:             NOT_GRANTED
+Phase 4 runtime:              NOT_AUTHORIZED
+Claim→belief binding:         NOT_IMPLEMENTED
+Terminal reconsideration:     NOT_IMPLEMENTED
+Phase 5 typed relations:      NOT_STARTED · OWNER_GO_NOT_GRANTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -81,7 +88,11 @@ NPG-COMP-v0.1 Owner GO consumed ≠ reusable authority
 PCR-v0.1 implementation ≠ source admission / evidence support / belief promotion
 PCR-v0.1 implementation ≠ runtime activation / retrieval / tools / identity / M3
 PCR-v0.1 Owner GO consumed ≠ reusable authority
-ClaimClass ≠ ClaimType ≠ EpistemicRole
+EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
+EPR-v0.1 FROZEN_DOCS ≠ implementation authorization
+claim→belief binding missing ≠ permission to drop PCR provenance
+terminal reconsideration route ≠ terminal belief reopening/successor creation
+ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Solo review ≠ independent certification
 ```
 
@@ -137,7 +148,7 @@ Implementation PR:      #67
 Reviewed head:          74662fb626a545ed63b426e98aa03524449019db
 Exact-head CI:          31332728486 · success · 461 passed
 Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
-Post-merge CI:          31332793742 · success · 461 passed
+Post-merge CI:           31332793742 · success · 461 passed
 ```
 
 `ALLOW_REFERENCE` remains classification data only and performs no retrieval or
@@ -490,6 +501,50 @@ not reusable permission.
 
 ---
 
+## 10.2 🧭 Phase 4 Epistemic Promotion & Revision — EPR-v0.1 frozen docs-only
+
+Owning readiness:
+[`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md)
+
+Candidate selection:
+[`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md)
+
+Frozen contract:
+[`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
+
+```text
+PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
+PHASE_4_CANDIDATE_SELECTION = SELECTED
+PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
+PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
+PHASE_4_IMPLEMENTATION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
+```
+
+Verified docs-only freeze:
+
+```text
+Tracking issue:            #105
+Contract PR:               #106
+Reviewed exact head:       e95d1539c5023ce36d83652bdb3d482c4090f2ef
+Exact-head CI:             31574946826 · success · 927 passed
+Tier A review:             4914115826
+Contract merge/main:       8a86b9c4eff9435bbf8724defaee6e399a4cdeb0
+Resulting-main CI:         31575119904 · success · 927 passed
+Independent human review:  NO
+```
+
+The router contract does not execute any route. P0-014 remains owner of ordinary
+non-terminal belief revision; P0-015 remains sole owner of
+`SUPPORTED/CONTRADICTED`. PCR→belief lossless binding and terminal-belief
+successor/reconsideration lineage are explicitly missing prerequisites rather
+than silently inferred capabilities.
+
+---
+
 ## 11. 🚫 Work not included
 
 ```text
@@ -515,7 +570,10 @@ backend/plugin discovery
 backend selection or migration
 production deployment
 Phase 3 PCR-v0.1 runtime activation
-Phase 4 Epistemic Promotion & Revision
+Phase 4 EPR-v0.1 implementation/runtime
+claim→belief binding implementation
+terminal belief reconsideration/successor lineage
+Phase 5 Typed Knowledge Relations
 ```
 
 ---
@@ -555,26 +613,30 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-Phase 3 `PCR-v0.1` is implemented bounded and its single-use Owner GO is
-consumed. There is no selected or authorized next milestone.
+Phase 4 readiness/candidate selection and `EPR-v0.1` implementation-contract
+freeze are now the current docs-only milestone. No implementation authority has
+been granted.
 
 ```text
-CURRENT = PCR-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED_BY_PR_103
+CURRENT = EPR-v0.1 FROZEN_DOCS · PURE_EPISTEMIC_CHANGE_ROUTER
 → STOP
-→ fresh live preflight for any later milestone
-→ separate Phase 4 readiness/candidate/contract cycle where applicable
-→ explicit separate Owner GO only after a later frozen implementation contract
-→ separate bounded implementation only if newly authorized
+→ explicit separate Owner GO for EPR-v0.1_ONLY if owner chooses to proceed
+→ fresh exact-main compatibility check
+→ separate bounded implementation only if authorized
 ```
 
 ```text
-PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = IMPLEMENTED_BOUNDED
-PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · PCR-v0.1
-PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
-PHASE_3_RUNTIME = NOT_AUTHORIZED
-NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
-PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
+PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
+PHASE_4_CANDIDATE_SELECTION = SELECTED
+PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
+PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
+PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
+PHASE_5_TYPED_RELATIONS = NOT_STARTED
+PHASE_5_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
@@ -609,14 +671,18 @@ P0 complete
 → PCR-v0.1 Owner GO granted by PR #101
 → PCR-v0.1 Pure Provenance Claim Record IMPLEMENTED_BOUNDED by PR #103
 → Phase 3 Owner GO CONSUMED_BY_PR_103
-→ STOP
+→ Phase 4 Epistemic Promotion & Revision readiness READY
+→ PURE_EPISTEMIC_CHANGE_ROUTER selected
+→ EPR-v0.1 implementation contract FROZEN_DOCS by PR #106
+→ STOP FOR SEPARATE OWNER GO
 
-PHASE_3_IMPLEMENTATION = IMPLEMENTED_BOUNDED
-PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
-PHASE_3_RUNTIME = NOT_AUTHORIZED
-NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
-PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
+PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
+PHASE_5_TYPED_RELATIONS = NOT_STARTED
+PHASE_5_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -653,6 +719,9 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md)
 - [`PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`](PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md)
 - [`../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md`](../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md)
+- [`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md)
+- [`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md)
+- [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)

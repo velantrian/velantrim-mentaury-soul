@@ -15,6 +15,7 @@ Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · RE
 Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
 Completed readiness block:    NPG-COMP-v0.1 RUNTIME_COMPOSITION_READINESS · READY
 Completed readiness block:    PHASE_3_PROVENANCE_CLAIM_REPRESENTATION · READY
+Completed readiness block:    PHASE_4_EPISTEMIC_PROMOTION_REVISION · READY
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:              CONSUMED
@@ -42,8 +43,15 @@ Phase 3 Owner GO:             CONSUMED_BY_PR_103
 Phase 3 Owner GO scope:       PCR-v0.1_ONLY · CONSUMED
 Phase 3 implementation:       IMPLEMENTED_BOUNDED
 Phase 3 runtime:              NOT_AUTHORIZED
-Next execution milestone:     NOT_SELECTED · NOT_AUTHORIZED
-Phase 4:                      NOT_STARTED · OWNER_GO_NOT_GRANTED
+Phase 4 readiness:            READY · DOCS_ONLY
+Phase 4 candidate:            PURE_EPISTEMIC_CHANGE_ROUTER · SELECTED
+Phase 4 contract:             FROZEN_DOCS · EPR-v0.1
+Phase 4 implementation:       NOT_STARTED
+Phase 4 Owner GO:             NOT_GRANTED
+Phase 4 runtime:              NOT_AUTHORIZED
+Claim→belief binding:         NOT_IMPLEMENTED
+Terminal reconsideration:     NOT_IMPLEMENTED
+Phase 5 typed relations:      NOT_STARTED · OWNER_GO_NOT_GRANTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime deployment authority: NONE
@@ -71,7 +79,11 @@ NPG-COMP-v0.1 implemented bounded ≠ runtime activation
 NPG-COMP-v0.1 Owner GO consumed ≠ reusable authority
 PCR-v0.1 implemented bounded ≠ source admission / evidence support / belief promotion
 PCR-v0.1 Owner GO consumed ≠ reusable authority
-ClaimClass ≠ ClaimType ≠ EpistemicRole
+EPR-v0.1 FROZEN_DOCS ≠ implementation authority
+EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
+claim→belief prerequisite ≠ permission to discard provenance
+terminal lineage prerequisite ≠ terminal reopening/successor authority
+ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
 ```
@@ -332,8 +344,6 @@ OWNER_GO_SCOPE = PCR-v0.1_ONLY
 IMPLEMENTATION_AUTHORIZATION = CONSUMED · PCR-v0.1_ONLY
 PHASE_3_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_3_RUNTIME = NOT_AUTHORIZED
-PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
-PHASE_4_OWNER_GO = NOT_GRANTED
 ```
 
 Verified implementation:
@@ -364,6 +374,44 @@ integrity/identity evidence only and never reusable permission.
 
 ---
 
+## 7.2 🧭 Phase 4 Epistemic Promotion & Revision — EPR-v0.1 frozen docs-only
+
+- [Readiness](EPISTEMIC_PROMOTION_REVISION_READINESS.md)
+- [Candidate selection](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md)
+- [Frozen `EPR-v0.1` contract](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
+- [Tracking issue #105](https://github.com/velantrian/velantrim-mentaury-soul/issues/105)
+
+```text
+PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
+PHASE_4_CANDIDATE_SELECTION = SELECTED
+PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
+PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
+PHASE_4_IMPLEMENTATION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
+```
+
+Verified docs-only freeze:
+
+```text
+Contract PR:               #106
+Reviewed exact head:       e95d1539c5023ce36d83652bdb3d482c4090f2ef
+Exact-head CI:             31574946826 · success · 927 passed
+Tier A review:             4914115826
+Contract merge/main:       8a86b9c4eff9435bbf8724defaee6e399a4cdeb0
+Resulting-main CI:         31575119904 · success · 927 passed
+Independent human review:  NO
+```
+
+`PURE_EPISTEMIC_CHANGE_ROUTER` may only name the next owner/prerequisite. It
+cannot create/revise a belief, invoke P0-014/P0-015, produce an Evidence Gate
+outcome, reopen a terminal belief, create successor lineage, or grant any
+runtime/action authority.
+
+---
+
 ## 8. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
@@ -390,7 +438,10 @@ integrity/identity evidence only and never reusable permission.
 | [`PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md) | Phase 3 contract | FROZEN_DOCS · PCR-v0.1 | implemented bounded |
 | [`PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`](PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md) | Phase 3 authority | OWNER_GO_CONSUMED | historical single-use grant record |
 | [`../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md`](../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md) | Phase 3 receipt | IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED | runtime NOT_AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 3 implemented bounded; no next milestone selected | runtime NOT_AUTHORIZED |
+| [`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md) | Phase 4 readiness | READY · DOCS_ONLY | no runtime authority |
+| [`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md) | Phase 4 candidate | SELECTED · PURE_EPISTEMIC_CHANGE_ROUTER | no implementation authority |
+| [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md) | Phase 4 contract | FROZEN_DOCS · EPR-v0.1 | implementation NOT_STARTED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 4 contract frozen; Owner GO required | runtime NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -404,7 +455,8 @@ integrity/identity evidence only and never reusable permission.
 |---|---|---|---|
 | `R-ELIDA-001` | Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification |
 | `R-NPG-001` | Non-Projection Gate | **PHASE_2_IMPLEMENTED_BOUNDED** | runtime activation remains a separate authority cycle |
-| `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | Phase 4 requires a fresh separate readiness/authority cycle |
+| `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | no authority rolls forward |
+| `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | separate explicit Owner GO before implementation |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -416,9 +468,9 @@ integrity/identity evidence only and never reusable permission.
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
-These entries are not a ranked execution queue. PCR-v0.1 implementation creates
-no runtime activation, promotion, retrieval, action, identity, relationship, M3
-or deployment authority.
+These entries are not a ranked execution queue. EPR-v0.1 contract freeze creates
+no belief mutation, support/contradiction decision, runtime activation,
+retrieval, action, identity, relationship, M3 or deployment authority.
 
 ---
 
@@ -440,9 +492,9 @@ problem demonstrated
 ```
 
 P1-001, P1-002, P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO
-receipts are consumed. No Owner GO rolls forward. Phase 4 currently has **no
-Owner GO** and no selected implementation contract. Issue #39 remains the future
-transition trigger for genuine independent review.
+receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is now frozen, but
+Phase 4 has **no Owner GO**. Issue #39 remains the future transition trigger for
+genuine independent review.
 
 ---
 
@@ -459,7 +511,11 @@ NPG-COMP bounded completion ≠ runtime activation / retrieval / tools / identit
 PCR-v0.1 valid representation ≠ source admission / evidence support / belief promotion
 PCR-v0.1 implemented bounded ≠ runtime / retrieval / action / identity / M3 authority
 PCR-v0.1 Owner GO consumed ≠ reusable authority
-ClaimClass ≠ ClaimType ≠ EpistemicRole
+EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
+EPR-v0.1 contract frozen ≠ Owner GO
+claim→belief binding required ≠ permission to drop PCR provenance
+terminal reconsideration lineage required ≠ terminal reopening/successor authority
+ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 ```
 
 No backend is selected. Notion remains a navigation/research workspace; GitHub
@@ -475,8 +531,9 @@ Keep ideas.
 Label their status.
 Bind gate evidence before composition.
 Preserve source/self attribution before learning from human experience.
-Separate ClaimClass, ClaimType and EpistemicRole.
+Separate ClaimClass, ClaimType, EpistemicRole, BeliefStatus and EvidenceGateOutcome.
 Treat evidence references as references, never support status.
+Route epistemic change to the existing owner; do not duplicate authority.
 Freeze readiness before candidate promotion.
 Freeze implementation contracts before implementation authority.
 Consume each Owner GO once.
@@ -495,9 +552,16 @@ PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
 PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · PCR-v0.1
 PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
 PHASE_3_RUNTIME = NOT_AUTHORIZED
-NEXT_EXECUTION_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
-PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
+PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
+PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
+PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
+PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
+PHASE_5_TYPED_RELATIONS = NOT_STARTED
+PHASE_5_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
