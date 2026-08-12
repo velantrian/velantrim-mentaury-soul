@@ -148,7 +148,7 @@ def represent_provenance_claim(
     """Return one immutable deterministic record for exact caller-supplied input.
 
     This function performs representation only. It does not admit sources,
-    evaluate evidence, promote beliefs, call NPG, retrieve data, persist state,
+    evaluate evidence, promote beliefs, call NPG, retrieve data, store state,
     invoke tools, mutate identity, or grant runtime/action authority.
     """
 
