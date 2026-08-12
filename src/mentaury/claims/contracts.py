@@ -108,7 +108,7 @@ def _require_string_tuple(value: object, name: str) -> tuple[str, ...]:
     )
     if tuple(sorted(checked)) != checked:
         raise ProvenanceClaimContractError(
-            f"{name} must already be lexicographically sorted"
+            f"{name} must already be lexically sorted"
         )
     if len(set(checked)) != len(checked):
         raise ProvenanceClaimContractError(f"{name} must be unique")
