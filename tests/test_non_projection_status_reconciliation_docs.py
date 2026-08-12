@@ -51,10 +51,12 @@ def test_current_navigation_surfaces_share_npg_completion_state() -> None:
     assert "Non-Projection Owner GO:      CONSUMED_BY_PR_90" in INDEX
 
 
-def test_historical_readiness_state_is_labelled_as_historical_not_current() -> None:
+def test_historical_readiness_state_is_preserved_as_navigation_provenance() -> None:
     assert "## 8. 🪞 Historical Post-P1-003 Non-Projection selection" in ROADMAP
     assert "historical selection-time provenance only" in ROADMAP
-    assert "Historical owning records" in INDEX
+    assert "POST_P1_003_MILESTONE_SELECTION.md" in INDEX
+    assert "historical selection" in INDEX.lower()
+    assert "P1-004 not assigned" in INDEX
     assert "Historical `NOT_FROZEN`, `NOT_GRANTED`, `NONE` or `NOT_STARTED` values" in RECONCILIATION
 
 
