@@ -54,8 +54,11 @@ def test_phase4_has_no_implementation_or_roll_forward_authority() -> None:
     for marker in (
         "PHASE_4_OWNER_GO_NOT_GRANTED",
         "PHASE_4_RUNTIME_NOT_AUTHORIZED",
-        "PHASE_5_TYPED_RELATIONS_NOT_STARTED",
+        "PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS_READY",
+        "PHASE_5_CANDIDATE_SELECTION_NOT_STARTED",
+        "PHASE_5_IMPLEMENTATION_CONTRACT_NOT_FROZEN",
         "PHASE_5_OWNER_GO_NOT_GRANTED",
+        "PHASE_5_RUNTIME_NOT_AUTHORIZED",
         "ACTION_GATE_NOT_AUTHORIZED",
         "RETRIEVAL_EXECUTION_NOT_AUTHORIZED",
         "TOOL_EXECUTION_NOT_AUTHORIZED",
@@ -76,8 +79,12 @@ def test_reconciliation_records_verified_contract_freeze() -> None:
         assert "31575119904" in document
 
 
-def test_current_boundary_requires_new_owner_go() -> None:
-    assert "A new explicit Owner GO is required" in STATUS
-    assert "explicit separate Owner GO for EPR-v0.1_ONLY" in ROADMAP
-    assert "separate explicit Owner GO before implementation" in INDEX
+def test_phase4_owner_go_remains_absent_while_next_boundary_advances() -> None:
+    assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
+    assert "Phase 4 Owner GO:             NOT_GRANTED" in ROADMAP
+    assert "Phase 4 Owner GO:             NOT_GRANTED" in INDEX
     assert "new explicit Owner GO" in CONTRACT
+    assert "PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS" in STATUS
+    assert "PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION_AND_CONTRACT_FREEZE" in STATUS
+    assert "PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION_AND_CONTRACT_FREEZE" in ROADMAP

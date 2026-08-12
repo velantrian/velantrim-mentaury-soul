@@ -16,6 +16,8 @@ Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
 Completed readiness block:    NPG-COMP-v0.1 RUNTIME_COMPOSITION_READINESS · READY
 Completed readiness block:    PHASE_3_PROVENANCE_CLAIM_REPRESENTATION · READY
 Completed readiness block:    PHASE_4_EPISTEMIC_PROMOTION_REVISION · READY
+Completed decision block:     POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION · COMPLETE
+Completed readiness block:    PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READY
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:              CONSUMED
@@ -51,7 +53,16 @@ Phase 4 Owner GO:             NOT_GRANTED
 Phase 4 runtime:              NOT_AUTHORIZED
 Claim→belief binding:         NOT_IMPLEMENTED
 Terminal reconsideration:     NOT_IMPLEMENTED
-Phase 5 typed relations:      NOT_STARTED · OWNER_GO_NOT_GRANTED
+Phase 5 relation readiness:   READY · FROZEN_DOCS · DOCS_ONLY
+Phase 5 selected model:       ANCHORED_TYPED_RELATION_CANDIDATE
+Phase 5 endpoint binding:     PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
+Phase 5 relation confidence:  NOT_IN_V0_1
+Phase 5 graph authority:      NONE
+Phase 5 candidate selection:  NOT_STARTED
+Phase 5 implementation contract: NOT_FROZEN
+Phase 5 implementation:       NOT_STARTED
+Phase 5 Owner GO:             NOT_GRANTED
+Phase 5 runtime:              NOT_AUTHORIZED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime deployment authority: NONE
@@ -83,6 +94,16 @@ EPR-v0.1 FROZEN_DOCS ≠ implementation authority
 EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
 claim→belief prerequisite ≠ permission to discard provenance
 terminal lineage prerequisite ≠ terminal reopening/successor authority
+RELATION ≠ TRUTH
+RELATION TYPE ≠ CONFIDENCE
+CORRELATIONAL ≠ CAUSAL
+TEMPORAL ≠ CAUSAL
+ANALOGICAL ≠ MECHANISTIC
+EVIDENTIAL ≠ SUPPORTED
+CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
+GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
+MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
+Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
@@ -412,6 +433,48 @@ runtime/action authority.
 
 ---
 
+## 7.3 🔗 Phase 5 Typed Relations — contract readiness complete
+
+- [Post-Phase-4 milestone discrimination](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
+- [Typed Relations contract readiness](TYPED_RELATIONS_CONTRACT_READINESS.md)
+- [Tracking issue #110](https://github.com/velantrian/velantrim-mentaury-soul/issues/110)
+
+```text
+PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
+PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
+PHASE_5_RELATION_VOCABULARY = CLOSED_V0_1_CORE
+PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
+PHASE_5_RELATION_CONFIDENCE = NOT_IN_V0_1
+PHASE_5_GRAPH_AUTHORITY = NONE
+PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
+PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
+PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_IMPLEMENTATION = NOT_STARTED
+PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_RUNTIME = NOT_AUTHORIZED
+```
+
+Verified readiness:
+
+```text
+Readiness PR:               #111
+Reviewed exact head:        cf58b6fd7371f862066f69597cc926d682f699ab
+Exact-head CI:              31586896530 · success · 949 passed
+Tier A review:              4915443813
+Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
+Resulting-main CI:          31587139065 · success · 949 passed
+Merge signature:            VERIFIED · VALID
+Independent human review:   NO
+```
+
+The model is exact-anchor, pairwise and representation-only. Relation type,
+directionality, origin and scope remain separate. `CORRELATIONAL ≠ CAUSAL`,
+`ANALOGICAL ≠ MECHANISTIC`, `EVIDENTIAL ≠ SUPPORTED`, and `CONTRADICTORY ≠
+EvidenceGateOutcome.CONTRADICTED`. No graph edge/path/count, numeric confidence,
+source count or generated relation acquires epistemic authority.
+
+---
+
 ## 8. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
@@ -441,7 +504,9 @@ runtime/action authority.
 | [`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md) | Phase 4 readiness | READY · DOCS_ONLY | no runtime authority |
 | [`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md) | Phase 4 candidate | SELECTED · PURE_EPISTEMIC_CHANGE_ROUTER | no implementation authority |
 | [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md) | Phase 4 contract | FROZEN_DOCS · EPR-v0.1 | implementation NOT_STARTED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 4 contract frozen; Owner GO required | runtime NOT_AUTHORIZED |
+| [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md) | post-Phase-4 decision | COMPLETE · DOCS_ONLY | selected readiness only |
+| [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md) | Phase 5 readiness | READY · FROZEN_DOCS · DOCS_ONLY | candidate/implementation NOT_STARTED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 5 readiness complete; next is separate candidate-selection/contract-freeze decision | runtime NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -457,6 +522,7 @@ runtime/action authority.
 | `R-NPG-001` | Non-Projection Gate | **PHASE_2_IMPLEMENTED_BOUNDED** | runtime activation remains a separate authority cycle |
 | `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | no authority rolls forward |
 | `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | separate explicit Owner GO before implementation |
+| `R-TR-001` | Typed Relations | **READINESS_READY · ANCHORED_TYPED_RELATION_CANDIDATE** | separate candidate selection + implementation-contract freeze; no Owner GO |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -468,9 +534,10 @@ runtime/action authority.
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
-These entries are not a ranked execution queue. EPR-v0.1 contract freeze creates
-no belief mutation, support/contradiction decision, runtime activation,
-retrieval, action, identity, relationship, M3 or deployment authority.
+These entries are not a ranked execution queue. Phase 5 Typed Relations readiness
+creates no relation discovery, graph truth, confidence propagation, Evidence Gate
+result, belief mutation, runtime activation, retrieval, action, identity,
+relationship, M3 or deployment authority.
 
 ---
 
@@ -492,9 +559,12 @@ problem demonstrated
 ```
 
 P1-001, P1-002, P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO
-receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is now frozen, but
-Phase 4 has **no Owner GO**. Issue #39 remains the future transition trigger for
-genuine independent review.
+receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is frozen but Phase
+4 has **no Owner GO**. Phase 5 Typed Relations readiness is now **READY**, while
+candidate selection remains `NOT_STARTED`, the implementation contract remains
+`NOT_FROZEN`, implementation remains `NOT_STARTED`, and Owner GO remains
+`NOT_GRANTED`. Issue #39 remains the future transition trigger for genuine
+independent review.
 
 ---
 
@@ -515,6 +585,15 @@ EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
 EPR-v0.1 contract frozen ≠ Owner GO
 claim→belief binding required ≠ permission to drop PCR provenance
 terminal reconsideration lineage required ≠ terminal reopening/successor authority
+RELATION ≠ TRUTH
+RELATION TYPE ≠ CONFIDENCE
+CORRELATIONAL ≠ CAUSAL
+ANALOGICAL ≠ MECHANISTIC
+EVIDENTIAL ≠ SUPPORTED
+CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
+GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
+MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
+Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 ```
 
@@ -534,6 +613,7 @@ Preserve source/self attribution before learning from human experience.
 Separate ClaimClass, ClaimType, EpistemicRole, BeliefStatus and EvidenceGateOutcome.
 Treat evidence references as references, never support status.
 Route epistemic change to the existing owner; do not duplicate authority.
+Represent relation candidates without turning links into truth, confidence or causality.
 Freeze readiness before candidate promotion.
 Freeze implementation contracts before implementation authority.
 Consume each Owner GO once.
@@ -560,8 +640,14 @@ PHASE_4_OWNER_GO = NOT_GRANTED
 PHASE_4_RUNTIME = NOT_AUTHORIZED
 CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
-PHASE_5_TYPED_RELATIONS = NOT_STARTED
+POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
+PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
+PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
+PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
+PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```

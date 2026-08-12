@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.9
+Version:                      2.0
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -52,7 +52,15 @@ Phase 4 Owner GO:             NOT_GRANTED
 Phase 4 runtime:              NOT_AUTHORIZED
 Claim→belief binding:         NOT_IMPLEMENTED
 Terminal reconsideration:     NOT_IMPLEMENTED
-Phase 5 typed relations:      NOT_STARTED · OWNER_GO_NOT_GRANTED
+Post-Phase-4 discrimination:  COMPLETE · DOCS_ONLY
+Phase 5 relation readiness:   READY · FROZEN_DOCS · DOCS_ONLY
+Phase 5 selected model:       ANCHORED_TYPED_RELATION_CANDIDATE
+Phase 5 endpoint binding:     PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
+Phase 5 candidate selection:  NOT_STARTED
+Phase 5 implementation contract: NOT_FROZEN
+Phase 5 implementation:       NOT_STARTED
+Phase 5 Owner GO:             NOT_GRANTED
+Phase 5 runtime:              NOT_AUTHORIZED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -92,6 +100,14 @@ EPR-v0.1 route ≠ belief mutation / Evidence Gate outcome / permission
 EPR-v0.1 FROZEN_DOCS ≠ implementation authorization
 claim→belief binding missing ≠ permission to drop PCR provenance
 terminal reconsideration route ≠ terminal belief reopening/successor creation
+RELATION ≠ TRUTH
+RELATION TYPE ≠ CONFIDENCE
+CORRELATIONAL ≠ CAUSAL
+ANALOGICAL ≠ MECHANISTIC
+EVIDENTIAL ≠ SUPPORTED
+CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
+GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
+Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Solo review ≠ independent certification
 ```
@@ -545,6 +561,50 @@ than silently inferred capabilities.
 
 ---
 
+## 10.3 🔗 Phase 5 Typed Relations contract readiness complete
+
+Owning discrimination:
+[`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
+
+Owning readiness:
+[`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md)
+
+```text
+Tracking issue:             #110
+Readiness PR:               #111
+Reviewed exact head:        cf58b6fd7371f862066f69597cc926d682f699ab
+Exact-head CI:              31586896530 · success · 949 passed
+Tier A review:              4915443813
+Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
+Resulting-main CI:          31587139065 · success · 949 passed
+Merge signature:            VERIFIED · VALID
+Independent human review:   NO
+```
+
+```text
+PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
+PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
+PHASE_5_RELATION_VOCABULARY = CLOSED_V0_1_CORE
+PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
+PHASE_5_RELATION_CONFIDENCE = NOT_IN_V0_1
+PHASE_5_GRAPH_AUTHORITY = NONE
+PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
+PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
+PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_IMPLEMENTATION = NOT_STARTED
+PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_RUNTIME = NOT_AUTHORIZED
+```
+
+The readiness model is pairwise and representation-only. It binds each endpoint
+to exact PCR identity (`claim_id + input_fingerprint`), separates relation type,
+directionality, origin and scope, preserves conditions/moderators/exceptions/
+unknowns/transfer limits, and admits no numeric confidence or graph authority.
+`EVIDENTIAL` is not Evidence Gate support and `CONTRADICTORY` is not
+`EvidenceGateOutcome.CONTRADICTED`.
+
+---
+
 ## 11. 🚫 Work not included
 
 ```text
@@ -573,7 +633,8 @@ Phase 3 PCR-v0.1 runtime activation
 Phase 4 EPR-v0.1 implementation/runtime
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
-Phase 5 Typed Knowledge Relations
+Phase 5 Typed Relations candidate selection / implementation-contract freeze
+Phase 5 Typed Relations implementation/runtime
 ```
 
 ---
@@ -613,30 +674,32 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-Phase 4 readiness/candidate selection and `EPR-v0.1` implementation-contract
-freeze are now the current docs-only milestone. No implementation authority has
-been granted.
+Phase 5 Typed Relations contract readiness is now complete. It does not select an
+implementation candidate, freeze an implementation contract, grant Owner GO, or
+authorize runtime.
 
 ```text
-CURRENT = EPR-v0.1 FROZEN_DOCS · PURE_EPISTEMIC_CHANGE_ROUTER
+CURRENT = PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READY
 → STOP
-→ explicit separate Owner GO for EPR-v0.1_ONLY if owner chooses to proceed
-→ fresh exact-main compatibility check
-→ separate bounded implementation only if authorized
+→ fresh live reconciliation
+→ separate PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION_AND_CONTRACT_FREEZE · DOCS_ONLY if owner chooses
+→ STOP again before any Owner GO or implementation
 ```
 
 ```text
-PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
-PHASE_4_CANDIDATE_SELECTION = SELECTED
-PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
-PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
 PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
 PHASE_4_RUNTIME = NOT_AUTHORIZED
 CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
-PHASE_5_TYPED_RELATIONS = NOT_STARTED
+POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
+PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
+PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
+PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
+PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
@@ -674,15 +737,22 @@ P0 complete
 → Phase 4 Epistemic Promotion & Revision readiness READY
 → PURE_EPISTEMIC_CHANGE_ROUTER selected
 → EPR-v0.1 implementation contract FROZEN_DOCS by PR #106
-→ STOP FOR SEPARATE OWNER GO
+→ Post-Phase-4 cognitive milestone discrimination COMPLETE by PR #109
+→ Phase 5 Typed Relations contract readiness READY by PR #111
+→ STOP BEFORE CANDIDATE SELECTION / IMPLEMENTATION-CONTRACT FREEZE
 
 PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
 PHASE_4_RUNTIME = NOT_AUTHORIZED
 CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
-PHASE_5_TYPED_RELATIONS = NOT_STARTED
+PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
+PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
+PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
+PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -722,6 +792,8 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md)
 - [`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md)
 - [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
+- [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
+- [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
