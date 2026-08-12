@@ -80,21 +80,21 @@ def test_historical_authorization_provenance_is_preserved_but_superseded() -> No
     assert "Historical pre-implementation markers" in CURRENT_STATUS
 
 
-def test_completed_scope_is_exact_four_file_package() -> None:
-    package = ROOT / "src" / "mentaury" / "composition"
-    expected = {
+def test_completed_p1_003_scope_remains_exact_with_later_composition_siblings() -> None:
+    composition = ROOT / "src" / "mentaury" / "composition"
+    package = composition / "governed_constraints"
+    expected = {"__init__.py", "contracts.py", "composer.py"}
+    assert {path.name for path in package.glob("*.py")} == expected
+    assert (composition / "__init__.py").is_file()
+
+    # Later independently authorized composition siblings do not retroactively
+    # enlarge the historical P1-003 implementation surface.
+    shadow = composition / "non_projection_shadow"
+    assert {path.name for path in shadow.glob("*.py")} == {
         "__init__.py",
-        "governed_constraints/__init__.py",
-        "governed_constraints/contracts.py",
-        "governed_constraints/composer.py",
+        "contracts.py",
+        "coordinator.py",
     }
-    actual = {
-        path.relative_to(package).as_posix()
-        for path in package.rglob("*.py")
-    }
-    assert actual == expected
-    for path in expected:
-        assert (package / path).is_file()
 
 
 def test_full_frozen_matrix_remains_required_and_completed() -> None:

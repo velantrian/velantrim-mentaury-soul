@@ -78,16 +78,17 @@ def test_phase_1_freeze_remains_historical_after_separate_owner_go() -> None:
     assert "Phase 2 Owner GO:             GRANTED_BY_PR_94" in ROADMAP
 
 
-def test_no_phase_2_source_package_or_runtime_wiring_exists() -> None:
+def test_reserved_phase_2_package_matches_frozen_surface_without_broader_wiring() -> None:
     reserved = ROOT / "src" / "mentaury" / "composition" / "non_projection_shadow"
-    assert not reserved.exists()
+    expected = {"__init__.py", "contracts.py", "coordinator.py"}
+    assert {path.name for path in reserved.glob("*.py")} == expected
 
     for path in (ROOT / "src" / "mentaury").rglob("*.py"):
-        if "non_projection" in path.parts:
+        if reserved in path.parents or "non_projection" in path.parts:
             continue
         text = path.read_text(encoding="utf-8")
-        assert "classify_non_projection" not in text, (
-            f"unexpected NPG runtime wiring outside pure package: {path.relative_to(ROOT)}"
+        assert "evaluate_non_projection_shadow" not in text, (
+            f"unexpected shadow runtime wiring outside reserved package: {path.relative_to(ROOT)}"
         )
 
 
