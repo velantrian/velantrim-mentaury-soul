@@ -131,5 +131,8 @@ def test_phase3_contract_does_not_authorize_phase4_or_runtime() -> None:
     assert "Runtime activation:                  NOT_AUTHORIZED" in CONTRACT
     for document in (STATUS, ROADMAP, INDEX):
         assert "Phase 4" in document or "PHASE_4" in document
-    assert "PHASE_4_EPISTEMIC_PROMOTION_REVISION_NOT_STARTED" in STATUS
+    assert "PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS_READY" in STATUS
+    assert "PHASE_4_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
+    assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "PHASE_4_RUNTIME_NOT_AUTHORIZED" in STATUS
