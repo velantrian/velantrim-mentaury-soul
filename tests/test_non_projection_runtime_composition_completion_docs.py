@@ -84,10 +84,10 @@ def test_frozen_nrc_families_are_completion_evidence() -> None:
     tests = (ROOT / "tests" / "test_non_projection_shadow_composition.py").read_text(
         encoding="utf-8"
     )
-    for index in range(1, 13):
-        assert f"NRC-T{index:02d}" in tests
-    for index in range(1, 11):
-        assert f"NRC-M{index:02d}" in tests
+    assert 'tuple(f"NRC-T{i:02d}" for i in range(1, 13))' in tests
+    assert 'f"NRC-M{i:02d}" for i in range(1, 11)' in tests
+    assert 'ids=[f"NRC-T{i:02d}" for i in range(1, 13)]' in tests
+    assert "test_nrc_metamorphic_contract_families_are_behaviorally_covered" in tests
 
 
 def test_completion_preserves_all_negative_authority_boundaries() -> None:
