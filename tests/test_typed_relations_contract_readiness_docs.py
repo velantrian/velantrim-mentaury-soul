@@ -69,7 +69,8 @@ def test_relation_semantics_cannot_launder_epistemic_authority() -> None:
 def test_endpoints_bind_exact_pcr_identity() -> None:
     assert "claim_id" in PCR
     assert "input_fingerprint" in PCR
-    assert "claim_id + ProvenanceClaimRecord.input_fingerprint" in READINESS
+    assert "ClaimAnchor := exact pair of" in READINESS
+    assert "  claim_id\n  + ProvenanceClaimRecord.input_fingerprint" in READINESS
     assert "PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT" in READINESS
     for forbidden in (
         "statement_ref alone",
