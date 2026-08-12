@@ -72,6 +72,8 @@ def test_source_admission_is_not_duplicated() -> None:
 
 
 def test_frozen_api_and_reserved_package_are_exact() -> None:
+    package = ROOT / "src" / "mentaury" / "claims"
+    expected = {"__init__.py", "contracts.py", "representation.py"}
     for path in (
         "src/mentaury/claims/__init__.py",
         "src/mentaury/claims/contracts.py",
@@ -80,7 +82,8 @@ def test_frozen_api_and_reserved_package_are_exact() -> None:
         assert path in SELECTION
         assert path in CONTRACT
     assert "def represent_provenance_claim(" in CONTRACT
-    assert not (ROOT / "src" / "mentaury" / "claims").exists()
+    assert package.exists()
+    assert {path.name for path in package.glob("*.py")} == expected
 
 
 def test_frozen_threat_metamorphic_and_purity_families_are_complete() -> None:
@@ -111,19 +114,16 @@ def test_no_numeric_pseudo_precision_or_authority_laundering() -> None:
         assert marker in CONTRACT
 
 
-def test_current_navigation_surfaces_share_frozen_phase3_state() -> None:
+def test_current_navigation_surfaces_preserve_phase3_contract_identity() -> None:
     for document in (STATUS, ROADMAP, INDEX):
         assert "PCR-v0.1" in document
         assert "PURE_PROVENANCE_CLAIM_RECORD" in document
         assert "FROZEN_DOCS" in document
-        assert "NOT_STARTED" in document
-        assert "NOT_GRANTED" in document
         assert "NOT_AUTHORIZED" in document
 
     assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS_READY" in STATUS
     assert "PHASE_3_CANDIDATE_SELECTION_SELECTED" in STATUS
     assert "PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
-    assert "PHASE_3_OWNER_GO_NOT_GRANTED" in STATUS
 
 
 def test_phase3_contract_does_not_authorize_phase4_or_runtime() -> None:
