@@ -123,9 +123,9 @@ def test_positive_result_stays_classification_evidence_only() -> None:
 
 
 def test_phase2_stop_is_historical_and_does_not_roll_forward_authority() -> None:
-    assert "NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED" in RECEIPT
     assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED" in RECEIPT
     assert "PHASE_3_OWNER_GO = NOT_GRANTED" in RECEIPT
+    assert "Completion of Phase 2 creates no automatic authority for Phase 3" in RECEIPT
 
     assert "PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
     assert "PHASE_3_IMPLEMENTATION_NOT_STARTED" in STATUS
