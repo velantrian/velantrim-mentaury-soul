@@ -128,9 +128,9 @@ def test_phase2_stop_is_historical_and_does_not_roll_forward_authority() -> None
     assert "Completion of Phase 2 creates no automatic authority for Phase 3" in RECEIPT
 
     assert "PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
-    assert "PHASE_3_IMPLEMENTATION_NOT_STARTED" in STATUS
-    assert "PHASE_3_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED" in STATUS
+    assert "PHASE_3_OWNER_GO_CONSUMED_BY_PR_103" in STATUS
     assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in ROADMAP
-    assert "Phase 3 Owner GO:             NOT_GRANTED" in ROADMAP
+    assert "Phase 3 Owner GO:             CONSUMED_BY_PR_103" in ROADMAP
     assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in INDEX
-    assert "Phase 3 Owner GO:             NOT_GRANTED" in INDEX
+    assert "Phase 3 Owner GO:             CONSUMED_BY_PR_103" in INDEX
