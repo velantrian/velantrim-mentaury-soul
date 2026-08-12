@@ -120,7 +120,9 @@ def test_existing_repository_runtime_stop_remains_current() -> None:
     assert "NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED" in CURRENT_STATUS
     assert "Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
     assert "Phase 2 implementation:       IMPLEMENTED_BOUNDED" in ROADMAP
-    assert "Next bounded milestone:       NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
+    assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in ROADMAP
+    assert "Phase 3 Owner GO:             NOT_GRANTED" in ROADMAP
+    assert "Phase 3 implementation:       NOT_STARTED" in ROADMAP
     for marker in (
         "Action Gate:                     NOT_AUTHORIZED",
         "Retrieval execution:             NOT_AUTHORIZED",

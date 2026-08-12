@@ -122,9 +122,15 @@ def test_positive_result_stays_classification_evidence_only() -> None:
         assert marker in RECEIPT
 
 
-def test_next_milestone_is_not_selected_or_authorized() -> None:
-    assert "NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED" in STATUS
-    assert "Next bounded milestone:       NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
-    assert "Next execution milestone:     NOT_SELECTED · NOT_AUTHORIZED" in INDEX
+def test_phase2_stop_is_historical_and_does_not_roll_forward_authority() -> None:
     assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED" in RECEIPT
     assert "PHASE_3_OWNER_GO = NOT_GRANTED" in RECEIPT
+    assert "Completion of Phase 2 creates no automatic authority for Phase 3" in RECEIPT
+
+    assert "PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
+    assert "PHASE_3_IMPLEMENTATION_NOT_STARTED" in STATUS
+    assert "PHASE_3_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in ROADMAP
+    assert "Phase 3 Owner GO:             NOT_GRANTED" in ROADMAP
+    assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in INDEX
+    assert "Phase 3 Owner GO:             NOT_GRANTED" in INDEX
