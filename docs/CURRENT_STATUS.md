@@ -107,8 +107,13 @@ PHASE_3_CANDIDATE_SELECTION_SELECTED
 PHASE_3_CANDIDATE_PURE_PROVENANCE_CLAIM_RECORD
 PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
 PHASE_3_CONTRACT_VERSION_PCR_V0_1
-PHASE_3_IMPLEMENTATION_NOT_STARTED
-PHASE_3_OWNER_GO_NOT_GRANTED
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED
+PHASE_3_OWNER_GO_CONSUMED_BY_PR_103
+PHASE_3_OWNER_GO_SCOPE_PCR_V0_1_ONLY
+PHASE_3_IMPLEMENTATION_AUTHORIZATION_CONSUMED_PCR_V0_1_ONLY
+PHASE_3_PCR_T01_T12_EXECUTABLE_PASS
+PHASE_3_PCR_M01_M10_EXECUTABLE_PASS
+PHASE_3_PCR_P01_P08_EXECUTABLE_PASS
 PHASE_3_RUNTIME_NOT_AUTHORIZED
 PHASE_4_EPISTEMIC_PROMOTION_REVISION_NOT_STARTED
 PHASE_4_OWNER_GO_NOT_GRANTED
@@ -152,8 +157,10 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Phase 2 `NPG-COMP-v0.1` Owner GO | ✅ Consumed | one-time `NPG-COMP-v0.1_ONLY` authorization consumed by PR #96 |
 | Phase 2 bounded shadow composition | ✅ Implemented bounded | exact three-file same-attempt shadow package; no runtime activation or broader authority |
 | Phase 3 Provenance + Claim Representation readiness | ✅ Frozen docs-only · Ready | preserves provenance and distinct claim/epistemic axes; no truth/promotion authority |
-| Phase 3 candidate | ✅ Selected docs-only | `PURE_PROVENANCE_CLAIM_RECORD`; no implementation authority |
-| Phase 3 `PCR-v0.1` contract | ✅ Frozen docs-only | pure immutable representation only; Owner GO remains NOT_GRANTED |
+| Phase 3 candidate | ✅ Selected docs-only | `PURE_PROVENANCE_CLAIM_RECORD` |
+| Phase 3 `PCR-v0.1` contract | ✅ Frozen docs-only | pure immutable representation contract |
+| Phase 3 `PCR-v0.1` Owner GO | ✅ Consumed | one-time `PCR-v0.1_ONLY` authorization consumed by PR #103 |
+| Phase 3 Pure Provenance Claim Record | ✅ Implemented bounded | exact three-file pure representation package; no source admission, support/promotion or runtime authority |
 
 ---
 
@@ -435,13 +442,15 @@ was introduced.
 
 ---
 
-## 10.1 🧬 Phase 3 Provenance + Claim Representation — frozen docs-only
+## 10.1 ✅ Phase 3 Provenance + Claim Representation — implemented bounded
 
 Owning documents:
 
 - `docs/research/PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`
 - `docs/research/PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`
 - `docs/research/PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`
+- `docs/research/PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`
+- `docs/PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md`
 
 ```text
 PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS = READY
@@ -449,18 +458,45 @@ PHASE_3_CANDIDATE_SELECTION = SELECTED
 PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
 PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS
 PHASE_3_CONTRACT_VERSION = PCR-v0.1
-PHASE_3_IMPLEMENTATION = NOT_STARTED
-PHASE_3_OWNER_GO = NOT_GRANTED
+PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
+OWNER_GO_SCOPE = PCR-v0.1_ONLY
+IMPLEMENTATION_AUTHORIZATION = CONSUMED · PCR-v0.1_ONLY
+PHASE_3_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_3_RUNTIME = NOT_AUTHORIZED
 PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
 ```
 
-`PCR-v0.1` freezes representation only. It preserves `ClaimClass ≠ ClaimType ≠
-EpistemicRole`; Evidence Gate remains the only owner of `SUPPORTED` and
-`CONTRADICTED`; source admission remains separate; `evidence_refs` are only
-references. No `src/mentaury/claims/**` exists or is authorized by this docs-only
-freeze.
+Verified implementation evidence:
+
+```text
+Owner GO PR:              #101
+Implementation PR:       #103
+Reviewed exact head:      11aec32bf499fc8925ab685dadc4a626325da892
+Exact-head CI:            31570253296 · success · 909 passed
+Tier A review:            4913627170
+Implementation main:      c63488af7f10bf3e7f423fee8071a13f4c2e02db
+Resulting-main CI:        31570390275 · success · 909 passed
+Merge signature:          VERIFIED · VALID
+Correctness pass:         PASS
+Adversarial pass:         PASS
+Review threads:           0
+Independent human review: NO
+```
+
+Exact source surface:
+
+```text
+src/mentaury/claims/__init__.py
+src/mentaury/claims/contracts.py
+src/mentaury/claims/representation.py
+```
+
+`PCR-T01…PCR-T12`, `PCR-M01…PCR-M10`, and `PCR-P01…PCR-P08` are executable and
+validated. The implementation preserves `ClaimClass ≠ ClaimType ≠ EpistemicRole`;
+Evidence Gate remains the only owner of `SUPPORTED` and `CONTRADICTED`; source
+admission remains separate; `evidence_refs` remain references only. The
+fingerprint is integrity/identity evidence, never a bearer permission token.
 
 ---
 
@@ -493,7 +529,7 @@ backend selection or migration
 production deployment
 objective-truth authority
 consciousness or subjective-experience claims
-Phase 3 PCR-v0.1 implementation or runtime
+Phase 3 PCR-v0.1 runtime activation
 Phase 4 Epistemic Promotion & Revision
 ```
 
@@ -507,7 +543,7 @@ Capability ALLOW
 + P1-003 ELIGIBLE_FOR_NEXT_GATE
 + NPG PASS_ATTRIBUTED
 + Phase 2 bound shadow observation
-+ PCR-v0.1 frozen representation contract
++ PCR-v0.1 implemented bounded representation
 ≠ Action Gate PASS
 ≠ retrieval permission
 ≠ tool permission
@@ -538,12 +574,12 @@ branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
 exists.
 
-P1-003, NPG-v0.1 and NPG-COMP-v0.1 bounded Owner GO receipts are consumed and
-not reusable. Phase 3 is now readiness-ready, candidate-selected and contract-
-frozen docs-only; implementation still requires a new explicit bounded Owner GO
-after this exact contract is merged. Runtime activation, P1-004 assignment,
-Action Gate, retrieval, tools, identity/relationship mutation, M3, persistence,
-deployment and Phase 4 remain outside current authority.
+P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO receipts are
+consumed and not reusable. Phase 3 is implemented bounded; its implementation
+creates no runtime or downstream authority. Runtime activation, P1-004
+assignment, Action Gate, retrieval, source admission, Evidence Gate mutation,
+belief promotion/revision, tools, identity/relationship mutation, M3,
+persistence, deployment and Phase 4 remain outside current authority.
 
 ---
 
@@ -569,6 +605,8 @@ deployment and Phase 4 remain outside current authority.
 - Phase 3 readiness: `docs/research/PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`
 - Phase 3 candidate selection: `docs/research/PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`
 - Phase 3 frozen contract: `docs/research/PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`
+- Phase 3 Owner GO: `docs/research/PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`
+- Phase 3 completion receipt: `docs/PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -594,8 +632,11 @@ P0 foundation implemented
 + Phase 3 Provenance + Claim Representation readiness READY
 + Phase 3 candidate PURE_PROVENANCE_CLAIM_RECORD SELECTED
 + PCR-v0.1 implementation contract FROZEN_DOCS
-+ Phase 3 implementation NOT_STARTED
-+ Phase 3 Owner GO NOT_GRANTED
++ PCR-v0.1 Pure Provenance Claim Record IMPLEMENTED_BOUNDED by PR #103
++ Phase 3 Owner GO CONSUMED_BY_PR_103
++ PCR-T01…PCR-T12 executable PASS
++ PCR-M01…PCR-M10 executable PASS
++ PCR-P01…PCR-P08 executable PASS
 + Evidence Gate remains sole support/contradiction authority
 + ClaimClass ≠ ClaimType ≠ EpistemicRole
 + PASS_ATTRIBUTED authority ceiling retained
@@ -625,18 +666,19 @@ NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```text
 PHASE_2 = COMPLETE · IMPLEMENTED_BOUNDED
 PHASE_2_OWNER_GO = CONSUMED_BY_PR_96
-PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS = READY
-PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = IMPLEMENTED_BOUNDED
 PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · PCR-v0.1
-PHASE_3_IMPLEMENTATION = NOT_STARTED
-PHASE_3_OWNER_GO = NOT_GRANTED
+PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
+PHASE_3_OWNER_GO_SCOPE = PCR-v0.1_ONLY
+PHASE_3_IMPLEMENTATION_AUTHORIZATION = CONSUMED · PCR-v0.1_ONLY
 PHASE_3_RUNTIME = NOT_AUTHORIZED
+NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
 PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
 
-> **STOP.** This Phase 3 docs-only freeze does not authorize PCR-v0.1
-> implementation, Phase 4, runtime activation, or any
+> **STOP.** Phase 3 `PCR-v0.1` is implemented bounded. Its single-use Owner GO is
+> consumed and cannot authorize Phase 4, runtime activation, or any
 > action/retrieval/tool/identity/M3/deployment work.
