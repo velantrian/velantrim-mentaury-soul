@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      1.6
+Version:                      1.7
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -36,8 +36,14 @@ Phase 2 Owner GO:             CONSUMED_BY_PR_96
 Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · CONSUMED
 Phase 2 implementation:       IMPLEMENTED_BOUNDED
 Phase 2 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
-Next bounded milestone:       NOT_SELECTED · NOT_AUTHORIZED
-Phase 3:                      NOT_STARTED · OWNER_GO_NOT_GRANTED
+Phase 3 readiness:            READY · FROZEN_DOCS · DOCS_ONLY
+Phase 3 candidate:            PURE_PROVENANCE_CLAIM_RECORD · SELECTED
+Phase 3 contract:             FROZEN_DOCS · PCR-v0.1
+Phase 3 implementation:       NOT_STARTED
+Phase 3 Owner GO:             NOT_GRANTED
+Phase 3 runtime:              NOT_AUTHORIZED
+Next bounded implementation:  PCR-v0.1 · OWNER_GO_REQUIRED
+Phase 4:                      NOT_STARTED · OWNER_GO_NOT_GRANTED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -70,6 +76,9 @@ NPG-v0.1 Owner GO consumed ≠ reusable authority
 NPG-COMP-v0.1 implementation ≠ runtime activation
 NPG-COMP-v0.1 implementation ≠ Action Gate / retrieval / tools / identity / M3
 NPG-COMP-v0.1 Owner GO consumed ≠ reusable authority
+PCR-v0.1 FROZEN_DOCS ≠ implementation authorization
+PCR-v0.1 valid representation ≠ source admission / evidence support / belief promotion
+ClaimClass ≠ ClaimType ≠ EpistemicRole
 Solo review ≠ independent certification
 ```
 
@@ -401,6 +410,42 @@ permission token.
 
 ---
 
+## 10.1 🧬 Phase 3 Provenance + Claim Representation — frozen contract
+
+Owning readiness:
+[`PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`](PROVENANCE_CLAIM_REPRESENTATION_READINESS.md)
+
+Candidate selection:
+[`PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`](PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md)
+
+Frozen contract:
+[`PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md)
+
+```text
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS = READY
+PHASE_3_CANDIDATE_SELECTION = SELECTED
+PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
+PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS
+PHASE_3_CONTRACT_VERSION = PCR-v0.1
+PHASE_3_IMPLEMENTATION = NOT_STARTED
+PHASE_3_OWNER_GO = NOT_GRANTED
+PHASE_3_RUNTIME = NOT_AUTHORIZED
+```
+
+The contract freezes one pure immutable representation only:
+
+```text
+ClaimClass ≠ ClaimType ≠ EpistemicRole
+source / provenance ≠ claim ≠ evidence status ≠ belief status ≠ truth
+```
+
+Evidence Gate remains the sole owner of `SUPPORTED/CONTRADICTED`; source-level
+research admission remains separately owned; `evidence_refs` carry references,
+not support authority. No `src/mentaury/claims/**` implementation is authorized
+or present by this docs-only milestone.
+
+---
+
 ## 11. 🚫 Work not included
 
 ```text
@@ -425,7 +470,8 @@ background/autonomous cognitive loop
 backend/plugin discovery
 backend selection or migration
 production deployment
-Phase 3 Provenance + Claim Representation
+Phase 3 PCR-v0.1 implementation/runtime
+Phase 4 Epistemic Promotion & Revision
 ```
 
 ---
@@ -465,22 +511,29 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-The `NPG-COMP-v0.1` bounded implementation cycle is complete and its Owner GO is
-consumed. There is no selected or authorized next milestone.
+Phase 3 readiness, candidate selection and `PCR-v0.1` implementation-contract
+freeze are now the current docs-only milestone. No implementation authority has
+been granted.
 
 ```text
-CURRENT = NPG-COMP-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED
+CURRENT = PCR-v0.1 FROZEN_DOCS · PURE_PROVENANCE_CLAIM_RECORD
 → STOP
-→ fresh live preflight for any later milestone
-→ separate readiness/contract where applicable
-→ explicit separate Owner GO
+→ merge and validate this exact frozen contract
+→ explicit separate Owner GO for PCR-v0.1_ONLY if owner chooses to proceed
+→ fresh exact-main compatibility check
 → separate bounded implementation only if authorized
 ```
 
 ```text
-NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
-PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS = READY
+PHASE_3_CANDIDATE_SELECTION = SELECTED
+PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
+PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · PCR-v0.1
+PHASE_3_IMPLEMENTATION = NOT_STARTED
 PHASE_3_OWNER_GO = NOT_GRANTED
+PHASE_3_RUNTIME = NOT_AUTHORIZED
+PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
@@ -509,11 +562,16 @@ P0 complete
 → Phase 2 status reconciled by PR #95
 → NPG-COMP-v0.1 shadow composition IMPLEMENTED_BOUNDED by PR #96
 → Phase 2 Owner GO CONSUMED_BY_PR_96
-→ STOP
+→ Phase 3 Provenance + Claim Representation readiness READY
+→ PURE_PROVENANCE_CLAIM_RECORD selected
+→ PCR-v0.1 implementation contract FROZEN_DOCS
+→ STOP FOR SEPARATE OWNER GO
 
-NEXT_BOUNDED_MILESTONE = NOT_SELECTED · NOT_AUTHORIZED
-PHASE_3_PROVENANCE_CLAIM_REPRESENTATION = NOT_STARTED
+PHASE_3_IMPLEMENTATION = NOT_STARTED
 PHASE_3_OWNER_GO = NOT_GRANTED
+PHASE_3_RUNTIME = NOT_AUTHORIZED
+PHASE_4_EPISTEMIC_PROMOTION_REVISION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -545,6 +603,9 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
 - [`NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md`](NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md)
 - [`../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md)
+- [`PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`](PROVENANCE_CLAIM_REPRESENTATION_READINESS.md)
+- [`PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`](PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md)
+- [`PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
