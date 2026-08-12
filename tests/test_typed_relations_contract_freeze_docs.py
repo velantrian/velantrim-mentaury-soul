@@ -15,6 +15,9 @@ CONTRACT = (
 
 
 def test_candidate_and_contract_are_exactly_selected_and_frozen() -> None:
+    assert "ANCHORED_TYPED_RELATION_CANDIDATE" in READINESS
+    assert "ANCHORED_TYPED_RELATION_CANDIDATE" in SELECTION
+
     for document in (SELECTION, CONTRACT):
         assert "PURE_ANCHORED_TYPED_RELATION_RECORD" in document
         assert "ATR-v0.1" in document
@@ -186,7 +189,6 @@ def test_all_frozen_requirement_families_are_present() -> None:
 
 def test_readiness_invariants_are_not_weakened() -> None:
     for fragment in (
-        "ANCHORED_TYPED_RELATION_CANDIDATE",
         "ClaimAnchor",
         "CAUSAL",
         "CORRELATIONAL",
