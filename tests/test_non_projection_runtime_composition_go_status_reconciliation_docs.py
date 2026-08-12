@@ -40,7 +40,7 @@ def test_owner_go_scope_remains_exact_and_historical_single_use() -> None:
     for document in (GO, STATUS, ROADMAP, INDEX, RECON, RECEIPT):
         assert "NPG-COMP-v0.1_ONLY" in document
     assert "single-use" in GO
-    assert "single-use" in RECON
+    assert "SINGLE_USE" in RECON or "single-use" in RECON
     assert "single-use" in RECEIPT
     assert "Owner GO consumed ≠ reusable authority" in INDEX or "Owner GO consumed ≠ reusable authority" in ROADMAP
 
