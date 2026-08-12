@@ -18,6 +18,8 @@ Completed readiness block:    PHASE_3_PROVENANCE_CLAIM_REPRESENTATION · READY
 Completed readiness block:    PHASE_4_EPISTEMIC_PROMOTION_REVISION · READY
 Completed decision block:     POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION · COMPLETE
 Completed readiness block:    PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READY
+Completed contract block:     PHASE_5_TYPED_RELATIONS · ATR-v0.1 · FROZEN_DOCS
+
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 contract:               FROZEN_DOCS
 P1-003 Owner GO:              CONSUMED
@@ -36,13 +38,11 @@ Non-Projection implementation:IMPLEMENTED_BOUNDED
 NPG-COMP contract:             FROZEN_DOCS · NPG-COMP-v0.1
 NPG-COMP strategy:             SAME_ATTEMPT_SHADOW_COORDINATOR
 Phase 2 Owner GO:             CONSUMED_BY_PR_96
-Phase 2 Owner GO scope:       NPG-COMP-v0.1_ONLY · CONSUMED
 Phase 2 implementation:       IMPLEMENTED_BOUNDED
 Phase 3 readiness:            READY · DOCS_ONLY
 Phase 3 candidate:            PURE_PROVENANCE_CLAIM_RECORD · SELECTED
 Phase 3 contract:             FROZEN_DOCS · PCR-v0.1
 Phase 3 Owner GO:             CONSUMED_BY_PR_103
-Phase 3 Owner GO scope:       PCR-v0.1_ONLY · CONSUMED
 Phase 3 implementation:       IMPLEMENTED_BOUNDED
 Phase 3 runtime:              NOT_AUTHORIZED
 Phase 4 readiness:            READY · DOCS_ONLY
@@ -58,8 +58,9 @@ Phase 5 selected model:       ANCHORED_TYPED_RELATION_CANDIDATE
 Phase 5 endpoint binding:     PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 Phase 5 relation confidence:  NOT_IN_V0_1
 Phase 5 graph authority:      NONE
-Phase 5 candidate selection:  NOT_STARTED
-Phase 5 implementation contract: NOT_FROZEN
+Phase 5 candidate selection:  SELECTED
+Phase 5 candidate:            PURE_ANCHORED_TYPED_RELATION_RECORD
+Phase 5 implementation contract: FROZEN_DOCS · ATR-v0.1
 Phase 5 implementation:       NOT_STARTED
 Phase 5 Owner GO:             NOT_GRANTED
 Phase 5 runtime:              NOT_AUTHORIZED
@@ -78,7 +79,6 @@ Direct or indirect M3 write:  FORBIDDEN
 ```text
 Research presence ≠ roadmap priority
 READINESS_READY ≠ implementation authority
-P1-002 completion ≠ remediation authority
 ALLOW_REFERENCE ≠ retrieval permission
 ELIGIBLE_FOR_NEXT_GATE ≠ execution permission
 PASS_ATTRIBUTED ≠ truth / identity / relationship / action authority
@@ -104,6 +104,7 @@ CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
 Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
+ATR-v0.1 FROZEN_DOCS ≠ Owner GO / implementation / runtime authority
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Notion explanation ≠ GitHub authority
 Solo review ≠ independent human assurance
@@ -113,7 +114,7 @@ Authoritative governance: [`../GOVERNANCE.md`](../GOVERNANCE.md).
 
 ---
 
-## 1. ✅ Completed execution checkpoints
+## 1. ✅ Completed bounded execution checkpoints
 
 ### P1-001 Capability Lease Resolution
 
@@ -127,17 +128,12 @@ NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 - [Frozen contract](MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md)
 - [Authorization/completion receipt](../P1_001_IMPLEMENTATION_AUTHORIZATION.md)
 
-The P1-001 Owner GO is consumed and does not authorize any later registry
-service, Action Gate, P1-002 or subsequent runtime milestone.
-
 ### P1-002 Privacy Reconciliation Classifier
 
 ```text
 P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
 P1_002_PURE_CLASSIFIER_VALIDATED
 P1_002_OWNER_GO_CONSUMED
-P1_002_OWNER_GO_AUTHORIZED_BOUNDED   # historical provenance
-P1_002_IMPLEMENTATION_NOT_STARTED    # historical provenance
 P1_002_MUTATION_AUTHORITY_NONE
 P1_002_RETRIEVAL_AUTHORITY_NONE
 NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
@@ -145,36 +141,18 @@ NO_POST_P1_002_RUNTIME_MILESTONE_AUTHORIZED
 
 - [Frozen contract](P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md)
 - [Authorization/completion receipt](../P1_002_IMPLEMENTATION_AUTHORIZATION.md)
-- [Roadmap](POST_P0_ROADMAP_V0.1.md)
-- [Current status](../CURRENT_STATUS.md)
+
+Verified implementation:
 
 ```text
-PR #67
-→ reviewed head 74662fb626a545ed63b426e98aa03524449019db
-→ CI 31332728486 · success · 461 passed
-→ merge/main d64679fd745e859527a70746df5e69dc9aca0408
-→ main CI 31332793742 · success · 461 passed
+Implementation PR:      #67
+Reviewed head:          74662fb626a545ed63b426e98aa03524449019db
+Exact-head CI:          31332728486 · success · 461 passed
+Implementation merge:   d64679fd745e859527a70746df5e69dc9aca0408
+Post-merge CI:           31332793742 · success · 461 passed
 ```
 
----
-
-## 2. ✅ Cross-Gate Binding & Composition Readiness
-
-- [Frozen readiness contract](CROSS_GATE_BINDING_AND_COMPOSITION_READINESS.md)
-- [Owning selection](POST_P1_002_MILESTONE_SELECTION.md)
-
-```text
-CROSS_GATE_BINDING_READINESS = READY
-SELECTED_STRATEGY             = PURE_COORDINATOR_OVER_VERIFIED_SOURCE_INPUTS
-BARE_RESULT_COMPOSITION       = REJECTED
-EVIDENCE_ENVELOPE             = DERIVED_EVIDENCE_ONLY
-CALLER_SUPPLIED_DIGEST        = NOT_AUTHORITY
-POSITIVE_READINESS            = ELIGIBLE_FOR_NEXT_GATE
-```
-
----
-
-## 3. ✅ P1-003 checkpoints
+### P1-003 Pure Governed Constraint Composer
 
 - [Candidate selection](P1_003_CANDIDATE_SELECTION_AND_AUTHORIZATION_BOUNDARY.md)
 - [Frozen contract](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md)
@@ -182,131 +160,64 @@ POSITIVE_READINESS            = ELIGIBLE_FOR_NEXT_GATE
 
 ```text
 P1_003_CANDIDATE_SELECTION = SELECTED
-P1_003_CANDIDATE           = PURE_GOVERNED_CONSTRAINT_COMPOSER
-P1_003_CONTRACT            = FROZEN_DOCS
-P1_003_OWNER_GO            = CONSUMED
-P1_003_IMPLEMENTATION      = IMPLEMENTED_BOUNDED
-P1_003_RUNTIME_ASSIGNMENT  = NOT_ASSIGNED
-NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
+P1_003_CANDIDATE = PURE_GOVERNED_CONSTRAINT_COMPOSER
+P1_003_CONTRACT = FROZEN_DOCS
+P1_003_OWNER_GO = CONSUMED
+P1_003_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+P1_003_RUNTIME_ASSIGNMENT = NOT_ASSIGNED
 ```
+
+Verified implementation:
 
 ```text
 Implementation PR:         #79
 Reviewed head:             9855f766f2bf801c8297c4f870b21d3ed37911fb
 Exact-head CI:             31394829487 · success · 552 passed
 Implementation merge/main: 59f2caa4deacd06aee0bbfc8dae1221edcb666eb
-Resulting-main CI:         31395291622 · success · 552 passed
+Post-merge CI:             31395291622 · success · 552 passed
 Tier A review:             4897445251
 ```
 
-The P1-003 Owner GO is consumed. The pure composer remains bounded and does not
-activate a runtime or Action Gate.
-
 ---
 
-## 4. ✅ Non-Projection Gate — pure classifier
+## 2. 🪞 Non-Projection line
 
-Historical owning records:
+Owning records:
 
 - [Post-P1-003 selection](POST_P1_003_MILESTONE_SELECTION.md)
-- [Frozen readiness contract](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
+- [Readiness](NON_PROJECTION_GATE_CONTRACT_READINESS.md)
 - [Candidate selection](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md)
-
-Current owning contract/receipt:
-
-- [Frozen NPG-v0.1 implementation contract](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
-- [NPG-v0.1 authorization/completion receipt](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
-- [Current status](../CURRENT_STATUS.md)
-- [Roadmap](POST_P0_ROADMAP_V0.1.md)
+- [Frozen contract](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md)
+- [Completion receipt](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md)
 
 ```text
-NON_PROJECTION_GATE_CONTRACT_READINESS = READY
-READINESS_STATUS                        = FROZEN_DOCS · DOCS_ONLY
-SELECTED_MODEL                          = ATTRIBUTED_INTERPRETATION_ENVELOPE
-READINESS_POSITIVE                      = PASS_ATTRIBUTED_ONLY
-NON_PROJECTION_CANDIDATE_SELECTION      = SELECTED
-NON_PROJECTION_CANDIDATE                = PURE_NON_PROJECTION_CLASSIFIER
-NON_PROJECTION_IMPLEMENTATION_CONTRACT  = FROZEN_DOCS
-NON_PROJECTION_CONTRACT_VERSION         = NPG-v0.1
-ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION = AIE-v0.1
-NON_PROJECTION_OWNER_GO                 = CONSUMED_BY_PR_90
-IMPLEMENTATION_AUTHORIZATION            = CONSUMED · NPG-v0.1_ONLY
-NON_PROJECTION_IMPLEMENTATION           = IMPLEMENTED_BOUNDED
-NON_PROJECTION_RUNTIME                  = NOT_AUTHORIZED
-P1_004                                  = NOT_ASSIGNED
+NON_PROJECTION_CANDIDATE = PURE_NON_PROJECTION_CLASSIFIER
+NON_PROJECTION_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · NPG-v0.1
+NON_PROJECTION_OWNER_GO = CONSUMED_BY_PR_90
+NON_PROJECTION_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 ```
 
-```text
-PASS_ATTRIBUTED
-≠ factual truth proof
-≠ Mentaury autobiography
-≠ identity / M3 authority
-≠ relationship / commitment / consent authority
-≠ capability or Action Gate PASS
-≠ retrieval / tool / execution authority
-```
+`PASS_ATTRIBUTED` remains an attribution-safe bounded result, not truth,
+autobiography, identity, relationship, consent, capability, retrieval, action,
+tool, M3 or deployment authority.
 
 ---
 
-## 5. ✅ Phase 1 NPG-COMP readiness and contract
+## 3. 🧩 NPG-COMP-v0.1 line
+
+Owning records:
 
 - [Runtime-composition readiness](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md)
-- [Frozen contract](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
-
-```text
-NON_PROJECTION_RUNTIME_COMPOSITION_READINESS = READY
-NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT = FROZEN_DOCS · NPG-COMP-v0.1
-STRATEGY = SAME_ATTEMPT_SHADOW_COORDINATOR
-WHO = NON_PROJECTION_SHADOW_COORDINATOR_ONLY
-WHAT = exact caller-supplied AIE-v0.1 + exact NonProjectionBudget
-WHERE = same-attempt bound shadow observation only
-PRIOR_RESULT_INPUT = FORBIDDEN
-RESULT_REPLAY_AS_AUTHORITY = FORBIDDEN
-```
-
-Historical Phase-1 `PHASE_2_OWNER_GO = NOT_GRANTED` remains freeze-time
-provenance, not current authority.
-
----
-
-## 6. 🟢 Phase 2 Owner GO and reconciliation — historical authority chain
-
+- [Frozen composition contract](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md)
 - [Owner GO decision](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md)
 - [Post-GO reconciliation](NON_PROJECTION_RUNTIME_COMPOSITION_GO_STATUS_RECONCILIATION_2026_08_12.md)
-
-```text
-Owner GO PR:             #94
-Owner GO exact head:     25a8cbf58fbdbee9fafc9ca41aa9575d47cd9450
-Owner GO CI:             31547098692 · success · 783 passed
-Owner GO review:         4911669134
-Owner GO merge/main:     d0be41a0712d076101d508812a7eb491558b4f57
-Owner GO main CI:        31547170338 · success · 783 passed
-Reconciliation PR:       #95
-Reconciliation head:     88b68a363981ff3c3b8f66259e06def49208af1b
-Reconciliation CI:       31548130967 · success · 788 passed
-Reconciliation review:   4911758911
-Reconciliation main:     8c2be99b03e0dc5eee614b757060d8569bb88596
-Reconciliation main CI:  31548204752 · success · 788 passed
-```
-
-The #94 authorization was single-use and is now consumed by the verified #96
-implementation.
-
----
-
-## 7. ✅ Phase 2 NPG-COMP-v0.1 shadow composition
-
-Owning completion receipt:
-
-[Phase 2 implementation authorization/completion receipt](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md)
+- [Completion receipt](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md)
 
 ```text
 PHASE_2_OWNER_GO = CONSUMED_BY_PR_96
-OWNER_GO_SCOPE = NPG-COMP-v0.1_ONLY
-IMPLEMENTATION_AUTHORIZATION = CONSUMED · NPG-COMP-v0.1_ONLY
 PHASE_2_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
-P1_004 = NOT_ASSIGNED
 ```
 
 Verified implementation:
@@ -316,53 +227,29 @@ Implementation PR:         #96
 Reviewed exact head:       8a7b524de46c042e0479186ea4564f363248a366
 Exact-head CI:             31548525699 · success · 842 passed
 Tier A review:             4911798445
-Correctness:               PASS
-Adversarial:               PASS
-Authorization boundary:    PRESERVED
-Review threads:            0
 Implementation merge/main: 153d64d142e5b5555bc3a942cb0beedce89b91e0
 Resulting-main CI:         31548659423 · success · 842 passed
-Independent human review:  NO
 ```
 
-Exact source package:
-
-```text
-src/mentaury/composition/non_projection_shadow/__init__.py
-src/mentaury/composition/non_projection_shadow/contracts.py
-src/mentaury/composition/non_projection_shadow/coordinator.py
-```
-
-Executable frozen validation:
-
-```text
-NRC-T01…NRC-T12
-NRC-M01…NRC-M10
-```
-
-This implementation is a pure same-attempt wrapper only. It does not persist,
-self-schedule, retrieve, execute tools, mutate identity/relationship/M3 state,
-pass Action Gate or activate deployment/runtime authority.
+The same-attempt shadow observation is not reusable permission and does not
+activate a runtime.
 
 ---
 
-## 7.1 ✅ Phase 3 Provenance + Claim Representation — implemented bounded
+## 4. ✅ Phase 3 Provenance + Claim Representation
+
+Owning records:
 
 - [Readiness](PROVENANCE_CLAIM_REPRESENTATION_READINESS.md)
 - [Candidate selection](PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md)
 - [Frozen `PCR-v0.1` contract](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md)
 - [Owner GO decision](PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md)
-- [Implementation completion receipt](../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md)
-- [Tracking issue #102](https://github.com/velantrian/velantrim-mentaury-soul/issues/102)
+- [Completion receipt](../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md)
 
 ```text
-PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS = READY
-PHASE_3_CANDIDATE_SELECTION = SELECTED
 PHASE_3_CANDIDATE = PURE_PROVENANCE_CLAIM_RECORD
 PHASE_3_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · PCR-v0.1
 PHASE_3_OWNER_GO = CONSUMED_BY_PR_103
-OWNER_GO_SCOPE = PCR-v0.1_ONLY
-IMPLEMENTATION_AUTHORIZATION = CONSUMED · PCR-v0.1_ONLY
 PHASE_3_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_3_RUNTIME = NOT_AUTHORIZED
 ```
@@ -370,41 +257,34 @@ PHASE_3_RUNTIME = NOT_AUTHORIZED
 Verified implementation:
 
 ```text
-Owner GO PR:              #101
 Implementation PR:       #103
 Reviewed exact head:      11aec32bf499fc8925ab685dadc4a626325da892
 Exact-head CI:            31570253296 · success · 909 passed
 Tier A review:            4913627170
-Correctness:              PASS
-Adversarial:              PASS
-Authorization boundary:   PRESERVED
-Review threads:           0
 Implementation merge:     c63488af7f10bf3e7f423fee8071a13f4c2e02db
-Merge signature:          VERIFIED · VALID
 Resulting-main CI:        31570390275 · success · 909 passed
-Independent human review: NO
 ```
 
-Exact source surface is only
-`src/mentaury/claims/{__init__.py,contracts.py,representation.py}`.
-`PCR-T01…PCR-T12`, `PCR-M01…PCR-M10`, and `PCR-P01…PCR-P08` are executable and
-validated. PCR-v0.1 keeps `ClaimClass`, `ClaimType` and `EpistemicRole` separate;
-introduces no second Evidence Gate or source admission gate; and treats
-`evidence_refs` as references only, never as support status. The fingerprint is
-integrity/identity evidence only and never reusable permission.
+PCR preserves:
+
+```text
+ClaimClass ≠ ClaimType ≠ EpistemicRole
+SOURCE / PROVENANCE ≠ CLAIM ≠ EVIDENCE STATUS ≠ BELIEF STATUS ≠ TRUTH
+```
+
+Evidence Gate remains the sole owner of `SUPPORTED / CONTRADICTED`.
 
 ---
 
-## 7.2 🧭 Phase 4 Epistemic Promotion & Revision — EPR-v0.1 frozen docs-only
+## 5. 🧭 Phase 4 Epistemic Promotion & Revision
+
+Owning records:
 
 - [Readiness](EPISTEMIC_PROMOTION_REVISION_READINESS.md)
 - [Candidate selection](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md)
 - [Frozen `EPR-v0.1` contract](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
-- [Tracking issue #105](https://github.com/velantrian/velantrim-mentaury-soul/issues/105)
 
 ```text
-PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS = READY
-PHASE_4_CANDIDATE_SELECTION = SELECTED
 PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
 PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
 PHASE_4_IMPLEMENTATION = NOT_STARTED
@@ -423,21 +303,41 @@ Exact-head CI:             31574946826 · success · 927 passed
 Tier A review:             4914115826
 Contract merge/main:       8a86b9c4eff9435bbf8724defaee6e399a4cdeb0
 Resulting-main CI:         31575119904 · success · 927 passed
-Independent human review:  NO
 ```
 
-`PURE_EPISTEMIC_CHANGE_ROUTER` may only name the next owner/prerequisite. It
-cannot create/revise a belief, invoke P0-014/P0-015, produce an Evidence Gate
-outcome, reopen a terminal belief, create successor lineage, or grant any
-runtime/action authority.
+`EPR-v0.1` can route only; it cannot mutate beliefs, produce Evidence Gate
+outcomes, reopen terminal beliefs, or execute a route.
 
 ---
 
-## 7.3 🔗 Phase 5 Typed Relations — contract readiness complete
+## 6. 🔬 Post-Phase-4 cognitive milestone discrimination
+
+Owning record:
 
 - [Post-Phase-4 milestone discrimination](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
-- [Typed Relations contract readiness](TYPED_RELATIONS_CONTRACT_READINESS.md)
-- [Tracking issue #110](https://github.com/velantrian/velantrim-mentaury-soul/issues/110)
+
+```text
+POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
+NEXT_BOUNDED_READINESS_MILESTONE = PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS
+NEXT_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+```
+
+Discovery / Restraint / False Bridge probes selected Typed Relations readiness as
+the first missing inspectable representation boundary. This historical decision
+did not grant implementation authority.
+
+---
+
+## 7. 🔗 Phase 5 Typed Relations — ATR-v0.1 contract frozen
+
+Owning records:
+
+- [Typed Relations readiness](TYPED_RELATIONS_CONTRACT_READINESS.md)
+- [Candidate selection](TYPED_RELATIONS_CANDIDATE_SELECTION.md)
+- [Frozen `ATR-v0.1` contract](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
+- [Tracking issue #113](https://github.com/velantrian/velantrim-mentaury-soul/issues/113)
+
+Current state:
 
 ```text
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
@@ -447,14 +347,15 @@ PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 PHASE_5_RELATION_CONFIDENCE = NOT_IN_V0_1
 PHASE_5_GRAPH_AUTHORITY = NONE
 PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
 ```
 
-Verified readiness:
+Readiness evidence:
 
 ```text
 Readiness PR:               #111
@@ -463,15 +364,38 @@ Exact-head CI:              31586896530 · success · 949 passed
 Tier A review:              4915443813
 Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
 Resulting-main CI:          31587139065 · success · 949 passed
+```
+
+Candidate/contract-freeze evidence:
+
+```text
+Contract PR:                #114
+Reviewed exact head:        fef6b21c4d3062a228471ccd206297b25d2d3ecc
+Exact-head CI:              31592892692 · success · 970 passed
+Tier A review:              4916049299
+Contract merge/main:        083825e1cc7b69c133650b51afb8fc1d34b97533
+Resulting-main CI:          31593058722 · success · 970 passed
 Merge signature:            VERIFIED · VALID
 Independent human review:   NO
 ```
 
-The model is exact-anchor, pairwise and representation-only. Relation type,
-directionality, origin and scope remain separate. `CORRELATIONAL ≠ CAUSAL`,
-`ANALOGICAL ≠ MECHANISTIC`, `EVIDENTIAL ≠ SUPPORTED`, and `CONTRADICTORY ≠
-EvidenceGateOutcome.CONTRADICTED`. No graph edge/path/count, numeric confidence,
-source count or generated relation acquires epistemic authority.
+`PURE_ANCHORED_TYPED_RELATION_RECORD` is a future pairwise, exact-PCR-bound,
+caller-supplied representation primitive. `ATR-v0.1` freezes exact endpoint,
+semantics, provenance, scope, budget and fingerprint rules. It contains no
+confidence/probability/reliability, no graph authority, no Evidence Gate result,
+no belief mutation and no runtime permission.
+
+```text
+RELATION ≠ TRUTH
+RELATION TYPE ≠ CONFIDENCE
+CORRELATIONAL ≠ CAUSAL
+TEMPORAL ≠ CAUSAL
+ANALOGICAL ≠ MECHANISTIC
+EVIDENTIAL ≠ SUPPORTED
+CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
+GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
+MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
+```
 
 ---
 
@@ -488,25 +412,27 @@ source count or generated relation acquires epistemic authority.
 | [`P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md`](P1_003_PURE_GOVERNED_CONSTRAINT_COMPOSER_CONTRACT.md) | P1-003 contract | FROZEN_DOCS | implemented bounded |
 | [`../P1_003_IMPLEMENTATION_AUTHORIZATION.md`](../P1_003_IMPLEMENTATION_AUTHORIZATION.md) | P1-003 receipt | OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED | runtime NOT_ASSIGNED |
 | [`POST_P1_003_MILESTONE_SELECTION.md`](POST_P1_003_MILESTONE_SELECTION.md) | historical selection | COMPLETE | P1-004 not assigned |
-| [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md) | NPG readiness | FROZEN_DOCS · READY | historical readiness checkpoint |
-| [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md) | NPG candidate | SELECTED | historical design checkpoint |
+| [`NON_PROJECTION_GATE_CONTRACT_READINESS.md`](NON_PROJECTION_GATE_CONTRACT_READINESS.md) | NPG readiness | FROZEN_DOCS · READY | historical checkpoint |
+| [`NON_PROJECTION_GATE_CANDIDATE_SELECTION.md`](NON_PROJECTION_GATE_CANDIDATE_SELECTION.md) | NPG candidate | SELECTED | historical checkpoint |
 | [`NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md`](NON_PROJECTION_PURE_CLASSIFIER_CONTRACT_V0_1.md) | NPG contract | FROZEN_DOCS · NPG-v0.1 | implemented bounded |
 | [`../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_IMPLEMENTATION_AUTHORIZATION.md) | NPG receipt | OWNER_GO_CONSUMED · IMPLEMENTED_BOUNDED | runtime NOT_AUTHORIZED |
-| [`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md) | Phase 1 composition readiness | READY · DOCS_ONLY | no runtime authority |
-| [`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md) | Phase 1 composition contract | FROZEN_DOCS · NPG-COMP-v0.1 | implemented bounded by later authority |
-| [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md) | Phase 2 authority | OWNER_GO_CONSUMED | historical grant record |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md`](NON_PROJECTION_RUNTIME_COMPOSITION_READINESS.md) | NPG-COMP readiness | READY · DOCS_ONLY | historical checkpoint |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md`](NON_PROJECTION_RUNTIME_COMPOSITION_CONTRACT_V0_1.md) | NPG-COMP contract | FROZEN_DOCS · NPG-COMP-v0.1 | implemented bounded |
+| [`NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md`](NON_PROJECTION_RUNTIME_COMPOSITION_OWNER_GO_DECISION.md) | Phase 2 authority | OWNER_GO_CONSUMED | historical grant |
 | [`../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md`](../NON_PROJECTION_RUNTIME_COMPOSITION_IMPLEMENTATION_AUTHORIZATION.md) | Phase 2 receipt | IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED | runtime NOT_AUTHORIZED |
-| [`PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`](PROVENANCE_CLAIM_REPRESENTATION_READINESS.md) | Phase 3 readiness | READY · DOCS_ONLY | historical readiness checkpoint |
-| [`PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`](PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md) | Phase 3 candidate | SELECTED · PURE_PROVENANCE_CLAIM_RECORD | implemented bounded by later authority |
+| [`PROVENANCE_CLAIM_REPRESENTATION_READINESS.md`](PROVENANCE_CLAIM_REPRESENTATION_READINESS.md) | Phase 3 readiness | READY · DOCS_ONLY | historical checkpoint |
+| [`PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md`](PROVENANCE_CLAIM_REPRESENTATION_CANDIDATE_SELECTION.md) | Phase 3 candidate | SELECTED · PURE_PROVENANCE_CLAIM_RECORD | implemented later |
 | [`PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`](PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md) | Phase 3 contract | FROZEN_DOCS · PCR-v0.1 | implemented bounded |
-| [`PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`](PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md) | Phase 3 authority | OWNER_GO_CONSUMED | historical single-use grant record |
+| [`PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md`](PROVENANCE_CLAIM_REPRESENTATION_OWNER_GO_DECISION.md) | Phase 3 authority | OWNER_GO_CONSUMED | historical grant |
 | [`../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md`](../PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTATION_AUTHORIZATION.md) | Phase 3 receipt | IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED | runtime NOT_AUTHORIZED |
 | [`EPISTEMIC_PROMOTION_REVISION_READINESS.md`](EPISTEMIC_PROMOTION_REVISION_READINESS.md) | Phase 4 readiness | READY · DOCS_ONLY | no runtime authority |
 | [`EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md`](EPISTEMIC_PROMOTION_REVISION_CANDIDATE_SELECTION.md) | Phase 4 candidate | SELECTED · PURE_EPISTEMIC_CHANGE_ROUTER | no implementation authority |
 | [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md) | Phase 4 contract | FROZEN_DOCS · EPR-v0.1 | implementation NOT_STARTED |
 | [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md) | post-Phase-4 decision | COMPLETE · DOCS_ONLY | selected readiness only |
-| [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md) | Phase 5 readiness | READY · FROZEN_DOCS · DOCS_ONLY | candidate/implementation NOT_STARTED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | Phase 5 readiness complete; next is separate candidate-selection/contract-freeze decision | runtime NOT_AUTHORIZED |
+| [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md) | Phase 5 readiness | READY · FROZEN_DOCS · DOCS_ONLY | historical readiness checkpoint |
+| [`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md) | Phase 5 candidate | SELECTED · PURE_ANCHORED_TYPED_RELATION_RECORD | no implementation authority |
+| [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md) | Phase 5 contract | FROZEN_DOCS · ATR-v0.1 | implementation NOT_STARTED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | ATR-v0.1 frozen; separate Owner GO required | runtime NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -519,10 +445,10 @@ source count or generated relation acquires epistemic authority.
 | ID | Direction | Status | Promotion evidence required |
 |---|---|---|---|
 | `R-ELIDA-001` | Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification |
-| `R-NPG-001` | Non-Projection Gate | **PHASE_2_IMPLEMENTED_BOUNDED** | runtime activation remains a separate authority cycle |
+| `R-NPG-001` | Non-Projection Gate | **PHASE_2_IMPLEMENTED_BOUNDED** | runtime activation remains separate |
 | `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | no authority rolls forward |
 | `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | separate explicit Owner GO before implementation |
-| `R-TR-001` | Typed Relations | **READINESS_READY · ANCHORED_TYPED_RELATION_CANDIDATE** | separate candidate selection + implementation-contract freeze; no Owner GO |
+| `R-TR-001` | Typed Relations | **CONTRACT_FROZEN · ATR-v0.1 · PURE_ANCHORED_TYPED_RELATION_RECORD** | separate explicit Owner GO before implementation |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -534,10 +460,10 @@ source count or generated relation acquires epistemic authority.
 | `R-REL-001` | Relationship continuity | DEFERRED | privacy + consent + scope contracts |
 | `R-DEV-001` | Bounded self-development | DEFERRED | Action Gate + capability + reversibility |
 
-These entries are not a ranked execution queue. Phase 5 Typed Relations readiness
-creates no relation discovery, graph truth, confidence propagation, Evidence Gate
-result, belief mutation, runtime activation, retrieval, action, identity,
-relationship, M3 or deployment authority.
+These entries are not a ranked execution queue. `ATR-v0.1` contract freeze grants
+no relation discovery, graph truth, confidence propagation, Evidence Gate result,
+belief mutation, runtime activation, retrieval, action, identity, relationship,
+M3 or deployment authority.
 
 ---
 
@@ -560,11 +486,16 @@ problem demonstrated
 
 P1-001, P1-002, P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO
 receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is frozen but Phase
-4 has **no Owner GO**. Phase 5 Typed Relations readiness is now **READY**, while
-candidate selection remains `NOT_STARTED`, the implementation contract remains
-`NOT_FROZEN`, implementation remains `NOT_STARTED`, and Owner GO remains
-`NOT_GRANTED`. Issue #39 remains the future transition trigger for genuine
-independent review.
+4 has **no Owner GO**. Phase 5 Typed Relations candidate selection is now
+`SELECTED`, `ATR-v0.1` is `FROZEN_DOCS`, implementation remains `NOT_STARTED`,
+Owner GO remains `NOT_GRANTED`, and runtime remains `NOT_AUTHORIZED`.
+
+The next possible Phase 5 engineering step is not automatic implementation. It is
+an explicit separate single-use Owner GO decision scoped to `ATR-v0.1_ONLY`,
+followed by fresh exact-main compatibility verification if the owner chooses to
+proceed.
+
+Issue #39 remains the future transition trigger for genuine independent review.
 
 ---
 
@@ -594,12 +525,13 @@ CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
 Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
+ATR-v0.1 FROZEN_DOCS ≠ Owner GO / implementation / runtime authority
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 ```
 
-No backend is selected. Notion remains a navigation/research workspace; GitHub
-`main`, `docs/CURRENT_STATUS.md` and owning contracts/receipts remain engineering
-authority.
+No backend is selected. Notion remains a derived navigation/research workspace;
+GitHub `main`, `docs/CURRENT_STATUS.md` and owning contracts/receipts remain
+engineering authority.
 
 ---
 
@@ -643,8 +575,9 @@ TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
 POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
 PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
