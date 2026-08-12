@@ -128,7 +128,6 @@ CLAIM_TO_BELIEF_BINDING_NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE_NOT_IMPLEMENTED
 
 POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION_COMPLETE
-NEXT_BOUNDED_READINESS_MILESTONE_PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS_READY
 PHASE_5_SELECTED_RELATION_MODEL_ANCHORED_TYPED_RELATION_CANDIDATE
 PHASE_5_RELATION_VOCABULARY_CLOSED_V0_1_CORE
@@ -136,8 +135,10 @@ PHASE_5_ENDPOINT_BINDING_PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 PHASE_5_RELATION_CONFIDENCE_NOT_IN_V0_1
 PHASE_5_GRAPH_AUTHORITY_NONE
 PHASE_5_EVIDENCE_GATE_AUTHORITY_UNCHANGED
-PHASE_5_CANDIDATE_SELECTION_NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT_NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION_SELECTED
+PHASE_5_CANDIDATE_PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
+PHASE_5_CONTRACT_VERSION_ATR_V0_1
 PHASE_5_IMPLEMENTATION_NOT_STARTED
 PHASE_5_OWNER_GO_NOT_GRANTED
 PHASE_5_RUNTIME_NOT_AUTHORIZED
@@ -189,7 +190,9 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Phase 4 candidate | ✅ Selected docs-only | `PURE_EPISTEMIC_CHANGE_ROUTER`; routing only |
 | Phase 4 `EPR-v0.1` contract | ✅ Frozen docs-only | exact pure routing contract; implementation and Owner GO remain absent |
 | Post-Phase-4 cognitive milestone discrimination | ✅ Docs-only decision | Typed Relations contract readiness selected by bounded Discovery / Restraint / False Bridge probes |
-| Phase 5 Typed Relations contract readiness | ✅ Frozen docs-only · Ready | exact PCR anchors, closed relation semantics, no graph/evidence/truth authority; candidate selection not started |
+| Phase 5 Typed Relations contract readiness | ✅ Frozen docs-only · Ready | exact PCR anchors, closed relation semantics, no graph/evidence/truth authority |
+| Phase 5 Typed Relations candidate | ✅ Selected docs-only | `PURE_ANCHORED_TYPED_RELATION_RECORD` |
+| Phase 5 `ATR-v0.1` contract | ✅ Frozen docs-only | exact pure representation contract; implementation and Owner GO remain absent |
 
 ---
 
@@ -572,12 +575,14 @@ select `SUPPORTED/CONTRADICTED`, reopen a terminal belief, or execute a route.
 
 ---
 
-## 10.3 🔗 Phase 5 Typed Relations — contract readiness complete
+## 10.3 🔗 Phase 5 Typed Relations — ATR-v0.1 contract frozen
 
 Owning documents:
 
 - `docs/research/POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`
 - `docs/research/TYPED_RELATIONS_CONTRACT_READINESS.md`
+- `docs/research/TYPED_RELATIONS_CANDIDATE_SELECTION.md`
+- `docs/research/TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`
 
 Verified readiness evidence:
 
@@ -589,6 +594,18 @@ Exact-head CI:              31586896530 · success · 949 passed
 Tier A review:              4915443813
 Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
 Resulting-main CI:          31587139065 · success · 949 passed
+```
+
+Verified candidate/contract-freeze evidence:
+
+```text
+Tracking issue:             #113
+Contract PR:                #114
+Reviewed exact head:        fef6b21c4d3062a228471ccd206297b25d2d3ecc
+Exact-head CI:              31592892692 · success · 970 passed
+Tier A review:              4916049299
+Contract merge/main:        083825e1cc7b69c133650b51afb8fc1d34b97533
+Resulting-main CI:          31593058722 · success · 970 passed
 Merge signature:            VERIFIED · VALID
 Correctness pass:           PASS
 Adversarial pass:           PASS
@@ -605,19 +622,21 @@ PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 PHASE_5_RELATION_CONFIDENCE = NOT_IN_V0_1
 PHASE_5_GRAPH_AUTHORITY = NONE
 PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS
+PHASE_5_CONTRACT_VERSION = ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
 ```
 
-The readiness model is pairwise and representation-only. Exact endpoints bind
-`claim_id + PCR input_fingerprint`; relation type, directionality, origin and
-scope remain separate axes. `CORRELATIONAL ≠ CAUSAL`, `ANALOGICAL ≠ MECHANISTIC`,
+`ATR-v0.1` is pairwise, exact-PCR-anchored, caller-supplied and representation-only.
+It freezes relation type/orientation/origin/scope as separate axes and carries no
+confidence, probability, Evidence Gate outcome, belief status, graph authority or
+runtime permission. `CORRELATIONAL ≠ CAUSAL`, `ANALOGICAL ≠ MECHANISTIC`,
 `EVIDENTIAL ≠ SUPPORTED`, `CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED`, and
-graph adjacency/path/count carries no epistemic authority. Candidate selection
-and implementation-contract freeze are explicitly not started.
+graph adjacency/path/count carries no epistemic authority.
 
 ---
 
@@ -654,8 +673,8 @@ Phase 3 PCR-v0.1 runtime activation
 Phase 4 EPR-v0.1 implementation or runtime activation
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
-Phase 5 Typed Relations candidate selection / implementation-contract freeze
-Phase 5 Typed Relations implementation / runtime activation
+Phase 5 ATR-v0.1 implementation / runtime activation
+relation discovery / graph persistence / graph traversal
 ```
 
 ---
@@ -671,6 +690,8 @@ Capability ALLOW
 + PCR-v0.1 implemented bounded representation
 + EPR-v0.1 frozen routing contract
 + Phase 5 Typed Relations readiness READY
++ PURE_ANCHORED_TYPED_RELATION_RECORD selected
++ ATR-v0.1 contract FROZEN_DOCS
 ≠ Action Gate PASS
 ≠ retrieval permission
 ≠ tool permission
@@ -705,8 +726,8 @@ exists.
 P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO receipts are
 consumed and not reusable. Phase 4 readiness/candidate selection and `EPR-v0.1`
 are frozen docs-only; **no Phase 4 Owner GO has been granted**. Phase 5 Typed
-Relations readiness is frozen docs-only; **candidate selection is not started,
-no implementation contract is frozen, and no Phase 5 Owner GO has been granted**.
+Relations readiness/candidate selection and `ATR-v0.1` are frozen docs-only;
+**no Phase 5 Owner GO has been granted and no implementation has started**.
 Runtime activation, P1-004 assignment, Action Gate, retrieval, source admission,
 Evidence Gate mutation, belief mutation, claim→belief binding, terminal lineage,
 tools, identity/relationship mutation, M3, persistence and deployment remain
@@ -743,6 +764,8 @@ outside current authority.
 - Phase 4 frozen contract: `docs/research/EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`
 - Post-Phase-4 milestone discrimination: `docs/research/POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`
 - Phase 5 Typed Relations readiness: `docs/research/TYPED_RELATIONS_CONTRACT_READINESS.md`
+- Phase 5 candidate selection: `docs/research/TYPED_RELATIONS_CANDIDATE_SELECTION.md`
+- Phase 5 frozen contract: `docs/research/TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -788,8 +811,8 @@ P0 foundation implemented
 + relation confidence NOT_IN_V0_1
 + graph authority NONE
 + Evidence Gate authority UNCHANGED
-+ Phase 5 candidate selection NOT_STARTED
-+ Phase 5 implementation contract NOT_FROZEN
++ Phase 5 candidate PURE_ANCHORED_TYPED_RELATION_RECORD SELECTED
++ ATR-v0.1 implementation contract FROZEN_DOCS by PR #114
 + Phase 5 implementation NOT_STARTED
 + Phase 5 Owner GO NOT_GRANTED
 + Evidence Gate remains sole support/contradiction authority
@@ -836,8 +859,9 @@ TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
 POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
 PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
@@ -845,9 +869,8 @@ NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
 
-> **STOP.** Phase 5 Typed Relations contract readiness is complete. Readiness is
-> not candidate selection, implementation-contract freeze, Owner GO, or runtime
-> authority. The next possible bounded block is only
-> `PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION_AND_CONTRACT_FREEZE · DOCS_ONLY`
-> after a fresh live reconciliation and a separate decision. No implementation,
-> runtime, action/retrieval/tool/identity/M3/deployment authority rolls forward.
+> **STOP.** Phase 5 `ATR-v0.1` is frozen docs-only. Candidate selection and
+> contract freeze are complete, but they grant no implementation authority.
+> A new explicit single-use Owner GO scoped to `ATR-v0.1_ONLY` is required before
+> any `src/mentaury/relations/**` implementation. No runtime,
+> action/retrieval/tool/identity/M3/deployment authority rolls forward.

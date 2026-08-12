@@ -148,7 +148,7 @@ def test_authorization_is_consumed_and_does_not_roll_forward() -> None:
         assert forbidden in combined, forbidden
 
     assert "authorization does not roll forward" in AUTH.lower()
-    assert "owner go is consumed" in INDEX.lower()
+    assert "p1_001_owner_go_consumed" in INDEX.lower()
     assert "no registry service, action gate, p1-002" in ROADMAP.lower()
 
 

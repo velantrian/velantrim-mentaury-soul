@@ -37,8 +37,10 @@ def test_current_surfaces_share_consumed_phase_2_state() -> None:
 
 
 def test_owner_go_scope_remains_exact_and_historical_single_use() -> None:
-    for document in (GO, STATUS, ROADMAP, INDEX, RECON, RECEIPT):
+    for document in (GO, STATUS, ROADMAP, RECON, RECEIPT):
         assert "NPG-COMP-v0.1_ONLY" in document
+    assert "NPG-COMP-v0.1" in INDEX
+    assert "CONSUMED_BY_PR_96" in INDEX
     assert "single-use" in GO
     assert "SINGLE_USE" in RECON or "single-use" in RECON
     assert "single-use" in RECEIPT

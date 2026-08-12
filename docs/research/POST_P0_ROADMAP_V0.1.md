@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      2.0
+Version:                      2.1
 Updated:                      2026-08-12
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -56,8 +56,9 @@ Post-Phase-4 discrimination:  COMPLETE · DOCS_ONLY
 Phase 5 relation readiness:   READY · FROZEN_DOCS · DOCS_ONLY
 Phase 5 selected model:       ANCHORED_TYPED_RELATION_CANDIDATE
 Phase 5 endpoint binding:     PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
-Phase 5 candidate selection:  NOT_STARTED
-Phase 5 implementation contract: NOT_FROZEN
+Phase 5 candidate selection:  SELECTED
+Phase 5 candidate:            PURE_ANCHORED_TYPED_RELATION_RECORD
+Phase 5 implementation contract: FROZEN_DOCS · ATR-v0.1
 Phase 5 implementation:       NOT_STARTED
 Phase 5 Owner GO:             NOT_GRANTED
 Phase 5 runtime:              NOT_AUTHORIZED
@@ -108,6 +109,7 @@ EVIDENTIAL ≠ SUPPORTED
 CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
+ATR-v0.1 FROZEN_DOCS ≠ Owner GO / implementation / runtime authority
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
 Solo review ≠ independent certification
 ```
@@ -480,7 +482,7 @@ Tier A review:            4913627170
 Correctness:              PASS
 Adversarial:              PASS
 Authorization boundary:   PRESERVED
-Review threads:           0
+Review threads:            0
 Implementation merge:     c63488af7f10bf3e7f423fee8071a13f4c2e02db
 Merge signature:          VERIFIED · VALID
 Resulting-main CI:        31570390275 · success · 909 passed
@@ -561,7 +563,7 @@ than silently inferred capabilities.
 
 ---
 
-## 10.3 🔗 Phase 5 Typed Relations contract readiness complete
+## 10.3 🔗 Phase 5 Typed Relations — ATR-v0.1 contract frozen
 
 Owning discrimination:
 [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
@@ -569,14 +571,27 @@ Owning discrimination:
 Owning readiness:
 [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md)
 
+Candidate selection:
+[`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md)
+
+Frozen contract:
+[`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
+
 ```text
-Tracking issue:             #110
+Readiness tracking issue:   #110
 Readiness PR:               #111
-Reviewed exact head:        cf58b6fd7371f862066f69597cc926d682f699ab
-Exact-head CI:              31586896530 · success · 949 passed
-Tier A review:              4915443813
+Readiness exact head:       cf58b6fd7371f862066f69597cc926d682f699ab
+Readiness CI:               31586896530 · success · 949 passed
+Readiness review:           4915443813
 Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
-Resulting-main CI:          31587139065 · success · 949 passed
+Readiness main CI:          31587139065 · success · 949 passed
+Contract tracking issue:    #113
+Contract PR:                #114
+Contract exact head:        fef6b21c4d3062a228471ccd206297b25d2d3ecc
+Contract exact-head CI:     31592892692 · success · 970 passed
+Contract Tier A review:     4916049299
+Contract merge/main:        083825e1cc7b69c133650b51afb8fc1d34b97533
+Contract resulting-main CI: 31593058722 · success · 970 passed
 Merge signature:            VERIFIED · VALID
 Independent human review:   NO
 ```
@@ -589,19 +604,18 @@ PHASE_5_ENDPOINT_BINDING = PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 PHASE_5_RELATION_CONFIDENCE = NOT_IN_V0_1
 PHASE_5_GRAPH_AUTHORITY = NONE
 PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
 ```
 
-The readiness model is pairwise and representation-only. It binds each endpoint
-to exact PCR identity (`claim_id + input_fingerprint`), separates relation type,
-directionality, origin and scope, preserves conditions/moderators/exceptions/
-unknowns/transfer limits, and admits no numeric confidence or graph authority.
-`EVIDENTIAL` is not Evidence Gate support and `CONTRADICTORY` is not
-`EvidenceGateOutcome.CONTRADICTED`.
+`ATR-v0.1` remains pairwise, exact PCR-bound, caller-supplied and representation-only.
+It preserves conditions/moderators/exceptions/unknowns/transfer limits and admits
+no numeric confidence or graph authority. `EVIDENTIAL` is not Evidence Gate
+support and `CONTRADICTORY` is not `EvidenceGateOutcome.CONTRADICTED`.
 
 ---
 
@@ -633,8 +647,8 @@ Phase 3 PCR-v0.1 runtime activation
 Phase 4 EPR-v0.1 implementation/runtime
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
-Phase 5 Typed Relations candidate selection / implementation-contract freeze
-Phase 5 Typed Relations implementation/runtime
+Phase 5 ATR-v0.1 implementation/runtime
+relation discovery / graph persistence / graph traversal
 ```
 
 ---
@@ -674,16 +688,16 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-Phase 5 Typed Relations contract readiness is now complete. It does not select an
-implementation candidate, freeze an implementation contract, grant Owner GO, or
-authorize runtime.
+Phase 5 Typed Relations candidate selection and `ATR-v0.1` implementation-contract
+freeze are complete. No implementation authority has been granted.
 
 ```text
-CURRENT = PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READY
+CURRENT = ATR-v0.1 FROZEN_DOCS · PURE_ANCHORED_TYPED_RELATION_RECORD
 → STOP
-→ fresh live reconciliation
-→ separate PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION_AND_CONTRACT_FREEZE · DOCS_ONLY if owner chooses
-→ STOP again before any Owner GO or implementation
+→ explicit separate single-use Owner GO for ATR-v0.1_ONLY if owner chooses
+→ fresh exact-main compatibility check
+→ separate bounded three-file implementation only if authorized
+→ STOP again before any runtime activation
 ```
 
 ```text
@@ -695,8 +709,9 @@ TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
 POST_PHASE_4_COGNITIVE_MILESTONE_DISCRIMINATION = COMPLETE
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
 PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
@@ -739,7 +754,9 @@ P0 complete
 → EPR-v0.1 implementation contract FROZEN_DOCS by PR #106
 → Post-Phase-4 cognitive milestone discrimination COMPLETE by PR #109
 → Phase 5 Typed Relations contract readiness READY by PR #111
-→ STOP BEFORE CANDIDATE SELECTION / IMPLEMENTATION-CONTRACT FREEZE
+→ PURE_ANCHORED_TYPED_RELATION_RECORD selected by PR #114
+→ ATR-v0.1 implementation contract FROZEN_DOCS by PR #114
+→ STOP FOR SEPARATE OWNER GO
 
 PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
@@ -748,8 +765,9 @@ CLAIM_TO_BELIEF_BINDING = NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
 PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
-PHASE_5_CANDIDATE_SELECTION = NOT_STARTED
-PHASE_5_IMPLEMENTATION_CONTRACT = NOT_FROZEN
+PHASE_5_CANDIDATE_SELECTION = SELECTED
+PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
+PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = NOT_STARTED
 PHASE_5_OWNER_GO = NOT_GRANTED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
@@ -794,6 +812,8 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`](EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md)
 - [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
 - [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md)
+- [`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md)
+- [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
