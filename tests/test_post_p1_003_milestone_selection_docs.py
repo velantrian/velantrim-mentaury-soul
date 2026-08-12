@@ -36,7 +36,7 @@ def test_selection_preserves_completed_p1_003_authority_boundary() -> None:
     assert "Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED" in ROADMAP
     assert "Phase 2 implementation:       IMPLEMENTED_BOUNDED" in ROADMAP
     assert "Phase 3 contract:             FROZEN_DOCS · PCR-v0.1" in ROADMAP
-    assert "Phase 3 Owner GO:             NOT_GRANTED" in ROADMAP
+    assert "Phase 3 Owner GO:             CONSUMED_BY_PR_103" in ROADMAP
 
 
 def test_non_projection_readiness_creates_no_execution_or_identity_authority() -> None:
