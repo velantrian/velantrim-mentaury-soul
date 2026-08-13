@@ -67,6 +67,6 @@ meaning changed
 → history preserved
 ```
 
-## Deterministic guard
+## Documentation impact guard
 
-`scripts/check_documentation_impact.py` validates the manifest and provides conservative path-based triage. `REVIEW_REQUIRED` means the change may affect architecture or project identity and the landing layer should be reviewed before closure.
+The current guard is contract-level: use `project_manifest.json`, structural path hints and the three change classes as conservative triage. A path that touches an owning architecture/Canon surface must be treated as `REVIEW_REQUIRED` until landing documentation has been checked. An executable CI guard is a separate future technical milestone.
