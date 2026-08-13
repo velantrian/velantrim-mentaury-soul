@@ -1,0 +1,40 @@
+{
+  "schema": "mentaury-project-state/1",
+  "project": "Mentaury Soul",
+  "snapshot_source_date": "2026-08-12",
+  "live_head": "RESOLVE_FROM_GITHUB",
+  "authoritative_human_state": "docs/CURRENT_STATUS.md",
+  "canon_v0_1": "FROZEN",
+  "governance": {
+    "mode": "SOLO_MAINTAINER",
+    "independent_human_review_claimed": false
+  },
+  "implemented_bounded": {
+    "p0_foundation": true,
+    "p1_001_capability_lease": true,
+    "p1_002_privacy_classifier": true,
+    "p1_003_constraint_composer": true,
+    "non_projection_classifier": true,
+    "phase_2_npg_shadow_composition": true,
+    "phase_3_provenance_claim_record": true
+  },
+  "frozen_not_implemented": {
+    "phase_4_epistemic_change_router_epr_v0_1": true,
+    "phase_5_anchored_typed_relation_atr_v0_1": true
+  },
+  "authority": {
+    "action_gate_authorized": false,
+    "retrieval_execution_authorized": false,
+    "tool_execution_authorized": false,
+    "identity_runtime_authorized": false,
+    "relationship_runtime_authorized": false,
+    "runtime_deployment_authorized": false
+  },
+  "semantic_boundaries": [
+    "TOOL_OUTPUT_NE_BELIEF",
+    "RELATION_NE_TRUTH",
+    "CHARACTER_NE_EVIDENCE",
+    "CONTINUITY_NE_IDENTITY_PROOF",
+    "CONTRACT_FREEZE_NE_RUNTIME_AUTHORITY"
+  ]
+}
