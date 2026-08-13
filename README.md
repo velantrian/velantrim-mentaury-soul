@@ -1,7 +1,23 @@
 # 🧬 Mentaury Soul
 
-A substrate-neutral research architecture for persistent digital individuality,
-memory, identity continuity, character and governed self-development.
+> 👤 **Human start:** [`SYSTEM_OVERVIEW.md`](SYSTEM_OVERVIEW.md) gives the project map before milestone chronology.  
+> 🤖 **AI start:** [`AGENTS.md`](AGENTS.md) → [`docs/ai/README.md`](docs/ai/README.md) → [`docs/ai/project_manifest.json`](docs/ai/project_manifest.json). Do not begin with repository-wide scanning.
+
+### Project identity
+
+Mentaury Soul is a substrate-neutral research architecture for persistent digital individuality, memory, identity continuity, character and governed self-development. Detailed milestone truth stays below and in [`docs/CURRENT_STATUS.md`](docs/CURRENT_STATUS.md); the stable project portrait is kept separate from volatile PR/CI evidence.
+
+```text
+🌱 provenance → 🧾 claims → ⚖️ governed epistemic state
+                         ↓
+                 🪞 continuity
+                  ├─ 🔗 relations
+                  └─ 🎭 character / presence
+```
+
+A convincing presentation is not evidence, a relation is not truth, and implementation state is not runtime authority.
+
+---
 
 ```text
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
@@ -150,6 +166,9 @@ evidence and green resulting-main CI.
 
 ## 🔗 Authoritative documents
 
+- [System overview](SYSTEM_OVERVIEW.md)
+- [AI entry point](docs/ai/README.md)
+- [Machine-readable documentation map](docs/ai/project_manifest.json)
 - [Current status](docs/CURRENT_STATUS.md)
 - [Governance](docs/GOVERNANCE.md)
 - [P1-001 receipt](docs/P1_001_IMPLEMENTATION_AUTHORIZATION.md)
