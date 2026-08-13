@@ -16,7 +16,7 @@ Read in this order:
 6. `docs/GOVERNANCE.md` — authority and review rules.
 7. `docs/ai/COMPONENT_MAP.md` — ownership, paths and tests.
 8. `docs/ai/KNOWN_RISKS.md` — known documentation/architecture risks.
-9. `docs/ai/AUDIT_PLAYBOOK.md` — bounded audit procedure.
+9. `docs/ai/REVIEW_GUIDE.md` — bounded review procedure.
 10. only the affected contracts, source, tests, PRs and CI evidence.
 
 Documentation is orientation, not proof. Verify material implementation claims against live GitHub, code, tests and CI.
@@ -68,16 +68,6 @@ Historical checkpoints remain history. Do not rewrite provenance to make current
 
 ## 6. Documentation Impact Guard
 
-Run:
+The current guard is **contract-level**, not executable CI. Use `docs/ai/project_manifest.json`, the structural path hints, and the three change classes above as conservative triage.
 
-```bash
-python scripts/check_documentation_impact.py --validate-repo
-```
-
-For a proposed change, also pass changed paths:
-
-```bash
-python scripts/check_documentation_impact.py --changed src/mentaury/... --changed docs/...
-```
-
-The guard is deterministic triage, not an architectural oracle. A `REVIEW_REQUIRED` result means the change may be structural and the landing layer must be reviewed before merge.
+If a changed path affects a listed structural hint or an owning architecture/Canon surface, classify it at least as `REVIEW_REQUIRED` until the maintained landing layer has been checked. An executable CI guard may be added later as a separate technical milestone; its absence does not weaken the staleness obligation.
