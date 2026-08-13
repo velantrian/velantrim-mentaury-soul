@@ -1,0 +1,52 @@
+{
+  "schema": "velantrim-documentation-manifest/1",
+  "project": "Mentaury Soul",
+  "repository": "velantrian/velantrim-mentaury-soul",
+  "document_role": "project_documentation_contract",
+  "human_landing": {
+    "primary": "README.md",
+    "overview": "SYSTEM_OVERVIEW.md",
+    "visual_roles": {
+      "tree": "WHAT_EXISTS",
+      "mindmap": "HOW_CONCEPTS_RELATE",
+      "ascii_flow": "HOW_INFORMATION_AND_AUTHORITY_FLOW",
+      "boundary_table": "WHAT_LAYERS_MAY_AND_MUST_NOT_DO",
+      "commentary": "WHY_THE_ARCHITECTURE_IS_DESIGNED_THIS_WAY"
+    }
+  },
+  "ai_entry": "docs/ai/README.md",
+  "agent_contract": "AGENTS.md",
+  "current_truth": {
+    "human": "docs/CURRENT_STATUS.md",
+    "machine": "docs/state/project_state.json",
+    "live_head": "RESOLVE_FROM_GITHUB"
+  },
+  "authority_docs": [
+    "docs/GOVERNANCE.md",
+    "docs/MENTAURY_CANON_V0.1.md",
+    "docs/research/RESEARCH_INDEX.md"
+  ],
+  "update_classes": {
+    "STRUCTURAL_CHANGE": "review_all_landing_surfaces_and_refresh_affected_only",
+    "STATE_CHANGE": "remove_stale_state_implications_and_refresh_current_truth",
+    "EVIDENCE_ONLY": "refresh_evidence_or_checkpoint_without_visual_churn"
+  },
+  "staleness_guard": true,
+  "preserve_history": true,
+  "post_update_readback": true,
+  "structural_path_hints": [
+    "src/mentaury/identity/",
+    "src/mentaury/beliefs/",
+    "src/mentaury/relations/",
+    "src/mentaury/composition/",
+    "docs/MENTAURY_CANON_V0.1.md",
+    "docs/research/",
+    "AGENTS.md",
+    "SYSTEM_OVERVIEW.md"
+  ],
+  "notion": {
+    "hub_page_id": "3b2ac84d-0547-81cf-841e-d08ca339f211",
+    "hub_title": "Mentaury Soul",
+    "new_pages_allowed_by_default": false
+  }
+}
