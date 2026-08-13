@@ -14,7 +14,7 @@ Its purpose is to reduce blind repository-wide scanning while preserving archite
 6. `../GOVERNANCE.md`
 7. `COMPONENT_MAP.md`
 8. `KNOWN_RISKS.md`
-9. `AUDIT_PLAYBOOK.md`
+9. `REVIEW_GUIDE.md`
 10. affected research contract/source/tests/PR/CI only
 
 ## Source-of-truth hierarchy
