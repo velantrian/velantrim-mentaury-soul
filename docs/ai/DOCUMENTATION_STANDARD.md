@@ -1,72 +1,293 @@
 # 📚 Velantrim Documentation Standard v1
 
-This repository uses four documentation layers:
+This repository uses four documentation layers over one project truth:
 
 ```text
-👤 Human landing / stable project portrait
-        ↓
-🤖 AI orientation + maintenance contract
-        ↓
-🚦 Current technical / machine truth
-        ↓
-🧾 Evidence + historical checkpoints
+                 🧬 ONE PROJECT TRUTH
+                         │
+       ┌─────────────────┼─────────────────┐
+       │                 │                 │
+       ▼                 ▼                 ▼
+   👤 HUMAN          🤖 AGENT          ⚙️ MACHINE
+README / OVERVIEW    docs/ai/**       JSON / state
+       │                 │                 │
+       └─────────────────┴────────┬────────┘
+                                  ▼
+                         📚 EVIDENCE / HISTORY
 ```
 
 ## Core rule
 
-`overview != current state != evidence != history`
+```text
+overview != current state != evidence != history
+```
 
-## Change classification
+The four layers may present the same project differently, but they must not contradict the same underlying truth.
 
-### STRUCTURAL_CHANGE
-Changes architecture, project meaning, ownership, authority boundaries, invariants, subsystem responsibilities, runtime model or major roadmap direction.
+---
 
-Action: review all maintained landing surfaces and update each surface whose meaning became stale. Update owning architecture/current-state docs and the machine manifest when navigation or ownership changes. Do not mechanically rewrite unaffected visual blocks.
+## 1. Human-first landing architecture
 
-### STATE_CHANGE
-Changes phase, admission, Owner GO, implementation/readiness/runtime/action/production state without redesigning architecture.
+The maintained human route should move from **meaning to detail**, not from control-plane literals to meaning.
 
-Action: remove stale landing-state implications and update current-state surfaces.
-
-### EVIDENCE_ONLY
-Changes PR/SHA/CI/review/test counts/sync evidence or bounded implementation evidence without changing architecture or high-level state meaning.
-
-Action: update evidence/current-state logs. Stable landing visuals normally remain unchanged.
-
-## Visual semantics
+Preferred sequence:
 
 ```text
+🧬 Project identity
+        │
+        ▼
+👋 Human explanation / why this exists
+        │
+        ├────────────→ 🤖 Special for AI route
+        │
+        ▼
+🧠 Mental model
+        │
+        ├── 🗺️ Mindmap
+        ├── ⚙️ ASCII flow
+        ├── 🌳 Structural tree
+        ├── 🔄 Architecture diagram
+        └── 💬 Commentary
+        │
+        ▼
+📊 What actually exists today
+        │
+        ▼
+🆚 Positioning / non-goals / distinctions
+        │
+        ▼
+🧭 Reading routes
+        │
+        ▼
+🔬 Current research boundary
+        │
+        ▼
+🛠 Human quickstart / inspection path
+        │
+        ▼
+📎 Exact technical / historical detail
+```
+
+The README may be shorter than the deep overview, but it must let a new human understand the project's purpose and current boundary before exposing dense milestone chronology.
+
+`SYSTEM_OVERVIEW.md` is the deeper human map. It should explain the architecture without requiring the reader to decode PR numbers, SHA values or validator literals.
+
+---
+
+## 2. Visual semantics
+
+Visuals are functional, not decorative duplicates:
+
+```text
+🗺️ Mindmap    = HOW CONCEPTS RELATE
+⚙️ ASCII      = HOW INFORMATION / AUTHORITY FLOWS
 🌳 Tree       = WHAT EXISTS
-🧠 Mindmap    = HOW CONCEPTS RELATE
-🗺️ ASCII      = HOW INFORMATION / AUTHORITY FLOWS
-📊 Table       = WHAT LAYERS MAY / MUST NOT DO
+🔄 Diagram    = HOW ARCHITECTURAL LAYERS CONNECT
+📊 Table      = WHAT EXISTS / MAY / MUST NOT DO
 💬 Commentary = WHY THE ARCHITECTURE IS DESIGNED THIS WAY
 ```
 
-A visual is stale only when its assigned meaning is materially wrong.
+Rules:
 
-## Stable vs volatile content
+- keep visuals compact enough to scan on a phone;
+- do not create five copies of the same paragraph in different formats;
+- prefer stable semantic concepts over volatile SHA/CI values inside visuals;
+- label conceptual/future flows when they are not executable pipelines;
+- never let a visual imply authority that the current state does not grant.
 
-Stable portrait: purpose, core architecture, persistent invariants, non-goals, documentation routes.
+---
 
-Volatile surfaces: current phase, PR/SHA/CI/test counts, temporary blockers, review state and exact checkpoints.
+## 3. Stable vs volatile content
 
-Avoid copying volatile evidence into stable visual blocks.
+### Stable human portrait
 
-## Machine-readable contract
+Prefer stable content for:
 
-`project_manifest.json` is the navigation and maintenance contract, not implementation truth. Current implementation truth remains in the repository-designated current-state surface and live GitHub evidence.
+- purpose;
+- core architecture;
+- persistent invariants;
+- non-goals;
+- conceptual domains;
+- reading routes;
+- visual grammar.
 
-## Staleness guard
+### Volatile truth surfaces
+
+Keep these in current-state/evidence layers:
+
+- current phase;
+- exact Owner GO state;
+- PR/SHA/CI values;
+- test counts;
+- temporary blockers;
+- review state;
+- exact implementation/runtime checkpoint.
+
+Avoid copying volatile evidence into every stable visual block.
+
+---
+
+## 4. Change classification
+
+### STRUCTURAL_CHANGE
+
+Changes architecture, project meaning, ownership, authority boundaries, invariants, subsystem responsibilities, runtime model or major roadmap direction.
+
+Required action:
+
+```text
+verify owning change
+→ review all maintained landing roles
+→ update every affected human representation only
+→ update agent navigation/manifest if ownership or routes changed
+→ update current-state surfaces
+→ preserve history
+→ read back
+```
+
+A structural change is incomplete if it leaves the Executive Summary, mindmap, ASCII flow, tree, architecture diagram, capability table, commentary, non-goals or reading routes materially false.
+
+### STATE_CHANGE
+
+Changes phase, admission, Owner GO, implementation/readiness/runtime/action/production state without redesigning architecture.
+
+Required action: remove stale high-level implications and update current-state/machine surfaces. Stable visual architecture normally remains unchanged.
+
+### EVIDENCE_ONLY
+
+Changes PR/SHA/CI/review/test counts/docs-sync evidence or bounded fixes that preserve architecture and high-level state meaning.
+
+Required action: update evidence/current-state logs where needed. Do not churn stable landing visuals merely because evidence identifiers changed.
+
+---
+
+## 5. Human / AI / machine separation
+
+### 👤 Human layer
+
+Optimized for comprehension and navigation.
+
+It may use:
+
+- concise prose;
+- emoji visual grammar;
+- mindmaps;
+- ASCII flows;
+- trees;
+- Mermaid architecture diagrams;
+- capability/status tables;
+- commentary and reading routes.
+
+It is **not** authoritative proof of implementation or permission.
+
+### 🤖 Agent layer
+
+Optimized for bounded orientation, source-of-truth hierarchy, maintenance rules and context budgeting.
+
+An AI must be able to determine:
+
+- where current truth lives;
+- which contract owns a behavior;
+- which files are relevant;
+- what authority is absent;
+- which documentation surfaces become stale after a change.
+
+### ⚙️ Machine layer
+
+Optimized for deterministic state/navigation consumption.
+
+`project_manifest.json` is the documentation/navigation contract. `docs/state/project_state.json` is a maintained snapshot, not an evergreen live-head claim.
+
+### 📚 Evidence/history layer
+
+Preserves milestone receipts, exact PR/SHA/CI/review evidence and research provenance.
+
+History must not be rewritten just to make the current documentation cleaner.
+
+---
+
+## 6. Machine-readable contract
+
+`project_manifest.json` describes:
+
+- human landing surfaces;
+- AI entry and agent contract;
+- machine/current truth surfaces;
+- visual roles;
+- reading routes;
+- update classes;
+- structural path hints;
+- Notion synchronization boundaries.
+
+It is navigation and maintenance metadata, not implementation truth.
+
+---
+
+## 7. Staleness guard
 
 ```text
 meaning changed
 → landing surfaces reviewed
 → affected representations refreshed
+→ agent/machine routes refreshed when necessary
 → current truth refreshed
-→ history preserved
+→ evidence/history preserved
+→ post-update read-back
 ```
 
-## Documentation impact guard
+A change is incomplete if it makes a maintained Summary, Tree, Mindmap, ASCII flow, architecture diagram, boundary table, commentary, non-goal or reading route materially false.
 
-The current guard is contract-level: use `project_manifest.json`, structural path hints and the three change classes as conservative triage. A path that touches an owning architecture/Canon surface must be treated as `REVIEW_REQUIRED` until landing documentation has been checked. An executable CI guard is a separate future technical milestone.
+The current documentation impact guard is **contract-level**, not executable CI. Structural path hints must therefore be treated conservatively as `REVIEW_REQUIRED` until the human landing layer has been checked.
+
+An executable CI impact guard may be added later as a separate technical milestone.
+
+---
+
+## 8. Emoji visual grammar
+
+Emoji carry lightweight semantic meaning:
+
+```text
+🧬 project / identity architecture
+🧠 cognition / knowledge
+🌱 provenance / origin
+🧾 claim / record
+⚖️ epistemic governance
+🔗 relation
+🪞 identity / continuity
+🤝 relationship / commitment
+🎭 character / presence
+🛡 authority / boundary
+🚦 state / permission gate
+🧪 experiment / bounded laboratory
+🔬 evidence / research
+✅ established / implemented
+🟡 incomplete / conditional / bounded
+❌ absent / unauthorized
+🧊 frozen contract
+🤖 AI / agent
+👤 human
+⚙️ machine
+📎 history / technical detail
+```
+
+Emoji never replace exact state literals where machine or governance precision is required.
+
+---
+
+## 9. Preservation rules
+
+Always preserve these distinctions:
+
+```text
+presentation != proof
+claim != belief
+relation != truth
+character != evidence
+continuity != identity proof
+contract freeze != implementation authority
+implementation != runtime authority
+runtime capability != action authority
+```
+
+Documentation must not accidentally promote architecture diagrams, roadmap arrows or human-friendly prose into claims of implemented runtime behavior.
