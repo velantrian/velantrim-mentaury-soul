@@ -65,7 +65,7 @@ def test_current_status_records_exact_phase5_completion_boundary() -> None:
         "PHASE_5_ATR_M01_M12_EXECUTABLE_PASS",
         "PHASE_5_ATR_P01_P12_EXECUTABLE_PASS",
         "PHASE_5_RUNTIME_NOT_AUTHORIZED",
-        "PHASE_6_RESEARCH_PREPARATION_AUTHORIZED_DOCS_TESTS_ONLY",
+        "PHASE_6_RESEARCH_PREPARATION_PREPARED_DOCS_TESTS_ONLY",
         "PHASE_6_RUNTIME_NOT_AUTHORIZED",
     ):
         assert marker in STATUS
