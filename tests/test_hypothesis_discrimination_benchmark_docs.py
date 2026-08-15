@@ -89,7 +89,7 @@ def test_discrimination_requires_different_outcome_patterns() -> None:
         "OUTCOME PATTERN EXPECTED MORE UNDER H1",
         "OUTCOME PATTERN EXPECTED MORE UNDER H2",
         "WHY THIS SEPARATES THEM",
-        "proposed observation predicts\n   the same outcome under both hypotheses",
+        "any result\nthat H1 and H2 predict equally",
         "propose an observation predicted equally by H1 and H2",
     ):
         assert marker in BENCHMARK
