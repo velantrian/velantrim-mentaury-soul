@@ -1,4 +1,9 @@
-"""Structural guards for Phase 6 HDE-v0.1 docs-only readiness."""
+"""Structural guards for the historical Phase 6 HDE-v0.1 readiness freeze.
+
+The readiness/contract documents remain historical docs-only evidence. Once the
+separate explicit HDE-v0.1 Owner GO exists, the exact reserved package may exist
+without rewriting those historical documents.
+"""
 
 from pathlib import Path
 
@@ -14,6 +19,12 @@ PCR = (ROOT / "src" / "mentaury" / "claims" / "contracts.py").read_text(
 )
 ATR = (ROOT / "src" / "mentaury" / "relations" / "contracts.py").read_text(
     encoding="utf-8"
+)
+OWNER_GO_PATH = (
+    ROOT
+    / "docs"
+    / "research"
+    / "HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md"
 )
 
 
@@ -112,19 +123,33 @@ def test_threat_model_and_metamorphic_matrix_are_frozen() -> None:
         assert f"HDE-T{case:02d}" in CONTRACT
 
 
-def test_source_surface_is_reserved_but_absent() -> None:
-    for marker in (
+def test_reserved_source_surface_requires_separate_owner_go_if_present() -> None:
+    reserved = (
         "src/mentaury/discrimination/__init__.py",
         "src/mentaury/discrimination/contracts.py",
         "src/mentaury/discrimination/evaluator.py",
         "tests/test_hypothesis_discrimination_evaluator.py",
-    ):
+    )
+    for marker in reserved:
         assert marker in CONTRACT
-    assert not (ROOT / "src" / "mentaury" / "discrimination").exists()
-    assert not (ROOT / "tests" / "test_hypothesis_discrimination_evaluator.py").exists()
+
+    package = ROOT / "src" / "mentaury" / "discrimination"
+    implementation_test = ROOT / "tests" / "test_hypothesis_discrimination_evaluator.py"
+    if package.exists() or implementation_test.exists():
+        assert OWNER_GO_PATH.exists()
+        owner_go = OWNER_GO_PATH.read_text(encoding="utf-8")
+        assert "Owner GO scope:                 HDE-v0.1_ONLY" in owner_go
+        assert "Single-use authorization:       YES" in owner_go
+        assert package.is_dir()
+        assert implementation_test.is_file()
+        assert {path.name for path in package.iterdir() if path.is_file()} == {
+            "__init__.py",
+            "contracts.py",
+            "evaluator.py",
+        }
 
 
-def test_owner_go_and_runtime_remain_blocked() -> None:
+def test_historical_readiness_documents_preserve_pre_owner_go_state() -> None:
     for marker in (
         "PHASE_6_READINESS = SELECTED_CANDIDATE_CONTRACT_FROZEN_DOCS_TESTS_ONLY",
         "PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR",
