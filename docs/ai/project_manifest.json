@@ -1,0 +1,117 @@
+{
+  "schema": "velantrim-documentation-manifest/1",
+  "project": "Mentaury Soul",
+  "repository": "velantrian/velantrim-mentaury-soul",
+  "document_role": "project_documentation_contract",
+  "human_landing": {
+    "primary": "README.md",
+    "overview": "SYSTEM_OVERVIEW.md",
+    "required_sequence": [
+      "PROJECT_IDENTITY",
+      "HUMAN_EXPLANATION",
+      "AI_ROUTE",
+      "MENTAL_MODEL",
+      "VISUAL_ARCHITECTURE",
+      "HUMAN_CAPABILITY_STATE",
+      "POSITIONING_AND_NON_GOALS",
+      "READING_ROUTES",
+      "CURRENT_RESEARCH_BOUNDARY",
+      "HUMAN_QUICKSTART",
+      "TECHNICAL_AND_HISTORICAL_DETAIL"
+    ],
+    "visual_roles": {
+      "mindmap": "HOW_CONCEPTS_RELATE",
+      "ascii_flow": "HOW_INFORMATION_AND_AUTHORITY_FLOW",
+      "tree": "WHAT_EXISTS",
+      "architecture_diagram": "HOW_ARCHITECTURAL_LAYERS_CONNECT",
+      "boundary_table": "WHAT_EXISTS_MAY_AND_MUST_NOT_DO",
+      "commentary": "WHY_THE_ARCHITECTURE_IS_DESIGNED_THIS_WAY"
+    },
+    "volatile_evidence_in_visuals": false,
+    "mobile_scan_friendly": true
+  },
+  "reading_routes": {
+    "human": [
+      "README.md",
+      "SYSTEM_OVERVIEW.md",
+      "docs/MENTAURY_CANON_V0.1.md",
+      "docs/CURRENT_STATUS.md"
+    ],
+    "research": [
+      "SYSTEM_OVERVIEW.md",
+      "docs/research/RESEARCH_INDEX.md",
+      "OWNING_READINESS_OR_CONTRACT",
+      "EXACT_PR_TEST_CI_EVIDENCE"
+    ],
+    "ai": [
+      "AGENTS.md",
+      "docs/ai/README.md",
+      "docs/ai/project_manifest.json",
+      "docs/state/project_state.json",
+      "docs/CURRENT_STATUS.md",
+      "AFFECTED_COMPONENT_ONLY"
+    ],
+    "engineering": [
+      "docs/CURRENT_STATUS.md",
+      "docs/GOVERNANCE.md",
+      "OWNING_CONTRACT",
+      "SOURCE",
+      "TESTS",
+      "EXACT_CI_AND_REVIEW_EVIDENCE"
+    ]
+  },
+  "ai_entry": "docs/ai/README.md",
+  "agent_contract": "AGENTS.md",
+  "documentation_standard": "docs/ai/DOCUMENTATION_STANDARD.md",
+  "current_truth": {
+    "human": "docs/CURRENT_STATUS.md",
+    "live_head": "RESOLVE_FROM_GITHUB"
+  },
+  "derived_views": {
+    "machine_snapshot": "docs/state/project_state.json",
+    "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_DERIVED_VIEWS"
+  },
+  "authority_docs": [
+    "docs/GOVERNANCE.md",
+    "docs/MENTAURY_CANON_V0.1.md",
+    "docs/research/RESEARCH_INDEX.md"
+  ],
+  "update_classes": {
+    "STRUCTURAL_CHANGE": "review_all_human_visual_roles_and_refresh_affected_only_then_agent_machine_current_truth",
+    "STATE_CHANGE": "remove_stale_high_level_state_implications_and_refresh_current_truth_without_visual_churn",
+    "EVIDENCE_ONLY": "refresh_evidence_or_checkpoint_without_human_landing_visual_churn"
+  },
+  "staleness_guard": true,
+  "preserve_history": true,
+  "post_update_readback": true,
+  "structural_path_hints": [
+    "src/mentaury/identity/",
+    "src/mentaury/beliefs/",
+    "src/mentaury/relations/",
+    "src/mentaury/composition/",
+    "src/mentaury/claims/",
+    "src/mentaury/epistemic_change/",
+    "docs/MENTAURY_CANON_V0.1.md",
+    "docs/research/",
+    "AGENTS.md",
+    "README.md",
+    "SYSTEM_OVERVIEW.md"
+  ],
+  "semantic_boundaries": [
+    "PRESENTATION_NE_PROOF",
+    "CLAIM_NE_BELIEF",
+    "RELATION_NE_TRUTH",
+    "CHARACTER_NE_EVIDENCE",
+    "CONTINUITY_NE_IDENTITY_PROOF",
+    "CONTRACT_FREEZE_NE_IMPLEMENTATION_AUTHORITY",
+    "IMPLEMENTATION_NE_RUNTIME_AUTHORITY",
+    "RUNTIME_CAPABILITY_NE_ACTION_AUTHORITY"
+  ],
+  "notion": {
+    "hub_page_id": "3b2ac84d-0547-81cf-841e-d08ca339f211",
+    "hub_title": "Mentaury Soul",
+    "research_registry_page_id": "3b5ac84d-0547-8106-b93d-ff3dcefc6396",
+    "new_pages_allowed_by_default": false,
+    "human_landing_should_track_structural_meaning": true
+  }
+}
