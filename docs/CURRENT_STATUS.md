@@ -148,7 +148,12 @@ PHASE_5_ATR_M01_M12_EXECUTABLE_PASS
 PHASE_5_ATR_P01_P12_EXECUTABLE_PASS
 PHASE_5_RUNTIME_NOT_AUTHORIZED
 
-PHASE_6_RESEARCH_PREPARATION_AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RESEARCH_PREPARATION_PREPARED_DOCS_TESTS_ONLY
+PHASE_6_INFERENCE_BRIDGE_AUDIT_PREPARED_DOCS_TESTS_ONLY
+PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK_PREPARED_DOCS_TESTS_ONLY
+PHASE_6_BENCHMARK_PR_121_VERIFIED
+PHASE_6_IMPLEMENTATION_MILESTONE_NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION_NOT_GRANTED
 PHASE_6_RUNTIME_NOT_AUTHORIZED
 
 ACTION_GATE_NOT_AUTHORIZED
@@ -203,7 +208,7 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Phase 5 `ATR-v0.1` contract | ✅ Frozen docs-only | exact pure representation contract; freeze itself grants no runtime authority |
 | Phase 5 `ATR-v0.1` bounded Owner GO | ✅ Consumed | one-time `ATR-v0.1_ONLY` authorization consumed by PR #119 |
 | Phase 5 Pure Anchored Typed Relation Record | ✅ Implemented bounded | exact three-file pure relation representation; no confidence, graph, truth, Evidence Gate or runtime authority |
-| Phase 6 inference/hypothesis preparation | 🟡 Docs/tests only authorized | research/readiness/benchmark preparation only; runtime remains NOT_AUTHORIZED |
+| Phase 6 inference/hypothesis preparation | ✅ Prepared docs/tests only | audit + `HD-01…HD-10` benchmark merged by PR #121; implementation/Owner GO/runtime remain absent |
 
 ---
 
@@ -691,6 +696,64 @@ reconciled to preserve its historical authority meaning, and exact-head rerun
 
 ---
 
+## 10.4 🔬 Phase 6 Inference Bridge Audit + Hypothesis Discrimination — prepared docs/tests only
+
+Owning benchmark:
+
+`docs/research/INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`
+
+Verified preparation evidence:
+
+```text
+Benchmark PR:             #121
+Reviewed exact head:      af49fc90f88b34f54ebeaa8d1afd45ab76173763
+Exact-head CI:            31871208558 · success · 1074 passed
+Tier A review:            4943195249
+Changed files:            2 · docs/test only · 0 src/**
+Benchmark merge/main:     147b456d7cbb56022a4234a0ca3f1cc861662fec
+Resulting-main CI:        31871247296 · success · 1074 passed
+Merge signature:          VERIFIED · VALID
+Correctness pass:         PASS
+Adversarial pass:         PASS
+Review threads:           0
+Independent human review: NO
+```
+
+Audit result:
+
+```text
+PCR-v0.1 → HYPOTHESIS / INFERENCE claims + provenance / basis
+ATR-v0.1 → exact anchored typed relation candidates
+P0-014   → ordinary non-terminal belief lifecycle
+P0-015   → sole Evidence Gate owner of SUPPORTED / CONTRADICTED
+EPR-v0.1 → frozen routing contract only · NOT IMPLEMENTED
+```
+
+The distinct uncovered failure mode is `NON_DISCRIMINATING_EVIDENCE_COLLECTION`:
+a system may state H1 and H2 yet propose observations whose possible outcomes do
+not actually separate them. `HD-01…HD-10` now provide docs/test-level behavioral
+coverage for genuinely distinct alternatives, discriminating observations,
+falsification preference, confirmation-bias resistance, relation ≠ causation,
+Evidence Gate ownership, inconclusive `WAIT/DEFER`, revision-history retention,
+provenance preservation and no pseudo-confidence.
+
+```text
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_RUNTIME = NOT_AUTHORIZED
+```
+
+No new Hypothesis/Inference/Relation/Evidence owner, runtime source package,
+autonomous inquiry loop, scheduler, retrieval/tool/model call, graph engine,
+confidence score, belief mutation, identity/relationship mutation, M3 write,
+Action Gate or deployment was introduced. Understanding/gist remains a benchmark
+direction rather than a selected module.
+
+---
+
 ## 11. 🚫 Explicitly not implemented or authorized
 
 ```text
@@ -744,12 +807,15 @@ Capability ALLOW
 + EPR-v0.1 frozen routing contract
 + ATR-v0.1 implemented bounded relation representation
 + Phase 5 Owner GO consumed
++ Phase 6 hypothesis-discrimination benchmark prepared
 ≠ Action Gate PASS
 ≠ retrieval permission
 ≠ tool permission
 ≠ evidence support status
 ≠ relation truth / confidence
 ≠ belief promotion/revision permission
+≠ Phase 6 implementation authority
+≠ autonomy authority
 ≠ identity authority
 ≠ relationship authority
 ≠ M3 authority
@@ -779,12 +845,14 @@ P1-003, NPG-v0.1, NPG-COMP-v0.1, PCR-v0.1 and ATR-v0.1 bounded Owner GO receipts
 are consumed and not reusable. Phase 4 readiness/candidate selection and
 `EPR-v0.1` remain frozen docs-only; **no Phase 4 Owner GO has been granted**.
 Phase 5 `ATR-v0.1` is implemented bounded; its representation capability grants
-no runtime, graph, truth, Evidence Gate, belief or action authority. Phase 6 is
-limited to research/readiness/benchmark preparation; **no Phase 6 runtime Owner
-GO has been granted**. Runtime activation, P1-004 assignment, Action Gate,
-retrieval, source admission, Evidence Gate mutation, belief mutation,
-claim→belief binding, terminal lineage, tools, identity/relationship mutation,
-M3, persistence and deployment remain outside current authority.
+no runtime, graph, truth, Evidence Gate, belief or action authority. Phase 6
+research preparation and the hypothesis-discrimination benchmark are merged and
+verified docs/test evidence only; **no Phase 6 implementation milestone has been
+selected and no Phase 6 implementation/runtime Owner GO has been granted**.
+Runtime activation, P1-004 assignment, Action Gate, retrieval, source admission,
+Evidence Gate mutation, belief mutation, claim→belief binding, terminal lineage,
+tools, identity/relationship mutation, M3, persistence and deployment remain
+outside current authority.
 
 ---
 
@@ -820,6 +888,7 @@ M3, persistence and deployment remain outside current authority.
 - Phase 5 candidate selection: `docs/research/TYPED_RELATIONS_CANDIDATE_SELECTION.md`
 - Phase 5 frozen contract: `docs/research/TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`
 - Phase 5 bounded Owner GO: `docs/research/TYPED_RELATIONS_OWNER_GO_DECISION.md`
+- Phase 6 Inference Bridge / Hypothesis Discrimination benchmark: `docs/research/INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -873,7 +942,11 @@ P0 foundation implemented
 + ATR-M01…ATR-M12 executable PASS
 + ATR-P01…ATR-P12 executable PASS
 + Phase 5 runtime NOT_AUTHORIZED
-+ Phase 6 research/readiness/benchmark preparation DOCS_TESTS_ONLY
++ Phase 6 Inference Bridge Audit PREPARED_DOCS_TESTS_ONLY by PR #121
++ Phase 6 Hypothesis Discrimination Benchmark PREPARED_DOCS_TESTS_ONLY by PR #121
++ HD-01…HD-10 benchmark coverage VERIFIED
++ Phase 6 implementation milestone NOT_SELECTED
++ Phase 6 implementation Owner GO NOT_GRANTED
 + Phase 6 runtime NOT_AUTHORIZED
 + Evidence Gate remains sole support/contradiction authority
 + ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
@@ -926,17 +999,22 @@ PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
-PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
 
-> **STOP BEFORE PHASE 6 RUNTIME.** Phase 5 `ATR-v0.1` is implemented bounded and
-> its single-use Owner GO is consumed. The next allowed work is only the Phase 6
-> Inference Bridge Audit + Hypothesis Discrimination research/readiness and
-> behavioral benchmark preparation. No cognition runtime, autonomous inquiry,
-> scheduler, retrieval/tool execution, Evidence Gate replacement, belief owner,
-> identity/relationship mutation, M3 write, Action Gate or deployment authority
-> is granted. Any Phase 6 implementation milestone requires a new explicit Owner
-> decision after the benchmark/readiness work is reviewed.
+> **STOP BEFORE PHASE 6 IMPLEMENTATION/RUNTIME.** Phase 5 `ATR-v0.1` is implemented
+> bounded and its single-use Owner GO is consumed. Phase 6 audit + hypothesis-
+> discrimination benchmark preparation is also merged and verified, but this
+> grants no implementation or runtime authority. The next engineering step is a
+> new explicit Owner decision selecting `NO_IMPLEMENTATION`, `MORE_RESEARCH`, or
+> at most a bounded non-autonomous implementation-readiness/contract-selection
+> cycle. No cognition runtime, autonomous inquiry, scheduler, retrieval/tool
+> execution, Evidence Gate replacement, belief owner, identity/relationship
+> mutation, M3 write, Action Gate or deployment is authorized.
