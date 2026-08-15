@@ -82,7 +82,13 @@ def test_historical_docs_retain_preimplementation_authority_state() -> None:
         "PHASE_6_RUNTIME = NOT_AUTHORIZED",
     ):
         assert marker in READINESS or marker in CONTRACT
-        assert marker in STATUS  # retained explicitly as historical compatibility provenance
+
+    for marker in (
+        "Historical HDE readiness markers:",
+        "PHASE_6_IMPLEMENTATION_NOT_STARTED",
+        "PHASE_6_OWNER_GO_FOR_IMPLEMENTATION_NOT_GRANTED",
+    ):
+        assert marker in STATUS
 
 
 def test_owner_go_is_consumed_only_by_verified_hde_implementation() -> None:
