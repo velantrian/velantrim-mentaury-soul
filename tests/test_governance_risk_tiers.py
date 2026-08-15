@@ -43,6 +43,12 @@ _EXISTING_TIER_A = (
     "src/mentaury/evidence/**",
     "src/mentaury/capabilities/lease/**",
     "src/mentaury/privacy/reconciliation/**",
+    "src/mentaury/non_projection/**",
+    "src/mentaury/composition/governed_constraints/**",
+    "src/mentaury/composition/non_projection_shadow/**",
+    "src/mentaury/claims/**",
+    "src/mentaury/relations/**",
+    "src/mentaury/discrimination/**",
     "src/mentaury/contracts/canonical_json.py",
     "scripts/validate.py",
     "scripts/check_doc_freshness.py",
@@ -58,6 +64,15 @@ _EXISTING_TIER_A = (
     "docs/research/MENTAURY_CAPABILITY_LEASE_RESOLUTION_NOTES.md",
     "docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md",
     "docs/research/POST_P0_ROADMAP_V0.1.md",
+)
+
+_SEMANTIC_TIER_A_DIRS = (
+    "src/mentaury/non_projection",
+    "src/mentaury/composition/governed_constraints",
+    "src/mentaury/composition/non_projection_shadow",
+    "src/mentaury/claims",
+    "src/mentaury/relations",
+    "src/mentaury/discrimination",
 )
 
 _IF_WHEN_TIER_A = (
@@ -77,6 +92,12 @@ _CODEOWNERS_EXISTING = (
     "/src/mentaury/evidence/",
     "/src/mentaury/capabilities/lease/",
     "/src/mentaury/privacy/reconciliation/",
+    "/src/mentaury/non_projection/",
+    "/src/mentaury/composition/governed_constraints/",
+    "/src/mentaury/composition/non_projection_shadow/",
+    "/src/mentaury/claims/",
+    "/src/mentaury/relations/",
+    "/src/mentaury/discrimination/",
     "/src/mentaury/contracts/canonical_json.py",
     "/scripts/validate.py",
     "/scripts/check_doc_freshness.py",
@@ -136,6 +157,15 @@ def test_existing_tier_a_paths_are_exact_and_unique() -> None:
     listed = _first_text_fence(section)
     assert listed == list(_EXISTING_TIER_A)
     assert len(listed) == len(set(listed))
+
+
+def test_current_semantic_source_domains_are_explicit_tier_a_surfaces() -> None:
+    tier_a = set(_EXISTING_TIER_A)
+    codeowners = set(_CODEOWNERS_EXISTING)
+    for path in _SEMANTIC_TIER_A_DIRS:
+        assert (ROOT / path).is_dir(), path
+        assert f"{path}/**" in tier_a
+        assert f"/{path}/" in codeowners
 
 
 def test_reserved_tier_a_paths_are_exact() -> None:
