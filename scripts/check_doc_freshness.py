@@ -1,34 +1,26 @@
-"""Doc-freshness gate for derived Mentaury status documents.
+"""Doc-freshness gates for derived Mentaury status surfaces.
 
-Added during the 2026-08-06 audit after ``docs/MENTAURY_QUICK_REFERENCE.md``
-and ``docs/ENVIRONMENT_MANIFEST.md`` were found several P0 milestones behind
-the authoritative ``docs/CURRENT_STATUS.md`` (one still referenced a merged
-PR by number, the other still said "Permanent CI: NOT PRESENT" after P0-012
-shipped). Both derived documents declare their own claimed status as an
-explicit ``P<stage>-XXX…P<stage>-YYY IMPLEMENTED IN MAIN`` marker; this
-script fails closed whenever that marker is missing, lags behind, or
-overshoots the highest milestone ``docs/CURRENT_STATUS.md`` marks
-"Implemented" in its status table.
+The human-readable derived documents keep a compact milestone marker and are
+checked against ``docs/CURRENT_STATUS.md``. The machine snapshot is checked
+separately because it is structured data: it must declare itself derived and
+must agree with the authoritative current-status markers for the bounded
+implementation and authority fields it mirrors.
 
-The milestone pattern is stage-generic (``P0-``, ``P1-``, ...): a milestone
-is compared as the tuple ``(stage, number)``, so once the project moves past
-the P0 line (e.g. into a POST-P0 roadmap numbered ``P1-001``, ``P1-002``,
-...) this gate keeps working unmodified instead of silently staying green
-against a frozen ``P0-015`` marker forever.
-
-This does not replace human judgement about *content* drift. It only proves
-that nobody forgot to bump the one-line status marker on the next merged
-milestone.
+Neither check makes a derived surface authoritative. Live merged GitHub state
+plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
 """
 
 from __future__ import annotations
 
+import json
 import pathlib
 import re
 from collections.abc import Mapping
+from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CURRENT_STATUS_PATH = ROOT / "docs" / "CURRENT_STATUS.md"
+MACHINE_STATE_PATH = ROOT / "docs" / "state" / "project_state.json"
 DERIVED_DOC_PATHS = (
     ROOT / "README.md",
     ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
@@ -37,20 +29,41 @@ DERIVED_DOC_PATHS = (
 
 Milestone = tuple[int, int]
 
-# Authoritative rows look like:
-#   | P0-015 Deterministic Evidence Gate | ✅ Implemented | ... |
 _AUTHORITATIVE_IMPLEMENTED_ROW = re.compile(
     r"P(\d+)-(\d{3})[^\n|]*\|\s*✅\s*Implemented",
     re.IGNORECASE,
 )
-
-# Derived-document markers look like:
-#   P0-001…P0-015_IMPLEMENTED_IN_MAIN
-#   P0-001…P0-015 IMPLEMENTED IN MAIN
 _DERIVED_IMPLEMENTED_RANGE = re.compile(
     r"P(\d+)-\d{3}\s*…\s*P(\d+)-(\d{3})[ _]IMPLEMENTED[ _]IN[ _]MAIN",
     re.IGNORECASE,
 )
+
+_MACHINE_ROLE = "DERIVED_MACHINE_SNAPSHOT"
+_MACHINE_CONFLICT_RULE = "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT"
+
+# Snapshot booleans that mirror explicit current-status markers.
+_IMPLEMENTED_MARKERS = {
+    "phase_2_npg_shadow_composition": "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED",
+    "phase_3_provenance_claim_record": "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED",
+}
+_FROZEN_NOT_IMPLEMENTED_MARKERS = {
+    "phase_4_epistemic_change_router_epr_v0_1": (
+        "PHASE_4_CONTRACT_VERSION_EPR_V0_1",
+        "PHASE_4_IMPLEMENTATION_NOT_STARTED",
+    ),
+    "phase_5_anchored_typed_relation_atr_v0_1": (
+        "PHASE_5_CONTRACT_VERSION_ATR_V0_1",
+        "PHASE_5_IMPLEMENTATION_NOT_STARTED",
+    ),
+}
+_AUTHORITY_NOT_AUTHORIZED_MARKERS = {
+    "action_gate_authorized": "ACTION_GATE_NOT_AUTHORIZED",
+    "retrieval_execution_authorized": "RETRIEVAL_EXECUTION_NOT_AUTHORIZED",
+    "tool_execution_authorized": "TOOL_EXECUTION_NOT_AUTHORIZED",
+    "identity_runtime_authorized": "IDENTITY_RUNTIME_NOT_AUTHORIZED",
+    "relationship_runtime_authorized": "RELATIONSHIP_RUNTIME_NOT_AUTHORIZED",
+    "runtime_deployment_authorized": "RUNTIME_DEPLOYMENT_NOT_AUTHORIZED",
+}
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -59,7 +72,7 @@ def format_milestone(milestone: Milestone) -> str:
 
 
 def authoritative_milestones(text: str) -> list[Milestone]:
-    """Every ``P<stage>-<number>`` marked "✅ Implemented" in an authoritative table."""
+    """Every ``P<stage>-<number>`` marked ``✅ Implemented``."""
 
     return [
         (int(stage), int(number))
@@ -68,17 +81,10 @@ def authoritative_milestones(text: str) -> list[Milestone]:
 
 
 def derived_milestones(text: str) -> list[Milestone]:
-    """Every well-formed ``P<s>-XXX…P<s>-YYY IMPLEMENTED IN MAIN`` marker.
-
-    A range whose start and end stage disagree (e.g. a corrupted
-    ``P0-001…P1-002`` marker) is not a meaningful claim about either stage,
-    so it is skipped rather than silently accepted as either one.
-    """
+    """Every coherent derived ``IMPLEMENTED IN MAIN`` range marker."""
 
     milestones: list[Milestone] = []
-    for start_stage, end_stage, end_number in _DERIVED_IMPLEMENTED_RANGE.findall(
-        text
-    ):
+    for start_stage, end_stage, end_number in _DERIVED_IMPLEMENTED_RANGE.findall(text):
         if start_stage != end_stage:
             continue
         milestones.append((int(end_stage), int(end_number)))
@@ -88,12 +94,7 @@ def derived_milestones(text: str) -> list[Milestone]:
 def evaluate(
     current_status_text: str, derived_doc_texts: Mapping[str, str]
 ) -> list[str]:
-    """Return a list of human-readable problems, or an empty list if fresh.
-
-    Pure function over document text, independent of the filesystem, so it
-    can be unit-tested directly against synthetic document snippets instead
-    of real files on disk.
-    """
+    """Check human-readable derived milestone markers."""
 
     authoritative = authoritative_milestones(current_status_text)
     if not authoritative:
@@ -129,6 +130,91 @@ def evaluate(
     return problems
 
 
+def _expect_mapping(snapshot: Mapping[str, Any], key: str) -> Mapping[str, Any] | None:
+    value = snapshot.get(key)
+    return value if isinstance(value, Mapping) else None
+
+
+def evaluate_machine_snapshot(
+    current_status_text: str, machine_state_text: str
+) -> list[str]:
+    """Fail closed when the derived JSON snapshot disagrees with current status."""
+
+    try:
+        parsed = json.loads(machine_state_text)
+    except json.JSONDecodeError as exc:
+        return [f"docs/state/project_state.json: invalid JSON: {exc.msg}"]
+
+    if not isinstance(parsed, dict):
+        return ["docs/state/project_state.json: top-level JSON value must be an object"]
+
+    problems: list[str] = []
+    if parsed.get("document_role") != _MACHINE_ROLE:
+        problems.append(
+            "docs/state/project_state.json: document_role must be "
+            f"{_MACHINE_ROLE!r}"
+        )
+    if parsed.get("independent_truth_authority") is not False:
+        problems.append(
+            "docs/state/project_state.json: independent_truth_authority must be false"
+        )
+    if parsed.get("conflict_rule") != _MACHINE_CONFLICT_RULE:
+        problems.append(
+            "docs/state/project_state.json: conflict_rule must preserve live GitHub + "
+            "CURRENT_STATUS precedence"
+        )
+
+    implemented = _expect_mapping(parsed, "implemented_bounded")
+    if implemented is None:
+        problems.append("docs/state/project_state.json: implemented_bounded must be an object")
+    else:
+        for key, marker in _IMPLEMENTED_MARKERS.items():
+            snapshot_value = implemented.get(key)
+            authoritative_value = marker in current_status_text
+            if not isinstance(snapshot_value, bool):
+                problems.append(f"implemented_bounded.{key}: expected boolean")
+            elif snapshot_value != authoritative_value:
+                problems.append(
+                    f"implemented_bounded.{key}={snapshot_value} disagrees with "
+                    f"CURRENT_STATUS marker {marker!r} (present={authoritative_value})"
+                )
+
+    frozen = _expect_mapping(parsed, "frozen_not_implemented")
+    if frozen is None:
+        problems.append(
+            "docs/state/project_state.json: frozen_not_implemented must be an object"
+        )
+    else:
+        for key, markers in _FROZEN_NOT_IMPLEMENTED_MARKERS.items():
+            snapshot_value = frozen.get(key)
+            authoritative_value = all(marker in current_status_text for marker in markers)
+            if not isinstance(snapshot_value, bool):
+                problems.append(f"frozen_not_implemented.{key}: expected boolean")
+            elif snapshot_value != authoritative_value:
+                problems.append(
+                    f"frozen_not_implemented.{key}={snapshot_value} disagrees with "
+                    f"CURRENT_STATUS markers {markers!r} (all_present={authoritative_value})"
+                )
+
+    authority = _expect_mapping(parsed, "authority")
+    if authority is None:
+        problems.append("docs/state/project_state.json: authority must be an object")
+    else:
+        for key, not_authorized_marker in _AUTHORITY_NOT_AUTHORIZED_MARKERS.items():
+            snapshot_value = authority.get(key)
+            authoritative_authorized = not_authorized_marker not in current_status_text
+            if not isinstance(snapshot_value, bool):
+                problems.append(f"authority.{key}: expected boolean")
+            elif snapshot_value != authoritative_authorized:
+                problems.append(
+                    f"authority.{key}={snapshot_value} disagrees with CURRENT_STATUS "
+                    f"marker {not_authorized_marker!r} "
+                    f"(authorized={authoritative_authorized})"
+                )
+
+    return problems
+
+
 def main() -> int:
     current_status_text = CURRENT_STATUS_PATH.read_text(encoding="utf-8")
     derived_doc_texts = {
@@ -137,16 +223,22 @@ def main() -> int:
     }
 
     problems = evaluate(current_status_text, derived_doc_texts)
+    problems.extend(
+        evaluate_machine_snapshot(
+            current_status_text,
+            MACHINE_STATE_PATH.read_text(encoding="utf-8"),
+        )
+    )
     if problems:
-        print("doc freshness gate: derived documents are out of sync:")
+        print("doc freshness gate: derived surfaces are out of sync:")
         for problem in problems:
             print(f"- {problem}")
         return 1
 
     authoritative_max = max(authoritative_milestones(current_status_text))
     print(
-        "doc freshness gate: derived documents match "
-        f"{format_milestone(authoritative_max)} PASS"
+        "doc freshness gate: derived human docs and machine snapshot match "
+        f"{format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
     )
     return 0
 
