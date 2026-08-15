@@ -105,7 +105,7 @@ ANALOGY ≠ MECHANISM
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 ```
 
-The current `ATR-v0.1` contract is frozen as a representation boundary only; implementation is not yet authorized.
+`ATR-v0.1` is now implemented as a bounded pure representation primitive: it binds relation candidates to exact PCR claim identities and preserves the closed v0.1 vocabulary without adding confidence, graph truth, Evidence Gate outcomes, belief mutation or runtime authority.
 
 ### 4. ⚖️ Epistemic governance
 
@@ -330,7 +330,7 @@ flowchart LR
     B --> C[🧾 Claims]
     C --> D[🔗 Relations]
     C --> E[⚖️ Epistemic routing]
-    D --> F[🧠 Future inference]
+    D --> F[🔬 Phase 6 discrimination benchmark · docs/tests]
     E --> G[🔬 Existing evidence / belief owners]
     F --> G
     G --> H[❓ Open obligations]
@@ -364,7 +364,8 @@ understanding → autobiography
 | 🪞 Non-Projection | ✅ Implemented bounded | attribution protection only; no runtime activation |
 | 🌱 PCR-v0.1 claims/provenance | ✅ Implemented bounded | representation only |
 | ⚖️ EPR-v0.1 | 🧊 Frozen contract | routing contract only; implementation absent |
-| 🔗 ATR-v0.1 | 🧊 Frozen contract | typed-relation representation contract; implementation absent |
+| 🔗 ATR-v0.1 | ✅ Implemented bounded | exact PCR-anchored typed-relation representation; no confidence/graph/truth/runtime authority |
+| 🔬 Phase 6 hypothesis discrimination | ✅ Prepared docs/tests only | `HD-01…HD-10` benchmark; implementation and runtime remain unauthorized |
 | 🔗 claim→belief binding | ❌ Not implemented | future separate contract required |
 | 🔄 terminal reconsideration lineage | ❌ Not implemented | terminal beliefs cannot be silently reopened |
 | 🧠 inference / inquiry / scheduler | ❌ Future | not current runtime capability |
@@ -508,18 +509,29 @@ At the current checkpoint:
 ```text
 PCR-v0.1   ✅ IMPLEMENTED_BOUNDED
 EPR-v0.1   🧊 FROZEN_DOCS · NOT_STARTED
-ATR-v0.1   🧊 FROZEN_DOCS · NOT_STARTED
+ATR-v0.1   ✅ FROZEN_DOCS · IMPLEMENTED_BOUNDED
 
-EPR Owner GO   NOT_GRANTED
-ATR Owner GO   NOT_GRANTED
-Runtime        NOT_AUTHORIZED
-Retrieval      NOT_AUTHORIZED
-Tools          NOT_AUTHORIZED
-Action Gate    NOT_AUTHORIZED
-Deployment     NOT_AUTHORIZED
+EPR Owner GO              NOT_GRANTED
+ATR Owner GO              CONSUMED_BY_PR_119
+Phase 6 research prep     PREPARED_DOCS_TESTS_ONLY
+Phase 6 implementation    NOT_SELECTED · NOT_AUTHORIZED
+Phase 6 Owner GO          NOT_GRANTED
+Runtime                   NOT_AUTHORIZED
+Retrieval                 NOT_AUTHORIZED
+Tools                     NOT_AUTHORIZED
+Action Gate               NOT_AUTHORIZED
+Deployment                NOT_AUTHORIZED
 ```
 
-Do not infer implementation authority from contract readiness, and do not infer runtime authority from implementation.
+```text
+RELATION ≠ TRUTH
+HYPOTHESIS ≠ FACT
+BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
+BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+IMPLEMENTED_BOUNDED ≠ RUNTIME AUTHORITY
+```
+
+Do not infer implementation authority from contract readiness, and do not infer runtime authority from implementation or benchmark preparation.
 
 ---
 
