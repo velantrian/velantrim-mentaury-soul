@@ -6,8 +6,10 @@ import json
 
 from check_doc_freshness import (
     authoritative_milestones,
+    current_checkpoint,
     derived_milestones,
     evaluate,
+    evaluate_human_semantic_status,
     evaluate_machine_snapshot,
     format_milestone,
 )
@@ -35,9 +37,45 @@ RELATIONSHIP_RUNTIME_NOT_AUTHORIZED
 RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
 """
 
+_HUMAN_STATUS = """
+# 🚦 Mentaury Soul — Current Status
+
+## 1. 🧭 Current checkpoint
+
+```text
+PHASE_4_IMPLEMENTATION_NOT_STARTED
+PHASE_4_OWNER_GO_NOT_GRANTED
+PHASE_4_RUNTIME_NOT_AUTHORIZED
+PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+PHASE_5_OWNER_GO_CONSUMED_BY_PR_119
+PHASE_5_RUNTIME_NOT_AUTHORIZED
+PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO_CONSUMED_BY_PR_127
+PHASE_6_RUNTIME_NOT_AUTHORIZED
+```
+
+---
+
+## 2. ✅ Milestone table
+"""
+
 
 def _derived(marker: str) -> str:
     return f"Синхронно: GitHub main after merged PR #31\n\n{marker}\n"
+
+
+def _human_semantics() -> str:
+    return """
+PHASE_4_IMPLEMENTATION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_RUNTIME = NOT_AUTHORIZED
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
+PHASE_6_RUNTIME = NOT_AUTHORIZED
+"""
 
 
 def _machine_snapshot() -> dict[str, object]:
@@ -215,6 +253,76 @@ def test_readme_missing_marker_fails() -> None:
     )
     assert len(problems) == 1
     assert "missing a well-formed" in problems[0]
+
+
+def test_current_checkpoint_excludes_later_historical_sections() -> None:
+    text = _HUMAN_STATUS + "\nPHASE_6_RUNTIME_NOT_AUTHORIZED_HISTORICAL_ONLY\n"
+    checkpoint = current_checkpoint(text)
+    assert checkpoint is not None
+    assert "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED" in checkpoint
+    assert "HISTORICAL_ONLY" not in checkpoint
+
+
+def test_human_semantic_status_matching_current_checkpoint_passes() -> None:
+    assert evaluate_human_semantic_status(
+        _HUMAN_STATUS,
+        {
+            "README.md": _human_semantics(),
+            "SYSTEM_OVERVIEW.md": _human_semantics(),
+        },
+    ) == []
+
+
+def test_human_semantic_status_rejects_pre_hde_landing_snapshot() -> None:
+    stale = _human_semantics().replace(
+        "PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED",
+        "PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED",
+    ).replace(
+        "PHASE_6_OWNER_GO = CONSUMED_BY_PR_127",
+        "PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED",
+    )
+    problems = evaluate_human_semantic_status(
+        _HUMAN_STATUS,
+        {"README.md": stale, "SYSTEM_OVERVIEW.md": stale},
+    )
+    assert any("README.md" in problem and "PHASE_6_IMPLEMENTATION" in problem for problem in problems)
+    assert any(
+        "SYSTEM_OVERVIEW.md" in problem and "PHASE_6_OWNER_GO" in problem
+        for problem in problems
+    )
+
+
+def test_human_semantic_status_detects_forward_drift() -> None:
+    status_before_hde = _HUMAN_STATUS.replace(
+        "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED", ""
+    ).replace("PHASE_6_OWNER_GO_CONSUMED_BY_PR_127", "")
+    problems = evaluate_human_semantic_status(
+        status_before_hde,
+        {"README.md": _human_semantics()},
+    )
+    assert any("PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED" in problem for problem in problems)
+    assert any("PHASE_6_OWNER_GO = CONSUMED_BY_PR_127" in problem for problem in problems)
+
+
+def test_human_semantic_status_detects_runtime_authority_drift() -> None:
+    drifted = _human_semantics().replace(
+        "PHASE_6_RUNTIME = NOT_AUTHORIZED",
+        "PHASE_6_RUNTIME = AUTHORIZED",
+    )
+    problems = evaluate_human_semantic_status(
+        _HUMAN_STATUS,
+        {"README.md": drifted},
+    )
+    assert any("PHASE_6_RUNTIME = NOT_AUTHORIZED" in problem for problem in problems)
+
+
+def test_human_semantic_status_requires_current_checkpoint() -> None:
+    problems = evaluate_human_semantic_status(
+        "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
+        {"README.md": _human_semantics()},
+    )
+    assert len(problems) == 1
+    assert "Current checkpoint" in problems[0]
 
 
 def test_machine_snapshot_matching_current_status_passes() -> None:

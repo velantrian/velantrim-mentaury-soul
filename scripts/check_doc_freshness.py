@@ -1,13 +1,15 @@
 """Doc-freshness gates for derived Mentaury status surfaces.
 
-The human-readable derived documents keep a compact milestone marker and are
-checked against ``docs/CURRENT_STATUS.md``. The machine snapshot is checked
-separately because it is structured data: it must declare itself derived and
-must agree with the authoritative current-status markers for the bounded
+Human-readable derived documents are checked in two deliberately small ways:
+compact milestone markers preserve the historical P-stage compatibility guard,
+while the root human landing pages must also mirror a bounded set of explicit
+current semantic facts from ``docs/CURRENT_STATUS.md``. The machine snapshot is
+checked separately because it is structured data: it must declare itself derived
+and must agree with the authoritative current-status markers for the bounded
 implementation and authority fields it mirrors.
 
-Neither check makes a derived surface authoritative. Live merged GitHub state
-plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
+None of these checks makes a derived surface authoritative. Live merged GitHub
+state plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
 """
 
 from __future__ import annotations
@@ -26,6 +28,10 @@ DERIVED_DOC_PATHS = (
     ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
     ROOT / "docs" / "ENVIRONMENT_MANIFEST.md",
 )
+HUMAN_SEMANTIC_DOC_PATHS = (
+    ROOT / "README.md",
+    ROOT / "SYSTEM_OVERVIEW.md",
+)
 
 Milestone = tuple[int, int]
 
@@ -40,6 +46,27 @@ _DERIVED_IMPLEMENTED_RANGE = re.compile(
 
 _MACHINE_ROLE = "DERIVED_MACHINE_SNAPSHOT"
 _MACHINE_CONFLICT_RULE = "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT"
+
+# Visible human-facing facts mirrored by README/System Overview. These exact
+# phrases are intentionally simple: a stale pre-HDE landing page must not pass
+# merely because it still carries an old P-stage compatibility marker.
+_HUMAN_SEMANTIC_FACTS = (
+    ("PHASE_4_IMPLEMENTATION_NOT_STARTED", "PHASE_4_IMPLEMENTATION = NOT_STARTED"),
+    ("PHASE_4_OWNER_GO_NOT_GRANTED", "PHASE_4_OWNER_GO = NOT_GRANTED"),
+    ("PHASE_4_RUNTIME_NOT_AUTHORIZED", "PHASE_4_RUNTIME = NOT_AUTHORIZED"),
+    (
+        "PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
+        "PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED",
+    ),
+    ("PHASE_5_OWNER_GO_CONSUMED_BY_PR_119", "PHASE_5_OWNER_GO = CONSUMED_BY_PR_119"),
+    ("PHASE_5_RUNTIME_NOT_AUTHORIZED", "PHASE_5_RUNTIME = NOT_AUTHORIZED"),
+    (
+        "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
+        "PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED",
+    ),
+    ("PHASE_6_OWNER_GO_CONSUMED_BY_PR_127", "PHASE_6_OWNER_GO = CONSUMED_BY_PR_127"),
+    ("PHASE_6_RUNTIME_NOT_AUTHORIZED", "PHASE_6_RUNTIME = NOT_AUTHORIZED"),
+)
 
 # Snapshot booleans that mirror explicit current-status markers.
 _IMPLEMENTED_MARKERS = {
@@ -91,6 +118,18 @@ def derived_milestones(text: str) -> list[Milestone]:
     return milestones
 
 
+def current_checkpoint(text: str) -> str | None:
+    """Return only the authoritative current-checkpoint section, not history."""
+
+    anchor = "## 1. 🧭 Current checkpoint"
+    if anchor not in text:
+        return None
+    remainder = text.split(anchor, 1)[1]
+    if "---" not in remainder:
+        return None
+    return remainder.split("---", 1)[0]
+
+
 def evaluate(
     current_status_text: str, derived_doc_texts: Mapping[str, str]
 ) -> list[str]:
@@ -127,6 +166,32 @@ def evaluate(
                 f"has {format_milestone(authoritative_max)} implemented) — "
                 "this looks like a typo or a premature status update"
             )
+    return problems
+
+
+def evaluate_human_semantic_status(
+    current_status_text: str, derived_doc_texts: Mapping[str, str]
+) -> list[str]:
+    """Check visible current Phase 4–6 facts on the root human landing pages."""
+
+    checkpoint = current_checkpoint(current_status_text)
+    if checkpoint is None:
+        return [
+            "docs/CURRENT_STATUS.md: could not isolate the authoritative "
+            "'## 1. 🧭 Current checkpoint' section"
+        ]
+
+    problems: list[str] = []
+    for name, doc_text in derived_doc_texts.items():
+        for status_marker, derived_marker in _HUMAN_SEMANTIC_FACTS:
+            authoritative_present = status_marker in checkpoint
+            derived_present = derived_marker in doc_text
+            if derived_present != authoritative_present:
+                problems.append(
+                    f"{name}: visible semantic marker {derived_marker!r} "
+                    f"disagrees with CURRENT_STATUS current-checkpoint marker "
+                    f"{status_marker!r} (present={authoritative_present})"
+                )
     return problems
 
 
@@ -221,8 +286,13 @@ def main() -> int:
         str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
         for doc_path in DERIVED_DOC_PATHS
     }
+    semantic_doc_texts = {
+        str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
+        for doc_path in HUMAN_SEMANTIC_DOC_PATHS
+    }
 
     problems = evaluate(current_status_text, derived_doc_texts)
+    problems.extend(evaluate_human_semantic_status(current_status_text, semantic_doc_texts))
     problems.extend(
         evaluate_machine_snapshot(
             current_status_text,
@@ -237,8 +307,8 @@ def main() -> int:
 
     authoritative_max = max(authoritative_milestones(current_status_text))
     print(
-        "doc freshness gate: derived human docs and machine snapshot match "
-        f"{format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
+        "doc freshness gate: milestone markers, human semantic state and machine "
+        f"snapshot match {format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
     )
     return 0
 
