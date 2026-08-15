@@ -155,8 +155,12 @@ PHASE_6_READINESS_SELECTED_CANDIDATE_CONTRACT_FROZEN_DOCS_TESTS_ONLY
 PHASE_6_CANDIDATE_PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
 PHASE_6_IMPLEMENTATION_CONTRACT_HDE_V0_1_FROZEN_DOCS_TESTS_ONLY
 PHASE_6_READINESS_PR_124_VERIFIED
-PHASE_6_IMPLEMENTATION_NOT_STARTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION_NOT_GRANTED
+PHASE_6_OWNER_GO_CONSUMED_BY_PR_127
+PHASE_6_OWNER_GO_SCOPE_HDE_V0_1_ONLY
+PHASE_6_IMPLEMENTATION_AUTHORIZATION_CONSUMED_HDE_V0_1_ONLY
+PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+PHASE_6_HDE_T01_T16_EXECUTABLE_PASS
+PHASE_6_HDE_M01_M10_EXECUTABLE_PASS
 PHASE_6_RUNTIME_NOT_AUTHORIZED
 
 ACTION_GATE_NOT_AUTHORIZED
@@ -189,7 +193,7 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Phase 4 EPR-v0.1 | ✅ Frozen docs-only | pure routing contract; implementation absent |
 | Phase 5 ATR-v0.1 | ✅ Implemented bounded | pure exact-PCR-anchored typed-relation representation |
 | Phase 6 HD-01…HD-10 | ✅ Prepared docs/tests only | discrimination benchmark; no runtime authority |
-| Phase 6 HDE-v0.1 | ✅ Selected + frozen docs/tests only | pure evaluator contract; implementation absent |
+| Phase 6 HDE-v0.1 | ✅ Implemented bounded | pure caller-supplied structural discrimination evaluator; runtime absent |
 
 ---
 
@@ -218,9 +222,16 @@ Benchmark resulting CI     31871247296 · 1074 passed
 HDE readiness PR           #124
 HDE reviewed exact head    a41394de254c9920d8829cd9bda73de4e95a82a0
 HDE exact-head CI          31877329002 · success · 1088 passed
-HDE merge/main             c45bdc12bb3f25f38982554d4b96de3084c22815
-HDE merge signature        VERIFIED · VALID
-HDE resulting-main CI      31877392090 · success
+HDE readiness merge/main   c45bdc12bb3f25f38982554d4b96de3084c22815
+HDE readiness resulting CI 31877392090 · success
+HDE Owner GO PR            #126
+HDE Owner GO merge/main    de0cbbce8fe0ffb50f60f622026cd3d427842e66 · VERIFIED · VALID
+HDE implementation PR      #127
+HDE reviewed exact head    6977d5696cf642653aaef56f4cbef73db35070ec
+HDE exact-head CI          31886102508 · success · 1111 passed
+HDE Tier A review          4943890604 · correctness PASS · adversarial PASS
+HDE implementation main    2c916e8ce44f623d1a1880f8e480ae2f13277615 · VERIFIED · VALID
+HDE resulting-main CI      31886151205 · success
 Independent human review   NO
 ```
 
@@ -228,9 +239,7 @@ Evidence Gate remains sole support/contradiction authority.
 
 ### Validator-bound historical markers retained in the current owner
 
-These lines are retained because existing structural contracts intentionally bind
-current state to historical completion evidence. The exact full narrative remains
-in the archived pre-HDE snapshot.
+These are historical compatibility/provenance markers, not current authority:
 
 ```text
 P1-001 exact source surface:
@@ -270,6 +279,10 @@ PCR exact source surface:
 src/mentaury/claims/__init__.py
 src/mentaury/claims/contracts.py
 src/mentaury/claims/representation.py
+
+Historical HDE readiness markers:
+PHASE_6_IMPLEMENTATION_NOT_STARTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION_NOT_GRANTED
 ```
 
 ---
@@ -281,6 +294,8 @@ Owning documents:
 - benchmark: `docs/research/INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`
 - readiness/selection: `docs/research/PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md`
 - frozen contract: `docs/research/HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md`
+- Owner GO decision: `docs/research/HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md`
+- completion receipt: `docs/HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md`
 
 ```text
 PCR-v0.1 → HYPOTHESIS / INFERENCE claims + provenance / basis
@@ -288,10 +303,10 @@ ATR-v0.1 → exact anchored typed relation representation
 P0-014   → ordinary non-terminal belief lifecycle
 P0-015   → sole Evidence Gate owner of SUPPORTED / CONTRADICTED
 EPR-v0.1 → frozen routing-only contract · NOT_IMPLEMENTED
-HDE-v0.1 → caller-supplied structural hypothesis-discrimination evaluation only
+HDE-v0.1 → pure caller-supplied structural hypothesis-discrimination evaluation
 ```
 
-The uncovered failure remains precisely:
+The closed bounded failure is:
 
 ```text
 NON_DISCRIMINATING_EVIDENCE_COLLECTION
@@ -300,9 +315,9 @@ well-formed H1 + H2 may be followed by an observation whose represented outcomes
 do not actually distinguish H1 from H2.
 ```
 
-HDE-v0.1 closes only the **structural callable guard**: an outcome partition in
-which all represented known outcomes map identically under H1 and H2 cannot be
-classified `DISCRIMINATING`.
+HDE-v0.1 makes one narrow failure impossible inside its admitted structure: if a
+complete caller-supplied partition contains only known outcomes that map
+identically under H1 and H2, the evaluator cannot return `DISCRIMINATING`.
 
 It does not generate hypotheses, prove semantic distinctness, search for tests,
 execute observations, collect evidence, call P0-015, assign confidence, infer
@@ -310,7 +325,7 @@ causality, schedule inquiry or authorize action/runtime.
 
 ---
 
-## 5. 🧪 Frozen HDE-v0.1 boundary
+## 5. 🧪 Implemented HDE-v0.1 boundary
 
 ```text
 Input:
@@ -335,7 +350,7 @@ Never output:
   action | task | schedule | mutation command
 ```
 
-Reserved future source surface, still absent:
+Implemented bounded source surface:
 
 ```text
 src/mentaury/discrimination/__init__.py
@@ -357,15 +372,15 @@ RELATION ≠ TRUTH
 CORRELATION ≠ CAUSATION
 MENTAURY_DERIVED_TEST_DESIGN ≠ INDEPENDENT_EVIDENCE
 BENCHMARK PASS ≠ AUTONOMY AUTHORITY
-CONTRACT FREEZE ≠ OWNER GO
+IMPLEMENTED_BOUNDED ≠ RUNTIME AUTHORITY
 ```
 
 ```text
 PHASE_6_READINESS = SELECTED_CANDIDATE_CONTRACT_FROZEN_DOCS_TESTS_ONLY
 PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
 PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
-PHASE_6_IMPLEMENTATION = NOT_STARTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 ```
 
@@ -385,14 +400,16 @@ Capability ALLOW
 + PCR-v0.1 representation
 + EPR-v0.1 frozen route contract
 + ATR-v0.1 typed relation representation
-+ Phase 6 HD benchmark
-+ HDE-v0.1 frozen evaluator contract
++ HDE-v0.1 structural discrimination evaluator
 ≠ Action Gate PASS
 ≠ retrieval/tool permission
+≠ observation execution
+≠ evidence collection
 ≠ evidence support status
 ≠ belief mutation
 ≠ graph truth/confidence
 ≠ autonomous inquiry
+≠ scheduler authority
 ≠ identity/relationship/M3 authority
 ≠ runtime/deployment authority
 ```
@@ -411,7 +428,7 @@ GREEN CI ≠ SEMANTIC PROOF
 MERGE AUTHORITY ≠ RUNTIME AUTHORITY
 ```
 
-No independent human review is claimed for Phase 6 readiness.
+No independent human review is claimed for HDE-v0.1 implementation.
 
 ---
 
@@ -430,6 +447,8 @@ No independent human review is claimed for Phase 6 readiness.
 - Phase 6 benchmark: `docs/research/INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`
 - Phase 6 readiness: `docs/research/PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md`
 - HDE-v0.1 contract: `docs/research/HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md`
+- HDE-v0.1 Owner GO: `docs/research/HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md`
+- HDE-v0.1 completion receipt: `docs/HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md`
 - Historical pre-HDE current-state ledger: `docs/history/CURRENT_STATUS_PRE_HDE_READINESS_2026_08_15.md`
 
 ---
@@ -439,14 +458,14 @@ No independent human review is claimed for Phase 6 readiness.
 ```text
 PCR gives claims + provenance
 ATR gives typed relation representation
-HDE-v0.1 freezes the pure structural question:
+HDE-v0.1 evaluates the pure structural question:
   does this caller-supplied proposed observation actually separate H1 from H2?
 
 HYPOTHESIS ≠ FACT
 PROPOSED OBSERVATION ≠ EVIDENCE
 DISCRIMINATION ≠ VERDICT
 RELATION ≠ TRUTH
-BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+IMPLEMENTED_BOUNDED ≠ AUTONOMY AUTHORITY
 ```
 
 ---
@@ -457,13 +476,15 @@ BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 PHASE_6_READINESS = SELECTED_CANDIDATE_CONTRACT_FROZEN_DOCS_TESTS_ONLY
 PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
 PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
-PHASE_6_IMPLEMENTATION = NOT_STARTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
 
-> **STOP BEFORE SOURCE IMPLEMENTATION.** The next possible step is a new explicit,
-> single-use Owner GO scoped to HDE-v0.1 implementation only. This readiness task
-> does not grant it.
+> **STOP BEFORE RUNTIME / AUTONOMOUS INQUIRY.** The HDE-v0.1 Owner GO was
+> single-use and is consumed by verified PR #127. Any runtime wiring, observation
+> execution, evidence collection, scheduler, retrieval/tool integration, Action
+> Gate or autonomous inquiry milestone requires a new explicit bounded decision
+> after fresh live reconciliation.
