@@ -16,7 +16,7 @@ Positive readiness meaning:   ELIGIBLE_FOR_NEXT_GATE only
 P1-003 candidate selection:    SELECTED
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
 P1-003 contract:               FROZEN_DOCS
-P1-003 Owner GO:              CONSUMED
+P1-003 Owner GO:               CONSUMED
 P1-003 implementation:         IMPLEMENTED_BOUNDED
 P1-003 validation:             EXACT_HEAD_AND_MAIN_CI_PASS
 P1-003 runtime assignment:     NOT_ASSIGNED
