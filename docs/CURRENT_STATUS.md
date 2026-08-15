@@ -1,7 +1,7 @@
 # 🚦 Mentaury Soul — Current Status
 
 ```text
-Status date:                       2026-08-12
+Status date:                       2026-08-15
 Repository:                        velantrian/velantrim-mentaury-soul
 Engineering authority:             this file + verified live GitHub state
 Governance authority:              docs/GOVERNANCE.md + live GitHub ruleset
@@ -139,9 +139,17 @@ PHASE_5_CANDIDATE_SELECTION_SELECTED
 PHASE_5_CANDIDATE_PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
 PHASE_5_CONTRACT_VERSION_ATR_V0_1
-PHASE_5_IMPLEMENTATION_NOT_STARTED
-PHASE_5_OWNER_GO_NOT_GRANTED
+PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+PHASE_5_OWNER_GO_CONSUMED_BY_PR_119
+PHASE_5_OWNER_GO_SCOPE_ATR_V0_1_ONLY
+PHASE_5_IMPLEMENTATION_AUTHORIZATION_CONSUMED_ATR_V0_1_ONLY
+PHASE_5_ATR_T01_T16_EXECUTABLE_PASS
+PHASE_5_ATR_M01_M12_EXECUTABLE_PASS
+PHASE_5_ATR_P01_P12_EXECUTABLE_PASS
 PHASE_5_RUNTIME_NOT_AUTHORIZED
+
+PHASE_6_RESEARCH_PREPARATION_AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RUNTIME_NOT_AUTHORIZED
 
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
@@ -192,7 +200,10 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | Post-Phase-4 cognitive milestone discrimination | ✅ Docs-only decision | Typed Relations contract readiness selected by bounded Discovery / Restraint / False Bridge probes |
 | Phase 5 Typed Relations contract readiness | ✅ Frozen docs-only · Ready | exact PCR anchors, closed relation semantics, no graph/evidence/truth authority |
 | Phase 5 Typed Relations candidate | ✅ Selected docs-only | `PURE_ANCHORED_TYPED_RELATION_RECORD` |
-| Phase 5 `ATR-v0.1` contract | ✅ Frozen docs-only | exact pure representation contract; implementation and Owner GO remain absent |
+| Phase 5 `ATR-v0.1` contract | ✅ Frozen docs-only | exact pure representation contract; freeze itself grants no runtime authority |
+| Phase 5 `ATR-v0.1` bounded Owner GO | ✅ Consumed | one-time `ATR-v0.1_ONLY` authorization consumed by PR #119 |
+| Phase 5 Pure Anchored Typed Relation Record | ✅ Implemented bounded | exact three-file pure relation representation; no confidence, graph, truth, Evidence Gate or runtime authority |
+| Phase 6 inference/hypothesis preparation | 🟡 Docs/tests only authorized | research/readiness/benchmark preparation only; runtime remains NOT_AUTHORIZED |
 
 ---
 
@@ -575,7 +586,7 @@ select `SUPPORTED/CONTRADICTED`, reopen a terminal belief, or execute a route.
 
 ---
 
-## 10.3 🔗 Phase 5 Typed Relations — ATR-v0.1 contract frozen
+## 10.3 ✅ Phase 5 Typed Relations — ATR-v0.1 implemented bounded
 
 Owning documents:
 
@@ -583,8 +594,9 @@ Owning documents:
 - `docs/research/TYPED_RELATIONS_CONTRACT_READINESS.md`
 - `docs/research/TYPED_RELATIONS_CANDIDATE_SELECTION.md`
 - `docs/research/TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`
+- `docs/research/TYPED_RELATIONS_OWNER_GO_DECISION.md`
 
-Verified readiness evidence:
+Historical readiness evidence:
 
 ```text
 Tracking issue:             #110
@@ -596,7 +608,7 @@ Readiness merge/main:       20e47c93076f68316ff936b6aff2f2f70968053d
 Resulting-main CI:          31587139065 · success · 949 passed
 ```
 
-Verified candidate/contract-freeze evidence:
+Historical candidate/contract-freeze evidence:
 
 ```text
 Tracking issue:             #113
@@ -610,6 +622,36 @@ Merge signature:            VERIFIED · VALID
 Correctness pass:           PASS
 Adversarial pass:           PASS
 Independent human review:   NO
+```
+
+Verified Owner GO and implementation evidence:
+
+```text
+Owner GO PR:                #118
+Owner GO reviewed head:     e4a5cb09d0ecac1c6eebbedd85452e901f4377c7
+Owner GO exact-head CI:     31870124808 · success
+Owner GO merge/main:        671767ee2b9f4e6d6c083e1a03b8af238ff00260
+Owner GO resulting-main CI: 31870186682 · success
+Owner GO scope:             ATR-v0.1_ONLY · single-use
+Implementation PR:          #119
+Reviewed exact head:        63ae721e830fb56b659a4f0cfe8e1be27467d6e6
+Exact-head CI:              31870356904 · success · 1059 passed
+Tier A review:              4943131188
+Implementation merge/main:  398c9be48b7764d63aee532f267df837be7e4e3b
+Resulting-main CI:          31870435973 · success · 1059 passed
+Merge signature:            VERIFIED · VALID
+Correctness pass:           PASS
+Adversarial pass:           PASS
+Review threads:             0
+Independent human review:   NO
+```
+
+Exact completed source surface:
+
+```text
+src/mentaury/relations/__init__.py
+src/mentaury/relations/contracts.py
+src/mentaury/relations/representation.py
 ```
 
 Current Phase 5 state:
@@ -626,17 +668,26 @@ PHASE_5_CANDIDATE_SELECTION = SELECTED
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS
 PHASE_5_CONTRACT_VERSION = ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+OWNER_GO_SCOPE = ATR-v0.1_ONLY
+IMPLEMENTATION_AUTHORIZATION = CONSUMED · ATR-v0.1_ONLY
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
 ```
 
-`ATR-v0.1` is pairwise, exact-PCR-anchored, caller-supplied and representation-only.
-It freezes relation type/orientation/origin/scope as separate axes and carries no
-confidence, probability, Evidence Gate outcome, belief status, graph authority or
-runtime permission. `CORRELATIONAL ≠ CAUSAL`, `ANALOGICAL ≠ MECHANISTIC`,
+`ATR-T01…ATR-T16`, `ATR-M01…ATR-M12`, and `ATR-P01…ATR-P12` are executable and
+validated. The implementation is pairwise, exact-PCR-anchored, caller-supplied,
+immutable and deterministic. It carries no confidence, probability, reliability,
+Evidence Gate outcome, belief status, graph authority, persistence or runtime
+permission. `CORRELATIONAL ≠ CAUSAL`, `ANALOGICAL ≠ MECHANISTIC`,
 `EVIDENTIAL ≠ SUPPORTED`, `CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED`, and
 graph adjacency/path/count carries no epistemic authority.
+
+The first #119 CI run `31870325792` is retained as failure evidence: the new ATR
+implementation/tests passed, while one historical pre-Owner-GO filesystem guard
+still asserted that `src/mentaury/relations` must not exist. The guard was
+reconciled to preserve its historical authority meaning, and exact-head rerun
+`31870356904` then passed all 1059 tests. No frozen contract document was rewritten.
 
 ---
 
@@ -673,7 +724,9 @@ Phase 3 PCR-v0.1 runtime activation
 Phase 4 EPR-v0.1 implementation or runtime activation
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
-Phase 5 ATR-v0.1 implementation / runtime activation
+Phase 5 ATR-v0.1 runtime activation
+Phase 6 inference/hypothesis runtime implementation
+Phase 6 autonomous inquiry / scheduler / self-triggered cognition
 relation discovery / graph persistence / graph traversal
 ```
 
@@ -689,9 +742,8 @@ Capability ALLOW
 + Phase 2 bound shadow observation
 + PCR-v0.1 implemented bounded representation
 + EPR-v0.1 frozen routing contract
-+ Phase 5 Typed Relations readiness READY
-+ PURE_ANCHORED_TYPED_RELATION_RECORD selected
-+ ATR-v0.1 contract FROZEN_DOCS
++ ATR-v0.1 implemented bounded relation representation
++ Phase 5 Owner GO consumed
 ≠ Action Gate PASS
 ≠ retrieval permission
 ≠ tool permission
@@ -723,15 +775,16 @@ branches, resolved conversations, deletion/force-push protection and empty
 bypass. Required approvals remain `0` while no genuine independent reviewer
 exists.
 
-P1-003, NPG-v0.1, NPG-COMP-v0.1 and PCR-v0.1 bounded Owner GO receipts are
-consumed and not reusable. Phase 4 readiness/candidate selection and `EPR-v0.1`
-are frozen docs-only; **no Phase 4 Owner GO has been granted**. Phase 5 Typed
-Relations readiness/candidate selection and `ATR-v0.1` are frozen docs-only;
-**no Phase 5 Owner GO has been granted and no implementation has started**.
-Runtime activation, P1-004 assignment, Action Gate, retrieval, source admission,
-Evidence Gate mutation, belief mutation, claim→belief binding, terminal lineage,
-tools, identity/relationship mutation, M3, persistence and deployment remain
-outside current authority.
+P1-003, NPG-v0.1, NPG-COMP-v0.1, PCR-v0.1 and ATR-v0.1 bounded Owner GO receipts
+are consumed and not reusable. Phase 4 readiness/candidate selection and
+`EPR-v0.1` remain frozen docs-only; **no Phase 4 Owner GO has been granted**.
+Phase 5 `ATR-v0.1` is implemented bounded; its representation capability grants
+no runtime, graph, truth, Evidence Gate, belief or action authority. Phase 6 is
+limited to research/readiness/benchmark preparation; **no Phase 6 runtime Owner
+GO has been granted**. Runtime activation, P1-004 assignment, Action Gate,
+retrieval, source admission, Evidence Gate mutation, belief mutation,
+claim→belief binding, terminal lineage, tools, identity/relationship mutation,
+M3, persistence and deployment remain outside current authority.
 
 ---
 
@@ -766,6 +819,7 @@ outside current authority.
 - Phase 5 Typed Relations readiness: `docs/research/TYPED_RELATIONS_CONTRACT_READINESS.md`
 - Phase 5 candidate selection: `docs/research/TYPED_RELATIONS_CANDIDATE_SELECTION.md`
 - Phase 5 frozen contract: `docs/research/TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`
+- Phase 5 bounded Owner GO: `docs/research/TYPED_RELATIONS_OWNER_GO_DECISION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 
@@ -813,10 +867,16 @@ P0 foundation implemented
 + Evidence Gate authority UNCHANGED
 + Phase 5 candidate PURE_ANCHORED_TYPED_RELATION_RECORD SELECTED
 + ATR-v0.1 implementation contract FROZEN_DOCS by PR #114
-+ Phase 5 implementation NOT_STARTED
-+ Phase 5 Owner GO NOT_GRANTED
++ ATR-v0.1 Owner GO CONSUMED_BY_PR_119
++ ATR-v0.1 Pure Anchored Typed Relation Record IMPLEMENTED_BOUNDED by PR #119
++ ATR-T01…ATR-T16 executable PASS
++ ATR-M01…ATR-M12 executable PASS
++ ATR-P01…ATR-P12 executable PASS
++ Phase 5 runtime NOT_AUTHORIZED
++ Phase 6 research/readiness/benchmark preparation DOCS_TESTS_ONLY
++ Phase 6 runtime NOT_AUTHORIZED
 + Evidence Gate remains sole support/contradiction authority
-+ ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
++ ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 + PASS_ATTRIBUTED authority ceiling retained
 + Non-Projection runtime remains NOT_AUTHORIZED
 + P1-004 remains NOT_ASSIGNED
@@ -828,6 +888,7 @@ P0 foundation implemented
 ≠ Evidence Gate duplication or belief promotion
 ≠ terminal belief reopening or successor creation
 ≠ relation discovery / graph truth / confidence propagation
+≠ Phase 6 autonomous cognition / inference runtime
 ≠ Action Gate or tools
 ≠ persistence or autonomous loop
 ≠ identity, relationship, Character or M3 authority
@@ -862,15 +923,20 @@ PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
 PHASE_5_CANDIDATE_SELECTION = SELECTED
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
+PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
 
-> **STOP.** Phase 5 `ATR-v0.1` is frozen docs-only. Candidate selection and
-> contract freeze are complete, but they grant no implementation authority.
-> A new explicit single-use Owner GO scoped to `ATR-v0.1_ONLY` is required before
-> any `src/mentaury/relations/**` implementation. No runtime,
-> action/retrieval/tool/identity/M3/deployment authority rolls forward.
+> **STOP BEFORE PHASE 6 RUNTIME.** Phase 5 `ATR-v0.1` is implemented bounded and
+> its single-use Owner GO is consumed. The next allowed work is only the Phase 6
+> Inference Bridge Audit + Hypothesis Discrimination research/readiness and
+> behavioral benchmark preparation. No cognition runtime, autonomous inquiry,
+> scheduler, retrieval/tool execution, Evidence Gate replacement, belief owner,
+> identity/relationship mutation, M3 write, Action Gate or deployment authority
+> is granted. Any Phase 6 implementation milestone requires a new explicit Owner
+> decision after the benchmark/readiness work is reviewed.
