@@ -1,9 +1,12 @@
 {
   "schema": "mentaury-project-state/1",
   "project": "Mentaury Soul",
+  "document_role": "DERIVED_MACHINE_SNAPSHOT",
   "snapshot_source_date": "2026-08-12",
   "live_head": "RESOLVE_FROM_GITHUB",
   "authoritative_human_state": "docs/CURRENT_STATUS.md",
+  "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT",
+  "independent_truth_authority": false,
   "canon_v0_1": "FROZEN",
   "governance": {
     "mode": "SOLO_MAINTAINER",
