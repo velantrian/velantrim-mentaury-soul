@@ -1,7 +1,9 @@
 """Structural guards for authoritative Phase 6 readiness status.
 
 The benchmark document remains historical preparation evidence. CURRENT_STATUS is
-allowed to advance after the separate HDE-v0.1 readiness/selection merge.
+allowed to advance after the separate HDE-v0.1 readiness/selection merge. The
+historical pre-implementation source-absence guard is reconciled only after the
+separate HDE-v0.1 Owner GO exists.
 """
 
 from pathlib import Path
@@ -26,6 +28,12 @@ CONTRACT = (
     / "research"
     / "HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
+OWNER_GO_PATH = (
+    ROOT
+    / "docs"
+    / "research"
+    / "HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md"
+)
 
 
 def test_current_status_records_phase6_selected_but_not_implemented() -> None:
@@ -96,12 +104,23 @@ def test_historical_current_status_snapshot_is_preserved() -> None:
     assert "PHASE_6_BENCHMARK_PR_121_VERIFIED" in text
 
 
-def test_no_phase6_runtime_source_package_exists() -> None:
+def test_no_unapproved_phase6_runtime_source_package_exists() -> None:
     for path in (
         ROOT / "src" / "mentaury" / "inference_bridge",
         ROOT / "src" / "mentaury" / "hypothesis_discrimination",
-        ROOT / "src" / "mentaury" / "discrimination",
         ROOT / "src" / "mentaury" / "inquiry",
         ROOT / "src" / "mentaury" / "scheduler",
     ):
         assert not path.exists()
+
+    discrimination = ROOT / "src" / "mentaury" / "discrimination"
+    if discrimination.exists():
+        assert OWNER_GO_PATH.exists()
+        owner_go = OWNER_GO_PATH.read_text(encoding="utf-8")
+        assert "Owner GO scope:                 HDE-v0.1_ONLY" in owner_go
+        assert "Single-use authorization:       YES" in owner_go
+        assert {path.name for path in discrimination.iterdir() if path.is_file()} == {
+            "__init__.py",
+            "contracts.py",
+            "evaluator.py",
+        }
