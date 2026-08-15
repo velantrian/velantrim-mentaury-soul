@@ -65,8 +65,11 @@
   "documentation_standard": "docs/ai/DOCUMENTATION_STANDARD.md",
   "current_truth": {
     "human": "docs/CURRENT_STATUS.md",
-    "machine": "docs/state/project_state.json",
     "live_head": "RESOLVE_FROM_GITHUB"
+  },
+  "derived_views": {
+    "machine_snapshot": "docs/state/project_state.json",
+    "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_DERIVED_VIEWS"
   },
   "authority_docs": [
     "docs/GOVERNANCE.md",
