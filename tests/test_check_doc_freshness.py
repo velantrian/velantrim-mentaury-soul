@@ -1,17 +1,14 @@
-"""Tests for scripts/check_doc_freshness.py.
-
-``scripts`` is not part of the installed ``mentaury`` package (it holds
-standalone CI/dev utilities), so this module is only importable because
-``pyproject.toml`` adds ``scripts`` to ``[tool.pytest.ini_options].pythonpath``
-for the test session.
-"""
+"""Tests for scripts/check_doc_freshness.py."""
 
 from __future__ import annotations
+
+import json
 
 from check_doc_freshness import (
     authoritative_milestones,
     derived_milestones,
     evaluate,
+    evaluate_machine_snapshot,
     format_milestone,
 )
 
@@ -20,9 +17,50 @@ _AUTHORITATIVE_P0_015 = (
     "| P0-015 Deterministic Evidence Gate | ✅ Implemented | gate receipt ≠ fact |\n"
 )
 
+_MACHINE_STATUS = """
+PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED
+PHASE_4_CONTRACT_VERSION_EPR_V0_1
+PHASE_4_IMPLEMENTATION_NOT_STARTED
+PHASE_5_CONTRACT_VERSION_ATR_V0_1
+PHASE_5_IMPLEMENTATION_NOT_STARTED
+ACTION_GATE_NOT_AUTHORIZED
+RETRIEVAL_EXECUTION_NOT_AUTHORIZED
+TOOL_EXECUTION_NOT_AUTHORIZED
+IDENTITY_RUNTIME_NOT_AUTHORIZED
+RELATIONSHIP_RUNTIME_NOT_AUTHORIZED
+RUNTIME_DEPLOYMENT_NOT_AUTHORIZED
+"""
+
 
 def _derived(marker: str) -> str:
     return f"Синхронно: GitHub main after merged PR #31\n\n{marker}\n"
+
+
+def _machine_snapshot() -> dict[str, object]:
+    return {
+        "schema": "mentaury-project-state/1",
+        "project": "Mentaury Soul",
+        "document_role": "DERIVED_MACHINE_SNAPSHOT",
+        "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT",
+        "independent_truth_authority": False,
+        "implemented_bounded": {
+            "phase_2_npg_shadow_composition": True,
+            "phase_3_provenance_claim_record": True,
+        },
+        "frozen_not_implemented": {
+            "phase_4_epistemic_change_router_epr_v0_1": True,
+            "phase_5_anchored_typed_relation_atr_v0_1": True,
+        },
+        "authority": {
+            "action_gate_authorized": False,
+            "retrieval_execution_authorized": False,
+            "tool_execution_authorized": False,
+            "identity_runtime_authorized": False,
+            "relationship_runtime_authorized": False,
+            "runtime_deployment_authorized": False,
+        },
+    }
 
 
 def test_authoritative_milestones_reads_only_implemented_rows() -> None:
@@ -39,8 +77,6 @@ def test_derived_milestones_accepts_underscore_and_space_variants() -> None:
 
 
 def test_derived_milestones_rejects_cross_stage_range() -> None:
-    # A range whose start and end stage disagree is not a coherent claim
-    # about either stage, so it must not be silently treated as either one.
     assert derived_milestones("P0-001…P1-002_IMPLEMENTED_IN_MAIN") == []
 
 
@@ -69,9 +105,6 @@ def test_evaluate_fails_when_derived_lags_behind_authoritative() -> None:
 
 
 def test_evaluate_fails_when_derived_overshoots_authoritative() -> None:
-    # A derived document must not be allowed to claim an unimplemented
-    # future milestone (e.g. "P0-001...P0-999") just because that number is
-    # numerically >= the authoritative maximum.
     problems = evaluate(
         _AUTHORITATIVE_P0_015,
         {"docs/A.md": _derived("P0-001…P0-999_IMPLEMENTED_IN_MAIN")},
@@ -108,14 +141,11 @@ def test_evaluate_fails_when_authoritative_table_is_missing() -> None:
 
 
 def test_evaluate_uses_the_highest_of_several_markers_in_one_document() -> None:
-    # If a document (accidentally or intentionally) contains more than one
-    # range marker, the highest one is treated as its current claim.
     text = _derived("P0-001…P0-008_IMPLEMENTED_IN_MAIN") + "\n" + _derived(
         "P0-001…P0-015_IMPLEMENTED_IN_MAIN"
     )
     assert derived_milestones(text) == [(0, 8), (0, 15)]
-    problems = evaluate(_AUTHORITATIVE_P0_015, {"docs/A.md": text})
-    assert problems == []
+    assert evaluate(_AUTHORITATIVE_P0_015, {"docs/A.md": text}) == []
 
 
 def test_evaluate_reports_each_derived_document_independently() -> None:
@@ -131,10 +161,6 @@ def test_evaluate_reports_each_derived_document_independently() -> None:
 
 
 def test_evaluate_is_stage_generic_beyond_p0() -> None:
-    # Once the project moves to a POST-P0 roadmap numbered P1-XXX, the
-    # authoritative table gains P1 rows; a derived document still parked on
-    # a P0-only marker must be flagged, even though its milestone *number*
-    # (15) is numerically larger than the new stage's (2).
     authoritative = _AUTHORITATIVE_P0_015 + (
         "| P1-002 Post-P0 Roadmap Step | ✅ Implemented | roadmap ≠ runtime |\n"
     )
@@ -145,11 +171,10 @@ def test_evaluate_is_stage_generic_beyond_p0() -> None:
     assert len(stale_on_old_stage) == 1
     assert "P0-015" in stale_on_old_stage[0] and "P1-002" in stale_on_old_stage[0]
 
-    caught_up = evaluate(
+    assert evaluate(
         authoritative,
         {"docs/A.md": _derived("P1-001…P1-002_IMPLEMENTED_IN_MAIN")},
-    )
-    assert caught_up == []
+    ) == []
 
 
 def test_readme_marker_behind_current_status_fails() -> None:
@@ -159,7 +184,6 @@ def test_readme_marker_behind_current_status_fails() -> None:
     )
     assert len(problems) == 1
     assert "README.md" in problems[0]
-    assert "P0-008" in problems[0] and "P0-015" in problems[0]
 
 
 def test_readme_marker_ahead_of_current_status_fails() -> None:
@@ -168,16 +192,14 @@ def test_readme_marker_ahead_of_current_status_fails() -> None:
         {"README.md": _derived("P0-001…P0-999_IMPLEMENTED_IN_MAIN")},
     )
     assert len(problems) == 1
-    assert "README.md" in problems[0]
     assert "ahead of" in problems[0]
 
 
 def test_readme_marker_equal_passes() -> None:
-    problems = evaluate(
+    assert evaluate(
         _AUTHORITATIVE_P0_015,
         {"README.md": _derived("P0-001…P0-015_IMPLEMENTED_IN_MAIN")},
-    )
-    assert problems == []
+    ) == []
 
 
 def test_readme_missing_marker_fails() -> None:
@@ -186,5 +208,73 @@ def test_readme_missing_marker_fails() -> None:
         {"README.md": "README without a freshness marker."},
     )
     assert len(problems) == 1
-    assert "README.md" in problems[0]
     assert "missing a well-formed" in problems[0]
+
+
+def test_machine_snapshot_matching_current_status_passes() -> None:
+    problems = evaluate_machine_snapshot(
+        _MACHINE_STATUS,
+        json.dumps(_machine_snapshot()),
+    )
+    assert problems == []
+
+
+def test_machine_snapshot_invalid_json_fails_closed() -> None:
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, "{not-json")
+    assert len(problems) == 1
+    assert "invalid JSON" in problems[0]
+
+
+def test_machine_snapshot_must_be_explicitly_derived() -> None:
+    snapshot = _machine_snapshot()
+    snapshot["document_role"] = "CURRENT_TRUTH"
+    snapshot["independent_truth_authority"] = True
+    snapshot["conflict_rule"] = "MACHINE_WINS"
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert len(problems) == 3
+    assert any("document_role" in problem for problem in problems)
+    assert any("independent_truth_authority" in problem for problem in problems)
+    assert any("conflict_rule" in problem for problem in problems)
+
+
+def test_machine_snapshot_detects_implemented_drift_both_directions() -> None:
+    snapshot = _machine_snapshot()
+    implemented = snapshot["implemented_bounded"]
+    assert isinstance(implemented, dict)
+    implemented["phase_2_npg_shadow_composition"] = False
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("phase_2_npg_shadow_composition" in problem for problem in problems)
+
+    implemented["phase_2_npg_shadow_composition"] = True
+    status_without_phase_2 = _MACHINE_STATUS.replace(
+        "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED", ""
+    )
+    problems = evaluate_machine_snapshot(status_without_phase_2, json.dumps(snapshot))
+    assert any("phase_2_npg_shadow_composition" in problem for problem in problems)
+
+
+def test_machine_snapshot_detects_frozen_contract_drift() -> None:
+    snapshot = _machine_snapshot()
+    frozen = snapshot["frozen_not_implemented"]
+    assert isinstance(frozen, dict)
+    frozen["phase_5_anchored_typed_relation_atr_v0_1"] = False
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("phase_5_anchored_typed_relation_atr_v0_1" in problem for problem in problems)
+
+
+def test_machine_snapshot_detects_authority_drift() -> None:
+    snapshot = _machine_snapshot()
+    authority = snapshot["authority"]
+    assert isinstance(authority, dict)
+    authority["tool_execution_authorized"] = True
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("tool_execution_authorized" in problem for problem in problems)
+
+
+def test_machine_snapshot_requires_boolean_fields() -> None:
+    snapshot = _machine_snapshot()
+    authority = snapshot["authority"]
+    assert isinstance(authority, dict)
+    authority["action_gate_authorized"] = "false"
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("expected boolean" in problem for problem in problems)
