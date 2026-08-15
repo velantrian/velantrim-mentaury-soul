@@ -180,6 +180,7 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | P0-014 | ✅ Implemented | minimal evidence-referenced belief lifecycle |
 | P0-015 | ✅ Implemented | deterministic Evidence Gate |
 | P1-001 | ✅ Implemented bounded | pure Capability Lease classification only |
+| P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
 | P1-002 Privacy Reconciliation Classifier | ✅ Implemented bounded | pure privacy reconciliation classification only |
 | P1-003 | ✅ Implemented bounded | pure Governed Constraint Composer only |
 | NPG-v0.1 | ✅ Implemented bounded | attributed non-projection classification only |
@@ -239,6 +240,8 @@ src/mentaury/capabilities/lease/contracts.py
 src/mentaury/capabilities/lease/resolver.py
 tests/test_capability_lease_resolution.py
 
+P1-002 Privacy Reconciliation Classifier contract:
+docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md
 P1-002 Privacy Reconciliation Classifier receipt:
 docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md
 Historical pre-implementation marker: P1_002_IMPLEMENTATION_NOT_STARTED
@@ -257,6 +260,7 @@ P1_003_IMPLEMENTATION_NOT_STARTED
 Historical Phase 1 / historical Phase-1 freeze provenance:
 PHASE_2_IMPLEMENTATION = NOT_STARTED
 PHASE_2_OWNER_GO = NOT_GRANTED
+PR #94 later granted the single-use NPG-COMP-v0.1_ONLY Owner GO.
 Later single-use scope: NPG-COMP-v0.1_ONLY
 src/mentaury/composition/non_projection_shadow/__init__.py
 src/mentaury/composition/non_projection_shadow/contracts.py
@@ -415,6 +419,7 @@ No independent human review is claimed for Phase 6 readiness.
 
 - Governance: `docs/GOVERNANCE.md`
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
+- P1-002 contract: `docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md`
 - P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-003 receipt: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
