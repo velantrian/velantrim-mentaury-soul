@@ -189,7 +189,7 @@ flowchart TD
     B --> C[🧾 Claim representation]
     C --> D[🔗 Typed relation representation]
     C --> E[⚖️ Epistemic routing]
-    D --> F[🔬 Future inference / discrimination]
+    D --> F[🔬 Hypothesis-discrimination benchmark · docs/tests]
     E --> G[⚖️ Existing belief + Evidence Gate owners]
     F --> G
     G --> H[❓ Open epistemic obligations]
@@ -219,7 +219,8 @@ This table is intentionally human-readable. For exact enumerated state, use [`do
 | 🪞 Non-Projection | ✅ Implemented bounded | imported interpretation is not silently promoted into SELF/autobiography |
 | 🌱 Provenance + claim representation | ✅ Implemented bounded | `PCR-v0.1` preserves distinct provenance/claim/epistemic axes |
 | ⚖️ Epistemic change routing | 🟡 Contract frozen | `EPR-v0.1` is specified; source implementation is not started |
-| 🔗 Typed relations | 🟡 Contract frozen | `ATR-v0.1` is specified; source implementation is not started |
+| 🔗 Typed relations | ✅ Implemented bounded | `ATR-v0.1` represents exact PCR-anchored typed relation candidates; no confidence, truth, graph or runtime authority |
+| 🔬 Hypothesis discrimination | ✅ Prepared docs/tests only | `HD-01…HD-10` benchmark is merged; no Phase 6 implementation or runtime authority |
 | 🧠 Autonomous inquiry / scheduler | ❌ Not implemented | later research phases only |
 | 🚦 Action Gate | ❌ Not authorized | no action authority follows from cognition primitives |
 | 🔎 Retrieval / tools | ❌ Not authorized | no runtime retrieval/tool execution authority |
@@ -241,9 +242,14 @@ PHASE_4_RUNTIME = NOT_AUTHORIZED
 
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_RUNTIME = NOT_AUTHORIZED
+
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_RUNTIME = NOT_AUTHORIZED
 
 ACTION_GATE = NOT_AUTHORIZED
 RETRIEVAL_EXECUTION = NOT_AUTHORIZED
@@ -359,13 +365,15 @@ PCR-v0.1 provenance/claims       ✅ implemented bounded
         │
         ├── EPR-v0.1             🧊 contract frozen · implementation absent
         │
-        └── ATR-v0.1             🧊 contract frozen · implementation absent
+        └── ATR-v0.1             ✅ implemented bounded
                                       │
                                       ▼
-                           future inference / inquiry layers
+                    Phase 6 hypothesis-discrimination
+                    benchmark       ✅ prepared docs/tests only
                                       │
                                       ▼
-                            runtime/action remain separate
+                    implementation   NOT_SELECTED / NOT_AUTHORIZED
+                    runtime/action   remain separate and NOT_AUTHORIZED
 ```
 
 Core epistemic invariants:
@@ -384,6 +392,8 @@ KNOWLEDGE ≠ IDENTITY
 HERITAGE ≠ AUTOBIOGRAPHY
 UNDERSTANDING ≠ EXPERIENCE
 CREATOR ≠ MENTAURY
+HYPOTHESIS ≠ FACT
+BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 ```
 
 ---
