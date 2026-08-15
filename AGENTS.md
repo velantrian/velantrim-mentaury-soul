@@ -6,18 +6,19 @@ This file applies to AI coding agents, automated auditors and human contributors
 
 Do **not** begin with repository-wide scanning.
 
-Read in this order:
+For AI/automated work, use one deterministic route:
 
-1. `README.md` — human project identity and non-goals.
-2. `SYSTEM_OVERVIEW.md` — conceptual architecture and reading routes.
-3. `docs/ai/README.md` — compact AI orientation layer.
-4. `docs/ai/project_manifest.json` — machine-readable documentation map and maintenance contract.
-5. `docs/CURRENT_STATUS.md` — current engineering truth.
-6. `docs/GOVERNANCE.md` — authority and review rules.
-7. `docs/ai/COMPONENT_MAP.md` — ownership, paths and tests.
-8. `docs/ai/KNOWN_RISKS.md` — known documentation/architecture risks.
-9. `docs/ai/REVIEW_GUIDE.md` — bounded review procedure.
-10. only the affected contracts, source, tests, PRs and CI evidence.
+1. `docs/ai/README.md` — compact AI orientation layer.
+2. `docs/ai/project_manifest.json` — machine-readable documentation/navigation contract.
+3. `docs/state/project_state.json` — derived machine snapshot only; never an independent truth owner.
+4. `docs/CURRENT_STATUS.md` — current engineering truth.
+5. `docs/GOVERNANCE.md` — authority and review rules.
+6. `docs/ai/COMPONENT_MAP.md` — ownership, paths and tests.
+7. `docs/ai/KNOWN_RISKS.md` — known documentation/architecture risks.
+8. `docs/ai/REVIEW_GUIDE.md` — bounded review procedure.
+9. only the affected contracts, source, tests, PRs and exact CI evidence.
+
+`README.md` and `SYSTEM_OVERVIEW.md` are the human/conceptual route. Read them when project meaning or architectural context is material; they are not mandatory preconditions for every bounded engineering task.
 
 Documentation is orientation, not proof. Verify material implementation claims against live GitHub, code, tests and CI.
 
