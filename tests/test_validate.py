@@ -32,6 +32,29 @@ def test_required_paths_cover_p0_015_surfaces() -> None:
     assert "tests/test_evidence_gate.py" in required
 
 
+def test_required_paths_cover_current_bounded_post_p0_surfaces() -> None:
+    required = set(REQUIRED_PATHS)
+    expected = {
+        "src/mentaury/capabilities/lease/resolver.py",
+        "src/mentaury/privacy/reconciliation/classifier.py",
+        "src/mentaury/composition/governed_constraints/composer.py",
+        "src/mentaury/non_projection/classifier.py",
+        "src/mentaury/composition/non_projection_shadow/coordinator.py",
+        "src/mentaury/claims/representation.py",
+        "src/mentaury/relations/representation.py",
+        "src/mentaury/discrimination/evaluator.py",
+        "tests/test_capability_lease_resolution.py",
+        "tests/test_privacy_reconciliation_classifier.py",
+        "tests/test_governed_constraint_composer.py",
+        "tests/test_non_projection_classifier.py",
+        "tests/test_non_projection_shadow_composition.py",
+        "tests/test_provenance_claim_representation.py",
+        "tests/test_typed_relations.py",
+        "tests/test_hypothesis_discrimination_evaluator.py",
+    }
+    assert expected <= required
+
+
 def test_missing_required_paths_reports_absent_manifest_entry(
     tmp_path: Path,
 ) -> None:
