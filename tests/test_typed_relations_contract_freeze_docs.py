@@ -1,4 +1,4 @@
-"""Structural guards for the Phase 5 ATR-v0.1 docs-only contract freeze."""
+"""Structural guards for the historical Phase 5 ATR-v0.1 docs-only contract freeze."""
 
 from pathlib import Path
 
@@ -31,12 +31,15 @@ def test_candidate_and_contract_are_exactly_selected_and_frozen() -> None:
     assert "PHASE_5_TYPED_RELATIONS_OWNER_GO = NOT_GRANTED" in CONTRACT
 
 
-def test_contract_freeze_has_no_source_implementation() -> None:
-    assert not (ROOT / "src" / "mentaury" / "relations").exists()
-    assert "src/mentaury/relations/__init__.py" in CONTRACT
-    assert "src/mentaury/relations/contracts.py" in CONTRACT
-    assert "src/mentaury/relations/representation.py" in CONTRACT
+def test_contract_freeze_preserves_historical_no_source_authority() -> None:
+    for path in (
+        "src/mentaury/relations/__init__.py",
+        "src/mentaury/relations/contracts.py",
+        "src/mentaury/relations/representation.py",
+    ):
+        assert path in CONTRACT
     assert "Nothing in\n> this document authorizes creation of `src/mentaury/relations/**`" in CONTRACT
+    assert "new explicit single-use Owner GO" in CONTRACT
 
 
 def test_exact_public_api_is_frozen() -> None:
