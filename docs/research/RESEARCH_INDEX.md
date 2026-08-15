@@ -20,7 +20,11 @@ Completed readiness block:    PHASE_4_EPISTEMIC_PROMOTION_REVISION · READY
 Completed decision block:     POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION · COMPLETE
 Completed readiness block:    PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READY
 Completed contract block:     PHASE_5_TYPED_RELATIONS · ATR-v0.1 · FROZEN_DOCS
-Next bounded work:             PHASE_6_RESEARCH_PREPARATION · DOCS_TESTS_ONLY
+Completed research block:     PHASE_6_INFERENCE_BRIDGE_AUDIT · PREPARED_DOCS_TESTS_ONLY
+Completed benchmark block:    PHASE_6_HYPOTHESIS_DISCRIMINATION · PREPARED_DOCS_TESTS_ONLY
+Next bounded work:             EXPLICIT_OWNER_DECISION_BEFORE_PHASE_6_IMPLEMENTATION_READINESS
+Phase 6 implementation:       NOT_SELECTED · NOT_AUTHORIZED
+Phase 6 Owner GO:             NOT_GRANTED
 Phase 6 runtime:              NOT_AUTHORIZED
 
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
@@ -67,7 +71,10 @@ Phase 5 implementation contract: FROZEN_DOCS · ATR-v0.1
 Phase 5 implementation:       IMPLEMENTED_BOUNDED
 Phase 5 Owner GO:             CONSUMED_BY_PR_119
 Phase 5 runtime:              NOT_AUTHORIZED
-Phase 6 research prep:        AUTHORIZED_DOCS_TESTS_ONLY
+Phase 6 research prep:        PREPARED_DOCS_TESTS_ONLY
+Phase 6 benchmark:            PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10
+Phase 6 implementation:       NOT_SELECTED · NOT_AUTHORIZED
+Phase 6 Owner GO:             NOT_GRANTED
 Phase 6 runtime:              NOT_AUTHORIZED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
@@ -110,6 +117,9 @@ GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
 ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 ATR-v0.1 Owner GO consumed ≠ reusable authority
+HYPOTHESIS ≠ FACT
+BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
+BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 PHASE_6_RESEARCH_PREPARATION ≠ PHASE_6_RUNTIME_AUTHORITY
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 Notion explanation ≠ GitHub authority
@@ -360,8 +370,6 @@ PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_RUNTIME = NOT_AUTHORIZED
-PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
-PHASE_6_RUNTIME = NOT_AUTHORIZED
 ```
 
 Readiness evidence:
@@ -429,6 +437,52 @@ ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 
 ---
 
+## 7.1 🔬 Phase 6 Inference Bridge Audit + Hypothesis Discrimination — prepared
+
+Owning benchmark:
+
+- [Phase 6 benchmark](INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md)
+
+```text
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_RUNTIME = NOT_AUTHORIZED
+```
+
+Verified benchmark evidence:
+
+```text
+PR:                      #121
+Reviewed exact head:     af49fc90f88b34f54ebeaa8d1afd45ab76173763
+Exact-head CI:           31871208558 · success · 1074 passed
+Tier A review:           4943195249
+Changed files:           2 · docs/test only · 0 src/**
+Merge/main:              147b456d7cbb56022a4234a0ca3f1cc861662fec
+Resulting-main CI:       31871247296 · success · 1074 passed
+Merge signature:         VERIFIED · VALID
+Independent human review:NO
+```
+
+The audit reuses PCR hypothesis/inference representation, ATR relation
+representation, P0-014 ordinary belief lifecycle and P0-015 Evidence Gate. The
+distinct uncovered failure is `NON_DISCRIMINATING_EVIDENCE_COLLECTION`: naming
+H1 and H2 while proposing observations whose outcomes do not actually separate
+them. The merged benchmark covers `HD-01…HD-10`, including genuinely distinct
+alternatives, discrimination, falsification preference, confirmation-bias
+resistance, relation ≠ causation, Evidence Gate ownership, inconclusive
+`WAIT/DEFER`, revision-history preservation, provenance and no pseudo-confidence.
+
+```text
+HYPOTHESIS ≠ FACT
+BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
+BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+```
+
+---
+
 ## 8. 🧭 Document registry
 
 | Document | Track | Disposition | Runtime |
@@ -463,7 +517,8 @@ ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 | [`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md) | Phase 5 candidate | SELECTED · PURE_ANCHORED_TYPED_RELATION_RECORD | implemented later |
 | [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md) | Phase 5 contract | FROZEN_DOCS · ATR-v0.1 | implemented bounded |
 | [`TYPED_RELATIONS_OWNER_GO_DECISION.md`](TYPED_RELATIONS_OWNER_GO_DECISION.md) | Phase 5 authority | OWNER_GO_CONSUMED | historical single-use grant |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | ATR-v0.1 implemented; Phase 6 docs/tests next | runtime NOT_AUTHORIZED |
+| [`INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`](INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md) | Phase 6 research benchmark | PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10 | runtime NOT_AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | ATR-v0.1 implemented; Phase 6 benchmark prepared | runtime NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -480,7 +535,7 @@ ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 | `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | no authority rolls forward |
 | `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | separate explicit Owner GO before implementation |
 | `R-TR-001` | Typed Relations | **PHASE_5_IMPLEMENTED_BOUNDED · ATR-v0.1** | runtime/relation discovery remain separate |
-| `R-HD-001` | Inference Bridge Audit + Hypothesis Discrimination | **NEXT · DOCS_TESTS_ONLY** | benchmark + failure criterion + Owner decision before implementation |
+| `R-HD-001` | Inference Bridge Audit + Hypothesis Discrimination | **PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10** | explicit Owner decision before any implementation-readiness selection |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -495,7 +550,8 @@ ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 These entries are not a ranked execution queue. `ATR-v0.1` implementation grants
 no relation discovery, graph truth, confidence propagation, Evidence Gate result,
 belief mutation, runtime activation, retrieval, action, identity, relationship,
-M3 or deployment authority. Phase 6 is authorized only for audit/readiness/docs/tests.
+M3 or deployment authority. Phase 6 audit + benchmark preparation is complete at
+docs/test level only and grants no implementation or runtime authority.
 
 ---
 
@@ -521,10 +577,11 @@ Owner GO receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is frozen
 but Phase 4 has **no Owner GO**. Phase 5 `ATR-v0.1` is `IMPLEMENTED_BOUNDED` via
 PR #119 and runtime remains `NOT_AUTHORIZED`.
 
-The next allowed work is Phase 6 **Inference Bridge Audit + Hypothesis
-Discrimination** research/readiness and behavioral benchmark preparation only.
-Any Phase 6 implementation or runtime milestone requires a separate explicit
-Owner decision after that preparation is reviewed.
+Phase 6 **Inference Bridge Audit + Hypothesis Discrimination** research/benchmark
+preparation is merged and verified via PR #121. The next step is **not automatic
+implementation**: a new explicit Owner decision must choose `NO_IMPLEMENTATION`,
+`MORE_RESEARCH`, or at most a bounded non-autonomous implementation-readiness /
+contract-selection cycle. Phase 6 implementation and runtime remain unauthorized.
 
 Issue #39 remains the future transition trigger for genuine independent review.
 
@@ -558,6 +615,7 @@ MENTAURY_DERIVED_RELATION ≠ INDEPENDENT_EVIDENCE_FOR_ITSELF
 ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 ATR-v0.1 Owner GO consumed ≠ reusable authority
 HYPOTHESIS ≠ FACT
+BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
 BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 ```
@@ -615,7 +673,11 @@ PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_RUNTIME = NOT_AUTHORIZED
-PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
+PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
