@@ -180,7 +180,7 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | P0-014 | ✅ Implemented | minimal evidence-referenced belief lifecycle |
 | P0-015 | ✅ Implemented | deterministic Evidence Gate |
 | P1-001 | ✅ Implemented bounded | pure Capability Lease classification only |
-| P1-002 | ✅ Implemented bounded | pure Privacy Reconciliation classification only |
+| P1-002 Privacy Reconciliation Classifier | ✅ Implemented bounded | pure privacy reconciliation classification only |
 | P1-003 | ✅ Implemented bounded | pure Governed Constraint Composer only |
 | NPG-v0.1 | ✅ Implemented bounded | attributed non-projection classification only |
 | NPG-COMP-v0.1 | ✅ Implemented bounded | same-attempt shadow composition only |
@@ -204,8 +204,12 @@ P1-003 implementation      #79 · 9855f766f2bf801c8297c4f870b21d3ed37911fb · CI
 NPG-v0.1 implementation    #90 · OWNER_GO_CONSUMED_BY_PR_90
 NPG-COMP-v0.1              #96 · 8a7b524de46c042e0479186ea4564f363248a366 · CI 31548525699 · 842 passed
 PCR-v0.1                   #103 · 11aec32bf499fc8925ab685dadc4a626325da892 · CI 31570253296 · 909 passed
-EPR-v0.1 contract          #106 · e95d1539c5023ce36d83652bdb3d482c4090f2ef · CI 31574946826 · 927 passed
-ATR-v0.1 implementation    #119 · 63ae721e830fb56b659a4f0cfe8e1be27467d6e6 · CI 31870356904 · 1059 passed
+EPR-v0.1 contract          #106 · e95d1539c5023ce36d83652bdb3d482c4090f2ef · CI 31574946826 · 927 passed · Tier A 4914115826
+EPR-v0.1 merge/main        8a86b9c4eff9435bbf8724defaee6e399a4cdeb0 · resulting CI 31575119904
+ATR-v0.1 contract          #114 · fef6b21c4d3062a228471ccd206297b25d2d3ecc · CI 31592892692 · 970 passed · Tier A 4916049299
+ATR-v0.1 contract main     083825e1cc7b69c133650b51afb8fc1d34b97533 · resulting CI 31593058722
+ATR-v0.1 implementation    #119 · 63ae721e830fb56b659a4f0cfe8e1be27467d6e6 · CI 31870356904 · 1059 passed · Tier A 4943131188
+ATR-v0.1 implementation main 398c9be48b7764d63aee532f267df837be7e4e3b · resulting CI 31870435973
 Phase 6 benchmark          #121 · af49fc90f88b34f54ebeaa8d1afd45ab76173763 · CI 31871208558 · 1074 passed
 Benchmark Tier A review    4943195249
 Benchmark merge/main       147b456d7cbb56022a4234a0ca3f1cc861662fec
@@ -217,6 +221,51 @@ HDE merge/main             c45bdc12bb3f25f38982554d4b96de3084c22815
 HDE merge signature        VERIFIED · VALID
 HDE resulting-main CI      31877392090 · success
 Independent human review   NO
+```
+
+Evidence Gate remains sole support/contradiction authority.
+
+### Validator-bound historical markers retained in the current owner
+
+These lines are retained because existing structural contracts intentionally bind
+current state to historical completion evidence. The exact full narrative remains
+in the archived pre-HDE snapshot.
+
+```text
+P1-001 exact source surface:
+src/mentaury/capabilities/__init__.py
+src/mentaury/capabilities/lease/__init__.py
+src/mentaury/capabilities/lease/contracts.py
+src/mentaury/capabilities/lease/resolver.py
+tests/test_capability_lease_resolution.py
+
+P1-002 Privacy Reconciliation Classifier receipt:
+docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md
+Historical pre-implementation marker: P1_002_IMPLEMENTATION_NOT_STARTED
+src/mentaury/privacy/__init__.py
+src/mentaury/privacy/reconciliation/__init__.py
+src/mentaury/privacy/reconciliation/contracts.py
+src/mentaury/privacy/reconciliation/classifier.py
+tests/test_privacy_reconciliation_classifier.py
+
+P1-003 receipt:
+docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md
+Historical pre-implementation markers:
+P1_003_OWNER_GO_AUTHORIZED_BOUNDED
+P1_003_IMPLEMENTATION_NOT_STARTED
+
+Historical Phase 1 / historical Phase-1 freeze provenance:
+PHASE_2_IMPLEMENTATION = NOT_STARTED
+PHASE_2_OWNER_GO = NOT_GRANTED
+Later single-use scope: NPG-COMP-v0.1_ONLY
+src/mentaury/composition/non_projection_shadow/__init__.py
+src/mentaury/composition/non_projection_shadow/contracts.py
+src/mentaury/composition/non_projection_shadow/coordinator.py
+
+PCR exact source surface:
+src/mentaury/claims/__init__.py
+src/mentaury/claims/contracts.py
+src/mentaury/claims/representation.py
 ```
 
 ---
@@ -366,6 +415,8 @@ No independent human review is claimed for Phase 6 readiness.
 
 - Governance: `docs/GOVERNANCE.md`
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
+- P1-002 receipt: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
+- P1-003 receipt: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - Roadmap: `docs/research/POST_P0_ROADMAP_V0.1.md`
 - Research Index: `docs/research/RESEARCH_INDEX.md`
 - PCR-v0.1 contract: `docs/research/PROVENANCE_CLAIM_REPRESENTATION_CONTRACT_V0_1.md`
