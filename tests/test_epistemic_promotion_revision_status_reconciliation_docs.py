@@ -48,7 +48,7 @@ def test_phase4_freeze_preserves_existing_owners() -> None:
     assert "P0-015 Evidence Gate authority:      UNCHANGED" in CONTRACT
 
 
-def test_phase4_has_no_implementation_or_roll_forward_authority() -> None:
+def test_phase4_has_no_implementation_authority_even_after_phase5_completion() -> None:
     assert not (ROOT / "src" / "mentaury" / "epistemic_change").exists()
     for marker in (
         "PHASE_4_OWNER_GO_NOT_GRANTED",
@@ -56,8 +56,10 @@ def test_phase4_has_no_implementation_or_roll_forward_authority() -> None:
         "PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS_READY",
         "PHASE_5_CANDIDATE_SELECTION_SELECTED",
         "PHASE_5_IMPLEMENTATION_CONTRACT_FROZEN_DOCS",
-        "PHASE_5_OWNER_GO_NOT_GRANTED",
+        "PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
+        "PHASE_5_OWNER_GO_CONSUMED_BY_PR_119",
         "PHASE_5_RUNTIME_NOT_AUTHORIZED",
+        "PHASE_6_RUNTIME_NOT_AUTHORIZED",
         "ACTION_GATE_NOT_AUTHORIZED",
         "RETRIEVAL_EXECUTION_NOT_AUTHORIZED",
         "TOOL_EXECUTION_NOT_AUTHORIZED",
@@ -78,7 +80,7 @@ def test_phase4_reconciliation_records_verified_contract_freeze() -> None:
         assert "31575119904" in document
 
 
-def test_phase4_owner_go_remains_absent_while_phase5_contract_is_frozen() -> None:
+def test_phase4_owner_go_remains_absent_while_phase5_is_later_completed() -> None:
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
     assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "Phase 4 Owner GO:             NOT_GRANTED" in ROADMAP
@@ -89,4 +91,8 @@ def test_phase4_owner_go_remains_absent_while_phase5_contract_is_frozen() -> Non
         assert "PURE_ANCHORED_TYPED_RELATION_RECORD" in surface
         assert "FROZEN_DOCS" in surface
         assert "PHASE_5_OWNER_GO" in surface
-        assert "NOT_GRANTED" in surface
+        assert "CONSUMED" in surface
+        assert "PHASE_5_IMPLEMENTATION" in surface
+        assert "IMPLEMENTED_BOUNDED" in surface
+        assert "PHASE_5_RUNTIME" in surface
+        assert "NOT_AUTHORIZED" in surface
