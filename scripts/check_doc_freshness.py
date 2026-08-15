@@ -45,15 +45,12 @@ _MACHINE_CONFLICT_RULE = "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT"
 _IMPLEMENTED_MARKERS = {
     "phase_2_npg_shadow_composition": "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED",
     "phase_3_provenance_claim_record": "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED",
+    "phase_5_anchored_typed_relation_atr_v0_1": "PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
 }
 _FROZEN_NOT_IMPLEMENTED_MARKERS = {
     "phase_4_epistemic_change_router_epr_v0_1": (
         "PHASE_4_CONTRACT_VERSION_EPR_V0_1",
         "PHASE_4_IMPLEMENTATION_NOT_STARTED",
-    ),
-    "phase_5_anchored_typed_relation_atr_v0_1": (
-        "PHASE_5_CONTRACT_VERSION_ATR_V0_1",
-        "PHASE_5_IMPLEMENTATION_NOT_STARTED",
     ),
 }
 _AUTHORITY_NOT_AUTHORIZED_MARKERS = {
@@ -63,6 +60,8 @@ _AUTHORITY_NOT_AUTHORIZED_MARKERS = {
     "identity_runtime_authorized": "IDENTITY_RUNTIME_NOT_AUTHORIZED",
     "relationship_runtime_authorized": "RELATIONSHIP_RUNTIME_NOT_AUTHORIZED",
     "runtime_deployment_authorized": "RUNTIME_DEPLOYMENT_NOT_AUTHORIZED",
+    "phase_5_runtime_authorized": "PHASE_5_RUNTIME_NOT_AUTHORIZED",
+    "phase_6_runtime_authorized": "PHASE_6_RUNTIME_NOT_AUTHORIZED",
 }
 
 

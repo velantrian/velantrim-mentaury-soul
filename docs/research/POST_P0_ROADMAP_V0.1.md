@@ -2,8 +2,8 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      2.1
-Updated:                      2026-08-12
+Version:                      2.2
+Updated:                      2026-08-15
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
 P1-002 implementation:        IMPLEMENTED_BOUNDED
@@ -59,9 +59,13 @@ Phase 5 endpoint binding:     PCR_CLAIM_ID_PLUS_INPUT_FINGERPRINT
 Phase 5 candidate selection:  SELECTED
 Phase 5 candidate:            PURE_ANCHORED_TYPED_RELATION_RECORD
 Phase 5 implementation contract: FROZEN_DOCS · ATR-v0.1
-Phase 5 implementation:       NOT_STARTED
-Phase 5 Owner GO:             NOT_GRANTED
+Phase 5 Owner GO:             CONSUMED_BY_PR_119
+Phase 5 Owner GO scope:       ATR-v0.1_ONLY · CONSUMED
+Phase 5 implementation:       IMPLEMENTED_BOUNDED
+Phase 5 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
 Phase 5 runtime:              NOT_AUTHORIZED
+Phase 6 research preparation: AUTHORIZED · DOCS_TESTS_ONLY
+Phase 6 runtime:              NOT_AUTHORIZED
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -108,9 +112,10 @@ ANALOGICAL ≠ MECHANISTIC
 EVIDENTIAL ≠ SUPPORTED
 CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
-Phase 5 READINESS_READY ≠ candidate selection / contract freeze / Owner GO
-ATR-v0.1 FROZEN_DOCS ≠ Owner GO / implementation / runtime authority
-ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome
+ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
+ATR-v0.1 Owner GO consumed ≠ reusable authority
+PHASE_6_RESEARCH_PREPARATION ≠ PHASE_6_RUNTIME_AUTHORITY
+ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 Solo review ≠ independent certification
 ```
 
@@ -129,7 +134,7 @@ Implementation PR:      #63
 Reviewed head:          e873e43331fa7273b92f896b371707e4779b17d4
 Exact-head CI:          31323051934 · success · 387 passed
 Implementation merge:   f21809d8f31a457bd7acfe1d766230973ba9ecf5
-Post-merge CI:          31323138053 · success
+Post-merge CI:           31323138053 · success
 P1-001 Owner GO:        CONSUMED
 ```
 
@@ -563,7 +568,7 @@ than silently inferred capabilities.
 
 ---
 
-## 10.3 🔗 Phase 5 Typed Relations — ATR-v0.1 contract frozen
+## 10.3 ✅ Phase 5 Typed Relations — ATR-v0.1 implemented bounded
 
 Owning discrimination:
 [`POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md`](POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md)
@@ -576,6 +581,9 @@ Candidate selection:
 
 Frozen contract:
 [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
+
+Bounded Owner GO:
+[`TYPED_RELATIONS_OWNER_GO_DECISION.md`](TYPED_RELATIONS_OWNER_GO_DECISION.md)
 
 ```text
 Readiness tracking issue:   #110
@@ -596,6 +604,27 @@ Merge signature:            VERIFIED · VALID
 Independent human review:   NO
 ```
 
+Verified bounded implementation:
+
+```text
+Owner GO PR:                #118
+Owner GO reviewed head:     e4a5cb09d0ecac1c6eebbedd85452e901f4377c7
+Owner GO exact-head CI:     31870124808 · success
+Owner GO merge/main:        671767ee2b9f4e6d6c083e1a03b8af238ff00260
+Owner GO resulting-main CI: 31870186682 · success
+Owner GO scope:             ATR-v0.1_ONLY · single-use
+Implementation PR:          #119
+Reviewed exact head:        63ae721e830fb56b659a4f0cfe8e1be27467d6e6
+Exact-head CI:              31870356904 · success · 1059 passed
+Tier A review:              4943131188
+Implementation merge/main:  398c9be48b7764d63aee532f267df837be7e4e3b
+Resulting-main CI:          31870435973 · success · 1059 passed
+Merge signature:            VERIFIED · VALID
+Correctness:                PASS
+Adversarial:                PASS
+Independent human review:   NO
+```
+
 ```text
 PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS = READY
 PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
@@ -607,12 +636,14 @@ PHASE_5_EVIDENCE_GATE_AUTHORITY = UNCHANGED
 PHASE_5_CANDIDATE_SELECTION = SELECTED
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
+PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RUNTIME = NOT_AUTHORIZED
 ```
 
-`ATR-v0.1` remains pairwise, exact PCR-bound, caller-supplied and representation-only.
+`ATR-v0.1` is pairwise, exact PCR-bound, caller-supplied and representation-only.
 It preserves conditions/moderators/exceptions/unknowns/transfer limits and admits
 no numeric confidence or graph authority. `EVIDENTIAL` is not Evidence Gate
 support and `CONTRADICTORY` is not `EvidenceGateOutcome.CONTRADICTED`.
@@ -647,7 +678,9 @@ Phase 3 PCR-v0.1 runtime activation
 Phase 4 EPR-v0.1 implementation/runtime
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
-Phase 5 ATR-v0.1 implementation/runtime
+Phase 5 ATR-v0.1 runtime
+Phase 6 inference/hypothesis runtime
+Phase 6 autonomous inquiry / scheduler / self-triggered cognition
 relation discovery / graph persistence / graph traversal
 ```
 
@@ -688,16 +721,18 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-Phase 5 Typed Relations candidate selection and `ATR-v0.1` implementation-contract
-freeze are complete. No implementation authority has been granted.
+Phase 5 `ATR-v0.1` is implemented bounded and its one-time Owner GO is consumed.
+The next allowed work is the Phase 6 Inference Bridge Audit + Hypothesis
+Discrimination research/readiness and benchmark preparation only.
 
 ```text
-CURRENT = ATR-v0.1 FROZEN_DOCS · PURE_ANCHORED_TYPED_RELATION_RECORD
+CURRENT = ATR-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED
+→ Phase 6 audit current inference/hypothesis mechanisms
+→ define missing failure mode
+→ design behavioral hypothesis-discrimination benchmark
+→ preserve Evidence Gate ownership and provenance
 → STOP
-→ explicit separate single-use Owner GO for ATR-v0.1_ONLY if owner chooses
-→ fresh exact-main compatibility check
-→ separate bounded three-file implementation only if authorized
-→ STOP again before any runtime activation
+→ new explicit Owner decision before any Phase 6 implementation/runtime
 ```
 
 ```text
@@ -712,9 +747,11 @@ PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
 PHASE_5_CANDIDATE_SELECTION = SELECTED
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
+PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
@@ -756,7 +793,11 @@ P0 complete
 → Phase 5 Typed Relations contract readiness READY by PR #111
 → PURE_ANCHORED_TYPED_RELATION_RECORD selected by PR #114
 → ATR-v0.1 implementation contract FROZEN_DOCS by PR #114
-→ STOP FOR SEPARATE OWNER GO
+→ ATR-v0.1 single-use Owner GO merged by PR #118
+→ ATR-v0.1 Pure Anchored Typed Relation Record IMPLEMENTED_BOUNDED by PR #119
+→ Phase 5 Owner GO CONSUMED_BY_PR_119
+→ NEXT: Phase 6 Inference Bridge Audit + Hypothesis Discrimination DOCS_TESTS_ONLY
+→ STOP BEFORE PHASE 6 RUNTIME
 
 PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
@@ -768,9 +809,11 @@ PHASE_5_SELECTED_RELATION_MODEL = ANCHORED_TYPED_RELATION_CANDIDATE
 PHASE_5_CANDIDATE_SELECTION = SELECTED
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
 PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
-PHASE_5_IMPLEMENTATION = NOT_STARTED
-PHASE_5_OWNER_GO = NOT_GRANTED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
+PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RUNTIME = NOT_AUTHORIZED
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -814,6 +857,7 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`TYPED_RELATIONS_CONTRACT_READINESS.md`](TYPED_RELATIONS_CONTRACT_READINESS.md)
 - [`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md)
 - [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
+- [`TYPED_RELATIONS_OWNER_GO_DECISION.md`](TYPED_RELATIONS_OWNER_GO_DECISION.md)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)

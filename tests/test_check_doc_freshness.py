@@ -23,7 +23,9 @@ PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED
 PHASE_4_CONTRACT_VERSION_EPR_V0_1
 PHASE_4_IMPLEMENTATION_NOT_STARTED
 PHASE_5_CONTRACT_VERSION_ATR_V0_1
-PHASE_5_IMPLEMENTATION_NOT_STARTED
+PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED
+PHASE_5_RUNTIME_NOT_AUTHORIZED
+PHASE_6_RUNTIME_NOT_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
 TOOL_EXECUTION_NOT_AUTHORIZED
@@ -47,10 +49,10 @@ def _machine_snapshot() -> dict[str, object]:
         "implemented_bounded": {
             "phase_2_npg_shadow_composition": True,
             "phase_3_provenance_claim_record": True,
+            "phase_5_anchored_typed_relation_atr_v0_1": True,
         },
         "frozen_not_implemented": {
             "phase_4_epistemic_change_router_epr_v0_1": True,
-            "phase_5_anchored_typed_relation_atr_v0_1": True,
         },
         "authority": {
             "action_gate_authorized": False,
@@ -59,6 +61,8 @@ def _machine_snapshot() -> dict[str, object]:
             "identity_runtime_authorized": False,
             "relationship_runtime_authorized": False,
             "runtime_deployment_authorized": False,
+            "phase_5_runtime_authorized": False,
+            "phase_6_runtime_authorized": False,
         },
     }
 
@@ -253,13 +257,22 @@ def test_machine_snapshot_detects_implemented_drift_both_directions() -> None:
     assert any("phase_2_npg_shadow_composition" in problem for problem in problems)
 
 
+def test_machine_snapshot_detects_phase5_implementation_drift() -> None:
+    snapshot = _machine_snapshot()
+    implemented = snapshot["implemented_bounded"]
+    assert isinstance(implemented, dict)
+    implemented["phase_5_anchored_typed_relation_atr_v0_1"] = False
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("phase_5_anchored_typed_relation_atr_v0_1" in problem for problem in problems)
+
+
 def test_machine_snapshot_detects_frozen_contract_drift() -> None:
     snapshot = _machine_snapshot()
     frozen = snapshot["frozen_not_implemented"]
     assert isinstance(frozen, dict)
-    frozen["phase_5_anchored_typed_relation_atr_v0_1"] = False
+    frozen["phase_4_epistemic_change_router_epr_v0_1"] = False
     problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
-    assert any("phase_5_anchored_typed_relation_atr_v0_1" in problem for problem in problems)
+    assert any("phase_4_epistemic_change_router_epr_v0_1" in problem for problem in problems)
 
 
 def test_machine_snapshot_detects_authority_drift() -> None:
@@ -269,6 +282,17 @@ def test_machine_snapshot_detects_authority_drift() -> None:
     authority["tool_execution_authorized"] = True
     problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
     assert any("tool_execution_authorized" in problem for problem in problems)
+
+
+def test_machine_snapshot_detects_phase_runtime_authority_drift() -> None:
+    snapshot = _machine_snapshot()
+    authority = snapshot["authority"]
+    assert isinstance(authority, dict)
+    authority["phase_5_runtime_authorized"] = True
+    authority["phase_6_runtime_authorized"] = True
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any("phase_5_runtime_authorized" in problem for problem in problems)
+    assert any("phase_6_runtime_authorized" in problem for problem in problems)
 
 
 def test_machine_snapshot_requires_boolean_fields() -> None:
