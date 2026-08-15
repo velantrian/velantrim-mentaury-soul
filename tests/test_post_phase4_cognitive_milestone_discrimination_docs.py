@@ -13,6 +13,9 @@ STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
 EPR = (
     ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
+OWNER_GO = (
+    ROOT / "docs" / "research" / "TYPED_RELATIONS_OWNER_GO_DECISION.md"
+).read_text(encoding="utf-8")
 
 
 def test_discrimination_selects_readiness_not_implementation() -> None:
@@ -63,11 +66,13 @@ def test_epr_implementation_remains_unauthorized() -> None:
     assert not (ROOT / "src" / "mentaury" / "epistemic_change").exists()
 
 
-def test_typed_relations_are_selected_only_for_readiness() -> None:
+def test_typed_relations_were_selected_only_for_readiness_at_that_checkpoint() -> None:
     assert "SELECTION OF READINESS ≠ IMPLEMENTATION AUTHORITY" in DECISION
     assert "This selection does **not** freeze a Typed Relations implementation contract" in DECISION
     assert "Do not automatically implement EPR or Typed Relations" in DECISION
-    assert not (ROOT / "src" / "mentaury" / "relations").exists()
+    assert "Owner GO:                       GRANTED" in OWNER_GO
+    assert "Owner GO scope:                 ATR-v0.1_ONLY" in OWNER_GO
+    assert "Single-use authorization:       YES" in OWNER_GO
 
 
 def test_no_runtime_or_downstream_authority_is_granted() -> None:

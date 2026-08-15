@@ -25,11 +25,14 @@ DISCRIMINATION = (
     / "research"
     / "POST_PHASE4_COGNITIVE_MILESTONE_DISCRIMINATION.md"
 ).read_text(encoding="utf-8")
+OWNER_GO = (
+    ROOT / "docs" / "research" / "TYPED_RELATIONS_OWNER_GO_DECISION.md"
+).read_text(encoding="utf-8")
 
 SURFACES = (STATUS, ROADMAP, INDEX)
 
 
-def test_all_truth_surfaces_expose_current_phase5_contract_freeze() -> None:
+def test_all_truth_surfaces_preserve_phase5_contract_freeze_checkpoint() -> None:
     for surface in SURFACES:
         assert "PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS" in surface
         assert "ANCHORED_TYPED_RELATION_CANDIDATE" in surface
@@ -94,7 +97,7 @@ def test_owning_readiness_preserves_historical_pre_selection_state() -> None:
     assert "NEXT_IMPLEMENTATION_MILESTONE = NOT_SELECTED" in DISCRIMINATION
 
 
-def test_selection_and_contract_own_current_phase5_state() -> None:
+def test_selection_and_contract_preserve_freeze_time_state() -> None:
     assert "PHASE_5_TYPED_RELATIONS_CANDIDATE_SELECTION = SELECTED" in SELECTION
     assert "PHASE_5_TYPED_RELATIONS_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD" in SELECTION
     assert "PHASE_5_TYPED_RELATIONS_CONTRACT_VERSION = ATR-v0.1" in SELECTION
@@ -126,13 +129,11 @@ def test_phase4_epr_remains_unimplemented_and_unauthorized() -> None:
         assert "Phase 4 runtime:              NOT_AUTHORIZED" in surface
 
 
-def test_next_boundary_requires_separate_single_use_owner_go() -> None:
-    for surface in (STATUS, ROADMAP, INDEX, CONTRACT):
-        assert "ATR-v0.1_ONLY" in surface
-    for surface in (STATUS, ROADMAP, CONTRACT):
-        assert "STOP" in surface
-    assert "src/mentaury/relations/**" in STATUS
-    assert "explicit separate single-use Owner GO" in ROADMAP
-    assert "explicit separate single-use Owner GO" in INDEX
+def test_separate_single_use_owner_go_now_supersedes_freeze_time_stop_for_implementation_only() -> None:
+    assert "Owner GO:                       GRANTED" in OWNER_GO
+    assert "Owner GO scope:                 ATR-v0.1_ONLY" in OWNER_GO
+    assert "Single-use authorization:       YES" in OWNER_GO
+    assert "Phase 5 runtime:                NOT_AUTHORIZED" in OWNER_GO
+    assert "Phase 6 runtime:                NOT_AUTHORIZED" in OWNER_GO
     assert "new explicit single-use Owner GO" in CONTRACT
-    assert not (ROOT / "src" / "mentaury" / "relations").exists()
+    assert "src/mentaury/relations/**" in STATUS

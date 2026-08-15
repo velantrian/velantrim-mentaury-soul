@@ -121,8 +121,13 @@ def test_existing_phase4_authority_remains_unchanged() -> None:
     assert "Implementation:                      NOT_STARTED" in EPR
 
 
-def test_no_typed_relations_source_package_exists() -> None:
-    assert not (ROOT / "src" / "mentaury" / "relations").exists()
+def test_readiness_historical_stop_did_not_itself_authorize_source() -> None:
+    for marker in (
+        "PHASE_5_IMPLEMENTATION = NOT_STARTED",
+        "PHASE_5_OWNER_GO = NOT_GRANTED",
+        "PHASE_5_RUNTIME = NOT_AUTHORIZED",
+    ):
+        assert marker in READINESS
     assert not (ROOT / "src" / "mentaury" / "typed_relations").exists()
 
 
