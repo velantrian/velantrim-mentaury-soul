@@ -330,7 +330,7 @@ flowchart LR
     B --> C[🧾 Claims]
     C --> D[🔗 Relations]
     C --> E[⚖️ Epistemic routing]
-    D --> F[🔬 Phase 6 discrimination benchmark · docs/tests]
+    D --> F[🔬 HDE-v0.1 structural discrimination · implemented bounded]
     E --> G[🔬 Existing evidence / belief owners]
     F --> G
     G --> H[❓ Open obligations]
@@ -365,7 +365,7 @@ understanding → autobiography
 | 🌱 PCR-v0.1 claims/provenance | ✅ Implemented bounded | representation only |
 | ⚖️ EPR-v0.1 | 🧊 Frozen contract | routing contract only; implementation absent |
 | 🔗 ATR-v0.1 | ✅ Implemented bounded | exact PCR-anchored typed-relation representation; no confidence/graph/truth/runtime authority |
-| 🔬 Phase 6 hypothesis discrimination | ✅ Prepared docs/tests only | `HD-01…HD-10` benchmark; implementation and runtime remain unauthorized |
+| 🔬 HDE-v0.1 hypothesis discrimination | ✅ Implemented bounded | structural discrimination only; no observation execution, evidence collection, Evidence Gate verdict or runtime authority |
 | 🔗 claim→belief binding | ❌ Not implemented | future separate contract required |
 | 🔄 terminal reconsideration lineage | ❌ Not implemented | terminal beliefs cannot be silently reopened |
 | 🧠 inference / inquiry / scheduler | ❌ Future | not current runtime capability |
@@ -510,28 +510,38 @@ At the current checkpoint:
 PCR-v0.1   ✅ IMPLEMENTED_BOUNDED
 EPR-v0.1   🧊 FROZEN_DOCS · NOT_STARTED
 ATR-v0.1   ✅ FROZEN_DOCS · IMPLEMENTED_BOUNDED
+HDE-v0.1   ✅ FROZEN_DOCS_TESTS_ONLY · IMPLEMENTED_BOUNDED
 
-EPR Owner GO              NOT_GRANTED
-ATR Owner GO              CONSUMED_BY_PR_119
-Phase 6 research prep     PREPARED_DOCS_TESTS_ONLY
-Phase 6 implementation    NOT_SELECTED · NOT_AUTHORIZED
-Phase 6 Owner GO          NOT_GRANTED
-Runtime                   NOT_AUTHORIZED
-Retrieval                 NOT_AUTHORIZED
-Tools                     NOT_AUTHORIZED
-Action Gate               NOT_AUTHORIZED
-Deployment                NOT_AUTHORIZED
+PHASE_4_IMPLEMENTATION = NOT_STARTED
+PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_RUNTIME = NOT_AUTHORIZED
+
+PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
+PHASE_5_RUNTIME = NOT_AUTHORIZED
+
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
+PHASE_6_RUNTIME = NOT_AUTHORIZED
+
+Claim→belief binding       NOT_IMPLEMENTED
+Terminal reconsideration   NOT_IMPLEMENTED
+Next cognitive gap         RESEARCH_ONLY · issue #129
+Retrieval                  NOT_AUTHORIZED
+Tools                      NOT_AUTHORIZED
+Action Gate                NOT_AUTHORIZED
+Deployment                 NOT_AUTHORIZED
 ```
 
 ```text
 RELATION ≠ TRUTH
 HYPOTHESIS ≠ FACT
-BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
-BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+DISCRIMINATION ≠ EVIDENCE GATE VERDICT
+IMPLEMENTED_BOUNDED ≠ AUTONOMY AUTHORITY
 IMPLEMENTED_BOUNDED ≠ RUNTIME AUTHORITY
 ```
 
-Do not infer implementation authority from contract readiness, and do not infer runtime authority from implementation or benchmark preparation.
+Do not infer implementation authority from contract readiness, and do not infer runtime authority from bounded implementation or structural discrimination.
 
 ---
 
