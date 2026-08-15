@@ -46,6 +46,7 @@ _IMPLEMENTED_MARKERS = {
     "phase_2_npg_shadow_composition": "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED",
     "phase_3_provenance_claim_record": "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED",
     "phase_5_anchored_typed_relation_atr_v0_1": "PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
+    "phase_6_hypothesis_discrimination_hde_v0_1": "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
 }
 _FROZEN_NOT_IMPLEMENTED_MARKERS = {
     "phase_4_epistemic_change_router_epr_v0_1": (

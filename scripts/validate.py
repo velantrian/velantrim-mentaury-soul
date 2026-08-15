@@ -1,4 +1,4 @@
-"""Offline structural validation for P0-001…P0-015 manifest presence.
+"""Offline structural validation for the current bounded Mentaury manifest.
 
 Это presence-check обязательных путей, а не доказательство корректности
 поведения. Поведенческие инварианты остаются зоной pytest / CI.
@@ -37,6 +37,23 @@ REQUIRED_PATHS = (
     "src/mentaury/evidence/contracts.py",
     "src/mentaury/evidence/gate.py",
     "src/mentaury/evidence/schemas.py",
+    # Post-P0 bounded governance / representation primitives already implemented in main.
+    "src/mentaury/capabilities/lease/contracts.py",
+    "src/mentaury/capabilities/lease/resolver.py",
+    "src/mentaury/privacy/reconciliation/contracts.py",
+    "src/mentaury/privacy/reconciliation/classifier.py",
+    "src/mentaury/composition/governed_constraints/contracts.py",
+    "src/mentaury/composition/governed_constraints/composer.py",
+    "src/mentaury/non_projection/contracts.py",
+    "src/mentaury/non_projection/classifier.py",
+    "src/mentaury/composition/non_projection_shadow/contracts.py",
+    "src/mentaury/composition/non_projection_shadow/coordinator.py",
+    "src/mentaury/claims/contracts.py",
+    "src/mentaury/claims/representation.py",
+    "src/mentaury/relations/contracts.py",
+    "src/mentaury/relations/representation.py",
+    "src/mentaury/discrimination/contracts.py",
+    "src/mentaury/discrimination/evaluator.py",
     "tests/test_skeleton.py", "tests/test_envelopes.py",
     "tests/test_payload_cycle_protection.py", "tests/test_canonical_json.py",
     "tests/test_sqlite_store.py", "tests/test_schema_validation.py",
@@ -47,6 +64,14 @@ REQUIRED_PATHS = (
     "tests/test_r1_replay.py",
     "tests/test_belief_lifecycle.py",
     "tests/test_evidence_gate.py",
+    "tests/test_capability_lease_resolution.py",
+    "tests/test_privacy_reconciliation_classifier.py",
+    "tests/test_governed_constraint_composer.py",
+    "tests/test_non_projection_classifier.py",
+    "tests/test_non_projection_shadow_composition.py",
+    "tests/test_provenance_claim_representation.py",
+    "tests/test_typed_relations.py",
+    "tests/test_hypothesis_discrimination_evaluator.py",
     "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
@@ -91,7 +116,7 @@ def main() -> int:
         for name in found:
             print(f"- {name}")
         return 1
-    print("Mentaury P0-001…P0-015 structural manifest validation: PASS")
+    print("Mentaury current bounded structural manifest validation: PASS")
     return 0
 
 

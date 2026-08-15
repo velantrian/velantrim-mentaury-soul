@@ -93,6 +93,12 @@ src/mentaury/beliefs/**
 src/mentaury/evidence/**
 src/mentaury/capabilities/lease/**
 src/mentaury/privacy/reconciliation/**
+src/mentaury/non_projection/**
+src/mentaury/composition/governed_constraints/**
+src/mentaury/composition/non_projection_shadow/**
+src/mentaury/claims/**
+src/mentaury/relations/**
+src/mentaury/discrimination/**
 src/mentaury/contracts/canonical_json.py
 scripts/validate.py
 scripts/check_doc_freshness.py
@@ -132,6 +138,12 @@ bounded pure P1-002 classifier recorded in
 records but may not persist, scan, delete, redact, quarantine, rebuild, retrieve,
 append events, invoke P1-001 internally, mutate relationship/identity/M3 state,
 execute tools, select backends or deploy.
+
+The implemented `non_projection`, governed-composition, claim, relation and
+hypothesis-discrimination packages are also Tier A because semantic changes in those
+paths can alter attribution, authority ceilings, claim/belief separation, relation/truth
+separation or the boundary between structural discrimination and Evidence Gate verdicts.
+Their current implementation remains bounded and grants no runtime authority.
 
 #### Tier A requirements
 

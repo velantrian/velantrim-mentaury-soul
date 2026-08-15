@@ -25,6 +25,7 @@ PHASE_4_IMPLEMENTATION_NOT_STARTED
 PHASE_5_CONTRACT_VERSION_ATR_V0_1
 PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME_NOT_AUTHORIZED
+PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED
 PHASE_6_RUNTIME_NOT_AUTHORIZED
 ACTION_GATE_NOT_AUTHORIZED
 RETRIEVAL_EXECUTION_NOT_AUTHORIZED
@@ -50,6 +51,7 @@ def _machine_snapshot() -> dict[str, object]:
             "phase_2_npg_shadow_composition": True,
             "phase_3_provenance_claim_record": True,
             "phase_5_anchored_typed_relation_atr_v0_1": True,
+            "phase_6_hypothesis_discrimination_hde_v0_1": True,
         },
         "frozen_not_implemented": {
             "phase_4_epistemic_change_router_epr_v0_1": True,
@@ -264,6 +266,26 @@ def test_machine_snapshot_detects_phase5_implementation_drift() -> None:
     implemented["phase_5_anchored_typed_relation_atr_v0_1"] = False
     problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
     assert any("phase_5_anchored_typed_relation_atr_v0_1" in problem for problem in problems)
+
+
+def test_machine_snapshot_detects_phase6_hde_implementation_drift() -> None:
+    snapshot = _machine_snapshot()
+    implemented = snapshot["implemented_bounded"]
+    assert isinstance(implemented, dict)
+    implemented["phase_6_hypothesis_discrimination_hde_v0_1"] = False
+    problems = evaluate_machine_snapshot(_MACHINE_STATUS, json.dumps(snapshot))
+    assert any(
+        "phase_6_hypothesis_discrimination_hde_v0_1" in problem for problem in problems
+    )
+
+    implemented["phase_6_hypothesis_discrimination_hde_v0_1"] = True
+    status_without_hde = _MACHINE_STATUS.replace(
+        "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED", ""
+    )
+    problems = evaluate_machine_snapshot(status_without_hde, json.dumps(snapshot))
+    assert any(
+        "phase_6_hypothesis_discrimination_hde_v0_1" in problem for problem in problems
+    )
 
 
 def test_machine_snapshot_detects_frozen_contract_drift() -> None:

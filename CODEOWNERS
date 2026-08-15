@@ -16,6 +16,12 @@
 /src/mentaury/evidence/ @velantrian
 /src/mentaury/capabilities/lease/ @velantrian
 /src/mentaury/privacy/reconciliation/ @velantrian
+/src/mentaury/non_projection/ @velantrian
+/src/mentaury/composition/governed_constraints/ @velantrian
+/src/mentaury/composition/non_projection_shadow/ @velantrian
+/src/mentaury/claims/ @velantrian
+/src/mentaury/relations/ @velantrian
+/src/mentaury/discrimination/ @velantrian
 /src/mentaury/contracts/canonical_json.py @velantrian
 /scripts/validate.py @velantrian
 /scripts/check_doc_freshness.py @velantrian
