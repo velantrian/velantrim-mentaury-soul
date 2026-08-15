@@ -2,19 +2,20 @@
 
 This is the compact orientation layer for AI coding agents, reviewers and maintainers. Its purpose is to reduce blind repository-wide scanning while preserving architectural distinctions and the human-first documentation architecture.
 
+If you arrived here directly, `../../AGENTS.md` is the mandatory agent contract. Do not bounce back through the human landing pages before continuing a bounded engineering task.
+
 ## 1. Required reading order
 
-1. `../../README.md` — stable human project identity and conceptual portrait.
-2. `../../SYSTEM_OVERVIEW.md` — deep human mental model and architecture map.
-3. `../../AGENTS.md` — mandatory agent contract.
-4. `project_manifest.json` — machine-readable documentation/navigation contract.
-5. `../state/project_state.json` — machine state snapshot.
-6. `../CURRENT_STATUS.md` — current engineering truth.
-7. `../GOVERNANCE.md` — authority and review rules.
-8. `COMPONENT_MAP.md` — ownership, paths and tests.
-9. `KNOWN_RISKS.md` — known documentation/architecture risks.
-10. `REVIEW_GUIDE.md` — bounded review procedure.
-11. only the affected research contracts, source, tests, PRs and exact CI evidence.
+1. `project_manifest.json` — machine-readable documentation/navigation contract.
+2. `../state/project_state.json` — derived machine snapshot only; not an independent current-truth owner.
+3. `../CURRENT_STATUS.md` — current engineering truth.
+4. `../GOVERNANCE.md` — authority and review rules.
+5. `COMPONENT_MAP.md` — ownership, paths and tests.
+6. `KNOWN_RISKS.md` — known documentation/architecture risks.
+7. `REVIEW_GUIDE.md` — bounded review procedure.
+8. only the affected research contracts, source, tests, PRs and exact CI evidence.
+
+Use `../../README.md` and `../../SYSTEM_OVERVIEW.md` when conceptual/human context is materially needed. They are orientation surfaces, not an additional mandatory loop in the AI route.
 
 Do **not** begin with repository-wide scanning unless focused evidence is insufficient.
 
@@ -27,12 +28,14 @@ live merged GitHub code
 → executable tests and exact CI
 → CURRENT_STATUS + live governance
 → accepted/frozen owning contracts
-→ machine state snapshot
+→ derived machine state snapshot
 → README / SYSTEM_OVERVIEW orientation
 → docs/ai navigation
 → PR/issues/research proposals
 → Notion rationale/history
 ```
+
+`docs/state/project_state.json` is a compact derived view. If it disagrees with live GitHub or `docs/CURRENT_STATUS.md`, the snapshot is stale and must be corrected; it never wins the conflict.
 
 Human-facing visuals are **orientation, not proof**. Never infer implementation, runtime or authority state from a diagram, table, emoji, prose summary or roadmap arrow.
 
@@ -61,9 +64,10 @@ runtime capability != action authority
 ## 4. Context-budget route
 
 ```text
-🤖 AI entry
+🤖 AGENTS.md
+→ docs/ai/README.md
 → project manifest
-→ machine/current state
+→ derived snapshot + CURRENT_STATUS
 → affected component
 → owning contract
 → focused code/tests
@@ -77,7 +81,7 @@ Do not load all historical research documents by default.
 
 ## 5. Human documentation architecture is maintained, not decorative
 
-The repository intentionally separates one project truth into four presentations:
+The repository intentionally separates one project truth into derived presentations:
 
 ```text
                  🧬 ONE PROJECT TRUTH
@@ -86,7 +90,7 @@ The repository intentionally separates one project truth into four presentations
        │                 │                 │
        ▼                 ▼                 ▼
    👤 HUMAN          🤖 AGENT          ⚙️ MACHINE
-README / OVERVIEW    docs/ai/**       JSON state
+README / OVERVIEW    docs/ai/**       derived JSON
        │                 │                 │
        └─────────────────┴────────┬────────┘
                                   ▼
