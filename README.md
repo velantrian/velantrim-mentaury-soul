@@ -189,7 +189,7 @@ flowchart TD
     B --> C[🧾 Claim representation]
     C --> D[🔗 Typed relation representation]
     C --> E[⚖️ Epistemic routing]
-    D --> F[🔬 Hypothesis-discrimination benchmark · docs/tests]
+    D --> F[🔬 HDE-v0.1 structural discrimination · implemented bounded]
     E --> G[⚖️ Existing belief + Evidence Gate owners]
     F --> G
     G --> H[❓ Open epistemic obligations]
@@ -220,7 +220,7 @@ This table is intentionally human-readable. For exact enumerated state, use [`do
 | 🌱 Provenance + claim representation | ✅ Implemented bounded | `PCR-v0.1` preserves distinct provenance/claim/epistemic axes |
 | ⚖️ Epistemic change routing | 🟡 Contract frozen | `EPR-v0.1` is specified; source implementation is not started |
 | 🔗 Typed relations | ✅ Implemented bounded | `ATR-v0.1` represents exact PCR-anchored typed relation candidates; no confidence, truth, graph or runtime authority |
-| 🔬 Hypothesis discrimination | ✅ Prepared docs/tests only | `HD-01…HD-10` benchmark is merged; no Phase 6 implementation or runtime authority |
+| 🔬 Hypothesis discrimination | ✅ Implemented bounded | `HDE-v0.1` classifies caller-supplied hypothesis outcome partitions structurally; it executes no observation, collects no evidence and issues no Evidence Gate verdict |
 | 🧠 Autonomous inquiry / scheduler | ❌ Not implemented | later research phases only |
 | 🚦 Action Gate | ❌ Not authorized | no action authority follows from cognition primitives |
 | 🔎 Retrieval / tools | ❌ Not authorized | no runtime retrieval/tool execution authority |
@@ -247,8 +247,9 @@ PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_RUNTIME = NOT_AUTHORIZED
 
 PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
-PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_IMPLEMENTATION_CONTRACT = FROZEN_DOCS_TESTS_ONLY · HDE-v0.1
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 
 ACTION_GATE = NOT_AUTHORIZED
@@ -368,12 +369,12 @@ PCR-v0.1 provenance/claims       ✅ implemented bounded
         └── ATR-v0.1             ✅ implemented bounded
                                       │
                                       ▼
-                    Phase 6 hypothesis-discrimination
-                    benchmark       ✅ prepared docs/tests only
+                    HDE-v0.1 structural discrimination
+                                      ✅ implemented bounded
                                       │
                                       ▼
-                    implementation   NOT_SELECTED / NOT_AUTHORIZED
-                    runtime/action   remain separate and NOT_AUTHORIZED
+                    next cognitive gap RESEARCH_ONLY · issue #129
+                    runtime/action     remain separate and NOT_AUTHORIZED
 ```
 
 Core epistemic invariants:
@@ -393,7 +394,8 @@ HERITAGE ≠ AUTOBIOGRAPHY
 UNDERSTANDING ≠ EXPERIENCE
 CREATOR ≠ MENTAURY
 HYPOTHESIS ≠ FACT
-BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+DISCRIMINATION ≠ EVIDENCE GATE VERDICT
+IMPLEMENTED_BOUNDED ≠ AUTONOMY AUTHORITY
 ```
 
 ---
