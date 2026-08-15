@@ -134,6 +134,16 @@ runtime activation
 deployment / production authority
 ```
 
+## Retained compatibility receipts
+
+These literals are retained because existing historical conformance tests bind them to the
+quick reference. They are **not** a second current-state ledger.
+
+```text
+P1-001 historical implementation evidence: 387 passed
+NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
+```
+
 ## Navigation
 
 - `docs/CURRENT_STATUS.md` — exact current engineering status
