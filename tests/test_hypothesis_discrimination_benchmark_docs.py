@@ -90,7 +90,7 @@ def test_discrimination_requires_different_outcome_patterns() -> None:
         "OUTCOME PATTERN EXPECTED MORE UNDER H2",
         "WHY THIS SEPARATES THEM",
         "any result\nthat H1 and H2 predict equally",
-        "propose an observation predicted equally by H1 and H2",
+        "predicted by both H1 and H2",
     ):
         assert marker in BENCHMARK
 
