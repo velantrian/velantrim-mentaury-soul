@@ -12,6 +12,7 @@ Completed execution milestone:NPG-v0.1 Pure Non-Projection Classifier · IMPLEME
 Completed execution milestone:NPG-COMP-v0.1 Shadow Composition · IMPLEMENTED_BOUNDED
 Completed execution milestone:PCR-v0.1 Pure Provenance Claim Record · IMPLEMENTED_BOUNDED
 Completed execution milestone:ATR-v0.1 Pure Anchored Typed Relation Record · IMPLEMENTED_BOUNDED
+Completed execution milestone:HDE-v0.1 Pure Hypothesis Discrimination Evaluator · IMPLEMENTED_BOUNDED
 Completed readiness block:    CROSS_GATE_BINDING_AND_COMPOSITION_READINESS · READY
 Completed readiness block:    NON_PROJECTION_GATE_CONTRACT_READINESS · READY
 Completed readiness block:    NPG-COMP-v0.1 RUNTIME_COMPOSITION_READINESS · READY
@@ -22,9 +23,10 @@ Completed readiness block:    PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS · READ
 Completed contract block:     PHASE_5_TYPED_RELATIONS · ATR-v0.1 · FROZEN_DOCS
 Completed research block:     PHASE_6_INFERENCE_BRIDGE_AUDIT · PREPARED_DOCS_TESTS_ONLY
 Completed benchmark block:    PHASE_6_HYPOTHESIS_DISCRIMINATION · PREPARED_DOCS_TESTS_ONLY
-Next bounded work:             EXPLICIT_OWNER_DECISION_BEFORE_PHASE_6_IMPLEMENTATION_READINESS
-Phase 6 implementation:       NOT_SELECTED · NOT_AUTHORIZED
-Phase 6 Owner GO:             NOT_GRANTED
+Completed contract block:     PHASE_6_HDE · HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+Next bounded work:             ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION · RESEARCH_ONLY
+Phase 6 implementation:       IMPLEMENTED_BOUNDED
+Phase 6 Owner GO:             CONSUMED_BY_PR_127
 Phase 6 runtime:              NOT_AUTHORIZED
 
 P1-003 candidate:              PURE_GOVERNED_CONSTRAINT_COMPOSER
@@ -73,9 +75,12 @@ Phase 5 Owner GO:             CONSUMED_BY_PR_119
 Phase 5 runtime:              NOT_AUTHORIZED
 Phase 6 research prep:        PREPARED_DOCS_TESTS_ONLY
 Phase 6 benchmark:            PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10
-Phase 6 implementation:       NOT_SELECTED · NOT_AUTHORIZED
-Phase 6 Owner GO:             NOT_GRANTED
+Phase 6 candidate:            PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR · SELECTED
+Phase 6 implementation contract: HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+Phase 6 implementation:       IMPLEMENTED_BOUNDED
+Phase 6 Owner GO:             CONSUMED_BY_PR_127
 Phase 6 runtime:              NOT_AUTHORIZED
+Post-HDE tracking:            ISSUE_129 · RESEARCH_ONLY · NO_OWNER_GO
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime deployment authority: NONE
@@ -120,6 +125,10 @@ ATR-v0.1 Owner GO consumed ≠ reusable authority
 HYPOTHESIS ≠ FACT
 BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
 BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+HDE-v0.1 DISCRIMINATING ≠ Evidence Gate verdict
+HDE-v0.1 IMPLEMENTED_BOUNDED ≠ observation execution / evidence collection / runtime
+HDE-v0.1 Owner GO consumed ≠ reusable authority
+ISSUE_129_RESEARCH_TRACKING ≠ OWNER_GO
 PHASE_6_RESEARCH_PREPARATION ≠ PHASE_6_RUNTIME_AUTHORITY
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 Notion explanation ≠ GitHub authority
@@ -437,19 +446,22 @@ ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 
 ---
 
-## 7.1 🔬 Phase 6 Inference Bridge Audit + Hypothesis Discrimination — prepared
+## 7.1 ✅ Phase 6 Inference Bridge + HDE-v0.1 — implemented bounded
 
-Owning benchmark:
+Historical benchmark:
 
 - [Phase 6 benchmark](INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md)
+- [HDE readiness/selection](PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md)
+- [Frozen HDE contract](HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md)
+- [HDE Owner GO](HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md)
+- [HDE completion receipt](../HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md)
+
+The benchmark milestone remains historical preparation evidence:
 
 ```text
 PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
 PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
 PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
-PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
-PHASE_6_RUNTIME = NOT_AUTHORIZED
 ```
 
 Verified benchmark evidence:
@@ -475,11 +487,41 @@ alternatives, discrimination, falsification preference, confirmation-bias
 resistance, relation ≠ causation, Evidence Gate ownership, inconclusive
 `WAIT/DEFER`, revision-history preservation, provenance and no pseudo-confidence.
 
+Current HDE completion state:
+
+```text
+PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
+PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_RUNTIME = NOT_AUTHORIZED
+```
+
+Verified implementation evidence:
+
+```text
+Owner GO PR:             #126
+Owner GO merge/main:     de0cbbce8fe0ffb50f60f622026cd3d427842e66
+Implementation PR:       #127
+Reviewed exact head:     6977d5696cf642653aaef56f4cbef73db35070ec
+Exact-head CI:           31886102508 · success · 1111 passed
+Tier A review:           4943890604 · correctness PASS · adversarial PASS
+Implementation merge:    2c916e8ce44f623d1a1880f8e480ae2f13277615
+Resulting-main CI:       31886151205 · success
+Completion PR:           #128
+Completion merge/main:   52451c3c948d996a1b2fb09bb042e4c9fb446358
+Completion resulting CI: 31886404793 · success
+Independent human review:NO
+```
+
 ```text
 HYPOTHESIS ≠ FACT
-BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
-BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+PROPOSED OBSERVATION ≠ EVIDENCE
+DISCRIMINATION ≠ EVIDENCE GATE VERDICT
+HDE-v0.1 IMPLEMENTED_BOUNDED ≠ RUNTIME AUTHORITY
 ```
+
+Next research is tracked by issue #129 and grants no implementation authority.
 
 ---
 
@@ -518,7 +560,11 @@ BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 | [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md) | Phase 5 contract | FROZEN_DOCS · ATR-v0.1 | implemented bounded |
 | [`TYPED_RELATIONS_OWNER_GO_DECISION.md`](TYPED_RELATIONS_OWNER_GO_DECISION.md) | Phase 5 authority | OWNER_GO_CONSUMED | historical single-use grant |
 | [`INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md`](INFERENCE_BRIDGE_HYPOTHESIS_DISCRIMINATION_BENCHMARK.md) | Phase 6 research benchmark | PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10 | runtime NOT_AUTHORIZED |
-| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | ATR-v0.1 implemented; Phase 6 benchmark prepared | runtime NOT_AUTHORIZED |
+| [`PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md`](PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md) | Phase 6 HDE readiness | SELECTED · FROZEN_DOCS_TESTS_ONLY | historical checkpoint |
+| [`HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md`](HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md) | Phase 6 HDE contract | FROZEN_DOCS_TESTS_ONLY · HDE-v0.1 | implemented bounded |
+| [`HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md`](HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md) | Phase 6 HDE authority | OWNER_GO_CONSUMED_BY_PR_127 | historical single-use grant |
+| [`../HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md`](../HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md) | Phase 6 HDE receipt | IMPLEMENTED_BOUNDED | runtime NOT_AUTHORIZED |
+| [`POST_P0_ROADMAP_V0.1.md`](POST_P0_ROADMAP_V0.1.md) | roadmap | HDE-v0.1 implemented; issue #129 next research | runtime NOT_AUTHORIZED |
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
@@ -533,9 +579,9 @@ BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 | `R-ELIDA-001` | Identity as Practice | CAPTURED HYPOTHESIS | longitudinal criteria + falsification |
 | `R-NPG-001` | Non-Projection Gate | **PHASE_2_IMPLEMENTED_BOUNDED** | runtime activation remains separate |
 | `R-PCR-001` | Provenance + Claim Representation | **PHASE_3_IMPLEMENTED_BOUNDED · PCR-v0.1** | no authority rolls forward |
-| `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | separate explicit Owner GO before implementation |
+| `R-EPR-001` | Epistemic Promotion & Revision | **CONTRACT_FROZEN · EPR-v0.1** | issue #129 must discriminate prerequisites before any Owner GO |
 | `R-TR-001` | Typed Relations | **PHASE_5_IMPLEMENTED_BOUNDED · ATR-v0.1** | runtime/relation discovery remain separate |
-| `R-HD-001` | Inference Bridge Audit + Hypothesis Discrimination | **PREPARED_DOCS_TESTS_ONLY · HD-01…HD-10** | explicit Owner decision before any implementation-readiness selection |
+| `R-HD-001` | Inference Bridge Audit + Hypothesis Discrimination | **PHASE_6_IMPLEMENTED_BOUNDED · HDE-v0.1** | issue #129 before any next implementation/runtime |
 | `R-HPA-001` | Human Paths Atlas | PARTLY DOCUMENTED | bounded schema + source limits |
 | `R-CO-001` | Controlled Origin | PARTLY DOCUMENTED | consent + provenance boundaries |
 | `R-KDT-001` | Knowledge Density Transformer | CAPTURED | preservation tests |
@@ -550,8 +596,9 @@ BENCHMARK PASS ≠ AUTONOMY AUTHORITY
 These entries are not a ranked execution queue. `ATR-v0.1` implementation grants
 no relation discovery, graph truth, confidence propagation, Evidence Gate result,
 belief mutation, runtime activation, retrieval, action, identity, relationship,
-M3 or deployment authority. Phase 6 audit + benchmark preparation is complete at
-docs/test level only and grants no implementation or runtime authority.
+M3 or deployment authority. `HDE-v0.1` is implemented bounded but grants no
+observation execution, evidence collection, Evidence Gate verdict, runtime or
+autonomy. Issue #129 is research tracking only and does not grant Owner GO.
 
 ---
 
@@ -572,16 +619,17 @@ problem demonstrated
 + green resulting main CI
 ```
 
-P1-001, P1-002, P1-003, NPG-v0.1, NPG-COMP-v0.1, PCR-v0.1 and ATR-v0.1 bounded
-Owner GO receipts are consumed. No Owner GO rolls forward. `EPR-v0.1` is frozen
-but Phase 4 has **no Owner GO**. Phase 5 `ATR-v0.1` is `IMPLEMENTED_BOUNDED` via
-PR #119 and runtime remains `NOT_AUTHORIZED`.
+P1-001, P1-002, P1-003, NPG-v0.1, NPG-COMP-v0.1, PCR-v0.1, ATR-v0.1 and
+HDE-v0.1 bounded Owner GO receipts are consumed. No Owner GO rolls forward.
+`EPR-v0.1` remains frozen but Phase 4 has **no Owner GO**. Claim→belief binding
+and terminal reconsideration lineage remain unimplemented prerequisites/candidates,
+not implied capabilities.
 
-Phase 6 **Inference Bridge Audit + Hypothesis Discrimination** research/benchmark
-preparation is merged and verified via PR #121. The next step is **not automatic
-implementation**: a new explicit Owner decision must choose `NO_IMPLEMENTATION`,
-`MORE_RESEARCH`, or at most a bounded non-autonomous implementation-readiness /
-contract-selection cycle. Phase 6 implementation and runtime remain unauthorized.
+The next bounded work is issue #129 **Post-HDE cognitive gap discrimination**.
+It must decide whether the first remaining executable gap is EPR-v0.1,
+provenance-preserving claim→belief binding, terminal successor/reconsideration
+lineage, or no implementation / more research. Issue #129 itself is not Owner GO,
+and no runtime milestone is selected.
 
 Issue #39 remains the future transition trigger for genuine independent review.
 
@@ -617,6 +665,10 @@ ATR-v0.1 Owner GO consumed ≠ reusable authority
 HYPOTHESIS ≠ FACT
 BENCHMARK RESULT ≠ EVIDENCE GATE VERDICT
 BENCHMARK PASS ≠ AUTONOMY AUTHORITY
+HDE-v0.1 DISCRIMINATING ≠ Evidence Gate verdict
+HDE-v0.1 IMPLEMENTED_BOUNDED ≠ observation execution / evidence collection / runtime
+HDE-v0.1 Owner GO consumed ≠ reusable authority
+ISSUE_129_RESEARCH_TRACKING ≠ OWNER_GO
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 ```
 
@@ -676,9 +728,12 @@ PHASE_5_RUNTIME = NOT_AUTHORIZED
 PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
 PHASE_6_INFERENCE_BRIDGE_AUDIT = PREPARED_DOCS_TESTS_ONLY
 PHASE_6_HYPOTHESIS_DISCRIMINATION_BENCHMARK = PREPARED_DOCS_TESTS_ONLY
-PHASE_6_IMPLEMENTATION_MILESTONE = NOT_SELECTED
-PHASE_6_OWNER_GO_FOR_IMPLEMENTATION = NOT_GRANTED
+PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
+PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
+NEXT_BOUNDED_RESEARCH = ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```

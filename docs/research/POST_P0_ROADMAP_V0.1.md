@@ -2,7 +2,7 @@
 
 ```text
 Status:                       ADOPTED ROADMAP · DOCS_ONLY
-Version:                      2.2
+Version:                      2.3
 Updated:                      2026-08-15
 Current review mode:          SOLO_MAINTAINER · TIER_A
 P1-001 implementation:        IMPLEMENTED_BOUNDED
@@ -64,8 +64,14 @@ Phase 5 Owner GO scope:       ATR-v0.1_ONLY · CONSUMED
 Phase 5 implementation:       IMPLEMENTED_BOUNDED
 Phase 5 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
 Phase 5 runtime:              NOT_AUTHORIZED
-Phase 6 research preparation: AUTHORIZED · DOCS_TESTS_ONLY
+Phase 6 research preparation: PREPARED_DOCS_TESTS_ONLY
+Phase 6 candidate:            PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR · SELECTED
+Phase 6 contract:             FROZEN_DOCS_TESTS_ONLY · HDE-v0.1
+Phase 6 Owner GO:             CONSUMED_BY_PR_127
+Phase 6 implementation:       IMPLEMENTED_BOUNDED
+Phase 6 validation:           EXACT_HEAD_AND_MAIN_CI_PASS
 Phase 6 runtime:              NOT_AUTHORIZED
+Next bounded research:        ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION
 Non-Projection runtime:       NOT_AUTHORIZED
 P1-004 assignment:            NOT_ASSIGNED
 Runtime activation milestone: NOT_SELECTED · NOT_AUTHORIZED
@@ -114,7 +120,11 @@ CONTRADICTORY ≠ EvidenceGateOutcome.CONTRADICTED
 GRAPH LINK / PATH / COUNT ≠ EPISTEMIC AUTHORITY
 ATR-v0.1 IMPLEMENTED_BOUNDED ≠ runtime authority
 ATR-v0.1 Owner GO consumed ≠ reusable authority
+HDE-v0.1 IMPLEMENTED_BOUNDED ≠ evidence collection / runtime / autonomy
+HDE-v0.1 DISCRIMINATING ≠ Evidence Gate verdict
+HDE-v0.1 Owner GO consumed ≠ reusable authority
 PHASE_6_RESEARCH_PREPARATION ≠ PHASE_6_RUNTIME_AUTHORITY
+ISSUE_129_RESEARCH_TRACKING ≠ OWNER_GO
 ClaimClass ≠ ClaimType ≠ EpistemicRole ≠ BeliefStatus ≠ EvidenceGateOutcome ≠ RelationType
 Solo review ≠ independent certification
 ```
@@ -679,7 +689,8 @@ Phase 4 EPR-v0.1 implementation/runtime
 claim→belief binding implementation
 terminal belief reconsideration/successor lineage
 Phase 5 ATR-v0.1 runtime
-Phase 6 inference/hypothesis runtime
+Phase 6 HDE-v0.1 runtime
+Phase 6 observation execution / evidence collection
 Phase 6 autonomous inquiry / scheduler / self-triggered cognition
 relation discovery / graph persistence / graph traversal
 ```
@@ -721,18 +732,19 @@ derived status/navigation surface synchronized only from verified evidence.
 
 ## 14. 🚪 Required next authority ladder
 
-Phase 5 `ATR-v0.1` is implemented bounded and its one-time Owner GO is consumed.
-The next allowed work is the Phase 6 Inference Bridge Audit + Hypothesis
-Discrimination research/readiness and benchmark preparation only.
+Phase 6 `HDE-v0.1` is implemented bounded and its one-time Owner GO is consumed.
+The next allowed work is research discrimination only, tracked by issue #129.
+No next implementation primitive is selected by this roadmap.
 
 ```text
-CURRENT = ATR-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED
-→ Phase 6 audit current inference/hypothesis mechanisms
-→ define missing failure mode
-→ design behavioral hypothesis-discrimination benchmark
-→ preserve Evidence Gate ownership and provenance
+CURRENT = HDE-v0.1 IMPLEMENTED_BOUNDED · OWNER_GO_CONSUMED_BY_PR_127
+→ issue #129: audit the first remaining executable cognitive gap
+→ compare EPR-v0.1 vs claim→belief binding vs terminal successor lineage
+→ allow NO_IMPLEMENTATION / MORE_RESEARCH
+→ select at most one next bounded readiness candidate
 → STOP
-→ new explicit Owner decision before any Phase 6 implementation/runtime
+→ separate explicit Owner decision before any new source implementation
+→ separate authorization again before any runtime / retrieval / tools / action
 ```
 
 ```text
@@ -750,8 +762,13 @@ PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
-PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
+PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_6_RUNTIME = NOT_AUTHORIZED
+NEXT_BOUNDED_RESEARCH = ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ```
@@ -796,8 +813,14 @@ P0 complete
 → ATR-v0.1 single-use Owner GO merged by PR #118
 → ATR-v0.1 Pure Anchored Typed Relation Record IMPLEMENTED_BOUNDED by PR #119
 → Phase 5 Owner GO CONSUMED_BY_PR_119
-→ NEXT: Phase 6 Inference Bridge Audit + Hypothesis Discrimination DOCS_TESTS_ONLY
-→ STOP BEFORE PHASE 6 RUNTIME
+→ Phase 6 Inference Bridge Audit + Hypothesis Discrimination benchmark PREPARED
+→ PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR selected
+→ HDE-v0.1 contract FROZEN_DOCS_TESTS_ONLY
+→ HDE-v0.1 single-use Owner GO merged by PR #126
+→ HDE-v0.1 Pure Hypothesis Discrimination Evaluator IMPLEMENTED_BOUNDED by PR #127
+→ Phase 6 Owner GO CONSUMED_BY_PR_127
+→ CURRENT: issue #129 Post-HDE cognitive gap discrimination · RESEARCH_ONLY
+→ STOP BEFORE NEXT IMPLEMENTATION / RUNTIME
 
 PHASE_4_IMPLEMENTATION = NOT_STARTED
 PHASE_4_OWNER_GO = NOT_GRANTED
@@ -812,8 +835,13 @@ PHASE_5_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · ATR-v0.1
 PHASE_5_OWNER_GO = CONSUMED_BY_PR_119
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_5_RUNTIME = NOT_AUTHORIZED
-PHASE_6_RESEARCH_PREPARATION = AUTHORIZED_DOCS_TESTS_ONLY
+PHASE_6_RESEARCH_PREPARATION = PREPARED_DOCS_TESTS_ONLY
+PHASE_6_CANDIDATE = PURE_HYPOTHESIS_DISCRIMINATION_EVALUATOR
+PHASE_6_IMPLEMENTATION_CONTRACT = HDE-v0.1 · FROZEN_DOCS_TESTS_ONLY
+PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
+PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_6_RUNTIME = NOT_AUTHORIZED
+NEXT_BOUNDED_RESEARCH = ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 P1_004 = NOT_ASSIGNED
 ACTION_GATE = NOT_AUTHORIZED
@@ -858,6 +886,11 @@ DOMAIN_RUNTIME_NOT_AUTHORIZED
 - [`TYPED_RELATIONS_CANDIDATE_SELECTION.md`](TYPED_RELATIONS_CANDIDATE_SELECTION.md)
 - [`TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md`](TYPED_RELATIONS_PURE_RECORD_CONTRACT_V0_1.md)
 - [`TYPED_RELATIONS_OWNER_GO_DECISION.md`](TYPED_RELATIONS_OWNER_GO_DECISION.md)
+- [`PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md`](PHASE_6_HYPOTHESIS_DISCRIMINATION_READINESS.md)
+- [`HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md`](HYPOTHESIS_DISCRIMINATION_EVALUATOR_CONTRACT_V0_1.md)
+- [`HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md`](HYPOTHESIS_DISCRIMINATION_EVALUATOR_OWNER_GO_DECISION.md)
+- [`../HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md`](../HYPOTHESIS_DISCRIMINATION_EVALUATOR_IMPLEMENTATION_AUTHORIZATION.md)
+- [Issue #129 — Post-HDE cognitive gap discrimination](https://github.com/velantrian/velantrim-mentaury-soul/issues/129)
 - [`RESEARCH_INDEX.md`](RESEARCH_INDEX.md)
 - [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md)
 - [`../GOVERNANCE.md`](../GOVERNANCE.md)
