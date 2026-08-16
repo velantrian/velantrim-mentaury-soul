@@ -12,6 +12,7 @@
     "direct_or_indirect_m3_write": false
   },
   "allowed_prefixes": [
+    "src/",
     "docs/research/understanding/",
     "fixtures/understanding/",
     "scripts/understanding/",
