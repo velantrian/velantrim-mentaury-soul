@@ -1,43 +1,43 @@
 {
   "scenario_id": "B1-SYN-001",
-  "run_id": "B1-RUN-POSITIVE",
+  "run_id": "B1-RUN-VALID",
   "mode": "B1",
-  "semantic_payload_digest": "sha256:d29f6fa1ae182560744584cd78a83967f988a4867cae5ebfca7f1d264e37bea8",
+  "semantic_payload_digest": "sha256:233aa41c9a3da51a4d0ec34fd1d9c5b832d96f5cc08ee5336b28e8e185104ea4",
   "situation_model": [
     {
-      "id": "S1"
+      "id": "A1"
     }
   ],
   "material_constraints": [
     {
-      "id": "C1"
+      "id": "A2"
     }
   ],
   "alternatives": [
     {
-      "id": "H1"
+      "id": "A3"
     },
     {
-      "id": "H2"
+      "id": "A4"
     }
   ],
   "consequences": [
     {
-      "id": "K1"
+      "id": "A5"
     },
     {
-      "id": "K2"
+      "id": "A6"
     }
   ],
   "critical_unknowns": [
     {
-      "id": "U1"
+      "id": "A7"
     }
   ],
   "next_discrimination_need": {
-    "kind": "REQUESTED_OBSERVATION",
+    "kind": "DEFER",
     "basis_refs": [
-      "U1"
+      "A7"
     ]
   },
   "governed_conclusion": {
