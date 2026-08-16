@@ -40,6 +40,7 @@
     "research": [
       "SYSTEM_OVERVIEW.md",
       "docs/research/RESEARCH_INDEX.md",
+      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "OWNING_READINESS_OR_CONTRACT",
       "EXACT_PR_TEST_CI_EVIDENCE"
     ],
@@ -49,11 +50,13 @@
       "docs/ai/project_manifest.json",
       "docs/state/project_state.json",
       "docs/CURRENT_STATUS.md",
+      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "AFFECTED_COMPONENT_ONLY"
     ],
     "engineering": [
       "docs/CURRENT_STATUS.md",
       "docs/GOVERNANCE.md",
+      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "OWNING_CONTRACT",
       "SOURCE",
       "TESTS",
@@ -63,6 +66,7 @@
   "ai_entry": "docs/ai/README.md",
   "agent_contract": "AGENTS.md",
   "documentation_standard": "docs/ai/DOCUMENTATION_STANDARD.md",
+  "future_work_ledger": "docs/ai/AUDIT_AND_FUTURE_WORK.md",
   "current_truth": {
     "human": "docs/CURRENT_STATUS.md",
     "live_head": "RESOLVE_FROM_GITHUB"
@@ -101,6 +105,7 @@
     "src/mentaury/epistemic_change/",
     "docs/MENTAURY_CANON_V0.1.md",
     "docs/research/",
+    "docs/ai/AUDIT_AND_FUTURE_WORK.md",
     "AGENTS.md",
     "README.md",
     "SYSTEM_OVERVIEW.md"

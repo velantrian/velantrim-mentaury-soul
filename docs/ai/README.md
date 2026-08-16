@@ -10,14 +10,17 @@ If you arrived here directly, `../../AGENTS.md` is the mandatory agent contract.
 2. `../state/project_state.json` — derived machine snapshot only; not an independent current-truth owner.
 3. `../CURRENT_STATUS.md` — current engineering truth.
 4. `../GOVERNANCE.md` — authority and review rules.
-5. `COMPONENT_MAP.md` — ownership, paths and tests.
-6. `KNOWN_RISKS.md` — known documentation/architecture risks.
-7. `REVIEW_GUIDE.md` — bounded review procedure.
-8. only the affected research contracts, source, tests, PRs and exact CI evidence.
+5. `AUDIT_AND_FUTURE_WORK.md` — durable future-work/audit queue, evidence anchors, revalidation triggers and safe continuation boundary. **Audit order is not implementation order.**
+6. `COMPONENT_MAP.md` — ownership, paths and tests.
+7. `KNOWN_RISKS.md` — known documentation/architecture risks.
+8. `REVIEW_GUIDE.md` — bounded review procedure.
+9. only the affected research contracts, source, tests, PRs and exact CI evidence.
 
 Use `../../README.md` and `../../SYSTEM_OVERVIEW.md` when conceptual/human context is materially needed. They are orientation surfaces, not an additional mandatory loop in the AI route.
 
 Do **not** begin with repository-wide scanning unless focused evidence is insufficient.
+
+> **DO NOT AUTO-SELECT NEXT MILESTONE.** A ledger entry, open Issue, frozen contract, implemented bounded primitive, desired behavior or suggested audit order does not grant implementation/runtime authority.
 
 ---
 
@@ -30,7 +33,7 @@ live merged GitHub code
 → accepted/frozen owning contracts
 → derived machine state snapshot
 → README / SYSTEM_OVERVIEW orientation
-→ docs/ai navigation
+→ docs/ai navigation + future-work ledger
 → PR/issues/research proposals
 → Notion rationale/history
 ```
@@ -68,6 +71,7 @@ runtime capability != action authority
 → docs/ai/README.md
 → project manifest
 → derived snapshot + CURRENT_STATUS
+→ future-work ledger
 → affected component
 → owning contract
 → focused code/tests
@@ -144,6 +148,7 @@ project identity
 → reading routes
 → research boundary
 → quickstart implications
+→ technical and historical detail
 ```
 
 Update every affected representation and leave unaffected ones alone.
@@ -172,6 +177,8 @@ meaning changed
 ```
 
 Historical checkpoints remain history. Do not rewrite them merely to make current documentation look cleaner.
+
+The future-work ledger has its own revalidation triggers. When an owner, authorization, Issue/PR lifecycle, or referenced contract changes, reconcile the affected ledger entry rather than assuming it remains current.
 
 ---
 
