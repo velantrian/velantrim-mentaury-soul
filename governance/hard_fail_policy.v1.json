@@ -1,0 +1,53 @@
+{
+  "schema_version": "mentaury-hard-fail-policy/1",
+  "policy_state": "RESEARCH_ONLY",
+  "authority_ceiling": {
+    "runtime": false,
+    "deployment": false,
+    "tools": false,
+    "retrieval": false,
+    "action_gate": false,
+    "identity_mutation": false,
+    "relationship_runtime": false,
+    "direct_or_indirect_m3_write": false
+  },
+  "allowed_prefixes": [
+    "docs/research/understanding/",
+    "fixtures/understanding/",
+    "scripts/understanding/",
+    "scripts/governance/check_pr_scope.py",
+    "scripts/governance/scan_forbidden_imports.py",
+    "tests/understanding/",
+    "governance/hard_fail_policy.v1.json",
+    "governance/schemas/understanding/",
+    ".github/workflows/understanding-uhf01.yml",
+    ".github/workflows/understanding-uhf02.yml"
+  ],
+  "always_forbidden_prefixes": [
+    "src/",
+    "deploy/",
+    "infra/",
+    ".github/workflows/deploy",
+    ".github/workflows/release"
+  ],
+  "authority_artifact_prefixes": [
+    "governance/hard_fail_policy.v1.json",
+    "docs/research/understanding/OWNER_GO"
+  ],
+  "implementation_prefixes": [
+    "src/",
+    "deploy/",
+    "infra/",
+    ".github/workflows/deploy",
+    ".github/workflows/release"
+  ],
+  "forbidden_import_roots": [
+    "requests",
+    "httpx",
+    "aiohttp",
+    "openai",
+    "subprocess",
+    "socket",
+    "sqlite3"
+  ]
+}

@@ -1,0 +1,36 @@
+name: U-HF-01 anti-self rehearsal
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  trusted-base-guard:
+    name: trusted-base anti-self authorization
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          check-latest: false
+      - name: Enforce BASE policy against HEAD diff
+        shell: bash
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          git show "$BASE:governance/hard_fail_policy.v1.json" > "$RUNNER_TEMP/base-policy.json"
+          python scripts/governance/check_pr_scope.py \
+            --base "$BASE" \
+            --head "$HEAD" \
+            --base-policy "$RUNNER_TEMP/base-policy.json" \
+            --head-policy governance/hard_fail_policy.v1.json
