@@ -1,0 +1,50 @@
+{
+  "scenario_id": "B1-SYN-001",
+  "semantic_payload": {
+    "situation_model": [
+      {
+        "id": "S1",
+        "text": "A draft exists and publication is under consideration."
+      }
+    ],
+    "material_constraints": [
+      {
+        "id": "C1",
+        "text": "Explicit approval is required before publication."
+      }
+    ],
+    "alternatives": [
+      {
+        "id": "H1",
+        "text": "Explicit approval was granted."
+      },
+      {
+        "id": "H2",
+        "text": "Explicit approval was not granted."
+      }
+    ],
+    "consequences": [
+      {
+        "id": "K1",
+        "text": "Publication may proceed only if the approval condition is established."
+      },
+      {
+        "id": "K2",
+        "text": "If approval is not established, publication remains deferred."
+      }
+    ],
+    "critical_unknowns": [
+      {
+        "id": "U1",
+        "text": "Whether explicit approval was actually granted."
+      }
+    ],
+    "allowed_discrimination_kinds": [
+      "JUSTIFIED_STOP",
+      "REQUESTED_OBSERVATION",
+      "DEFER"
+    ],
+    "governed_conclusion_scope": "SCOPE-PUBLISH"
+  },
+  "semantic_payload_digest": "sha256:d29f6fa1ae182560744584cd78a83967f988a4867cae5ebfca7f1d264e37bea8"
+}
