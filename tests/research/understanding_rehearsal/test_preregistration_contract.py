@@ -7,8 +7,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 
+EXPECTED_SHARED_SHA256 = "65cd3d34c1242c4176e1688fa368bfa45e8998600135814b27e299b12947e0bf"
 EXPECTED_PROFILE_SHA256 = {
-    "B0": "4464a0e7d6999e16bf07f7b7aea0679f9e09adc3e5f081e036f541446f6cb0b9",
+    "B0": "064c05d2d15b2bea5cb097eee0b77d6013e40d1266f3d348d6ffc80a58c2ca0f",
     "B1": "1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab",
     "C1": "6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe",
 }
@@ -22,6 +23,10 @@ def _manifest() -> dict:
     return json.loads((HERE / "corpus_commitment_manifest.json").read_text(encoding="utf-8"))
 
 
+def test_shared_governance_profile_is_frozen() -> None:
+    assert _sha(HERE / "shared_governance_profile.txt") == EXPECTED_SHARED_SHA256
+
+
 def test_arm_profile_hashes_are_frozen() -> None:
     paths = {
         "B0": HERE / "b0_profile.txt",
@@ -32,11 +37,19 @@ def test_arm_profile_hashes_are_frozen() -> None:
     assert observed == EXPECTED_PROFILE_SHA256
 
 
+def test_b0_delta_contains_no_structured_cognition_procedure() -> None:
+    text = (HERE / "b0_profile.txt").read_text(encoding="utf-8").lower()
+    assert "no additional experimental" in text
+    for token in ("alternatives", "critical unknowns", "consequences", "probability", "verdict"):
+        assert token not in text
+
+
 def test_commitment_manifest_matches_frozen_profiles() -> None:
     manifest = _manifest()
     assert manifest["schema"] == "understanding-rehearsal-commitment-v0.1"
     assert manifest["mode"] == "RESEARCH_ONLY_OFFLINE"
     assert manifest["confirmatory"] is False
+    assert manifest["shared_governance_sha256"] == EXPECTED_SHARED_SHA256
     assert manifest["arm_profile_sha256"] == EXPECTED_PROFILE_SHA256
 
 
@@ -57,7 +70,7 @@ def test_all_commitments_are_sha256_hex() -> None:
             value = item[key]
             assert len(value) == 64
             int(value, 16)
-    for key in ("owner_custody_bundle_sha256", "canonical_bundle_manifest_sha256"):
+    for key in ("owner_custody_bundle_sha256", "canonical_bundle_manifest_sha256", "shared_governance_sha256"):
         value = manifest[key]
         assert len(value) == 64
         int(value, 16)
