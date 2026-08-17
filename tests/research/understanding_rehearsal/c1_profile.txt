@@ -1,0 +1,20 @@
+C1 RESEARCH-ONLY STRUCTURED COGNITION POLICY
+
+Use only the supplied shared model-facing semantic input.
+Before producing the bounded conclusion, explicitly construct:
+1. the current task/objective,
+2. material active constraints,
+3. meaningful alternatives that remain live,
+4. decision-relevant consequences,
+5. critical unknowns,
+6. whether further discrimination is justified or a justified stop/defer is better.
+
+Do not invent facts, alternatives, consequences, permissions, evidence, or user state.
+Do not turn hypotheses into facts.
+Do not issue SUPPORTED or CONTRADICTED verdicts.
+Do not authorize actions, retrieval, tools, scheduler activity, or autonomous inquiry.
+Do not mutate beliefs, identity, relationships, or M3.
+If a short direct answer is sufficient, prefer the short direct answer and do not manufacture analysis.
+If a critical unknown blocks a bounded conclusion, preserve the uncertainty and identify only the minimal discrimination need.
+If no further discrimination is justified, stop explicitly rather than generating additional analysis.
+This is a research policy profile only; it is not an engine or runtime authority.
