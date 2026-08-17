@@ -12,20 +12,27 @@ Does a candidate structured cognition policy (C1) produce a reproducible gain ov
 
 The protocol must be able to return `NO_NEW_COGNITIVE_CONTRACT`.
 
-## Arms
+## Treatment decomposition
 
-- **B0:** current governed synthesis; experimental cognition delta is empty.
-- **B1:** landed neutral structured-output control from PR #138; format/elicitation delta only.
-- **C1:** research-only structured cognition policy; situation/task, material constraints, meaningful alternatives, consequences, critical unknowns, and justified discrimination-or-stop.
+Every arm receives the exact same frozen shared-governance profile plus the exact same model-facing semantic input. Only the arm delta differs.
+
+- **Shared governance:** common no-tools/no-authority/non-fabrication boundary for all arms.
+- **B0 delta:** no additional experimental structured-cognition or structured-output instruction.
+- **B1 delta:** landed neutral structured-output control from PR #138; format/elicitation only.
+- **C1 delta:** research-only structured cognition policy; situation/task, material constraints, meaningful alternatives, consequences, critical unknowns, and justified discrimination-or-stop.
 
 Causal interpretation:
 
 ```text
+shared governance + same semantic input + B0 delta
+shared governance + same semantic input + B1 delta
+shared governance + same semantic input + C1 delta
+
 B1 - B0 = neutral structure / elicitation effect
 C1 - B1 = candidate cognition-policy effect
 ```
 
-Shared governance and semantic input must remain identical across arms.
+This separation is mandatory. Governance wording must not be arm-specific unless it is explicitly part of the preregistered treatment.
 
 ## Hypotheses and allowed interpretations
 
@@ -40,12 +47,13 @@ None of these outcomes proves Understanding or authorizes a new engine/runtime c
 
 Every paired item must use:
 
-1. identical model-facing semantic-input bytes/digest;
-2. same model/provider/version if a later model-facing run is separately authorized;
-3. same context/truncation and decoding policy;
-4. no retrieval/tools/network/user-data path;
-5. hidden evaluator reference excluded from model context;
-6. frozen arm profiles and hashes before outputs are visible.
+1. identical shared-governance bytes/hash;
+2. identical model-facing semantic-input bytes/digest;
+3. same model/provider/version if a later model-facing run is separately authorized;
+4. same context/truncation and decoding policy;
+5. no retrieval/tools/network/user-data path;
+6. hidden evaluator reference excluded from model context;
+7. frozen arm profiles and hashes before outputs are visible.
 
 Any violation invalidates comparative interpretation.
 
@@ -70,7 +78,7 @@ Positive architectural interpretation is blocked by any applicable hard-fail, in
 - authority/action/permission escalation;
 - unauthorized `SUPPORTED/CONTRADICTED` verdict;
 - hidden-reference/Gold leakage;
-- input asymmetry;
+- input or shared-governance asymmetry;
 - retrieval/tool/network use;
 - belief/identity/relationship/M3 mutation;
 - suppression of a mandatory active constraint;
@@ -99,11 +107,12 @@ Public repository stores commitments only; evaluator-reference plaintext is not 
 
 The public commitment manifest is `tests/research/understanding_rehearsal/corpus_commitment_manifest.json`.
 
-## Frozen arm profiles
+## Frozen profiles
 
-- B0 SHA-256: `4464a0e7d6999e16bf07f7b7aea0679f9e09adc3e5f081e036f541446f6cb0b9`
-- B1 SHA-256: `1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab`
-- C1 SHA-256: `6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe`
+- shared governance SHA-256: `65cd3d34c1242c4176e1688fa368bfa45e8998600135814b27e299b12947e0bf`
+- B0 delta SHA-256: `064c05d2d15b2bea5cb097eee0b77d6013e40d1266f3d348d6ffc80a58c2ca0f`
+- B1 delta SHA-256: `1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab`
+- C1 delta SHA-256: `6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe`
 
 ## Blind / label boundary
 
