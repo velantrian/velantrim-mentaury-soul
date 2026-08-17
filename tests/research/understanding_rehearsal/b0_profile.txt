@@ -1,9 +1,4 @@
-B0 CURRENT GOVERNED SYNTHESIS BASELINE
+B0 BASELINE DELTA
 
-Use the supplied shared model-facing semantic input under the repository's existing governance constraints.
-Do not add any experimental structured-cognition procedure.
-Answer the task using the current governed-synthesis behavior only.
-Do not use retrieval, tools, network access, external user data, or unauthorized runtime capabilities.
-Do not claim SUPPORTED or CONTRADICTED unless an existing authorized owner has already supplied that status.
-Do not authorize actions, mutate beliefs, identity, relationships, or M3.
-Preserve uncertainty and active constraints.
+No additional experimental structured-cognition or structured-output instruction.
+Use the current governed-synthesis behavior under the shared rehearsal governance profile.
