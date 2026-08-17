@@ -19,7 +19,7 @@ externally supplied B0/B1/C1 output envelopes
         ↓
 commitment + capability + symmetry validation
         ↓
-output-freeze receipt
+item output-freeze receipt
         ↓
 deterministic blind packet + separate sealed arm mapping
         ↓
@@ -27,7 +27,9 @@ external evaluator labels
         ↓
 evaluation validation
         ↓
-per-dimension / hard-fail / disagreement summary
+per-dimension / hard-fail / diagnostic / disagreement summary
+        ↓
+whole-run receipt
 ```
 
 ## Input envelope
@@ -57,9 +59,11 @@ Missing arm output is `INCOMPLETE-RUN`; the harness never synthesizes a replacem
 
 The harness records each output digest and a shared-metadata digest before evaluation.
 
-Blinding is deterministic from a recorded seed plus scenario ID. Evaluator packets contain opaque packet IDs, output text and output digest only. Provider/model identity and B0/B1/C1 labels remain in a separate sealed mapping.
+Blinding is deterministic from a recorded seed plus scenario ID. Evaluator packets contain opaque packet IDs, output text and output digest only. Provider/model identity and B0/B1/C1 metadata remain in a separate sealed mapping.
 
 The blind packet does not expose the sealed mapping.
+
+**Important limitation:** this is metadata blinding, not a proof that a human evaluator cannot infer an arm from linguistic style or from content the external model itself emitted. The harness therefore must not claim perfect semantic blinding. Presentation normalization, when later used, requires its own frozen non-semantic rule and must not alter substantive output content.
 
 ## Evaluation contract
 
@@ -76,9 +80,26 @@ Allowed dimension labels are `PASS`, `PARTIAL`, `FAIL`, `NOT_APPLICABLE` for thi
 
 Hard-fails use only the twelve preregistered hard-fail classes.
 
+Diagnostics are retained separately by arm and diagnostic name as observed value distributions. They are not folded into an aggregate score.
+
+## Item and run receipts
+
+Each valid scenario trio can produce an order-invariant item freeze receipt containing the three arm output hashes and shared-metadata hashes.
+
+A whole-run receipt binds:
+
+- repository SHA supplied by the caller;
+- canonical public commitment-manifest hash;
+- each item freeze-receipt hash;
+- each available evaluation-summary hash;
+- expected vs observed scenario counts;
+- explicit missing-scenario list.
+
+A run is `COMPLETE` only when all 12 committed scenarios have item receipts and evaluation summaries. Otherwise it remains `INCOMPLETE_RUN`; missing items are never synthesized or silently dropped.
+
 ## No composite score
 
-The harness reports per-arm, per-dimension counts, hard-fail counts and disagreement-state counts. It intentionally emits:
+The harness reports per-arm, per-dimension counts, hard-fail counts, diagnostic distributions and disagreement-state counts. It intentionally emits:
 
 ```text
 aggregate_understanding_score = null
@@ -91,7 +112,7 @@ It does not decide `NO_NEW_COGNITIVE_CONTRACT` or `POSSIBLE_COGNITIVE_POLICY_GAP
 
 The harness contains no provider client and grants no ability to use retrieval, tools, network access, scheduler activity, belief mutation, identity mutation, relationship mutation, Evidence Gate verdict authority, or runtime deployment.
 
-Green tests prove only that the harness follows its programmed protocol checks. They do not prove correctness of human labels, truth of external metadata, Understanding, or suitability of a new cognitive contract.
+Green tests prove only that the harness follows its programmed protocol checks. They do not prove correctness of human labels, truth of external metadata, semantic blindness, Understanding, or suitability of a new cognitive contract.
 
 ## Exit criterion
 
