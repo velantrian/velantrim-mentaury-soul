@@ -3,9 +3,25 @@ from __future__ import annotations
 from pathlib import Path
 
 from tests.research.understanding_rehearsal.offline_harness import commitment_manifest
-from tests.research.understanding_rehearsal.run_receipt import build_run_receipt, summarize_diagnostics
+from tests.research.understanding_rehearsal.run_receipt import (
+    build_run_receipt,
+    build_scenario_evaluation_summary,
+    summarize_diagnostics,
+)
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+def _valid_summary() -> dict:
+    return {
+        "schema": "understanding-evaluation-summary-v0.1",
+        "dimensions": {},
+        "hard_fails": {},
+        "disagreement_states": {},
+        "diagnostics": {},
+        "aggregate_understanding_score": None,
+        "architectural_interpretation": "NOT_COMPUTED_BY_HARNESS",
+    }
 
 
 def test_diagnostics_are_reported_separately_by_arm_and_name() -> None:
@@ -22,6 +38,21 @@ def test_diagnostics_are_reported_separately_by_arm_and_name() -> None:
     assert "aggregate" not in str(summary).lower()
 
 
+def test_scenario_summary_binds_diagnostics_without_architectural_interpretation() -> None:
+    mapping = {"P1": "B0"}
+    evaluations = [{"packet_id": "P1", "diagnostics": {"missed_constraint": 1}}]
+    base = _valid_summary()
+    base.pop("diagnostics")
+    combined = build_scenario_evaluation_summary(
+        evaluation_summary=base,
+        mapping=mapping,
+        evaluations=evaluations,
+    )
+    assert combined["diagnostics"]["B0"]["missed_constraint"] == {"1": 1}
+    assert combined["aggregate_understanding_score"] is None
+    assert combined["architectural_interpretation"] == "NOT_COMPUTED_BY_HARNESS"
+
+
 def test_partial_run_receipt_is_explicitly_incomplete() -> None:
     manifest = commitment_manifest(ROOT)
     first = manifest["items"][0]["scenario_id"]
@@ -29,7 +60,7 @@ def test_partial_run_receipt_is_explicitly_incomplete() -> None:
         repository_sha="a" * 40,
         commitment_manifest=manifest,
         scenario_receipts=[{"scenario_id": first, "receipt_sha256": "b" * 64}],
-        scenario_summaries={first: {"dimensions": {}}},
+        scenario_summaries={first: _valid_summary()},
     )
     assert receipt["status"] == "INCOMPLETE_RUN"
     assert receipt["observed_scenario_count"] == 1
@@ -44,10 +75,7 @@ def test_complete_run_receipt_requires_all_committed_scenarios_and_summaries() -
         {"scenario_id": item["scenario_id"], "receipt_sha256": f"{index:064x}"}
         for index, item in enumerate(manifest["items"], start=1)
     ]
-    scenario_summaries = {
-        item["scenario_id"]: {"schema": "understanding-evaluation-summary-v0.1", "dimensions": {}}
-        for item in manifest["items"]
-    }
+    scenario_summaries = {item["scenario_id"]: _valid_summary() for item in manifest["items"]}
     receipt = build_run_receipt(
         repository_sha="c" * 40,
         commitment_manifest=manifest,
@@ -68,10 +96,7 @@ def test_missing_evaluation_summary_keeps_run_incomplete() -> None:
         {"scenario_id": item["scenario_id"], "receipt_sha256": f"{index:064x}"}
         for index, item in enumerate(manifest["items"], start=1)
     ]
-    scenario_summaries = {
-        item["scenario_id"]: {"dimensions": {}}
-        for item in manifest["items"][:-1]
-    }
+    scenario_summaries = {item["scenario_id"]: _valid_summary() for item in manifest["items"][:-1]}
     receipt = build_run_receipt(
         repository_sha="d" * 40,
         commitment_manifest=manifest,
@@ -79,3 +104,21 @@ def test_missing_evaluation_summary_keeps_run_incomplete() -> None:
         scenario_summaries=scenario_summaries,
     )
     assert receipt["status"] == "INCOMPLETE_RUN"
+
+
+def test_run_receipt_rejects_composite_or_missing_diagnostics_summary() -> None:
+    manifest = commitment_manifest(ROOT)
+    first = manifest["items"][0]["scenario_id"]
+    bad = _valid_summary()
+    bad["aggregate_understanding_score"] = 0.8
+    try:
+        build_run_receipt(
+            repository_sha="e" * 40,
+            commitment_manifest=manifest,
+            scenario_receipts=[{"scenario_id": first, "receipt_sha256": "f" * 64}],
+            scenario_summaries={first: bad},
+        )
+    except ValueError as exc:
+        assert str(exc) == "COMPOSITE-SCORE-FORBIDDEN"
+    else:
+        raise AssertionError("composite score must be rejected")
