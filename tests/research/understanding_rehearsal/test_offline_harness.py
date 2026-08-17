@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 from hashlib import sha256
 from pathlib import Path
 
@@ -88,7 +87,9 @@ def test_missing_arm_is_incomplete_not_synthesized() -> None:
 
 def test_duplicate_arm_is_incomplete() -> None:
     records = _base_records()
+    manifest = commitment_manifest(ROOT)
     records[2]["arm"] = "B1"
+    records[2]["arm_profile_sha256"] = manifest["arm_profile_sha256"]["B1"]
     assert "INCOMPLETE-RUN" in codes(validate_arm_trio(ROOT, records))
 
 
