@@ -4,8 +4,9 @@
   "confirmatory": false,
   "owner_custody_bundle_sha256": "ec34fdcfcdb545acf5f903d08a3113364f47e2742aefd7c8e59357336e244805",
   "canonical_bundle_manifest_sha256": "5ad0036a0ea086241df87a10cb9ee85be9d04b7036a6f6f1920dad635c6bdeaa",
+  "shared_governance_sha256": "65cd3d34c1242c4176e1688fa368bfa45e8998600135814b27e299b12947e0bf",
   "arm_profile_sha256": {
-    "B0": "4464a0e7d6999e16bf07f7b7aea0679f9e09adc3e5f081e036f541446f6cb0b9",
+    "B0": "064c05d2d15b2bea5cb097eee0b77d6013e40d1266f3d348d6ffc80a58c2ca0f",
     "B1": "1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab",
     "C1": "6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe"
   },
