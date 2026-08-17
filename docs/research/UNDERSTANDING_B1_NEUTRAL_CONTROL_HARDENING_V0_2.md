@@ -8,7 +8,7 @@
 
 ## Purpose
 
-B1 is the neutral structured-output control used between B0 (current governed synthesis) and C1 (candidate structured cognition policy). The purpose of this hardening is to prevent B1 from becoming a hidden cognitive policy through schema leakage, authority-shaped fields, free-form presentation, or privileged model-facing reference labels.
+B1 is the neutral structured-output control used between B0 (current governed synthesis) and C1 (candidate structured cognition policy). The purpose of this hardening is to prevent B1 from becoming a hidden cognitive policy through schema leakage, authority-shaped fields, free-form presentation, privileged model-facing reference labels, or a decision-bearing instruction template.
 
 This artifact does **not** prove Understanding, does not authorize a new cognitive contract, and does not imply runtime Mentaury.
 
@@ -23,6 +23,7 @@ This artifact does **not** prove Understanding, does not authorize a new cogniti
 7. `final_presentation` is forbidden. Presentation is produced only by a deterministic source-only renderer after validation.
 8. Run/scenario identifiers are bounded identifiers and cannot serve as free-prose side channels.
 9. Model-facing semantic input is separate from the evaluator reference frame and must remain identical across B0/B1/C1.
+10. The B1 instruction profile is frozen by hash and must remain format/representation guidance only; positive decision heuristics are mechanically guarded and semantic review remains required.
 
 ## Adversarial mutation set
 
@@ -70,14 +71,37 @@ The neutral atom IDs are intentionally role-free (`A1…A7` in the synthetic con
 
 Arm-specific instructions may differ by experimental definition; semantic evidence/input may not. The preregistration must freeze those instruction profiles separately so B1 remains neutral structured elicitation and C1 remains the only candidate cognition-policy arm.
 
+## B1 instruction-profile boundary
+
+The B1 profile is stored at `tests/research/understanding_b1/fixtures/b1_instruction_profile.txt` and frozen by SHA-256 in `test_instruction_profile.py`.
+
+It may:
+
+- request the required B1 fields;
+- require source atom IDs only;
+- state closed enums and structural prohibitions;
+- prohibit invented facts, ranking, verdicts, recommendations, actions and free prose.
+
+It may not:
+
+- prefer/select an alternative;
+- encode `if X then choose Y` decision rules;
+- assign likelihood/probability/confidence;
+- authorize publication/action/tool/retrieval;
+- expose evaluator reference labels or Gold answers.
+
+The keyword/pattern guard is only a mechanical tripwire. It does not prove absence of a semantically equivalent hidden heuristic. That remains a human/independent semantic-review responsibility before confirmatory use.
+
 ## Current readiness boundary
 
-Mechanical B1 leakage hardening and semantic-input symmetry can be checked in CI. They do not establish that the B1 instruction template itself contains no subtle C1 decision heuristic. That remains a semantic review requirement before a blinded B0/B1/C1 rehearsal.
+Mechanical B1 leakage hardening, semantic-input symmetry, and instruction-profile freeze can be checked in CI. They do not establish universal B1 neutrality or independent semantic validation.
 
 Allowed next research outcomes remain:
 
 - `B1_READY_FOR_B0_B1_C1_REHEARSAL`
 - `MORE_RESEARCH`
+
+For solo-maintainer / AI-reviewed work, `B1_READY_FOR_B0_B1_C1_REHEARSAL` means **exploratory/rehearsal readiness only**, not confirmatory evidence.
 
 Not allowed from this artifact alone:
 
@@ -91,6 +115,8 @@ Not allowed from this artifact alone:
 - `tests/research/understanding_b1/input_symmetry.py`
 - `tests/research/understanding_b1/test_b1_harness.py`
 - `tests/research/understanding_b1/test_input_symmetry.py`
+- `tests/research/understanding_b1/test_instruction_profile.py`
+- `tests/research/understanding_b1/fixtures/b1_instruction_profile.txt`
 - `tests/research/understanding_b1/fixtures/model_input.json`
 - `tests/research/understanding_b1/fixtures/source_frame.json`
 - `tests/research/understanding_b1/fixtures/valid_b1.json`
@@ -99,4 +125,4 @@ Not allowed from this artifact alone:
 
 The repository-ready hardening originated from a reconstructed reference harness produced from the recorded B1 adversarial findings. It is not a claim that the historical ZIP itself was repaired or revalidated.
 
-A green suite proves only the enumerated structural/input-symmetry checks at the exact tested revision. It does not prove universal B1 neutrality, semantic Understanding, psychological understanding, causal truth, action permission, or runtime readiness.
+A green suite proves only the enumerated structural/input-symmetry/instruction-profile checks at the exact tested revision. It does not prove universal B1 neutrality, semantic Understanding, psychological understanding, causal truth, action permission, or runtime readiness.
