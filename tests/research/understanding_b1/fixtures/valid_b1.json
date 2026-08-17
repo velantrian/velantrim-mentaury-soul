@@ -1,0 +1,47 @@
+{
+  "scenario_id": "B1-SYN-001",
+  "run_id": "B1-RUN-VALID",
+  "mode": "B1",
+  "semantic_payload_digest": "sha256:233aa41c9a3da51a4d0ec34fd1d9c5b832d96f5cc08ee5336b28e8e185104ea4",
+  "situation_model": [
+    {
+      "id": "A1"
+    }
+  ],
+  "material_constraints": [
+    {
+      "id": "A2"
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "A3"
+    },
+    {
+      "id": "A4"
+    }
+  ],
+  "consequences": [
+    {
+      "id": "A5"
+    },
+    {
+      "id": "A6"
+    }
+  ],
+  "critical_unknowns": [
+    {
+      "id": "A7"
+    }
+  ],
+  "next_discrimination_need": {
+    "kind": "DEFER",
+    "basis_refs": [
+      "A7"
+    ]
+  },
+  "governed_conclusion": {
+    "kind": "DEFER",
+    "scope": "SCOPE-PUBLISH"
+  }
+}

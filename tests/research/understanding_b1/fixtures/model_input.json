@@ -1,0 +1,12 @@
+{
+  "scenario_id": "B1-SYN-001",
+  "atoms": [
+    {"id": "A1", "text": "A draft exists and publication is under consideration."},
+    {"id": "A2", "text": "Explicit approval is required before publication."},
+    {"id": "A3", "text": "Explicit approval was granted."},
+    {"id": "A4", "text": "Explicit approval was not granted."},
+    {"id": "A5", "text": "Publication may proceed only if the approval condition is established."},
+    {"id": "A6", "text": "If approval is not established, publication remains deferred."},
+    {"id": "A7", "text": "Whether explicit approval was actually granted."}
+  ]
+}

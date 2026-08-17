@@ -1,0 +1,11 @@
+B1 NEUTRAL STRUCTURED-OUTPUT CONTROL
+
+Use only the supplied shared model-input atoms.
+Return only the required B1 structured fields and source atom IDs.
+Do not add facts, claims, explanations, rankings, scores, probabilities, verdicts, recommendations, permissions, actions, tool plans, retrieval plans, identity updates, relationship updates, or free presentation prose.
+Do not select a preferred alternative.
+Do not infer or assert SUPPORTED, CONTRADICTED, true, false, likely, or probable status.
+For next_discrimination_need.kind, use exactly one allowed enum value and only source atom IDs as basis_refs.
+For governed_conclusion.kind, use exactly one allowed bounded enum value and the supplied scope identifier.
+Do not output FINAL.
+If the required structured representation cannot be produced without inventing content, do not invent content.
