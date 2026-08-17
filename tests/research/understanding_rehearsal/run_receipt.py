@@ -38,6 +38,36 @@ def summarize_diagnostics(mapping: dict[str, str], evaluations: list[dict[str, A
     }
 
 
+def build_scenario_evaluation_summary(
+    *,
+    evaluation_summary: dict[str, Any],
+    mapping: dict[str, str],
+    evaluations: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Bind diagnostics to the validated per-dimension summary before run-level hashing."""
+    if evaluation_summary.get("schema") != "understanding-evaluation-summary-v0.1":
+        raise ValueError("EVALUATION-SUMMARY-SCHEMA-INVALID")
+    if evaluation_summary.get("aggregate_understanding_score") is not None:
+        raise ValueError("COMPOSITE-SCORE-FORBIDDEN")
+    if evaluation_summary.get("architectural_interpretation") != "NOT_COMPUTED_BY_HARNESS":
+        raise ValueError("ARCHITECTURAL-INTERPRETATION-FORBIDDEN")
+    return {
+        **evaluation_summary,
+        "diagnostics": summarize_diagnostics(mapping, evaluations),
+    }
+
+
+def _validate_scenario_summary(summary: dict[str, Any]) -> None:
+    if summary.get("schema") != "understanding-evaluation-summary-v0.1":
+        raise ValueError("EVALUATION-SUMMARY-SCHEMA-INVALID")
+    if "diagnostics" not in summary or not isinstance(summary["diagnostics"], dict):
+        raise ValueError("EVALUATION-SUMMARY-DIAGNOSTICS-MISSING")
+    if summary.get("aggregate_understanding_score") is not None:
+        raise ValueError("COMPOSITE-SCORE-FORBIDDEN")
+    if summary.get("architectural_interpretation") != "NOT_COMPUTED_BY_HARNESS":
+        raise ValueError("ARCHITECTURAL-INTERPRETATION-FORBIDDEN")
+
+
 def build_run_receipt(
     *,
     repository_sha: str,
@@ -57,6 +87,8 @@ def build_run_receipt(
     extra_summaries = sorted(set(scenario_summaries) - set(observed))
     if extra_summaries:
         raise ValueError(f"SUMMARY-WITHOUT-RECEIPT:{','.join(extra_summaries)}")
+    for summary in scenario_summaries.values():
+        _validate_scenario_summary(summary)
 
     item_rows = []
     for receipt in sorted(scenario_receipts, key=lambda row: row["scenario_id"]):
