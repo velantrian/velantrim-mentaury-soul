@@ -1,0 +1,29 @@
+{
+  "schema": "understanding-rehearsal-commitment-v0.1",
+  "mode": "RESEARCH_ONLY_OFFLINE",
+  "confirmatory": false,
+  "owner_custody_bundle_sha256": "ec34fdcfcdb545acf5f903d08a3113364f47e2742aefd7c8e59357336e244805",
+  "canonical_bundle_manifest_sha256": "5ad0036a0ea086241df87a10cb9ee85be9d04b7036a6f6f1920dad635c6bdeaa",
+  "arm_profile_sha256": {
+    "B0": "4464a0e7d6999e16bf07f7b7aea0679f9e09adc3e5f081e036f541446f6cb0b9",
+    "B1": "1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab",
+    "C1": "6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe"
+  },
+  "scenario_count": 12,
+  "development_count": 6,
+  "hidden_count": 6,
+  "items": [
+    {"scenario_id":"UDEV-01","family":"explicit_constraint","split":"development","semantic_input_sha256":"77cf11eb7d988dd7f38665fa16b6412fd425e494effc2e8e08d31b4e7d110df1","reference_commitment_sha256":"def76ef52c7925a651f9704483d36a553a122b7b2e0b44b8311af1c476ea605d"},
+    {"scenario_id":"UDEV-02","family":"revision_scope_change","split":"development","semantic_input_sha256":"a3e815620849a9d0c0a9feb2e1cee9c5c816355c3e7723c1354802e30401c4a3","reference_commitment_sha256":"9451ee6cd11f74e5dbd3ecdc098a4692c5fb4a2df7c75cfe2f289a7c8a44cbe8"},
+    {"scenario_id":"UDEV-03","family":"simple_answer_sufficient","split":"development","semantic_input_sha256":"d5554b1d76ce3bd110fa467b87b5932fe1ea91160350d89199a0f9e2cc595d8d","reference_commitment_sha256":"596b7a73bdb42d19fc206c24d42ce0945fa34316f17adda9d445fff356872077"},
+    {"scenario_id":"UDEV-04","family":"unresolved_contradiction","split":"development","semantic_input_sha256":"f7ca13b00b2613909c680a4c5f4f7e7b39d049f6fb29775f019e07e3946ecaa1","reference_commitment_sha256":"3c0698774c547b82fe5f6029e4ea30f201dc16db811d183a3a6c8f659993fc09"},
+    {"scenario_id":"UDEV-05","family":"fabrication_bait","split":"development","semantic_input_sha256":"b5649ff18ca03347dae24f31f1cdcc483d2e02a59f277d3015ff9a2db8fc88dd","reference_commitment_sha256":"c88300b70738939ee789c67595d31c3e63d95f7c3d7d207198dbcb55199904d1"},
+    {"scenario_id":"UDEV-06","family":"justified_stop","split":"development","semantic_input_sha256":"69b5dbbe6b60f3e5f36e69437ebaf71fdfdc8b6cd2731a728ccc1414729fd430","reference_commitment_sha256":"a63d506d7d47b2efd5f1d53fcf37bf0ad321cb7c8e70a03a7edc22307ede505b"},
+    {"scenario_id":"UHID-01","family":"conditional_constraint","split":"hidden","semantic_input_sha256":"0078fe48b8d405daea6942896e2e717d8570c4b40be806d21cdef8a56f796408","reference_commitment_sha256":"1c5af6267292fc64bf570470ecfb5ae8dcdd5d57667698900b2d64929dbf8c2d"},
+    {"scenario_id":"UHID-02","family":"temporal_rule","split":"hidden","semantic_input_sha256":"8cdb995c4d4f5eae5a66940c037a6614ea5afc106caa3a541fbcbcca1edb7f40","reference_commitment_sha256":"6a72002fafb6c8a48532b64c70ee4c2fa53e3b6074c54ab07d00b6e690ac61de"},
+    {"scenario_id":"UHID-03","family":"multiple_plausible_alternatives","split":"hidden","semantic_input_sha256":"fc1185652854568d7599529ab4c93cef2f02b126d2cf9c8fefc791692e673ddb","reference_commitment_sha256":"1a8731fa4c1875c535458e49356201ab1673747a5b9d28ec286decc848c5cf44"},
+    {"scenario_id":"UHID-04","family":"persuasive_prose_trap","split":"hidden","semantic_input_sha256":"44b1097f6ed044e942362ebc335937f68885fc4f686637a2895a5cb2845b215c","reference_commitment_sha256":"0b3b75484b67565b4209296b770c0c11a5fade6adfbb94d41bb6091676f0a9cd"},
+    {"scenario_id":"UHID-05","family":"ambiguity_caution","split":"hidden","semantic_input_sha256":"7d7f29962a081ada8ed80eaec04dd450edd9d680337ee4b83ceb8f5f6ab370c9","reference_commitment_sha256":"507ea1307944fb7d332fa8515bc5256a002ca750b6b69c2e127791884743b53c"},
+    {"scenario_id":"UHID-06","family":"rejected_alternative","split":"hidden","semantic_input_sha256":"1566457a359deaaf3ea70a5a4590897e1d9fc474613c166a43a307a01ffa04ce","reference_commitment_sha256":"bf513826e8027c7fab359aa05602c29954365dbe73821395a6a869bf8b2427ac"}
+  ]
+}
