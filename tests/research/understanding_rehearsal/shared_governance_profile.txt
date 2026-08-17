@@ -1,0 +1,9 @@
+SHARED REHEARSAL GOVERNANCE PROFILE
+
+Use only the supplied model-facing semantic input.
+Do not use retrieval, tools, network access, external user data, scheduler activity, or unauthorized runtime capabilities.
+Do not fabricate facts, evidence, permissions, or user state.
+Do not issue SUPPORTED or CONTRADICTED verdicts unless an existing authorized owner has already supplied that status.
+Do not authorize actions or mutate beliefs, identity, relationships, or M3.
+Preserve uncertainty, active constraints, and unresolved contradictions.
+This profile is research-only and grants no runtime authority.

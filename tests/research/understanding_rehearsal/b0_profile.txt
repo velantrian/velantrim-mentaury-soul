@@ -1,0 +1,4 @@
+B0 BASELINE DELTA
+
+No additional experimental structured-cognition or structured-output instruction.
+Use the current governed-synthesis behavior under the shared rehearsal governance profile.
