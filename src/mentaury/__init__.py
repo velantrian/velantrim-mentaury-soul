@@ -1,16 +1,13 @@
-"""Neutral Mentaury package boundary.
+"""Mentaury Soul bounded research package metadata.
 
-The merged P0-009 profile exposes typed contracts, canonical serialization,
-explicit storage, fail-closed validation, atomic batches, idempotency,
-concurrency, trusted event sealing, explicit verification budgets, and R0
-integrity verification only. It provides no identity, relationship, cognition,
-tool, or autonomous runtime.
+The root package intentionally exposes only a version marker. Public bounded
+primitives live in their owning subpackages; current engineering status is
+resolved from live GitHub plus ``docs/CURRENT_STATUS.md``, not package-level
+milestone literals.
 """
 
 from typing import Final
 
-__all__ = ["__version__", "SKELETON_STATUS", "IMPLEMENTATION_STATUS"]
+__all__ = ["__version__"]
 
 __version__: Final[str] = "0.0.0"
-SKELETON_STATUS: Final[str] = "P0-001_NEUTRAL_SKELETON"
-IMPLEMENTATION_STATUS: Final[str] = "P0-009_R0_INTEGRITY_IMPLEMENTED"

@@ -5,13 +5,11 @@ import importlib
 import mentaury
 
 
-def test_package_imports_without_side_effect_runtime() -> None:
+def test_root_package_exposes_only_version_metadata_without_runtime() -> None:
     assert mentaury.__version__ == "0.0.0"
-    assert mentaury.SKELETON_STATUS == "P0-001_NEUTRAL_SKELETON"
-    assert (
-        mentaury.IMPLEMENTATION_STATUS
-        == "P0-009_R0_INTEGRITY_IMPLEMENTED"
-    )
+    assert not hasattr(mentaury, "SKELETON_STATUS")
+    assert not hasattr(mentaury, "IMPLEMENTATION_STATUS")
+    assert set(mentaury.__all__) == {"__version__"}
 
 
 def test_reserved_namespaces_are_importable() -> None:
