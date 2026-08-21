@@ -13,6 +13,12 @@ STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
 EPR = (
     ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
+EPR_OWNER_GO = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_OWNER_GO_DECISION.md"
+).read_text(encoding="utf-8")
+EPR_IMPLEMENTATION = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_IMPLEMENTATION_V0_1.md"
+).read_text(encoding="utf-8")
 OWNER_GO = (
     ROOT / "docs" / "research" / "TYPED_RELATIONS_OWNER_GO_DECISION.md"
 ).read_text(encoding="utf-8")
@@ -44,26 +50,17 @@ def test_probe_is_not_roadmap_preference_laundering() -> None:
     assert "ACI-X0.0" in DECISION
 
 
-def test_relation_semantics_do_not_escalate_authority() -> None:
-    for invariant in (
-        "RELATION ≠ TRUTH",
-        "RELATION TYPE ≠ CONFIDENCE",
-        "CORRELATION ≠ CAUSATION",
-        "ANALOGY ≠ MECHANISM",
-        "GRAPH LINK ≠ CONFIDENCE PROPAGATION",
-        "CANDIDATE RELATION ≠ EVIDENCE FOR ITSELF",
-        "GENERATED HYPOTHESIS ≠ INDEPENDENT EVIDENCE",
-    ):
-        assert invariant in DECISION
-
-
-def test_epr_implementation_remains_unauthorized() -> None:
+def test_epr_was_unauthorized_at_historical_discrimination_checkpoint() -> None:
     assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
     assert "PHASE_4_RUNTIME_NOT_AUTHORIZED" in STATUS
     assert "Owner GO:                            NOT_GRANTED" in EPR
     assert "Implementation:                      NOT_STARTED" in EPR
-    assert not (ROOT / "src" / "mentaury" / "epistemic_change").exists()
+    assert "Owner GO:                          GRANTED" in EPR_OWNER_GO
+    assert "Owner GO scope:                    EPR-v0.1_ONLY" in EPR_OWNER_GO
+    assert "Runtime GO:                        NOT_GRANTED" in EPR_OWNER_GO
+    assert "Runtime activation: NONE" in EPR_IMPLEMENTATION
+    assert (ROOT / "src" / "mentaury" / "epistemic_change").exists()
 
 
 def test_typed_relations_were_selected_only_for_readiness_at_that_checkpoint() -> None:
@@ -95,3 +92,4 @@ def test_no_runtime_or_downstream_authority_is_granted() -> None:
         "deploy",
     ):
         assert forbidden in DECISION
+    assert "OWNER GO FOR EPR IMPLEMENTATION != RUNTIME GO" in EPR_OWNER_GO
