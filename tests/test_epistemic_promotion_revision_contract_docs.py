@@ -1,4 +1,4 @@
-"""Structural guards for the docs-only EPR-v0.1 Phase 4 contract freeze."""
+"""Structural guards for the EPR-v0.1 freeze and later bounded implementation."""
 
 from pathlib import Path
 
@@ -14,6 +14,12 @@ SELECTION = (
 ).read_text(encoding="utf-8")
 CONTRACT = (
     ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md"
+).read_text(encoding="utf-8")
+OWNER_GO = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_OWNER_GO_DECISION.md"
+).read_text(encoding="utf-8")
+IMPLEMENTATION = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_IMPLEMENTATION_V0_1.md"
 ).read_text(encoding="utf-8")
 BELIEF_CONTRACTS = (
     ROOT / "src" / "mentaury" / "beliefs" / "contracts.py"
@@ -32,7 +38,7 @@ PCR_CONTRACT = (
 ).read_text(encoding="utf-8")
 
 
-def test_phase4_readiness_and_candidate_are_docs_only() -> None:
+def test_phase4_readiness_and_candidate_are_historically_docs_only() -> None:
     assert "READINESS_READY · DOCS_ONLY" in READINESS
     assert "CANDIDATE_SELECTED · DOCS_ONLY" in SELECTION
     assert "PURE_EPISTEMIC_CHANGE_ROUTER" in SELECTION
@@ -135,8 +141,13 @@ def test_epr_threat_metamorphic_and_purity_families_are_complete() -> None:
         assert f"EPR-P{number:02d}" in CONTRACT
 
 
-def test_no_phase4_source_package_exists_in_docs_only_freeze() -> None:
-    assert not (ROOT / "src" / "mentaury" / "epistemic_change").exists()
+def test_phase4_source_package_exists_only_after_separate_bounded_owner_go() -> None:
+    assert (ROOT / "src" / "mentaury" / "epistemic_change").exists()
+    assert "Owner GO:                          GRANTED" in OWNER_GO
+    assert "Owner GO scope:                    EPR-v0.1_ONLY" in OWNER_GO
+    assert "Runtime GO:                        NOT_GRANTED" in OWNER_GO
+    assert "PURE_EPISTEMIC_CHANGE_ROUTER" in IMPLEMENTATION
+    assert "Runtime activation: NONE" in IMPLEMENTATION
 
 
 def test_contract_preserves_negative_authority_boundaries() -> None:
@@ -155,3 +166,4 @@ def test_contract_preserves_negative_authority_boundaries() -> None:
         "PHASE_4_RUNTIME = NOT_AUTHORIZED",
     ):
         assert marker in CONTRACT
+    assert "OWNER GO FOR EPR IMPLEMENTATION != RUNTIME GO" in OWNER_GO
