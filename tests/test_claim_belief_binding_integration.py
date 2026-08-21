@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from mentaury.beliefs import belief_schema_definitions, belief_stream_id
 from mentaury.claim_belief_binding import (
     CREATE_BELIEF_FROM_CLAIM,
@@ -166,8 +168,9 @@ def test_cbp_genesis_binding_commits_atomically_and_replays() -> None:
 
         replay_state = freeze_payload(reducer.initial_state())
         for event in committed:
-            payload = store.load_payload(event.payload_ref)
-            assert payload is not None
+            stored_payload = store.load_payload(event.payload_ref)
+            assert stored_payload is not None
+            payload = json.loads(stored_payload.payload_bytes.decode("utf-8"))
             replay_state = freeze_payload(reducer.apply(replay_state, event, payload))
 
         binding = replay_state["claim_binding"]
