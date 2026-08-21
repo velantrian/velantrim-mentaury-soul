@@ -50,6 +50,19 @@ def test_probe_is_not_roadmap_preference_laundering() -> None:
     assert "ACI-X0.0" in DECISION
 
 
+def test_relation_semantics_do_not_escalate_authority() -> None:
+    for invariant in (
+        "RELATION ≠ TRUTH",
+        "RELATION TYPE ≠ CONFIDENCE",
+        "CORRELATION ≠ CAUSATION",
+        "ANALOGY ≠ MECHANISM",
+        "GRAPH LINK ≠ CONFIDENCE PROPAGATION",
+        "CANDIDATE RELATION ≠ EVIDENCE FOR ITSELF",
+        "GENERATED HYPOTHESIS ≠ INDEPENDENT EVIDENCE",
+    ):
+        assert invariant in DECISION
+
+
 def test_epr_was_unauthorized_at_historical_discrimination_checkpoint() -> None:
     assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
