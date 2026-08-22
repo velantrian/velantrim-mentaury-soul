@@ -9,11 +9,13 @@
   "independent_truth_authority": false,
   "canon_v0_1": "FROZEN",
   "v1_research_core": {
-    "completion_stage": 4,
+    "completion_stage": 5,
     "completion_stage_count": 5,
-    "release_candidate_version": "1.0.0rc1",
+    "final_version": "1.0.0",
+    "release_status": "FINAL_ACCEPTANCE_COMPLETE",
     "offline_e2e_verified": true,
-    "license_distribution_owner_decision_required": true
+    "license_distribution_owner_decision_required": false,
+    "license_distribution_posture": "PROPRIETARY_ALL_RIGHTS_RESERVED"
   },
   "governance": {
     "mode": "SOLO_MAINTAINER",
