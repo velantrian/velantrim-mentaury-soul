@@ -167,6 +167,7 @@ mindmap
 ├── ⚖️ Epistemic governance
 │   ├── beliefs
 │   ├── Evidence Gate
+│   ├── provenance-preserving belief genesis
 │   ├── revision routing
 │   └── defer / wait
 ├── 🧠 Memory & continuity
@@ -218,14 +219,16 @@ This table is intentionally human-readable. For exact enumerated state, use [`do
 | 🔐 Capability / privacy composition | ✅ Implemented bounded | pure classification/composition primitives exist; they execute nothing |
 | 🪞 Non-Projection | ✅ Implemented bounded | imported interpretation is not silently promoted into SELF/autobiography |
 | 🌱 Provenance + claim representation | ✅ Implemented bounded | `PCR-v0.1` preserves distinct provenance/claim/epistemic axes |
-| ⚖️ Epistemic change routing | 🟡 Contract frozen | `EPR-v0.1` is specified; source implementation is not started |
+| 🔗 Claim→belief provenance binding | ✅ Implemented bounded | `CBP-v0.1` preserves exact PCR origin when a belief lineage begins; no truth/evidence authority |
+| ⚖️ Epistemic change routing | ✅ Implemented bounded | `EPR-v0.1` routes to the next owner only; it emits no command/event and invokes no owner |
 | 🔗 Typed relations | ✅ Implemented bounded | `ATR-v0.1` represents exact PCR-anchored typed relation candidates; no confidence, truth, graph or runtime authority |
 | 🔬 Hypothesis discrimination | ✅ Implemented bounded | `HDE-v0.1` classifies caller-supplied hypothesis outcome partitions structurally; it executes no observation, collects no evidence and issues no Evidence Gate verdict |
+| 🧪 V1 offline epistemic flow | ✅ E2E verified | merged acceptance proves PCR→CBP→EPR→P0-014→P0-015 with provenance retained and terminal reopen refused |
 | 🧠 Autonomous inquiry / scheduler | ❌ Not implemented | later research phases only |
 | 🚦 Action Gate | ❌ Not authorized | no action authority follows from cognition primitives |
 | 🔎 Retrieval / tools | ❌ Not authorized | no runtime retrieval/tool execution authority |
 | 🪞 Identity / relationship runtime | ❌ Not authorized | architecture exists beyond current runtime authority |
-| 🚀 Deployment / production | ❌ Not authorized | research repository, not deployed autonomous runtime |
+| 🚀 Deployment / production | ❌ Not authorized | Research/Core repository, not deployed autonomous runtime |
 | 🧑‍⚖️ Independent human review | 🟡 Not claimed | repository operates in explicit solo-maintainer governance mode |
 
 ### ⚙️ Exact machine-facing boundary
@@ -234,10 +237,12 @@ This table is intentionally human-readable. For exact enumerated state, use [`do
 <summary><strong>Open exact current authority snapshot</strong></summary>
 
 ```text
+CLAIM_TO_BELIEF_BINDING = IMPLEMENTED_BOUNDED · CBP-v0.1 · PR #147
+
 PHASE_4_CANDIDATE = PURE_EPISTEMIC_CHANGE_ROUTER
 PHASE_4_IMPLEMENTATION_CONTRACT = FROZEN_DOCS · EPR-v0.1
-PHASE_4_IMPLEMENTATION = NOT_STARTED
-PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_4_OWNER_GO = CONSUMED_BY_PR_148
 PHASE_4_RUNTIME = NOT_AUTHORIZED
 
 PHASE_5_CANDIDATE = PURE_ANCHORED_TYPED_RELATION_RECORD
@@ -251,6 +256,9 @@ PHASE_6_IMPLEMENTATION_CONTRACT = FROZEN_DOCS_TESTS_ONLY · HDE-v0.1
 PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
+
+V1_OFFLINE_EPISTEMIC_E2E = VERIFIED · PR #150
+TERMINAL_RECONSIDERATION_LINEAGE = NOT_IMPLEMENTED · V1.1/V2 BACKLOG
 
 ACTION_GATE = NOT_AUTHORIZED
 RETRIEVAL_EXECUTION = NOT_AUTHORIZED
@@ -281,7 +289,7 @@ This is a **conceptual positioning matrix**, not a benchmark or product ranking.
 | Identity continuity | ✅ architectural domain | narrative continuity | memory continuity | entity identity | session/agent identity varies |
 | Belief revision ownership | ✅ explicitly separated | usually implicit | application-specific | application-specific | application-specific |
 | Action authority separate from cognition | ✅ mandatory | n/a | n/a | n/a | often integrated with execution |
-| Current project state | research / bounded primitives | pattern | component pattern | data model pattern | execution framework pattern |
+| Current project state | V1 Research/Core release candidate | pattern | component pattern | data model pattern | execution framework pattern |
 
 Mentaury is not trying to replace every memory store, graph, model or agent framework. Its role is to define **what must remain distinct and governed when those substrates are composed into a persistent cognitive identity**.
 
@@ -364,17 +372,20 @@ Current frontier:
 ```text
 PCR-v0.1 provenance/claims       ✅ implemented bounded
         │
-        ├── EPR-v0.1             🧊 contract frozen · implementation absent
+        ├── CBP-v0.1             ✅ implemented bounded
+        │      │
+        │      ▼
+        ├── EPR-v0.1             ✅ implemented bounded · routing only
         │
         └── ATR-v0.1             ✅ implemented bounded
                                       │
                                       ▼
                     HDE-v0.1 structural discrimination
                                       ✅ implemented bounded
-                                      │
-                                      ▼
-                    next cognitive gap RESEARCH_ONLY · issue #129
-                    runtime/action     remain separate and NOT_AUTHORIZED
+
+V1 offline epistemic acceptance  ✅ E2E verified
+Terminal successor lineage       ◌ V1.1/V2 backlog
+Runtime/action/retrieval/tools    remain separate and NOT_AUTHORIZED
 ```
 
 Core epistemic invariants:
@@ -394,8 +405,11 @@ HERITAGE ≠ AUTOBIOGRAPHY
 UNDERSTANDING ≠ EXPERIENCE
 CREATOR ≠ MENTAURY
 HYPOTHESIS ≠ FACT
+BINDING ≠ TRUTH
+ROUTE ≠ EXECUTION
 DISCRIMINATION ≠ EVIDENCE GATE VERDICT
 IMPLEMENTED_BOUNDED ≠ AUTONOMY AUTHORITY
+E2E PASS ≠ RUNTIME / DEPLOYMENT AUTHORITY
 ```
 
 ---
@@ -548,6 +562,7 @@ Final main CI          31439211018 · success · 768 passed
 - ⚙️ [Machine-readable documentation map](docs/ai/project_manifest.json)
 - ⚙️ [Machine project-state snapshot](docs/state/project_state.json)
 - 🚦 [Current status](docs/CURRENT_STATUS.md)
+- 🏁 [V1 release-candidate status](docs/V1_RELEASE_CANDIDATE_STATUS.md)
 - 🛡 [Governance](docs/GOVERNANCE.md)
 - 📜 [Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
 - 🔬 [Research Index](docs/research/RESEARCH_INDEX.md)
