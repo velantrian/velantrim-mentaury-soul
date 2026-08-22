@@ -121,9 +121,13 @@ def test_current_navigation_surfaces_preserve_phase3_contract_identity() -> None
         assert "FROZEN_DOCS" in document
         assert "NOT_AUTHORIZED" in document
 
-    assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS_READY" in STATUS
-    assert "PHASE_3_CANDIDATE_SELECTION_SELECTED" in STATUS
+    # Readiness/selection remain frozen historical documents; the current
+    # authoritative state must now report the consumed implementation outcome.
+    assert "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED" in STATUS
     assert "PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
+    assert "PHASE_3_CONTRACT_VERSION_PCR_V0_1" in STATUS
+    assert "PHASE_3_OWNER_GO_CONSUMED_BY_PR_103" in STATUS
+    assert "PHASE_3_RUNTIME_NOT_AUTHORIZED" in STATUS
 
 
 def test_phase3_contract_does_not_authorize_phase4_or_runtime() -> None:
@@ -133,6 +137,10 @@ def test_phase3_contract_does_not_authorize_phase4_or_runtime() -> None:
         assert "Phase 4" in document or "PHASE_4" in document
     assert "PHASE_4_EPISTEMIC_PROMOTION_REVISION_READINESS_READY" in STATUS
     assert "PHASE_4_IMPLEMENTATION_CONTRACT_FROZEN_DOCS" in STATUS
+    # Historical pre-implementation literals remain retained below the current
+    # checkpoint, while current truth records the later bounded implementation.
     assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
+    assert "PHASE_4_IMPLEMENTATION_IMPLEMENTED_BOUNDED" in STATUS
+    assert "PHASE_4_OWNER_GO_CONSUMED_BY_PR_148" in STATUS
     assert "PHASE_4_RUNTIME_NOT_AUTHORIZED" in STATUS

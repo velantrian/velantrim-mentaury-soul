@@ -4,6 +4,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 STATUS = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
+HISTORICAL_STATUS = (
+    ROOT / "docs" / "history" / "CURRENT_STATUS_PRE_V1_RELEASE_CLOSURE_2026_08_22.md"
+).read_text(encoding="utf-8")
 ROADMAP = (ROOT / "docs" / "research" / "POST_P0_ROADMAP_V0.1.md").read_text(
     encoding="utf-8"
 )
@@ -48,13 +51,15 @@ def test_owner_go_scope_remains_exact_and_historical_single_use() -> None:
 
 
 def test_phase_1_not_granted_and_phase_2_grant_are_historical() -> None:
-    assert "Historical Phase 1" in STATUS
-    assert "historical Phase-1 freeze" in STATUS
-    assert "PHASE_2_OWNER_GO = NOT_GRANTED" in STATUS
-    assert "PR #94 later granted" in STATUS
+    # The pre-GO state is historical evidence, not current authority. Stage-4
+    # release reconciliation archives the old status verbatim instead of
+    # republishing NOT_GRANTED inside the authoritative current checkpoint.
+    assert "PHASE_2_OWNER_GO = NOT_GRANTED" in HISTORICAL_STATUS
+    assert "PR #94 later granted" in HISTORICAL_STATUS
     assert "Historical Phase 1 records are not rewritten" in RECON
     assert "GRANTED_BY_PR_94" in RECON
     assert "CONSUMED_BY_PR_96" in STATUS
+    assert "PHASE_2_OWNER_GO_CONSUMED_BY_PR_96" in STATUS
 
 
 def test_reconciliation_record_itself_added_no_authority() -> None:

@@ -6,9 +6,8 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = (
-    ROOT / "docs" / "research" / "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
-).read_text(encoding="utf-8")
+CONTRACT_PATH = ROOT / "docs" / "research" / "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md"
+CONTRACT = CONTRACT_PATH.read_text(encoding="utf-8")
 AUTH = (ROOT / "docs" / "P1_002_IMPLEMENTATION_AUTHORIZATION.md").read_text(
     encoding="utf-8"
 )
@@ -70,8 +69,13 @@ def test_new_owner_go_is_separate_and_bounded() -> None:
 def test_authoritative_surfaces_reference_contract_and_receipt() -> None:
     for document in (CURRENT_STATUS, ROADMAP, INDEX, AUTH):
         assert "P1-002 Privacy Reconciliation Classifier" in document
-    for document in (CURRENT_STATUS, ROADMAP, INDEX):
+    # The release-reconciled CURRENT_STATUS points at the live authorization
+    # receipt while the stable research navigation remains responsible for the
+    # frozen notes filename. The contract file itself must still exist.
+    assert CONTRACT_PATH.is_file()
+    for document in (ROADMAP, INDEX):
         assert "P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md" in document
+    for document in (CURRENT_STATUS, ROADMAP, INDEX):
         assert "P1_002_IMPLEMENTATION_AUTHORIZATION.md" in document
 
 
