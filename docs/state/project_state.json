@@ -2,12 +2,19 @@
   "schema": "mentaury-project-state/1",
   "project": "Mentaury Soul",
   "document_role": "DERIVED_MACHINE_SNAPSHOT",
-  "snapshot_source_date": "2026-08-15",
+  "snapshot_source_date": "2026-08-22",
   "live_head": "RESOLVE_FROM_GITHUB",
   "authoritative_human_state": "docs/CURRENT_STATUS.md",
   "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT",
   "independent_truth_authority": false,
   "canon_v0_1": "FROZEN",
+  "v1_research_core": {
+    "completion_stage": 4,
+    "completion_stage_count": 5,
+    "release_candidate_version": "1.0.0rc1",
+    "offline_e2e_verified": true,
+    "license_distribution_owner_decision_required": true
+  },
   "governance": {
     "mode": "SOLO_MAINTAINER",
     "independent_human_review_claimed": false
@@ -20,11 +27,14 @@
     "non_projection_classifier": true,
     "phase_2_npg_shadow_composition": true,
     "phase_3_provenance_claim_record": true,
+    "claim_to_belief_binding_cbp_v0_1": true,
+    "phase_4_epistemic_change_router_epr_v0_1": true,
     "phase_5_anchored_typed_relation_atr_v0_1": true,
     "phase_6_hypothesis_discrimination_hde_v0_1": true
   },
   "frozen_not_implemented": {
-    "phase_4_epistemic_change_router_epr_v0_1": true
+    "phase_4_epistemic_change_router_epr_v0_1": false,
+    "terminal_reconsideration_lineage": true
   },
   "authority": {
     "action_gate_authorized": false,
@@ -33,16 +43,22 @@
     "identity_runtime_authorized": false,
     "relationship_runtime_authorized": false,
     "runtime_deployment_authorized": false,
+    "phase_4_runtime_authorized": false,
     "phase_5_runtime_authorized": false,
     "phase_6_runtime_authorized": false
   },
   "semantic_boundaries": [
     "TOOL_OUTPUT_NE_BELIEF",
+    "CLAIM_NE_BELIEF",
+    "BINDING_NE_TRUTH",
+    "ROUTE_NE_EXECUTION",
+    "ROUTE_NE_PERMISSION",
     "RELATION_NE_TRUTH",
     "RELATION_TYPE_NE_CONFIDENCE",
     "CHARACTER_NE_EVIDENCE",
     "CONTINUITY_NE_IDENTITY_PROOF",
-    "CONTRACT_FREEZE_NE_RUNTIME_AUTHORITY",
-    "IMPLEMENTATION_NE_RUNTIME_AUTHORITY"
+    "IMPLEMENTATION_NE_RUNTIME_AUTHORITY",
+    "E2E_PASS_NE_RUNTIME_AUTHORITY",
+    "RELEASE_NE_DEPLOYMENT_AUTHORITY"
   ]
 }
