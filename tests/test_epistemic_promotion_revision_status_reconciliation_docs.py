@@ -1,4 +1,4 @@
-"""Structural guards retaining Phase 4 EPR boundaries after later Phase 5 progress."""
+"""Structural guards retaining historical Phase 4 boundaries after implementation GO."""
 
 from pathlib import Path
 
@@ -13,9 +13,15 @@ INDEX = (ROOT / "docs" / "research" / "RESEARCH_INDEX.md").read_text(
 CONTRACT = (
     ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md"
 ).read_text(encoding="utf-8")
+OWNER_GO = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_OWNER_GO_DECISION.md"
+).read_text(encoding="utf-8")
+IMPLEMENTATION = (
+    ROOT / "docs" / "research" / "EPISTEMIC_PROMOTION_REVISION_IMPLEMENTATION_V0_1.md"
+).read_text(encoding="utf-8")
 
 
-def test_current_surfaces_retain_phase4_frozen_state() -> None:
+def test_historical_surfaces_retain_phase4_frozen_state() -> None:
     for document in (STATUS, ROADMAP, INDEX, CONTRACT):
         assert "EPR-v0.1" in document
         assert "PURE_EPISTEMIC_CHANGE_ROUTER" in document
@@ -48,10 +54,12 @@ def test_phase4_freeze_preserves_existing_owners() -> None:
     assert "P0-015 Evidence Gate authority:      UNCHANGED" in CONTRACT
 
 
-def test_phase4_has_no_implementation_authority_even_after_phase5_completion() -> None:
-    assert not (ROOT / "src" / "mentaury" / "epistemic_change").exists()
+def test_later_epr_implementation_go_does_not_grant_runtime_authority() -> None:
+    assert (ROOT / "src" / "mentaury" / "epistemic_change").exists()
+    assert "Owner GO:                          GRANTED" in OWNER_GO
+    assert "Runtime GO:                        NOT_GRANTED" in OWNER_GO
+    assert "Runtime activation: NONE" in IMPLEMENTATION
     for marker in (
-        "PHASE_4_OWNER_GO_NOT_GRANTED",
         "PHASE_4_RUNTIME_NOT_AUTHORIZED",
         "PHASE_5_TYPED_RELATIONS_CONTRACT_READINESS_READY",
         "PHASE_5_CANDIDATE_SELECTION_SELECTED",
@@ -80,12 +88,13 @@ def test_phase4_reconciliation_records_verified_contract_freeze() -> None:
         assert "31575119904" in document
 
 
-def test_phase4_owner_go_remains_absent_while_phase5_is_later_completed() -> None:
+def test_historical_phase4_owner_go_absence_is_not_rewritten_retroactively() -> None:
     assert "PHASE_4_OWNER_GO_NOT_GRANTED" in STATUS
     assert "PHASE_4_IMPLEMENTATION_NOT_STARTED" in STATUS
     assert "Phase 4 Owner GO:             NOT_GRANTED" in ROADMAP
     assert "Phase 4 Owner GO:             NOT_GRANTED" in INDEX
     assert "new explicit Owner GO" in CONTRACT
+    assert "Historical documents" in OWNER_GO
 
     for surface in (STATUS, ROADMAP, INDEX):
         assert "PURE_ANCHORED_TYPED_RELATION_RECORD" in surface
