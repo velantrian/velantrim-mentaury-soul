@@ -2,9 +2,9 @@
 
 ```text
 Status date:                    2026-08-22
-Target version:                 1.0.0
+Final version:                  1.0.0
 Completion route:               STAGE 5 / 5
-Final acceptance:               PENDING_EXACT_HEAD_CI
+Final acceptance:               COMPLETE
 Distribution posture:           PROPRIETARY · ALL RIGHTS RESERVED
 Runtime authorization:          NOT_GRANTED
 Deployment authorization:       NOT_GRANTED
@@ -13,7 +13,7 @@ Independent human review:       NOT_CLAIMED
 
 ## V1 Definition of Done
 
-Mentaury Soul V1 Research/Core is bounded to the already accepted research/core architecture and its offline epistemic flow. It is **not** a deployed autonomous runtime.
+Mentaury Soul V1 Research/Core is bounded to the accepted research/core architecture and its offline epistemic flow. It is **not** a deployed autonomous runtime.
 
 Completed V1 gates:
 
@@ -27,6 +27,7 @@ Completed V1 gates:
 8. The agreed offline epistemic E2E flow is verified.
 9. Reliability review produced no reproduced V1-blocking P0/P1.
 10. Distribution posture is explicit: proprietary / all rights reserved.
+11. The `1.0.0` package/license posture passed the permanent exact-head CI path before this completion marker was written.
 
 ## Accepted offline flow
 
@@ -70,16 +71,18 @@ release != deployment authority
 license decision != runtime GO
 ```
 
-## Final acceptance gate
+## Final exact-head gate
 
-This document does not declare final acceptance complete until the exact final PR head passes the permanent CI path:
+The first Stage-5 exact-head run on the final package/license posture completed successfully before the final acceptance marker was set:
 
 ```text
-package install / pip check
-repository validator
-doc freshness
-complete pytest suite
-compileall
+package install / pip check     PASS
+repository validator            PASS
+doc freshness                   PASS
+complete pytest suite           PASS
+compileall                      PASS
 ```
 
-After exact-head CI succeeds, this record and the machine/current status may be changed from `PENDING_EXACT_HEAD_CI` to `COMPLETE`, followed by one final exact-head verification. No new cognitive capability may be added inside that closure step.
+This completion-marker commit must itself pass the same permanent CI path before merge. If it fails, V1 final acceptance reverts to blocked until the exact-head failure is resolved.
+
+No new cognitive capability is authorized by this release closure.
