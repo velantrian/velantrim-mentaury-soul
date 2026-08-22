@@ -5,7 +5,7 @@ compact milestone markers preserve the historical P-stage compatibility guard,
 while the root human landing pages must also mirror a bounded set of explicit
 current semantic facts from ``docs/CURRENT_STATUS.md``. The machine snapshot is
 checked separately because it is structured data: it must declare itself derived
-and must agree with the authoritative current-status markers for the bounded
+and must agree with the authoritative current-checkpoint markers for the bounded
 implementation and authority fields it mirrors.
 
 None of these checks makes a derived surface authoritative. Live merged GitHub
@@ -47,9 +47,10 @@ _DERIVED_IMPLEMENTED_RANGE = re.compile(
 _MACHINE_ROLE = "DERIVED_MACHINE_SNAPSHOT"
 _MACHINE_CONFLICT_RULE = "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT"
 
-# Visible human-facing facts mirrored by README/System Overview. These exact
-# phrases are intentionally simple: a stale pre-HDE landing page must not pass
-# merely because it still carries an old P-stage compatibility marker.
+# Visible human-facing facts mirrored by README/System Overview. Historical
+# Phase-4 pre-implementation markers remain useful here as negative sentinels:
+# once absent from the current checkpoint they must also disappear from the
+# visible landing pages.
 _HUMAN_SEMANTIC_FACTS = (
     ("PHASE_4_IMPLEMENTATION_NOT_STARTED", "PHASE_4_IMPLEMENTATION = NOT_STARTED"),
     ("PHASE_4_OWNER_GO_NOT_GRANTED", "PHASE_4_OWNER_GO = NOT_GRANTED"),
@@ -68,7 +69,6 @@ _HUMAN_SEMANTIC_FACTS = (
     ("PHASE_6_RUNTIME_NOT_AUTHORIZED", "PHASE_6_RUNTIME = NOT_AUTHORIZED"),
 )
 
-# Snapshot booleans that mirror explicit current-status markers.
 _IMPLEMENTED_MARKERS = {
     "phase_2_npg_shadow_composition": "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED",
     "phase_3_provenance_claim_record": "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED",
@@ -203,7 +203,14 @@ def _expect_mapping(snapshot: Mapping[str, Any], key: str) -> Mapping[str, Any] 
 def evaluate_machine_snapshot(
     current_status_text: str, machine_state_text: str
 ) -> list[str]:
-    """Fail closed when the derived JSON snapshot disagrees with current status."""
+    """Fail closed when the derived JSON snapshot disagrees with current checkpoint."""
+
+    checkpoint = current_checkpoint(current_status_text)
+    if checkpoint is None:
+        return [
+            "docs/CURRENT_STATUS.md: could not isolate the authoritative "
+            "'## 1. 🧭 Current checkpoint' section"
+        ]
 
     try:
         parsed = json.loads(machine_state_text)
@@ -235,13 +242,14 @@ def evaluate_machine_snapshot(
     else:
         for key, marker in _IMPLEMENTED_MARKERS.items():
             snapshot_value = implemented.get(key)
-            authoritative_value = marker in current_status_text
+            authoritative_value = marker in checkpoint
             if not isinstance(snapshot_value, bool):
                 problems.append(f"implemented_bounded.{key}: expected boolean")
             elif snapshot_value != authoritative_value:
                 problems.append(
                     f"implemented_bounded.{key}={snapshot_value} disagrees with "
-                    f"CURRENT_STATUS marker {marker!r} (present={authoritative_value})"
+                    f"CURRENT_STATUS current marker {marker!r} "
+                    f"(present={authoritative_value})"
                 )
 
     frozen = _expect_mapping(parsed, "frozen_not_implemented")
@@ -252,13 +260,14 @@ def evaluate_machine_snapshot(
     else:
         for key, markers in _FROZEN_NOT_IMPLEMENTED_MARKERS.items():
             snapshot_value = frozen.get(key)
-            authoritative_value = all(marker in current_status_text for marker in markers)
+            authoritative_value = all(marker in checkpoint for marker in markers)
             if not isinstance(snapshot_value, bool):
                 problems.append(f"frozen_not_implemented.{key}: expected boolean")
             elif snapshot_value != authoritative_value:
                 problems.append(
                     f"frozen_not_implemented.{key}={snapshot_value} disagrees with "
-                    f"CURRENT_STATUS markers {markers!r} (all_present={authoritative_value})"
+                    f"CURRENT_STATUS current markers {markers!r} "
+                    f"(all_present={authoritative_value})"
                 )
 
     authority = _expect_mapping(parsed, "authority")
@@ -267,13 +276,13 @@ def evaluate_machine_snapshot(
     else:
         for key, not_authorized_marker in _AUTHORITY_NOT_AUTHORIZED_MARKERS.items():
             snapshot_value = authority.get(key)
-            authoritative_authorized = not_authorized_marker not in current_status_text
+            authoritative_authorized = not_authorized_marker not in checkpoint
             if not isinstance(snapshot_value, bool):
                 problems.append(f"authority.{key}: expected boolean")
             elif snapshot_value != authoritative_authorized:
                 problems.append(
                     f"authority.{key}={snapshot_value} disagrees with CURRENT_STATUS "
-                    f"marker {not_authorized_marker!r} "
+                    f"current marker {not_authorized_marker!r} "
                     f"(authorized={authoritative_authorized})"
                 )
 
