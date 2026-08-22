@@ -8,8 +8,9 @@ Governance authority:              docs/GOVERNANCE.md + live GitHub ruleset
 Current operating mode:            SOLO_MAINTAINER
 Independent human review claimed:  NO
 Live main tip:                      resolved from GitHub; not embedded here
-V1 completion route:               STAGE 4 / 5 · RELEASE CLOSURE
-Release candidate:                 1.0.0rc1
+V1 completion route:               STAGE 5 / 5 · FINAL ACCEPTANCE
+Final V1 version:                  1.0.0
+Distribution posture:              PROPRIETARY · ALL RIGHTS RESERVED
 ```
 
 ```text
@@ -57,6 +58,8 @@ P1_004_NOT_ASSIGNED
 PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED
 PHASE_2_OWNER_GO_CONSUMED_BY_PR_96
 
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS_READY
+PHASE_3_CANDIDATE_SELECTION_SELECTED
 PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED
 PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
 PHASE_3_CONTRACT_VERSION_PCR_V0_1
@@ -113,6 +116,9 @@ V1_OFFLINE_EPISTEMIC_E2E_MERGED_BY_PR_150
 V1_E2E_PRIMARY_FLOW_PCR_CBP_EPR_P0_014_P0_015_PASS
 V1_E2E_PROVENANCE_MISMATCH_FAIL_CLOSED
 V1_E2E_STALE_REVISION_FAIL_CLOSED
+V1_RESEARCH_CORE_VERSION_1_0_0
+V1_STAGE_5_FINAL_ACCEPTANCE_COMPLETE
+V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED
 
 TERMINAL_RECONSIDERATION_LINEAGE_NOT_IMPLEMENTED
 TERMINAL_RECONSIDERATION_LINEAGE_V1_1_OR_V2_BACKLOG
@@ -148,6 +154,7 @@ CHARACTER_RUNTIME_ACTIVATION_GATE_BLOCKED_PENDING_REQUIRED_VALIDATION
 | ATR-v0.1 | ✅ Implemented bounded | exact PCR-anchored typed relations; no truth/confidence authority |
 | HDE-v0.1 | ✅ Implemented bounded | structural discrimination only; no Evidence Gate verdict |
 | V1 offline E2E | ✅ E2E verified | PCR→CBP→EPR→P0-014→P0-015; terminal reopen refused |
+| V1 Research/Core 1.0.0 | ✅ Final acceptance | release closure only; runtime/deployment authority remains absent |
 
 ---
 
@@ -222,19 +229,20 @@ it is not required for the agreed V1 Research/Core end-to-end flow.
 ## 5. 📦 Release closure
 
 ```text
-PACKAGE_RELEASE_CANDIDATE_VERSION = 1.0.0rc1
-FINAL_V1_VERSION = PENDING_STAGE_5
-LICENSE_DISTRIBUTION_OWNER_DECISION = REQUIRED
+FINAL_V1_VERSION = 1.0.0
+V1_STAGE_5_FINAL_ACCEPTANCE = COMPLETE
+LICENSE_DISTRIBUTION_OWNER_DECISION = PROPRIETARY_ALL_RIGHTS_RESERVED
+SOURCE_VISIBILITY = PUBLIC_REPOSITORY
+OPEN_SOURCE_LICENSE = NO
 RUNTIME = NOT_AUTHORIZED
 DEPLOYMENT = NOT_AUTHORIZED
 ```
 
-The repository is public, but publication does not itself decide the intended
-license/distribution terms. The final license posture must be an explicit Owner
-decision; automation must not select MIT, Apache, proprietary or other legal
-terms on the owner's behalf.
+The root `LICENSE` records the proprietary / all-rights-reserved distribution
+posture. Public source visibility does not itself grant a general license to
+copy, modify, distribute, sublicense, commercialize, or create derivative works.
 
-See `docs/V1_RELEASE_CANDIDATE_STATUS.md`.
+See `docs/V1_FINAL_STATUS.md`.
 
 ---
 
@@ -270,6 +278,7 @@ NO_POST_P1_001_RUNTIME_MILESTONE_AUTHORIZED
 P1-002 Privacy Reconciliation Classifier
 
 ```text
+docs/research/P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_NOTES.md
 docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md
 P1_002_IMPLEMENTATION_NOT_STARTED
 P1_002_PRIVACY_RECONCILIATION_CLASSIFIER_IMPLEMENTED_BOUNDED
@@ -311,6 +320,11 @@ PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
 Historical Phase 1 and the historical Phase-1 freeze are provenance only and do
 not roll forward implementation or runtime authority.
 
+```text
+PHASE_2_OWNER_GO = NOT_GRANTED
+PR #94 later granted bounded Phase 2 Owner GO
+```
+
 ### PCR retained evidence
 
 ```text
@@ -319,6 +333,8 @@ PCR-v0.1
 src/mentaury/claims/__init__.py
 src/mentaury/claims/contracts.py
 src/mentaury/claims/representation.py
+PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_READINESS_READY
+PHASE_3_CANDIDATE_SELECTION_SELECTED
 PHASE_3_IMPLEMENTATION_CONTRACT_FROZEN_DOCS
 PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED
 ```
@@ -454,7 +470,9 @@ inquiry, identity/relationship runtime, M3 mutation or deployment.
 - P1-002 authorization: `docs/P1_002_IMPLEMENTATION_AUTHORIZATION.md`
 - P1-003 authorization: `docs/P1_003_IMPLEMENTATION_AUTHORIZATION.md`
 - Canon: `docs/MENTAURY_CANON_V0.1.md`
-- V1 release candidate: `docs/V1_RELEASE_CANDIDATE_STATUS.md`
+- V1 final acceptance: `docs/V1_FINAL_STATUS.md`
+- V1 release-candidate history: `docs/V1_RELEASE_CANDIDATE_STATUS.md`
+- Distribution terms: `LICENSE`
 - CBP-v0.1 contract: `docs/research/CLAIM_TO_BELIEF_PROVENANCE_BINDING_CONTRACT_V0_1.md`
 - EPR-v0.1 contract: `docs/research/EPISTEMIC_PROMOTION_REVISION_CONTRACT_V0_1.md`
 - EPR implementation record: `docs/research/EPISTEMIC_PROMOTION_REVISION_IMPLEMENTATION_V0_1.md`
@@ -475,23 +493,26 @@ P0-015 alone owns SUPPORTED / CONTRADICTED evidence-gate decisions.
 ATR represents typed relations without truth authority.
 HDE evaluates bounded structural discrimination without producing a verdict.
 
-V1 Research/Core offline flow = E2E_VERIFIED
+V1 Research/Core version = 1.0.0
+V1 Research/Core status = FINAL_ACCEPTANCE_COMPLETE
+V1 offline flow = E2E_VERIFIED
 V1 runtime/deployment = NOT_AUTHORIZED
 ```
 
 ---
 
-## 10. ⛔ Mandatory next boundary
+## 10. ⛔ Post-V1 boundary
 
 ```text
-CURRENT_STAGE = V1_STAGE_4_RELEASE_CLOSURE
-NEXT_PREDEFINED_STAGE = V1_STAGE_5_FINAL_ACCEPTANCE
-LICENSE_DISTRIBUTION_OWNER_DECISION = REQUIRED_BEFORE_FINAL_RELEASE
+CURRENT_STAGE = V1_COMPLETE
+V1_VERSION = 1.0.0
+V1_COMPLETION = 100_PERCENT_RESEARCH_CORE_DEFINITION_OF_DONE
+V1_1_OR_V2 = NOT_AUTOMATICALLY_AUTHORIZED
 RUNTIME_GO = NOT_GRANTED
 DEPLOYMENT_GO = NOT_GRANTED
 ```
 
-> Complete only the bounded release closure and final acceptance. Do not open a
-> new cognitive milestone inside the V1 denominator. Any terminal-lineage,
-> retrieval, tool, autonomous-inquiry, identity-runtime or deployment work is a
-> separate V1.1/V2 or separately authorized program.
+> V1 Research/Core is closed. Do not reopen its denominator merely because future
+> work exists. Any terminal-lineage, retrieval, tool, autonomous-inquiry,
+> identity-runtime or deployment work is a separate V1.1/V2 or separately
+> authorized program.
