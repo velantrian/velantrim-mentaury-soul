@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mentaury-soul"
-version = "1.0.0rc1"
+version = "1.0.0"
 description = "Substrate-neutral research architecture for persistent digital individuality and governed cognition"
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
-license = { text = "Research-only; license not yet selected" }
+license = { text = "Proprietary; all rights reserved. See LICENSE." }
 authors = [{ name = "Velantrim" }]
 dependencies = []
 
