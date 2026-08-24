@@ -116,10 +116,11 @@ Existing architecture keeps ownership separated:
 ```text
 P0-014 → ordinary belief lifecycle
 P0-015 → Evidence Gate / SUPPORTED / CONTRADICTED
+CBP-v0.1 → creation-time PCR→belief provenance binding
 EPR-v0.1 → route to the next owner only
 ```
 
-`EPR-v0.1` is intentionally not a second Evidence Gate and not a mutation engine.
+`CBP-v0.1` does not make a claim true, and `EPR-v0.1` is intentionally not a second Evidence Gate and not a mutation engine.
 
 ### 5. 🧠 Memory and continuity
 
@@ -191,6 +192,7 @@ mindmap
     ⚖️ Epistemic governance
       Evidence Gate
       belief lifecycle
+      provenance binding
       revision routing
       defer
     🧠 Memory
@@ -242,6 +244,7 @@ mindmap
 │   └── Typed relations
 │
 ├── ⚖️ Epistemic change
+│   ├── claim→belief provenance binding
 │   ├── belief revision ownership
 │   ├── evidence ownership
 │   ├── routing
@@ -347,7 +350,7 @@ The architecture deliberately refuses shortcuts such as:
 
 ```text
 relation → truth
-claim → belief
+claim → belief without provenance binding
 belief → action
 character → identity proof
 understanding → autobiography
@@ -363,15 +366,16 @@ understanding → autobiography
 | 🔐 Capability / privacy / composition | ✅ Implemented bounded | classification/composition only |
 | 🪞 Non-Projection | ✅ Implemented bounded | attribution protection only; no runtime activation |
 | 🌱 PCR-v0.1 claims/provenance | ✅ Implemented bounded | representation only |
-| ⚖️ EPR-v0.1 | 🧊 Frozen contract | routing contract only; implementation absent |
+| 🔗 CBP-v0.1 claim→belief binding | ✅ Implemented bounded | preserves exact PCR origin at belief genesis; no truth/evidence authority |
+| ⚖️ EPR-v0.1 | ✅ Implemented bounded | pure routing only; no command/event or owner invocation |
 | 🔗 ATR-v0.1 | ✅ Implemented bounded | exact PCR-anchored typed-relation representation; no confidence/graph/truth/runtime authority |
 | 🔬 HDE-v0.1 hypothesis discrimination | ✅ Implemented bounded | structural discrimination only; no observation execution, evidence collection, Evidence Gate verdict or runtime authority |
-| 🔗 claim→belief binding | ❌ Not implemented | future separate contract required |
-| 🔄 terminal reconsideration lineage | ❌ Not implemented | terminal beliefs cannot be silently reopened |
+| 🧪 V1 offline epistemic flow | ✅ E2E verified | PCR→CBP→EPR→P0-014→P0-015 reaches gated terminal belief with provenance retained |
+| 🔄 terminal reconsideration lineage | ❌ Not implemented | V1.1/V2 backlog; terminal beliefs cannot be silently reopened |
 | 🧠 inference / inquiry / scheduler | ❌ Future | not current runtime capability |
 | 🪞 identity / relationship runtime | ❌ Not authorized | no current runtime mutation authority |
 | 🚦 retrieval / tools / Action Gate | ❌ Not authorized | cognition never implies execution authority |
-| 🚀 deployment | ❌ Not authorized | research-only current state |
+| 🚀 deployment | ❌ Not authorized | Research/Core repository, not deployed autonomous runtime |
 
 ---
 
@@ -508,12 +512,14 @@ At the current checkpoint:
 
 ```text
 PCR-v0.1   ✅ IMPLEMENTED_BOUNDED
-EPR-v0.1   🧊 FROZEN_DOCS · NOT_STARTED
+CBP-v0.1   ✅ IMPLEMENTED_BOUNDED
+EPR-v0.1   ✅ IMPLEMENTED_BOUNDED
 ATR-v0.1   ✅ FROZEN_DOCS · IMPLEMENTED_BOUNDED
 HDE-v0.1   ✅ FROZEN_DOCS_TESTS_ONLY · IMPLEMENTED_BOUNDED
+V1 E2E     ✅ E2E_VERIFIED_OFFLINE
 
-PHASE_4_IMPLEMENTATION = NOT_STARTED
-PHASE_4_OWNER_GO = NOT_GRANTED
+PHASE_4_IMPLEMENTATION = IMPLEMENTED_BOUNDED
+PHASE_4_OWNER_GO = CONSUMED_BY_PR_148
 PHASE_4_RUNTIME = NOT_AUTHORIZED
 
 PHASE_5_IMPLEMENTATION = IMPLEMENTED_BOUNDED
@@ -524,9 +530,8 @@ PHASE_6_IMPLEMENTATION = IMPLEMENTED_BOUNDED
 PHASE_6_OWNER_GO = CONSUMED_BY_PR_127
 PHASE_6_RUNTIME = NOT_AUTHORIZED
 
-Claim→belief binding       NOT_IMPLEMENTED
-Terminal reconsideration   NOT_IMPLEMENTED
-Next cognitive gap         RESEARCH_ONLY · issue #129
+Claim→belief binding       IMPLEMENTED_BOUNDED · CBP-v0.1
+Terminal reconsideration   NOT_IMPLEMENTED · V1.1/V2 backlog
 Retrieval                  NOT_AUTHORIZED
 Tools                      NOT_AUTHORIZED
 Action Gate                NOT_AUTHORIZED
@@ -537,11 +542,14 @@ Deployment                 NOT_AUTHORIZED
 RELATION ≠ TRUTH
 HYPOTHESIS ≠ FACT
 DISCRIMINATION ≠ EVIDENCE GATE VERDICT
+BINDING ≠ TRUTH
+ROUTE ≠ EXECUTION
 IMPLEMENTED_BOUNDED ≠ AUTONOMY AUTHORITY
 IMPLEMENTED_BOUNDED ≠ RUNTIME AUTHORITY
+E2E PASS ≠ DEPLOYMENT AUTHORITY
 ```
 
-Do not infer implementation authority from contract readiness, and do not infer runtime authority from bounded implementation or structural discrimination.
+Do not infer runtime authority from bounded implementation, E2E verification or release status.
 
 ---
 
@@ -559,6 +567,7 @@ The point is not merely to produce a more convincing persona. The point is to ma
 
 - [`README.md`](README.md) — fast human landing
 - [`docs/CURRENT_STATUS.md`](docs/CURRENT_STATUS.md) — current engineering truth
+- [`docs/V1_RELEASE_CANDIDATE_STATUS.md`](docs/V1_RELEASE_CANDIDATE_STATUS.md) — V1 release-closure state
 - [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md) — authority and review
 - [`docs/MENTAURY_CANON_V0.1.md`](docs/MENTAURY_CANON_V0.1.md) — frozen Canon
 - [`docs/research/RESEARCH_INDEX.md`](docs/research/RESEARCH_INDEX.md) — research map
