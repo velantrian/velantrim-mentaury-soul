@@ -138,9 +138,21 @@ RESEARCH ≠ RUNTIME
 ## Documents in this folder
 
 - [`CLOS_BLUEPRINT.md`](CLOS_BLUEPRINT.md) — compact current research architecture.
-- [`RESEARCH_SYNTHESIS_2026_08_29.md`](RESEARCH_SYNTHESIS_2026_08_29.md) — evidence synthesis and accepted/rejected claims.
+- [`RESEARCH_SYNTHESIS_2026_08_29.md`](RESEARCH_SYNTHESIS_2026_08_29.md) — latest synthesis and accepted/rejected claims.
+- [`EVIDENCE_LEDGER.md`](EVIDENCE_LEDGER.md) — claim → evidence class → limitation → disposition traceability.
 - [`DISCRIMINATING_FIXTURES.md`](DISCRIMINATING_FIXTURES.md) — bounded adversarial test packet.
 - [`ECOSYSTEM_CROSSWALK.md`](ECOSYSTEM_CROSSWALK.md) — ownership boundaries across the six core projects.
+
+## Repository navigation boundary
+
+The repository-wide navigation authority remains [`../RESEARCH_INDEX.md`](../RESEARCH_INDEX.md). This CLOS folder is a bounded research surface and does not replace that index or `docs/CURRENT_STATUS.md`.
+
+A separate index reconciliation is required whenever the repository-wide research index contains stale current-state literals. Historical checkpoints may remain historical, but current-status summaries must not silently contradict `docs/CURRENT_STATUS.md`.
+
+```text
+HISTORICAL CHECKPOINT ≠ CURRENT STATUS
+RESEARCH NAVIGATION ≠ ENGINEERING AUTHORITY
+```
 
 ## External research surfaces
 
