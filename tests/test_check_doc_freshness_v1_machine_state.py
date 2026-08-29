@@ -136,3 +136,19 @@ def test_machine_snapshot_detects_forward_v1_claim_without_current_marker() -> N
         "v1_research_core.release_status" in problem and "ahead of" in problem
         for problem in problems
     )
+
+
+def test_distribution_decision_false_is_not_inferred_as_forward_claim() -> None:
+    status = _CURRENT_V1_STATUS.replace(
+        "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED", ""
+    )
+    snapshot = copy.deepcopy(_snapshot())
+    v1 = snapshot["v1_research_core"]
+    assert isinstance(v1, dict)
+    v1["license_distribution_posture"] = "UNDECIDED"
+
+    problems = evaluate_machine_snapshot(status, json.dumps(snapshot))
+    assert not any(
+        "license_distribution_owner_decision_required" in problem
+        for problem in problems
+    )
