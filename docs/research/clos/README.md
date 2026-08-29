@@ -26,6 +26,15 @@ DOCUMENTATION PLACEMENT ≠ AUTHORITY TRANSFER
 
 The full research documents formerly mirrored here now live in the dedicated CLOS repository. Git history for the earlier versions remains available through the merged PR and prior commits.
 
+## Navigation reconciliation
+
+`docs/research/RESEARCH_INDEX.md` was reconciled on 2026-08-28 while this path still hosted the bounded Soul-local CLOS research mirror. Its §0 wording that describes a research track at `clos/README.md` now resolves **through this pointer** to the dedicated CLOS repository; this local file is no longer a current CLOS research home.
+
+```text
+RESEARCH_INDEX LINK ≠ LOCAL CURRENT RESEARCH COPY
+POINTER TO CURRENT HOME ≠ DUPLICATE AUTHORITY
+```
+
 ## Authority boundary
 
 Creating a dedicated CLOS repository does **not** create a new apex authority over the Velantrim ecosystem.
