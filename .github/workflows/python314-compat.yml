@@ -13,6 +13,8 @@ jobs:
     name: Python 3.14 source-only compatibility probe
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      PYTHONPATH: src:scripts
 
     steps:
       - name: Check out exact repository revision
