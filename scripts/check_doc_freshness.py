@@ -47,10 +47,6 @@ _DERIVED_IMPLEMENTED_RANGE = re.compile(
 _MACHINE_ROLE = "DERIVED_MACHINE_SNAPSHOT"
 _MACHINE_CONFLICT_RULE = "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_THIS_SNAPSHOT"
 
-# Visible human-facing facts mirrored by README/System Overview. Historical
-# Phase-4 pre-implementation markers remain useful here as negative sentinels:
-# once absent from the current checkpoint they must also disappear from the
-# visible landing pages.
 _HUMAN_SEMANTIC_FACTS = (
     ("PHASE_4_IMPLEMENTATION_NOT_STARTED", "PHASE_4_IMPLEMENTATION = NOT_STARTED"),
     ("PHASE_4_OWNER_GO_NOT_GRANTED", "PHASE_4_OWNER_GO = NOT_GRANTED"),
@@ -108,11 +104,8 @@ _V1_RESEARCH_CORE_EXPECTATIONS = {
         "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED",
         "PROPRIETARY_ALL_RIGHTS_RESERVED",
     ),
-    "license_distribution_owner_decision_required": (
-        "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED",
-        False,
-    ),
 }
+_V1_DISTRIBUTION_MARKER = "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED"
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -122,7 +115,6 @@ def format_milestone(milestone: Milestone) -> str:
 
 def authoritative_milestones(text: str) -> list[Milestone]:
     """Every ``P<stage>-<number>`` marked ``✅ Implemented``."""
-
     return [
         (int(stage), int(number))
         for stage, number in _AUTHORITATIVE_IMPLEMENTED_ROW.findall(text)
@@ -131,7 +123,6 @@ def authoritative_milestones(text: str) -> list[Milestone]:
 
 def derived_milestones(text: str) -> list[Milestone]:
     """Every coherent derived ``IMPLEMENTED IN MAIN`` range marker."""
-
     milestones: list[Milestone] = []
     for start_stage, end_stage, end_number in _DERIVED_IMPLEMENTED_RANGE.findall(text):
         if start_stage != end_stage:
@@ -142,7 +133,6 @@ def derived_milestones(text: str) -> list[Milestone]:
 
 def current_checkpoint(text: str) -> str | None:
     """Return only the authoritative current-checkpoint section, not history."""
-
     anchor = "## 1. 🧭 Current checkpoint"
     if anchor not in text:
         return None
@@ -156,7 +146,6 @@ def evaluate(
     current_status_text: str, derived_doc_texts: Mapping[str, str]
 ) -> list[str]:
     """Check human-readable derived milestone markers."""
-
     authoritative = authoritative_milestones(current_status_text)
     if not authoritative:
         return [
@@ -195,7 +184,6 @@ def evaluate_human_semantic_status(
     current_status_text: str, derived_doc_texts: Mapping[str, str]
 ) -> list[str]:
     """Check visible current Phase 4–6 facts on the root human landing pages."""
-
     checkpoint = current_checkpoint(current_status_text)
     if checkpoint is None:
         return [
@@ -231,15 +219,7 @@ def _marker_or_snapshot_key_is_material(
 def evaluate_machine_snapshot(
     current_status_text: str, machine_state_text: str
 ) -> list[str]:
-    """Fail closed when the derived JSON snapshot disagrees with current state.
-
-    Repository execution always supplies the real ``CURRENT_STATUS`` and thus
-    isolates its current-checkpoint section. Tiny synthetic unit fixtures from
-    the original freshness suite intentionally contain marker text only; those
-    remain supported as direct semantic fixtures without weakening the real
-    repository path.
-    """
-
+    """Fail closed when the derived JSON snapshot disagrees with current state."""
     checkpoint = current_checkpoint(current_status_text) or current_status_text
 
     try:
@@ -306,7 +286,7 @@ def evaluate_machine_snapshot(
 
     v1_markers_present = any(
         marker in checkpoint for marker, _expected in _V1_RESEARCH_CORE_EXPECTATIONS.values()
-    )
+    ) or _V1_DISTRIBUTION_MARKER in checkpoint
     v1 = _expect_mapping(parsed, "v1_research_core")
     if v1_markers_present or "v1_research_core" in parsed:
         if v1 is None:
@@ -325,6 +305,17 @@ def evaluate_machine_snapshot(
                     problems.append(
                         f"v1_research_core.{key} claims {expected_value!r} ahead of "
                         f"CURRENT_STATUS current marker {marker!r}"
+                    )
+
+            if _V1_DISTRIBUTION_MARKER in checkpoint:
+                owner_decision_required = v1.get(
+                    "license_distribution_owner_decision_required"
+                )
+                if owner_decision_required is not False:
+                    problems.append(
+                        "v1_research_core.license_distribution_owner_decision_required="
+                        f"{owner_decision_required!r} disagrees with CURRENT_STATUS final "
+                        f"distribution marker {_V1_DISTRIBUTION_MARKER!r}; expected False"
                     )
 
     authority = _expect_mapping(parsed, "authority")
