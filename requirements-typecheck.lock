@@ -1,0 +1,6 @@
+# Bounded static-type-check toolchain for the non-runtime CI lane.
+# Runtime dependencies remain intentionally empty.
+mypy==1.17.1
+mypy_extensions==1.1.0
+pathspec==0.12.1
+typing_extensions==4.14.1
