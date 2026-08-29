@@ -36,8 +36,15 @@ jobs:
       - name: Confirm probe interpreter
         run: python -c "import sys; assert sys.version_info[:2] == (3, 14), sys.version"
 
-      - name: Validate repository structure
-        run: python scripts/validate.py
+      - name: Confirm supported-version validator fails closed on 3.14
+        run: |
+          set +e
+          output="$(python scripts/validate.py 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          test "$status" -ne 0
+          printf '%s\n' "$output" | grep -F "unsupported Python: 3.14"
 
       - name: Check derived-status documentation freshness
         run: python scripts/check_doc_freshness.py
