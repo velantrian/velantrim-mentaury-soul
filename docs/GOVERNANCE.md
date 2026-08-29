@@ -97,6 +97,8 @@ src/mentaury/non_projection/**
 src/mentaury/composition/governed_constraints/**
 src/mentaury/composition/non_projection_shadow/**
 src/mentaury/claims/**
+src/mentaury/claim_belief_binding/**
+src/mentaury/epistemic_change/**
 src/mentaury/relations/**
 src/mentaury/discrimination/**
 src/mentaury/contracts/canonical_json.py
@@ -139,9 +141,10 @@ records but may not persist, scan, delete, redact, quarantine, rebuild, retrieve
 append events, invoke P1-001 internally, mutate relationship/identity/M3 state,
 execute tools, select backends or deploy.
 
-The implemented `non_projection`, governed-composition, claim, relation and
-hypothesis-discrimination packages are also Tier A because semantic changes in those
-paths can alter attribution, authority ceilings, claim/belief separation, relation/truth
+The implemented `non_projection`, governed-composition, claim, claim-to-belief binding,
+epistemic-change routing, relation and hypothesis-discrimination packages are also Tier A
+because semantic changes in those paths can alter attribution, authority ceilings,
+claim/belief separation, provenance binding, epistemic owner routing, relation/truth
 separation or the boundary between structural discrimination and Evidence Gate verdicts.
 Their current implementation remains bounded and grants no runtime authority.
 
