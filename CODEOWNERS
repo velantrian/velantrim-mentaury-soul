@@ -20,6 +20,8 @@
 /src/mentaury/composition/governed_constraints/ @velantrian
 /src/mentaury/composition/non_projection_shadow/ @velantrian
 /src/mentaury/claims/ @velantrian
+/src/mentaury/claim_belief_binding/ @velantrian
+/src/mentaury/epistemic_change/ @velantrian
 /src/mentaury/relations/ @velantrian
 /src/mentaury/discrimination/ @velantrian
 /src/mentaury/contracts/canonical_json.py @velantrian
