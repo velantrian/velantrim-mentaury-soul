@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
+import tomllib
 
 import mentaury
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_root_package_exposes_only_version_metadata_without_runtime() -> None:
@@ -10,6 +15,12 @@ def test_root_package_exposes_only_version_metadata_without_runtime() -> None:
     assert not hasattr(mentaury, "SKELETON_STATUS")
     assert not hasattr(mentaury, "IMPLEMENTATION_STATUS")
     assert set(mentaury.__all__) == {"__version__"}
+
+
+def test_package_version_matches_project_metadata() -> None:
+    with (ROOT / "pyproject.toml").open("rb") as handle:
+        project_version = tomllib.load(handle)["project"]["version"]
+    assert mentaury.__version__ == project_version
 
 
 def test_reserved_namespaces_are_importable() -> None:
