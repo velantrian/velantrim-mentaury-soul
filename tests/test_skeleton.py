@@ -6,7 +6,7 @@ import mentaury
 
 
 def test_root_package_exposes_only_version_metadata_without_runtime() -> None:
-    assert mentaury.__version__ == "0.0.0"
+    assert mentaury.__version__ == "1.0.0"
     assert not hasattr(mentaury, "SKELETON_STATUS")
     assert not hasattr(mentaury, "IMPLEMENTATION_STATUS")
     assert set(mentaury.__all__) == {"__version__"}
