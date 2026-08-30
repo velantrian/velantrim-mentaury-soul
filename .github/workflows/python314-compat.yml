@@ -1,0 +1,56 @@
+name: Mentaury Python 3.14 Compatibility
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-compatibility:
+    name: Python 3.14 source-only compatibility probe
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: src:scripts
+
+    steps:
+      - name: Check out exact requested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+
+      - name: Install locked development toolchain only
+        run: |
+          python -m pip install -r requirements-dev.lock
+          python -m pip check
+
+      - name: Confirm probe interpreter
+        run: python -c "import sys; assert sys.version_info[:2] == (3, 14), sys.version"
+
+      - name: Confirm supported-version validator fails closed on 3.14
+        run: |
+          set +e
+          output="$(python scripts/validate.py 2>&1)"
+          status=$?
+          set -e
+          printf '%s\n' "$output"
+          test "$status" -ne 0
+          printf '%s\n' "$output" | grep -F "unsupported Python: 3.14"
+
+      - name: Check derived-status documentation freshness
+        run: python scripts/check_doc_freshness.py
+
+      - name: Run complete test suite from source tree
+        run: python -m pytest
+
+      - name: Compile source, tests and scripts
+        run: python -m compileall -q src tests scripts
