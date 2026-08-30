@@ -1,9 +1,7 @@
 name: Mentaury Python 3.14 Compatibility
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,10 +15,10 @@ jobs:
       PYTHONPATH: src:scripts
 
     steps:
-      - name: Check out exact repository revision
+      - name: Check out exact requested revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
 
       - name: Set up Python 3.14
