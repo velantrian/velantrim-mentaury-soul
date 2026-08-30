@@ -21,7 +21,7 @@ env:
 jobs:
   validate:
     name: Python 3.13 · validator · pytest · compileall
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Applies after a runner is assigned. When GitHub-hosted runners are
     # unavailable (platform outage or queue saturation), jobs can sit in
     # "queued" with runner_id=0 and be cancelled before any step runs.
@@ -53,8 +53,39 @@ jobs:
       - name: Check derived-status documentation freshness
         run: python scripts/check_doc_freshness.py
 
-      - name: Run complete test suite
-        run: python -m pytest
+      - name: Run complete test suite with coverage baseline
+        run: python -m pytest --cov=mentaury --cov-report=term-missing --cov-report=xml
+
+      - name: Build wheel without dependency resolution
+        run: python -m pip wheel --no-build-isolation --no-deps . --wheel-dir dist
+
+      - name: Verify wheel release contents
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tomllib
+          from zipfile import ZipFile
+
+          project = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]
+          wheels = list(Path("dist").glob("*.whl"))
+          assert len(wheels) == 1, f"expected one wheel, found: {wheels}"
+
+          with ZipFile(wheels[0]) as archive:
+              names = archive.namelist()
+              assert "mentaury/py.typed" in names, "wheel must ship the PEP 561 marker"
+              assert any(
+                  name.endswith(".dist-info/licenses/LICENSE")
+                  or name.endswith(".dist-info/LICENSE")
+                  for name in names
+              ), "wheel must ship the proprietary license notice"
+              assert not any(name.startswith("tests/") for name in names), "tests leaked into wheel"
+              assert not any(name.startswith("docs/") for name in names), "docs leaked into wheel"
+
+              metadata_name = next(name for name in names if name.endswith(".dist-info/METADATA"))
+              metadata = archive.read(metadata_name).decode("utf-8")
+              assert f"Name: {project['name']}\n" in metadata
+              assert f"Version: {project['version']}\n" in metadata
+          PY
 
       - name: Compile source, tests and scripts
         run: python -m compileall -q src tests scripts
