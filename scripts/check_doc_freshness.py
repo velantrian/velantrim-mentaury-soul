@@ -72,6 +72,8 @@ _HUMAN_SEMANTIC_FACTS = (
 _IMPLEMENTED_MARKERS = {
     "phase_2_npg_shadow_composition": "PHASE_2_NPG_SHADOW_COMPOSITION_IMPLEMENTED_BOUNDED",
     "phase_3_provenance_claim_record": "PHASE_3_PROVENANCE_CLAIM_REPRESENTATION_IMPLEMENTED_BOUNDED",
+    "claim_to_belief_binding_cbp_v0_1": "CLAIM_TO_BELIEF_BINDING_IMPLEMENTED_BOUNDED",
+    "phase_4_epistemic_change_router_epr_v0_1": "PHASE_4_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
     "phase_5_anchored_typed_relation_atr_v0_1": "PHASE_5_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
     "phase_6_hypothesis_discrimination_hde_v0_1": "PHASE_6_IMPLEMENTATION_IMPLEMENTED_BOUNDED",
 }
@@ -79,6 +81,9 @@ _FROZEN_NOT_IMPLEMENTED_MARKERS = {
     "phase_4_epistemic_change_router_epr_v0_1": (
         "PHASE_4_CONTRACT_VERSION_EPR_V0_1",
         "PHASE_4_IMPLEMENTATION_NOT_STARTED",
+    ),
+    "terminal_reconsideration_lineage": (
+        "TERMINAL_RECONSIDERATION_LINEAGE_NOT_IMPLEMENTED",
     ),
 }
 _AUTHORITY_NOT_AUTHORIZED_MARKERS = {
@@ -88,9 +93,23 @@ _AUTHORITY_NOT_AUTHORIZED_MARKERS = {
     "identity_runtime_authorized": "IDENTITY_RUNTIME_NOT_AUTHORIZED",
     "relationship_runtime_authorized": "RELATIONSHIP_RUNTIME_NOT_AUTHORIZED",
     "runtime_deployment_authorized": "RUNTIME_DEPLOYMENT_NOT_AUTHORIZED",
+    "phase_4_runtime_authorized": "PHASE_4_RUNTIME_NOT_AUTHORIZED",
     "phase_5_runtime_authorized": "PHASE_5_RUNTIME_NOT_AUTHORIZED",
     "phase_6_runtime_authorized": "PHASE_6_RUNTIME_NOT_AUTHORIZED",
 }
+_V1_RESEARCH_CORE_EXPECTATIONS = {
+    "final_version": ("V1_RESEARCH_CORE_VERSION_1_0_0", "1.0.0"),
+    "release_status": (
+        "V1_STAGE_5_FINAL_ACCEPTANCE_COMPLETE",
+        "FINAL_ACCEPTANCE_COMPLETE",
+    ),
+    "offline_e2e_verified": ("V1_OFFLINE_EPISTEMIC_E2E_VERIFIED", True),
+    "license_distribution_posture": (
+        "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED",
+        "PROPRIETARY_ALL_RIGHTS_RESERVED",
+    ),
+}
+_V1_DISTRIBUTION_MARKER = "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED"
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -200,6 +219,12 @@ def _expect_mapping(snapshot: Mapping[str, Any], key: str) -> Mapping[str, Any] 
     return value if isinstance(value, Mapping) else None
 
 
+def _marker_or_snapshot_key_is_material(
+    snapshot: Mapping[str, Any], key: str, markers: tuple[str, ...], checkpoint: str
+) -> bool:
+    return key in snapshot or any(marker in checkpoint for marker in markers)
+
+
 def evaluate_machine_snapshot(
     current_status_text: str, machine_state_text: str
 ) -> list[str]:
@@ -243,6 +268,8 @@ def evaluate_machine_snapshot(
         problems.append("docs/state/project_state.json: implemented_bounded must be an object")
     else:
         for key, marker in _IMPLEMENTED_MARKERS.items():
+            if not _marker_or_snapshot_key_is_material(implemented, key, (marker,), checkpoint):
+                continue
             snapshot_value = implemented.get(key)
             authoritative_value = marker in checkpoint
             if not isinstance(snapshot_value, bool):
@@ -261,6 +288,8 @@ def evaluate_machine_snapshot(
         )
     else:
         for key, markers in _FROZEN_NOT_IMPLEMENTED_MARKERS.items():
+            if not _marker_or_snapshot_key_is_material(frozen, key, markers, checkpoint):
+                continue
             snapshot_value = frozen.get(key)
             authoritative_value = all(marker in checkpoint for marker in markers)
             if not isinstance(snapshot_value, bool):
@@ -272,11 +301,49 @@ def evaluate_machine_snapshot(
                     f"(all_present={authoritative_value})"
                 )
 
+    v1_markers_present = any(
+        marker in checkpoint for marker, _expected in _V1_RESEARCH_CORE_EXPECTATIONS.values()
+    ) or _V1_DISTRIBUTION_MARKER in checkpoint
+    v1 = _expect_mapping(parsed, "v1_research_core")
+    if v1_markers_present or "v1_research_core" in parsed:
+        if v1 is None:
+            problems.append("docs/state/project_state.json: v1_research_core must be an object")
+        else:
+            for key, (marker, expected_value) in _V1_RESEARCH_CORE_EXPECTATIONS.items():
+                marker_present = marker in checkpoint
+                snapshot_value = v1.get(key)
+                if marker_present and snapshot_value != expected_value:
+                    problems.append(
+                        f"v1_research_core.{key}={snapshot_value!r} disagrees with "
+                        f"CURRENT_STATUS current marker {marker!r}; expected "
+                        f"{expected_value!r}"
+                    )
+                elif not marker_present and snapshot_value == expected_value:
+                    problems.append(
+                        f"v1_research_core.{key} claims {expected_value!r} ahead of "
+                        f"CURRENT_STATUS current marker {marker!r}"
+                    )
+
+            if _V1_DISTRIBUTION_MARKER in checkpoint:
+                owner_decision_required = v1.get(
+                    "license_distribution_owner_decision_required"
+                )
+                if owner_decision_required is not False:
+                    problems.append(
+                        "v1_research_core.license_distribution_owner_decision_required="
+                        f"{owner_decision_required!r} disagrees with CURRENT_STATUS final "
+                        f"distribution marker {_V1_DISTRIBUTION_MARKER!r}; expected False"
+                    )
+
     authority = _expect_mapping(parsed, "authority")
     if authority is None:
         problems.append("docs/state/project_state.json: authority must be an object")
     else:
         for key, not_authorized_marker in _AUTHORITY_NOT_AUTHORIZED_MARKERS.items():
+            if not _marker_or_snapshot_key_is_material(
+                authority, key, (not_authorized_marker,), checkpoint
+            ):
+                continue
             snapshot_value = authority.get(key)
             authoritative_authorized = not_authorized_marker not in checkpoint
             if not isinstance(snapshot_value, bool):
