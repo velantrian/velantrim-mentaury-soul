@@ -39,8 +39,8 @@
     ],
     "research": [
       "SYSTEM_OVERVIEW.md",
+      "docs/CURRENT_STATUS.md",
       "docs/research/RESEARCH_INDEX.md",
-      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "OWNING_READINESS_OR_CONTRACT",
       "EXACT_PR_TEST_CI_EVIDENCE"
     ],
@@ -50,13 +50,11 @@
       "docs/ai/project_manifest.json",
       "docs/state/project_state.json",
       "docs/CURRENT_STATUS.md",
-      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "AFFECTED_COMPONENT_ONLY"
     ],
     "engineering": [
       "docs/CURRENT_STATUS.md",
       "docs/GOVERNANCE.md",
-      "docs/ai/AUDIT_AND_FUTURE_WORK.md",
       "OWNING_CONTRACT",
       "SOURCE",
       "TESTS",
@@ -67,6 +65,7 @@
   "agent_contract": "AGENTS.md",
   "documentation_standard": "docs/ai/DOCUMENTATION_STANDARD.md",
   "future_work_ledger": "docs/ai/AUDIT_AND_FUTURE_WORK.md",
+  "future_work_ledger_usage": "RECONCILE_BEFORE_USE",
   "current_truth": {
     "human": "docs/CURRENT_STATUS.md",
     "live_head": "RESOLVE_FROM_GITHUB"
@@ -76,9 +75,20 @@
     "conflict_rule": "LIVE_GITHUB_AND_CURRENT_STATUS_OVERRIDE_DERIVED_VIEWS"
   },
   "authority_docs": [
+    "docs/CURRENT_STATUS.md",
     "docs/GOVERNANCE.md",
-    "docs/MENTAURY_CANON_V0.1.md",
-    "docs/research/RESEARCH_INDEX.md"
+    "docs/MENTAURY_CANON_V0.1.md"
+  ],
+  "navigation_docs": [
+    "docs/research/RESEARCH_INDEX.md",
+    "docs/ai/README.md"
+  ],
+  "historical_or_reconcile_before_use": [
+    "docs/ai/AUDIT_AND_FUTURE_WORK.md",
+    "docs/research/POST_P0_ROADMAP_V0.1.md",
+    "docs/P0_010_ATOMIC_SAME_STREAM_REDACTION.md",
+    "docs/V1_RELEASE_CANDIDATE_STATUS.md",
+    "docs/ENVIRONMENT_MANIFEST.md"
   ],
   "update_classes": {
     "STRUCTURAL_CHANGE": "review_all_human_visual_roles_and_refresh_affected_only_then_agent_machine_current_truth",
@@ -99,9 +109,9 @@
     "src/mentaury/non_projection/",
     "src/mentaury/composition/non_projection_shadow/",
     "src/mentaury/claims/",
+    "src/mentaury/claim_belief_binding/",
     "src/mentaury/relations/",
     "src/mentaury/discrimination/",
-    "src/mentaury/identity/",
     "src/mentaury/epistemic_change/",
     "docs/MENTAURY_CANON_V0.1.md",
     "docs/research/",
