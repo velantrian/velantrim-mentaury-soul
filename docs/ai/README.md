@@ -10,11 +10,12 @@ If you arrived here directly, `../../AGENTS.md` is the mandatory agent contract.
 2. `../state/project_state.json` — derived machine snapshot only; not an independent current-truth owner.
 3. `../CURRENT_STATUS.md` — current engineering truth.
 4. `../GOVERNANCE.md` — authority and review rules.
-5. `AUDIT_AND_FUTURE_WORK.md` — durable future-work/audit queue, evidence anchors, revalidation triggers and safe continuation boundary. **Audit order is not implementation order.**
-6. `COMPONENT_MAP.md` — ownership, paths and tests.
-7. `KNOWN_RISKS.md` — known documentation/architecture risks.
-8. `REVIEW_GUIDE.md` — bounded review procedure.
-9. only the affected research contracts, source, tests, PRs and exact CI evidence.
+5. `COMPONENT_MAP.md` — ownership, paths and tests.
+6. `KNOWN_RISKS.md` — known documentation/architecture risks.
+7. `REVIEW_GUIDE.md` — bounded review procedure.
+8. only the affected research contracts, source, tests, PRs and exact CI evidence.
+
+`AUDIT_AND_FUTURE_WORK.md` is a historical/future-work input, not mandatory current-state reading. `project_manifest.json` marks it `RECONCILE_BEFORE_USE`: consult it only when backlog/history materially matters, and reconcile every material claim against live GitHub plus `../CURRENT_STATUS.md` before use. **Audit order is not implementation order.**
 
 Use `../../README.md` and `../../SYSTEM_OVERVIEW.md` when conceptual/human context is materially needed. They are orientation surfaces, not an additional mandatory loop in the AI route.
 
@@ -33,7 +34,8 @@ live merged GitHub code
 → accepted/frozen owning contracts
 → derived machine state snapshot
 → README / SYSTEM_OVERVIEW orientation
-→ docs/ai navigation + future-work ledger
+→ docs/ai navigation
+→ historical/future-work ledger · RECONCILE_BEFORE_USE
 → PR/issues/research proposals
 → Notion rationale/history
 ```
@@ -71,11 +73,11 @@ runtime capability != action authority
 → docs/ai/README.md
 → project manifest
 → derived snapshot + CURRENT_STATUS
-→ future-work ledger
 → affected component
 → owning contract
 → focused code/tests
 → exact PR/CI/review evidence
+→ historical/future-work ledger only if materially required · RECONCILE_BEFORE_USE
 → wider search only when evidence demands it
 ```
 
@@ -178,7 +180,7 @@ meaning changed
 
 Historical checkpoints remain history. Do not rewrite them merely to make current documentation look cleaner.
 
-The future-work ledger has its own revalidation triggers. When an owner, authorization, Issue/PR lifecycle, or referenced contract changes, reconcile the affected ledger entry rather than assuming it remains current.
+The future-work ledger has its own revalidation triggers and is explicitly `RECONCILE_BEFORE_USE`. When an owner, authorization, Issue/PR lifecycle, or referenced contract changes, reconcile the affected ledger entry against live GitHub and current state rather than assuming it remains current.
 
 ---
 

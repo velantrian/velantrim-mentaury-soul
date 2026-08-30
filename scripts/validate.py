@@ -54,6 +54,15 @@ REQUIRED_PATHS = (
     "src/mentaury/relations/representation.py",
     "src/mentaury/discrimination/contracts.py",
     "src/mentaury/discrimination/evaluator.py",
+    # V1 Research/Core epistemic flow additions.
+    "src/mentaury/claim_belief_binding/__init__.py",
+    "src/mentaury/claim_belief_binding/contracts.py",
+    "src/mentaury/claim_belief_binding/lifecycle.py",
+    "src/mentaury/claim_belief_binding/reducer.py",
+    "src/mentaury/claim_belief_binding/schemas.py",
+    "src/mentaury/epistemic_change/__init__.py",
+    "src/mentaury/epistemic_change/contracts.py",
+    "src/mentaury/epistemic_change/router.py",
     "tests/test_skeleton.py", "tests/test_envelopes.py",
     "tests/test_payload_cycle_protection.py", "tests/test_canonical_json.py",
     "tests/test_sqlite_store.py", "tests/test_schema_validation.py",
@@ -72,6 +81,10 @@ REQUIRED_PATHS = (
     "tests/test_provenance_claim_representation.py",
     "tests/test_typed_relations.py",
     "tests/test_hypothesis_discrimination_evaluator.py",
+    "tests/test_claim_belief_binding.py",
+    "tests/test_claim_belief_binding_integration.py",
+    "tests/test_epistemic_change_router.py",
+    "tests/test_v1_epistemic_e2e_acceptance.py",
     "tests/fixtures/canonical_json_v1_vectors.json",
 )
 FORBIDDEN_RUNTIME_MODULES = (
