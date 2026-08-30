@@ -55,6 +55,22 @@ def test_required_paths_cover_current_bounded_post_p0_surfaces() -> None:
     assert expected <= required
 
 
+def test_required_paths_cover_v1_epistemic_flow_surfaces() -> None:
+    required = set(REQUIRED_PATHS)
+    expected = {
+        "src/mentaury/claim_belief_binding/contracts.py",
+        "src/mentaury/claim_belief_binding/lifecycle.py",
+        "src/mentaury/claim_belief_binding/reducer.py",
+        "src/mentaury/epistemic_change/contracts.py",
+        "src/mentaury/epistemic_change/router.py",
+        "tests/test_claim_belief_binding.py",
+        "tests/test_claim_belief_binding_integration.py",
+        "tests/test_epistemic_change_router.py",
+        "tests/test_v1_epistemic_e2e_acceptance.py",
+    }
+    assert expected <= required
+
+
 def test_missing_required_paths_reports_absent_manifest_entry(
     tmp_path: Path,
 ) -> None:
