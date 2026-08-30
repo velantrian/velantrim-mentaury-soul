@@ -166,7 +166,7 @@ the stale literal appears below, are:
 | Issue #129 | open, `RESEARCH_ONLY` | `CLOSED` (`completed`, 2026-08-24) — selected EPR-v0.1 with claim→belief binding as prerequisite; both since implemented | Issue #129; PR #147, #148 |
 | V1 offline epistemic E2E | not tracked here | `VERIFIED` | PR #150 |
 | V1 Research/Core | not tracked here | `1.0.0` · `FINAL_ACCEPTANCE` | `docs/CURRENT_STATUS.md` |
-| Post-V1 next bounded work | issue #129 | (a) V1.1/V2 backlog: terminal reconsideration/successor lineage — not started, no Owner GO; (b) a separate bounded, non-canonical, docs-only cognition research track at [`clos/README.md`](clos/README.md) — research only, **not** an execution-queue item | `docs/CURRENT_STATUS.md`; `clos/README.md` |
+| Post-V1 next bounded work | issue #129 | (a) V1.1/V2 backlog: terminal reconsideration/successor lineage — not started, no Owner GO; (b) [`clos/README.md`](clos/README.md) is a **historical placement pointer** to the current primary GitHub CLOS research/documentation home, [`velantrian/Velantrim-Cognitive-Life-OS-CLOS-`](https://github.com/velantrian/Velantrim-Cognitive-Life-OS-CLOS-). The pointer is not an execution-queue item and grants no Soul/CLOS authority transfer. | `docs/CURRENT_STATUS.md`; `clos/README.md` |
 
 None of this reconciliation grants runtime, deployment, retrieval, tool,
 Action Gate, identity, relationship or M3 authority.
@@ -606,8 +606,8 @@ authority.
 | [`MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md`](MENTAURY_IDENTITY_CONTINUITY_AND_RELATIONAL_ARCHITECTURE_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md`](GENESIS_HERITAGE_INTERPRETATION_AND_HUMAN_ATLAS_NOTES.md) | research | docs-only | NOT IMPLEMENTED |
 | [`NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md`](NATIVE_KERNEL_RESEARCH_INPUT_NOTES_V0.1.md) | external input | non-canonical | NOT AUTHORIZED |
-| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md) | future profiles | not selected | NOT AUTHORIZED |
-| [`clos/README.md`](clos/README.md) | CLOS cognition-domain research (bounded home) | RESEARCH_ONLY · NON_CANONICAL · DOCS_ONLY | NONE |
+| [`STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0.1.md`](STORAGE_AND_GRAPH_PROFILE_CANDIDATES_V0_1.md) | future profiles | not selected | NOT AUTHORIZED |
+| [`clos/README.md`](clos/README.md) | historical CLOS placement pointer → dedicated repository | SUPERSEDED_PLACEMENT_POINTER · DOCS_ONLY | NONE |
 
 ---
 
@@ -639,9 +639,10 @@ M3 or deployment authority. `HDE-v0.1` is implemented bounded but grants no
 observation execution, evidence collection, Evidence Gate verdict, runtime or
 autonomy. Issue #129 was research tracking only, granted no Owner GO, and is
 now CLOSED/COMPLETED (see § 0); it does not retroactively become Owner GO for
-`R-EPR-001` or `R-HD-001`. CLOS (see the document registry above) is a
-separate bounded, non-canonical, docs-only research home and is likewise not
-part of this ranked backlog or any execution queue.
+`R-EPR-001` or `R-HD-001`. CLOS is no longer a current research home inside Soul:
+[`clos/README.md`](clos/README.md) is retained only as a historical placement pointer
+to the dedicated repository `velantrian/Velantrim-Cognitive-Life-OS-CLOS-` and is
+not part of this ranked backlog or any execution queue.
 
 ---
 
