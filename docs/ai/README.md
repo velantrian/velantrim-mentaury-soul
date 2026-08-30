@@ -117,9 +117,9 @@ Each visual representation has a distinct semantic job:
 🗺️ Mindmap    = HOW CONCEPTS RELATE
 ⚙️ ASCII      = HOW INFORMATION / AUTHORITY FLOWS
 🌳 Tree       = WHAT EXISTS
-🔄 Diagram    = HOW ARCHITECTURAL_LAYERS_CONNECT
-📊 Table      = WHAT_EXISTS_MAY_AND_MUST_NOT_DO
-💬 Commentary = WHY_THE_ARCHITECTURE_IS_DESIGNED_THIS_WAY
+🔄 Diagram    = HOW ARCHITECTURAL LAYERS CONNECT
+📊 Table      = WHAT EXISTS / MAY / MUST NOT DO
+💬 Commentary = WHY THE ARCHITECTURE IS DESIGNED THIS WAY
 ```
 
 Do not mechanically duplicate the same content into every visual. Update only the representations whose assigned meaning became stale.
