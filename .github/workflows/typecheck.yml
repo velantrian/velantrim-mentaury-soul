@@ -1,0 +1,40 @@
+name: Mentaury Type Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mentaury-typecheck-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Python 3.13 · mypy baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out exact requested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: requirements-typecheck.lock
+
+      - name: Install pinned typecheck toolchain
+        run: |
+          python -m pip install -r requirements-typecheck.lock
+          python -m pip install --no-build-isolation --no-deps -e .
+          python -m pip check
+
+      - name: Type-check package baseline
+        run: python -m mypy --python-version 3.13 --show-error-codes --pretty src/mentaury
