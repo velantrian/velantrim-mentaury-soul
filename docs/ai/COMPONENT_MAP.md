@@ -5,7 +5,8 @@ Use this map after the AI entry point. Open only the affected slice.
 | Domain | Purpose | Primary docs/code | Authority boundary |
 |---|---|---|---|
 | 🌱 Provenance / claims | represent attributed material without promotion | PCR docs + `src/mentaury/claims/**` | claim ≠ belief |
-| ⚖️ Epistemic governance | route future epistemic change without taking over belief/evidence ownership | EPR docs; source implementation absent | routing ≠ mutation authority |
+| 🧷 Claim→belief binding | preserve exact PCR identity at belief genesis without promoting truth/evidence | CBP docs + `src/mentaury/claim_belief_binding/**` | binding ≠ evidence support / truth authority |
+| ⚖️ Epistemic governance | route bounded epistemic change without taking over belief/evidence ownership | EPR docs + `src/mentaury/epistemic_change/**` | routing ≠ mutation authority |
 | 🪞 Identity continuity | preserve lineage through change/fork/restore | identity/continuity docs | continuity ≠ metaphysical proof |
 | 🔗 Relations | exact PCR-anchored typed relation representation | ATR docs + `src/mentaury/relations/**` | relation ≠ truth/confidence |
 | 🔬 Hypothesis discrimination | structural H1/H2 outcome discrimination | HDE docs + `src/mentaury/discrimination/**` | discrimination ≠ evidence verdict |
@@ -20,18 +21,21 @@ Use this map after the AI entry point. Open only the affected slice.
 
 ```text
 PCR-v0.1   IMPLEMENTED_BOUNDED
-EPR-v0.1   FROZEN_DOCS · NOT_IMPLEMENTED
+CBP-v0.1   IMPLEMENTED_BOUNDED · MERGED_BY_PR_147
+EPR-v0.1   IMPLEMENTED_BOUNDED · MERGED_BY_PR_148
 ATR-v0.1   IMPLEMENTED_BOUNDED
 HDE-v0.1   IMPLEMENTED_BOUNDED
 
-claim→belief binding                NOT_IMPLEMENTED
-terminal reconsideration lineage    NOT_IMPLEMENTED
+V1 offline epistemic E2E            VERIFIED · MERGED_BY_PR_150
+V1 Research/Core                    1.0.0 · FINAL_ACCEPTANCE
+terminal reconsideration lineage    NOT_IMPLEMENTED · V1.1/V2_BACKLOG
 runtime / retrieval / tools         NOT_AUTHORIZED
 Action Gate / deployment            NOT_AUTHORIZED
 ```
 
-Post-HDE next-step discrimination is tracked by issue `#129`. That issue is research-only
-and does not select an implementation primitive or grant Owner GO.
+Issue `#129` is a **closed/superseded historical research checkpoint**, not the current execution frontier. Its selected EPR route and claim→belief prerequisite were subsequently implemented bounded through PRs #147 and #148.
+
+Terminal reconsideration / successor lineage remains explicit V1.1/V2 backlog with no current implementation or runtime authority.
 
 ## Reading rule
 
@@ -46,4 +50,4 @@ current state
 ```
 
 Do not infer runtime composition from the existence of source files, and do not infer
-Evidence Gate authority from PCR, ATR or HDE outputs.
+Evidence Gate authority from PCR, CBP, EPR, ATR or HDE outputs.
