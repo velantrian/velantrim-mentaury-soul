@@ -41,14 +41,16 @@ _COMMAND_KEYS = frozenset(
 )
 
 
-class ClaimBoundBeliefLifecycle(BeliefLifecycle):
+class ClaimBoundBeliefLifecycle:
     """Bind exact PCR identity while delegating belief creation to P0-014.
 
-    CBP-v0.1 does not prove source authenticity, statement equivalence, evidence
-    support, truth, identity, or action authority. It produces two pending
-    domain events intended to be committed as one ordered atomic batch.
+    This is deliberately an adapter, not a BeliefLifecycle subtype: claim-bound
+    creation requires an exact PCR record and a bounded evaluation budget, so it
+    cannot satisfy the base two-argument lifecycle contract.
     """
 
+    def __init__(self, belief_lifecycle: BeliefLifecycle | None = None) -> None:
+        self._belief_lifecycle = belief_lifecycle or BeliefLifecycle()
     def decide(
         self,
         command: CommandEnvelope,
@@ -68,7 +70,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
 
         belief_id = _payload_string(command.payload, "belief_id")
         if belief_id is None:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 command.target_stream,
                 state,
@@ -76,7 +79,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 "CREATE_BELIEF_FROM_CLAIM requires belief_id",
             )
         if command.command_type != CREATE_BELIEF_FROM_CLAIM:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -84,7 +88,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 f"unsupported command_type: {command.command_type}",
             )
         if command.command_schema != CREATE_BELIEF_FROM_CLAIM_SCHEMA:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -92,7 +97,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 "CREATE_BELIEF_FROM_CLAIM command_schema must be exact",
             )
         if frozenset(command.payload) != _COMMAND_KEYS:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -108,7 +114,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
         )
         claim_type = _payload_string(command.payload, "claim_type")
         if None in (statement, claim_id, record_fingerprint, claim_type):
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -121,7 +128,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
         assert claim_type is not None
 
         if claim_id != record.claim.claim_id:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -129,7 +137,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 "claim_id does not match the exact PCR record",
             )
         if record_fingerprint != record.input_fingerprint:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -137,7 +146,8 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 "claim_record_fingerprint does not match the exact PCR record",
             )
         if claim_type != record.claim.claim_type.value:
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
@@ -185,11 +195,12 @@ class ClaimBoundBeliefLifecycle(BeliefLifecycle):
                 "claim_type": claim_type,
             },
         )
-        base_decision = super().decide(delegated, state)
+        base_decision = self._belief_lifecycle.decide(delegated, state)
         if not base_decision.accepted:
             if base_decision.rejection_code is None or base_decision.message is None:
                 raise AssertionError("P0-014 rejection must carry code and message")
-            return self._reject(
+            return self._belief_lifecycle._reject(  # noqa: SLF001
+                
                 command,
                 belief_id,
                 state,
