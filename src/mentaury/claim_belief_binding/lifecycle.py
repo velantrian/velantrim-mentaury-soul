@@ -51,6 +51,7 @@ class ClaimBoundBeliefLifecycle:
 
     def __init__(self, belief_lifecycle: BeliefLifecycle | None = None) -> None:
         self._belief_lifecycle = belief_lifecycle or BeliefLifecycle()
+
     def decide(
         self,
         command: CommandEnvelope,
@@ -71,7 +72,6 @@ class ClaimBoundBeliefLifecycle:
         belief_id = _payload_string(command.payload, "belief_id")
         if belief_id is None:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 command.target_stream,
                 state,
@@ -80,7 +80,6 @@ class ClaimBoundBeliefLifecycle:
             )
         if command.command_type != CREATE_BELIEF_FROM_CLAIM:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -89,7 +88,6 @@ class ClaimBoundBeliefLifecycle:
             )
         if command.command_schema != CREATE_BELIEF_FROM_CLAIM_SCHEMA:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -98,7 +96,6 @@ class ClaimBoundBeliefLifecycle:
             )
         if frozenset(command.payload) != _COMMAND_KEYS:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -115,7 +112,6 @@ class ClaimBoundBeliefLifecycle:
         claim_type = _payload_string(command.payload, "claim_type")
         if None in (statement, claim_id, record_fingerprint, claim_type):
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -129,7 +125,6 @@ class ClaimBoundBeliefLifecycle:
 
         if claim_id != record.claim.claim_id:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -138,7 +133,6 @@ class ClaimBoundBeliefLifecycle:
             )
         if record_fingerprint != record.input_fingerprint:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -147,7 +141,6 @@ class ClaimBoundBeliefLifecycle:
             )
         if claim_type != record.claim.claim_type.value:
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
@@ -200,7 +193,6 @@ class ClaimBoundBeliefLifecycle:
             if base_decision.rejection_code is None or base_decision.message is None:
                 raise AssertionError("P0-014 rejection must carry code and message")
             return self._belief_lifecycle._reject(  # noqa: SLF001
-                
                 command,
                 belief_id,
                 state,
