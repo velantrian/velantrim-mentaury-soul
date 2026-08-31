@@ -37,7 +37,7 @@ jobs:
           python -m pip check
 
       - name: Verify ClaimBound lifecycle adapter boundary
-        run: python -m mypy --python-version 3.13 --show-error-codes --pretty tests/typecheck/claim_bound_lifecycle_boundary.py
+        run: python -m mypy --python-version 3.13 --warn-unused-ignores --show-error-codes --pretty tests/typecheck/claim_bound_lifecycle_boundary.py
 
       - name: Type-check package baseline
         run: python -m mypy --python-version 3.13 --show-error-codes --pretty src/mentaury
