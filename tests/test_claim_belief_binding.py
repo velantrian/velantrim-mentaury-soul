@@ -460,3 +460,28 @@ def test_cbp_t14_wrong_command_schema_fails_closed() -> None:
     )
     assert not decision.accepted
     assert decision.rejection_code is BeliefRejectionCode.INVALID_COMMAND
+
+
+def test_cbp_adapter_is_not_a_belief_lifecycle_subtype() -> None:
+    adapter = ClaimBoundBeliefLifecycle()
+    assert not isinstance(adapter, BeliefLifecycle)
+
+
+def test_cbp_adapter_uses_explicit_composed_belief_lifecycle() -> None:
+    class RecordingBeliefLifecycle(BeliefLifecycle):
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def decide(self, command, state):
+            self.calls += 1
+            return super().decide(command, state)
+
+    record = _record()
+    delegate = RecordingBeliefLifecycle()
+    state = freeze_payload(ClaimBoundBeliefReducer().initial_state())
+    decision = ClaimBoundBeliefLifecycle(delegate).decide(
+        _command(record), state, record=record, budget=_budget()
+    )
+
+    assert decision.accepted
+    assert delegate.calls == 1
