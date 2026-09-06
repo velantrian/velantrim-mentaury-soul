@@ -237,9 +237,23 @@ meaning changed
 
 A change is incomplete if it makes a maintained Summary, Tree, Mindmap, ASCII flow, architecture diagram, boundary table, commentary, non-goal or reading route materially false.
 
-The current documentation impact guard is **contract-level**, not executable CI. Structural path hints must therefore be treated conservatively as `REVIEW_REQUIRED` until the human landing layer has been checked.
+Current documentation freshness protection is **hybrid**:
 
-An executable CI impact guard may be added later as a separate technical milestone.
+- bounded executable CI (`scripts/check_doc_freshness.py`) checks selected derived/currentness markers and a bounded set of human semantic invariants;
+- broader structural and visual impact review remains **contract-level** and must be treated as human `REVIEW_REQUIRED` until the maintained landing layer has been checked.
+
+The executable freshness CI is a bounded guard. It is not proof of complete semantic freshness, architectural correctness, runtime authorization, or merge authority.
+
+```text
+CI guard != complete semantic proof
+automated freshness check != human structural / visual review
+currentness check != architecture authority
+CI green != runtime / deployment / action authority
+```
+
+Structural path hints must therefore still be treated conservatively as `REVIEW_REQUIRED` until the human landing layer has been checked.
+
+Further role-aware or semantic freshness expansion remains a separate bounded milestone. It is not implied by the existing freshness CI.
 
 ---
 
