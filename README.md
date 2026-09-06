@@ -289,7 +289,7 @@ This is a **conceptual positioning matrix**, not a benchmark or product ranking.
 | Identity continuity | ✅ architectural domain | narrative continuity | memory continuity | entity identity | session/agent identity varies |
 | Belief revision ownership | ✅ explicitly separated | usually implicit | application-specific | application-specific | application-specific |
 | Action authority separate from cognition | ✅ mandatory | n/a | n/a | n/a | often integrated with execution |
-| Current project state | V1 Research/Core release candidate | pattern | component pattern | data model pattern | execution framework pattern |
+| Current project state | V1 Research/Core 1.0.0 · final acceptance | pattern | component pattern | data model pattern | execution framework pattern |
 
 Mentaury is not trying to replace every memory store, graph, model or agent framework. Its role is to define **what must remain distinct and governed when those substrates are composed into a persistent cognitive identity**.
 
@@ -560,13 +560,19 @@ Final main CI          31439211018 · success · 768 passed
 - 👤 [System Overview](SYSTEM_OVERVIEW.md)
 - 🤖 [AI entry point](docs/ai/README.md)
 - ⚙️ [Machine-readable documentation map](docs/ai/project_manifest.json)
-- ⚙️ [Machine project-state snapshot](docs/state/project_state.json)
+- ⚙️ [Machine project-state snapshot](docs/state/project_state.json) — derived view only
 - 🚦 [Current status](docs/CURRENT_STATUS.md)
-- 🏁 [V1 release-candidate status](docs/V1_RELEASE_CANDIDATE_STATUS.md)
+- 🏁 [V1 final acceptance](docs/V1_FINAL_STATUS.md)
 - 🛡 [Governance](docs/GOVERNANCE.md)
 - 📜 [Mentaury Canon v0.1](docs/MENTAURY_CANON_V0.1.md)
-- 🔬 [Research Index](docs/research/RESEARCH_INDEX.md)
+- 🔬 [Research Index](docs/research/RESEARCH_INDEX.md) — research navigation, not Canon
+
+### Historical / reconcile-before-use
+
+These files are preserved checkpoints. They are not current-state owners. Reconcile them against `docs/CURRENT_STATUS.md` and live GitHub before use.
+
+- 📎 [V1 release-candidate history](docs/V1_RELEASE_CANDIDATE_STATUS.md)
 - 🗺 [Post-P0 roadmap](docs/research/POST_P0_ROADMAP_V0.1.md)
-- 📎 [Environment manifest](docs/ENVIRONMENT_MANIFEST.md)
+- ⚙️ [Environment manifest](docs/ENVIRONMENT_MANIFEST.md)
 
 > **Short rule:** understand the system here, verify the system in the authoritative technical surfaces, and never infer authority from presentation.

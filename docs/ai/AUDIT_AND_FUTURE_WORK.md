@@ -1,5 +1,21 @@
 # 🌀 Mentaury Soul — Audit & Future Work Ledger
 
+> **Currentness:** historical / `RECONCILE_BEFORE_USE`.
+> The body below is a 2026-08-17 checkpoint (`main@11ca20974fc99e21666361a31cfe55614c002891`) and is **not** current engineering truth.
+> Reconcile every material claim against [`docs/CURRENT_STATUS.md`](../CURRENT_STATUS.md) and live GitHub before use.
+>
+> Minimum superseding facts since this checkpoint:
+> - CBP-v0.1 implemented bounded (PR #147);
+> - EPR-v0.1 implemented bounded (PR #148); Owner GO consumed;
+> - V1 offline epistemic E2E verified (PR #150);
+> - V1 Research/Core 1.0.0 final acceptance complete;
+> - Issue #129 closed/superseded; Issue #133 closed `not_planned` for V1;
+> - terminal reconsideration / successor lineage remains V1.1/V2 backlog;
+> - runtime / retrieval / tools / Action Gate / deployment remain not authorized.
+>
+> The preserved body is provenance and is not rewritten here.
+> This marker grants no runtime, deployment, action, truth, identity or Canon authority.
+
 **Repository:** `velantrian/velantrim-mentaury-soul`  
 **Default branch:** `main`  
 **Role:** documentation / audit / governance only  

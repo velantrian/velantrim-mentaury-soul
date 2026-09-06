@@ -1,5 +1,11 @@
 # 🚦 Mentaury Soul — Current Status
 
+> **Currentness:** historical snapshot only.
+> This file is a preserved pre-HDE-readiness checkpoint, not current engineering truth.
+> Use [`docs/CURRENT_STATUS.md`](../CURRENT_STATUS.md) plus live GitHub.
+> The body below still contains the original checkpoint authority wording; that wording is provenance and is not rewritten here.
+> This marker grants no runtime, deployment, action, truth, identity or Canon authority.
+
 ```text
 Status date:                       2026-08-15
 Repository:                        velantrian/velantrim-mentaury-soul
