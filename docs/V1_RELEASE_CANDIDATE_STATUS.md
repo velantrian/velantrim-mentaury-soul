@@ -1,5 +1,19 @@
 # 🏁 Mentaury Soul V1 Research/Core — Release Candidate Status
 
+> **Currentness:** historical / `RECONCILE_BEFORE_USE`.
+> The body below is the Stage 4 / `1.0.0rc1` release-candidate checkpoint and is **not** current engineering truth.
+> Reconcile against [`docs/CURRENT_STATUS.md`](CURRENT_STATUS.md), [`docs/V1_FINAL_STATUS.md`](V1_FINAL_STATUS.md) and live GitHub.
+>
+> Minimum superseding facts since this checkpoint:
+> - V1 completion route reached Stage 5 / 5;
+> - V1 Research/Core 1.0.0 final acceptance is complete;
+> - CBP-v0.1, EPR-v0.1 and the offline epistemic E2E remain implemented/verified as already recorded here;
+> - terminal reconsideration / successor lineage remains V1.1/V2 backlog;
+> - runtime / retrieval / tools / Action Gate / deployment remain not authorized.
+>
+> The preserved body is provenance and is not rewritten here.
+> This marker grants no runtime, deployment, action, truth, identity or Canon authority.
+
 ```text
 Status date:                  2026-08-22
 V1 completion route:         STAGE 4 / 5

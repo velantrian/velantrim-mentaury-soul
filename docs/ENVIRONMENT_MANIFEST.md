@@ -1,5 +1,19 @@
 # ⚙️ Mentaury Environment Manifest
 
+> **Currentness:** historical / `RECONCILE_BEFORE_USE`.
+> This file is a bounded environment / P-stage inventory checkpoint, not a complete current implementation ledger.
+> Reconcile against [`docs/CURRENT_STATUS.md`](CURRENT_STATUS.md) and live GitHub before treating the source list below as exhaustive.
+>
+> Minimum superseding facts since this inventory:
+> - CBP-v0.1, EPR-v0.1, ATR-v0.1 and HDE-v0.1 are implemented bounded;
+> - V1 offline epistemic E2E is verified (PR #150);
+> - V1 Research/Core 1.0.0 final acceptance is complete;
+> - terminal reconsideration / successor lineage remains V1.1/V2 backlog;
+> - runtime / retrieval / tools / Action Gate / deployment remain not authorized.
+>
+> The preserved body is provenance and is not rewritten here.
+> This marker grants no runtime, deployment, action, truth, identity or Canon authority.
+
 ```text
 P0-001…P0-015_IMPLEMENTED_IN_MAIN
 P1-001…P1-001_IMPLEMENTED_IN_MAIN

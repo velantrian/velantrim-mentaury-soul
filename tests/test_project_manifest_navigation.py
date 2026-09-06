@@ -110,6 +110,30 @@ def test_active_reading_route_paths_exist() -> None:
     assert missing == []
 
 
+def test_historical_reconcile_before_use_files_carry_direct_currentness_markers() -> None:
+    manifest = _manifest()
+    for path in manifest["historical_or_reconcile_before_use"]:
+        text = (ROOT / path).read_text(encoding="utf-8")
+        head = text[:2500]
+        assert "Currentness:" in head, path
+        assert "CURRENT_STATUS.md" in head, path
+        assert "live GitHub" in head, path
+        assert "not rewritten" in head, path
+
+
+def test_human_landing_does_not_present_v1_release_candidate_as_current() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    overview = (ROOT / "SYSTEM_OVERVIEW.md").read_text(encoding="utf-8")
+    status = (ROOT / "docs" / "CURRENT_STATUS.md").read_text(encoding="utf-8")
+    checkpoint = status.split("## 1. 🧭 Current checkpoint", 1)[1].split("---", 1)[0]
+    if "V1_STAGE_5_FINAL_ACCEPTANCE_COMPLETE" not in checkpoint:
+        return
+    assert "V1 Research/Core release candidate" not in readme
+    assert "docs/V1_FINAL_STATUS.md" in readme
+    assert "docs/V1_FINAL_STATUS.md" in overview
+    assert "V1 release-closure state" not in overview
+
+
 def test_structural_path_hints_are_real_repository_paths() -> None:
     manifest = _manifest()
     hints = manifest["structural_path_hints"]

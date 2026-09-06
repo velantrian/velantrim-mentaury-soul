@@ -567,7 +567,8 @@ The point is not merely to produce a more convincing persona. The point is to ma
 
 - [`README.md`](README.md) — fast human landing
 - [`docs/CURRENT_STATUS.md`](docs/CURRENT_STATUS.md) — current engineering truth
-- [`docs/V1_RELEASE_CANDIDATE_STATUS.md`](docs/V1_RELEASE_CANDIDATE_STATUS.md) — V1 release-closure state
+- [`docs/V1_FINAL_STATUS.md`](docs/V1_FINAL_STATUS.md) — V1 Research/Core 1.0.0 final acceptance
+- [`docs/V1_RELEASE_CANDIDATE_STATUS.md`](docs/V1_RELEASE_CANDIDATE_STATUS.md) — historical Stage 4 / `1.0.0rc1` checkpoint
 - [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md) — authority and review
 - [`docs/MENTAURY_CANON_V0.1.md`](docs/MENTAURY_CANON_V0.1.md) — frozen Canon
 - [`docs/research/RESEARCH_INDEX.md`](docs/research/RESEARCH_INDEX.md) — research map

@@ -1,5 +1,13 @@
 # 🗑️ P0-010 — Atomic Same-Stream Redaction
 
+> **Currentness:** historical / `RECONCILE_BEFORE_USE`.
+> The header below is a pre-merge checkpoint (`CODE + TESTS ON BRANCH · NOT YET MERGED`) and is **not** current engineering truth.
+> Reconcile against [`docs/CURRENT_STATUS.md`](CURRENT_STATUS.md) and live GitHub: P0-010 is part of `P0-001…P0-015_IMPLEMENTED_IN_MAIN`.
+> Later P0 documents completed the permanent CI and R1 replay work named in this header; those later completions are not rewritten into this file.
+>
+> The preserved body is provenance and is not rewritten here.
+> This marker grants no runtime, deployment, action, truth, identity or Canon authority.
+
 ```text
 Status:             CODE + TESTS ON BRANCH · NOT YET MERGED
 Storage schema:      v4
