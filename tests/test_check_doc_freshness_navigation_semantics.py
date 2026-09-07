@@ -402,3 +402,98 @@ def test_malformed_manifest_role_list_does_not_skip_track_c() -> None:
     )
     assert any("must be a list" in problem for problem in problems)
     assert any("cannot skip" in problem for problem in problems)
+
+
+def test_h1_action_gate_both_states_fails() -> None:
+    """H1: Action Gate = AUTHORIZED must fail even when NOT_AUTHORIZED remains."""
+
+    navigation = _real_navigation()
+    navigation[_QR] = "Action Gate = AUTHORIZED\n" + navigation[_QR]
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C5 action/execution contradictory" in problem and _QR in problem
+        for problem in problems
+    )
+
+
+def test_h2_retrieval_both_states_fails() -> None:
+    """H2: retrieval AUTHORIZED must fail even when NOT_AUTHORIZED remains."""
+
+    navigation = _real_navigation()
+    navigation[_QR] = "retrieval = AUTHORIZED\n" + navigation[_QR]
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C5 action/execution contradictory" in problem and _QR in problem
+        for problem in problems
+    )
+
+
+def test_h3_tools_both_states_fails() -> None:
+    """H3: tools / TOOL_EXECUTION AUTHORIZED must fail beside NOT_AUTHORIZED."""
+
+    navigation = _real_navigation()
+    navigation["README.md"] = "TOOL_EXECUTION = AUTHORIZED\n" + navigation["README.md"]
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C5 action/execution contradictory" in problem and "README.md" in problem
+        for problem in problems
+    )
+
+
+def test_h4_deployment_both_states_fails() -> None:
+    """H4: Deployment = AUTHORIZED must fail even when NOT_AUTHORIZED remains."""
+
+    navigation = _real_navigation()
+    navigation[_COMPONENT_MAP] = "Deployment = AUTHORIZED\n" + navigation[_COMPONENT_MAP]
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C6 deployment contradictory" in problem and _COMPONENT_MAP in problem
+        for problem in problems
+    )
+
+
+def test_h5_terminal_not_implemented_plus_implemented_fails() -> None:
+    """H5: terminal NOT_IMPLEMENTED + IMPLEMENTED is a contradiction, not PASS."""
+
+    navigation = _real_navigation()
+    navigation["README.md"] = (
+        "terminal reconsideration = IMPLEMENTED\n" + navigation["README.md"]
+    )
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C4 terminal backlog contradictory" in problem and "README.md" in problem
+        for problem in problems
+    )
+
+
+def test_h6_current_rc_claim_with_current_status_link_fails() -> None:
+    """H6: a current RC claim is not exempted by docs/CURRENT_STATUS.md."""
+
+    navigation = _real_navigation()
+    navigation[_QR] = (
+        "Current project state | V1 Research/Core release candidate | "
+        "see docs/CURRENT_STATUS.md\n"
+        + navigation[_QR]
+    )
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C3 V1 contradictory" in problem and _QR in problem for problem in problems
+    )
+
+
+def test_h7_historical_rc_filename_only_does_not_false_positive() -> None:
+    """H7: dedicated RC-history filename/label must not fail current V1."""
+
+    navigation = _real_navigation()
+    navigation[_QR] = (
+        navigation[_QR]
+        + "\nV1 release-candidate history: docs/V1_RELEASE_CANDIDATE_STATUS.md\n"
+    )
+    assert _evaluate_nav(navigation=navigation) == []
+
+
+def test_h8_real_repository_current_docs_pass() -> None:
+    """H8: current correct repository navigation surfaces still pass."""
+
+    assert _evaluate_nav() == []
+    assert check_doc_freshness.main() == 0

@@ -172,10 +172,12 @@ _EPR_ROUTING_PHRASES = (
     "no mutation/execution",
     "routing ≠ mutation",
 )
-_V1_HISTORICAL_LINE_MARKERS = (
-    "history",
-    ".md",
-    "docs/",
+# Narrow historical-RC exemption: only the dedicated RC-history filename
+# and an explicit "release-candidate history" label. Broad ".md" / "docs/"
+# / "history" substrings must not hide a current-state RC claim.
+_V1_HISTORICAL_RC_PHRASES = (
+    "v1 release candidate status",
+    "release candidate history",
 )
 
 
@@ -382,6 +384,41 @@ def _any_line_has_tokens(text: str, tokens: tuple[str, ...]) -> bool:
     return any(_line_has_tokens(line, tokens) for line in _normalized_lines(text))
 
 
+def _has_bare_word(line: str, word: str) -> bool:
+    """Match ``word`` as its own token, not inside ``not word`` or a larger word.
+
+    ``AUTHORIZED`` must not match inside ``NOT_AUTHORIZED``;
+    ``IMPLEMENTED`` must not match inside ``NOT_IMPLEMENTED``.
+    The line is already whitespace-normalized and casefolded.
+    """
+
+    needle = _normalize_token(word)
+    return (
+        re.search(rf"(?<![a-z])(?<!not ){re.escape(needle)}(?![a-z])", line) is not None
+    )
+
+
+def _any_line_has_bare_claim(text: str, subject: str, word: str) -> bool:
+    """True if a line names ``subject`` and then a bare positive ``word``.
+
+    Order matters: a wrapped prose line that ends one claim with
+    ``implemented bounded`` and starts the next with ``terminal
+    reconsideration`` is not a positive terminal-implementation claim.
+    ``AUTHORIZED`` / ``IMPLEMENTED`` still must not match inside
+    ``NOT_AUTHORIZED`` / ``NOT_IMPLEMENTED``.
+    """
+
+    subject_n = _normalize_token(subject)
+    for line in _normalized_lines(text):
+        idx = line.find(subject_n)
+        if idx < 0:
+            continue
+        after = line[idx + len(subject_n) :]
+        if _has_bare_word(after, word):
+            return True
+    return False
+
+
 def _normalized_document(text: str) -> str:
     return _normalize_semantic_text(text).casefold()
 
@@ -397,15 +434,19 @@ def _document_has_any_phrase(text: str, phrases: Iterable[str]) -> bool:
 
 
 def _has_current_v1_release_candidate_regression(text: str) -> bool:
-    """Detect a current-state RC claim, not a historical filename/link."""
+    """Detect a current-state RC claim; do not skip merely for docs/ or .md."""
 
-    skip = tuple(_normalize_token(marker) for marker in _V1_HISTORICAL_LINE_MARKERS)
-    for line in _normalized_lines(text):
+    for raw_line in _normalized_lines(text):
+        line = raw_line.replace("release-candidate", "release candidate")
         if "release candidate" not in line:
             continue
-        if any(marker in line for marker in skip):
+        remainder = line
+        for phrase in _V1_HISTORICAL_RC_PHRASES:
+            remainder = remainder.replace(phrase, " ")
+        remainder = _normalize_semantic_text(remainder)
+        if "release candidate" not in remainder:
             continue
-        if "v1" in line or "current project state" in line:
+        if "v1 research/core" in line or "current project state" in line:
             return True
     return False
 
@@ -618,10 +659,8 @@ def evaluate_active_navigation_semantics(
             _any_line_has_tokens(text, ("V1.1/V2", "BACKLOG"))
             or _document_has_tokens(text, ("V1.1/V2 BACKLOG",))
         )
-        terminal_stale = _any_line_has_tokens(
-            text, ("terminal reconsideration", "IMPLEMENTED")
-        ) and not _any_line_has_tokens(
-            text, ("terminal reconsideration", "NOT_IMPLEMENTED")
+        terminal_stale = _any_line_has_bare_claim(
+            text, "terminal reconsideration", "IMPLEMENTED"
         )
         problem = _report_navigation_binding(
             name,
@@ -652,18 +691,10 @@ def evaluate_active_navigation_semantics(
             )
         )
         action_stale = (
-            (
-                _any_line_has_tokens(text, ("Action Gate", "AUTHORIZED"))
-                and not _any_line_has_tokens(text, ("Action Gate", "NOT_AUTHORIZED"))
-            )
-            or (
-                _any_line_has_tokens(text, ("retrieval", "AUTHORIZED"))
-                and not _any_line_has_tokens(text, ("retrieval", "NOT_AUTHORIZED"))
-            )
-            or (
-                _any_line_has_tokens(text, ("tools", "AUTHORIZED"))
-                and not _any_line_has_tokens(text, ("tools", "NOT_AUTHORIZED"))
-            )
+            _any_line_has_bare_claim(text, "Action Gate", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "retrieval", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "tools", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "TOOL_EXECUTION", "AUTHORIZED")
         )
         problem = _report_navigation_binding(
             name,
@@ -689,9 +720,7 @@ def evaluate_active_navigation_semantics(
         deploy_derived = _any_line_has_tokens(
             text, ("deployment", "NOT_AUTHORIZED")
         ) or _any_line_has_tokens(text, ("RUNTIME_DEPLOYMENT", "NOT_AUTHORIZED"))
-        deploy_stale = _any_line_has_tokens(
-            text, ("deployment", "AUTHORIZED")
-        ) and not _any_line_has_tokens(text, ("deployment", "NOT_AUTHORIZED"))
+        deploy_stale = _any_line_has_bare_claim(text, "deployment", "AUTHORIZED")
         problem = _report_navigation_binding(
             name,
             "C6",
