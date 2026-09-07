@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import check_doc_freshness
 from check_doc_freshness import (
     ACTIVE_DERIVED_DOC_PATHS,
     ENVIRONMENT_MANIFEST_PATH,
@@ -67,6 +68,23 @@ def test_historical_incomplete_p_stage_inventory_does_not_fail() -> None:
     assert problems == []
 
 
+def test_historical_ledger_without_p_stage_marker_does_not_fail() -> None:
+    """Track B must not require a historical P-stage ledger at all."""
+
+    marked_without_p_stage = """# ⚙️ Mentaury Environment Manifest
+
+> **Currentness:** historical / `RECONCILE_BEFORE_USE`.
+> This file is a bounded environment checkpoint, not a complete current implementation ledger.
+> Reconcile against docs/CURRENT_STATUS.md and live GitHub before use.
+"""
+    problems = evaluate_environment_manifest_role(
+        _manifest(reconcile_paths=[ENVIRONMENT_MANIFEST_RELATIVE_PATH]),
+        marked_without_p_stage,
+        active_derived_relative_paths=_ACTIVE_PATHS,
+    )
+    assert problems == []
+
+
 def test_missing_currentness_marker_fails_closed() -> None:
     """Test C: RECONCILE_BEFORE_USE role without its marker fails closed."""
 
@@ -80,6 +98,21 @@ def test_missing_currentness_marker_fails_closed() -> None:
     assert len(problems) == 1
     assert "missing required" in problems[0]
     assert "Currentness:" in problems[0]
+
+
+def test_partial_currentness_marker_loss_fails_closed() -> None:
+    """A plausible-looking but incomplete reconciliation marker must fail."""
+
+    degraded_text = _MARKED_RECONCILE_TEXT.replace(
+        "docs/CURRENT_STATUS.md", "docs/STALE_STATUS.md"
+    )
+    problems = evaluate_environment_manifest_role(
+        _manifest(reconcile_paths=[ENVIRONMENT_MANIFEST_RELATIVE_PATH]),
+        degraded_text,
+        active_derived_relative_paths=_ACTIVE_PATHS,
+    )
+    assert len(problems) == 1
+    assert "CURRENT_STATUS.md" in problems[0]
 
 
 def test_dual_role_contradiction_fails() -> None:
@@ -114,6 +147,22 @@ def test_malformed_manifest_role_list_fails_closed() -> None:
     assert "must be a list" in problems[0]
 
 
+def test_manifest_role_object_instead_of_list_fails_closed() -> None:
+    """JSON object keys must not accidentally act like a valid role list."""
+
+    problems = evaluate_environment_manifest_role(
+        {
+            "historical_or_reconcile_before_use": {
+                ENVIRONMENT_MANIFEST_RELATIVE_PATH: {"role": "RECONCILE_BEFORE_USE"}
+            }
+        },
+        _MARKED_RECONCILE_TEXT,
+        active_derived_relative_paths=_ACTIVE_PATHS,
+    )
+    assert len(problems) == 1
+    assert "must be a list" in problems[0]
+
+
 def test_active_surfaces_retain_legacy_p_stage_protection() -> None:
     """Test E: README/Quick Reference still fail on a stale P-stage marker."""
 
@@ -134,3 +183,45 @@ def test_active_surfaces_retain_legacy_p_stage_protection() -> None:
 
 def test_active_derived_doc_paths_excludes_environment_manifest() -> None:
     assert ENVIRONMENT_MANIFEST_PATH not in ACTIVE_DERIVED_DOC_PATHS
+
+
+def test_main_fails_closed_when_environment_manifest_marker_is_missing(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """End-to-end wiring: main() must actually execute the new Track B guard."""
+
+    unmarked_path = tmp_path / "ENVIRONMENT_MANIFEST.md"
+    unmarked_path.write_text(
+        "# ⚙️ Mentaury Environment Manifest\n\nP0-001…P0-015_IMPLEMENTED_IN_MAIN\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        check_doc_freshness, "ENVIRONMENT_MANIFEST_PATH", unmarked_path
+    )
+
+    assert check_doc_freshness.main() == 1
+
+
+def test_main_fails_closed_on_malformed_manifest_role_shape(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """End-to-end wiring: malformed routing metadata must not pass via iteration."""
+
+    malformed_manifest_path = tmp_path / "project_manifest.json"
+    malformed_manifest_path.write_text(
+        json.dumps(
+            {
+                "historical_or_reconcile_before_use": {
+                    ENVIRONMENT_MANIFEST_RELATIVE_PATH: {
+                        "role": "RECONCILE_BEFORE_USE"
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        check_doc_freshness, "PROJECT_MANIFEST_PATH", malformed_manifest_path
+    )
+
+    assert check_doc_freshness.main() == 1
