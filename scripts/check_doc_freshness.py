@@ -1,12 +1,17 @@
 """Doc-freshness gates for derived Mentaury status surfaces.
 
-Human-readable derived documents are checked in two deliberately small ways:
-compact milestone markers preserve the historical P-stage compatibility guard,
-while the root human landing pages must also mirror a bounded set of explicit
-current semantic facts from ``docs/CURRENT_STATUS.md``. The machine snapshot is
-checked separately because it is structured data: it must declare itself derived
-and must agree with the authoritative current-checkpoint markers for the bounded
-implementation and authority fields it mirrors.
+Human-readable derived documents are checked in role-aware ways: active
+current surfaces (README, Quick Reference) preserve the historical P-stage
+compatibility guard via compact milestone markers, and the root human landing
+pages must also mirror a bounded set of explicit current semantic facts from
+``docs/CURRENT_STATUS.md``. ``docs/ENVIRONMENT_MANIFEST.md`` is a
+``historical_or_reconcile_before_use`` surface (per
+``docs/ai/project_manifest.json``), not an active current implementation
+inventory, so it is checked only for its declared role and direct-file
+currentness marker, never for full P-stage/semantic currency. The machine
+snapshot is checked separately because it is structured data: it must declare
+itself derived and must agree with the authoritative current-checkpoint
+markers for the bounded implementation and authority fields it mirrors.
 
 None of these checks makes a derived surface authoritative. Live merged GitHub
 state plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
@@ -17,21 +22,35 @@ from __future__ import annotations
 import json
 import pathlib
 import re
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CURRENT_STATUS_PATH = ROOT / "docs" / "CURRENT_STATUS.md"
 MACHINE_STATE_PATH = ROOT / "docs" / "state" / "project_state.json"
-DERIVED_DOC_PATHS = (
+PROJECT_MANIFEST_PATH = ROOT / "docs" / "ai" / "project_manifest.json"
+
+# Active derived surfaces: expected to keep mirroring the highest implemented
+# P-stage milestone. Environment Manifest is intentionally NOT here — see
+# ENVIRONMENT_MANIFEST_RELATIVE_PATH below.
+ACTIVE_DERIVED_DOC_PATHS = (
     ROOT / "README.md",
     ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
-    ROOT / "docs" / "ENVIRONMENT_MANIFEST.md",
 )
 HUMAN_SEMANTIC_DOC_PATHS = (
     ROOT / "README.md",
     ROOT / "SYSTEM_OVERVIEW.md",
 )
+
+# docs/ai/project_manifest.json (#160) already classifies this file as
+# historical_or_reconcile_before_use, and the file itself already carries a
+# direct-file currentness marker (#176). Treating it through the same
+# P-stage-range guard as an active surface would silently require it to
+# mirror every later semantic/versioned V1 surface (CBP/EPR/ATR/HDE/E2E),
+# which is exactly the #173 Track B blind spot. It is checked separately by
+# evaluate_environment_manifest_role() below instead.
+ENVIRONMENT_MANIFEST_PATH = ROOT / "docs" / "ENVIRONMENT_MANIFEST.md"
+ENVIRONMENT_MANIFEST_RELATIVE_PATH = "docs/ENVIRONMENT_MANIFEST.md"
 
 Milestone = tuple[int, int]
 
@@ -110,6 +129,21 @@ _V1_RESEARCH_CORE_EXPECTATIONS = {
     ),
 }
 _V1_DISTRIBUTION_MARKER = "V1_DISTRIBUTION_PROPRIETARY_ALL_RIGHTS_RESERVED"
+
+_RECONCILE_BEFORE_USE_MANIFEST_KEY = "historical_or_reconcile_before_use"
+
+# Bounded direct-file evidence that Environment Manifest still declares its
+# RECONCILE_BEFORE_USE role (added in #176). Intentionally a short substring
+# check near the top of the file, not a regex over the preserved historical
+# body.
+_ENVIRONMENT_MANIFEST_CURRENTNESS_MARKERS = (
+    "Currentness:",
+    "RECONCILE_BEFORE_USE",
+    "CURRENT_STATUS.md",
+    "live GitHub",
+    "not a complete current implementation ledger",
+)
+_ENVIRONMENT_MANIFEST_MARKER_WINDOW_CHARS = 2500
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -211,6 +245,78 @@ def evaluate_human_semantic_status(
                     f"disagrees with CURRENT_STATUS current-checkpoint marker "
                     f"{status_marker!r} (present={authoritative_present})"
                 )
+    return problems
+
+
+def evaluate_environment_manifest_role(
+    project_manifest: Mapping[str, Any],
+    environment_manifest_text: str,
+    *,
+    active_derived_relative_paths: Iterable[str],
+) -> list[str]:
+    """Fail closed on Environment Manifest role drift or a missing marker.
+
+    Environment Manifest is deliberately excluded from ``evaluate()``'s active
+    P-stage range check (see ``ACTIVE_DERIVED_DOC_PATHS``): its preserved
+    historical P-stage/source inventory is not required to mirror later
+    semantic/versioned V1 surfaces (CBP/EPR/ATR/HDE/E2E) that are not
+    expressible as a newer P-number. That exclusion is only safe as long as
+    ``docs/ai/project_manifest.json`` (the routing/role contract, not an
+    engineering-truth authority) still classifies it
+    ``historical_or_reconcile_before_use`` and the file itself still carries
+    its direct-file currentness marker. Losing either silently would let it
+    drift back into being treated as a complete active current implementation
+    ledger without this gate noticing.
+    """
+
+    problems: list[str] = []
+
+    reconcile_list = project_manifest.get(_RECONCILE_BEFORE_USE_MANIFEST_KEY)
+    if not isinstance(reconcile_list, list):
+        return [
+            "docs/ai/project_manifest.json: "
+            f"{_RECONCILE_BEFORE_USE_MANIFEST_KEY!r} must be a list"
+        ]
+
+    is_classified_reconcile = ENVIRONMENT_MANIFEST_RELATIVE_PATH in reconcile_list
+    is_active_surface = ENVIRONMENT_MANIFEST_RELATIVE_PATH in set(
+        active_derived_relative_paths
+    )
+
+    if is_active_surface and is_classified_reconcile:
+        problems.append(
+            f"{ENVIRONMENT_MANIFEST_RELATIVE_PATH}: classified both as an "
+            "active P-stage freshness surface and as "
+            f"{_RECONCILE_BEFORE_USE_MANIFEST_KEY!r} in "
+            "docs/ai/project_manifest.json; these roles are mutually "
+            "exclusive without an explicit dual-role rule"
+        )
+
+    if not is_classified_reconcile:
+        problems.append(
+            "docs/ai/project_manifest.json: "
+            f"{ENVIRONMENT_MANIFEST_RELATIVE_PATH!r} is no longer listed "
+            f"under {_RECONCILE_BEFORE_USE_MANIFEST_KEY!r}; if it was "
+            "promoted back to an active current surface, add it to the "
+            "active P-stage freshness set explicitly instead of leaving "
+            "this reconcile-before-use guard silently unchecked"
+        )
+
+    marker_window = environment_manifest_text[
+        :_ENVIRONMENT_MANIFEST_MARKER_WINDOW_CHARS
+    ]
+    missing_markers = [
+        marker
+        for marker in _ENVIRONMENT_MANIFEST_CURRENTNESS_MARKERS
+        if marker not in marker_window
+    ]
+    if missing_markers:
+        problems.append(
+            f"{ENVIRONMENT_MANIFEST_RELATIVE_PATH}: missing required "
+            "reconcile-before-use currentness marker text near the top of "
+            f"the file: {missing_markers!r}"
+        )
+
     return problems
 
 
@@ -360,17 +466,32 @@ def evaluate_machine_snapshot(
 
 def main() -> int:
     current_status_text = CURRENT_STATUS_PATH.read_text(encoding="utf-8")
+    active_derived_relative_paths = [
+        str(doc_path.relative_to(ROOT)) for doc_path in ACTIVE_DERIVED_DOC_PATHS
+    ]
     derived_doc_texts = {
-        str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
-        for doc_path in DERIVED_DOC_PATHS
+        relative_path: doc_path.read_text(encoding="utf-8")
+        for relative_path, doc_path in zip(
+            active_derived_relative_paths, ACTIVE_DERIVED_DOC_PATHS
+        )
     }
     semantic_doc_texts = {
         str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
         for doc_path in HUMAN_SEMANTIC_DOC_PATHS
     }
+    project_manifest = json.loads(
+        PROJECT_MANIFEST_PATH.read_text(encoding="utf-8")
+    )
 
     problems = evaluate(current_status_text, derived_doc_texts)
     problems.extend(evaluate_human_semantic_status(current_status_text, semantic_doc_texts))
+    problems.extend(
+        evaluate_environment_manifest_role(
+            project_manifest,
+            ENVIRONMENT_MANIFEST_PATH.read_text(encoding="utf-8"),
+            active_derived_relative_paths=active_derived_relative_paths,
+        )
+    )
     problems.extend(
         evaluate_machine_snapshot(
             current_status_text,
