@@ -172,13 +172,14 @@ _EPR_ROUTING_PHRASES = (
     "no mutation/execution",
     "routing ≠ mutation",
 )
-# Narrow historical-RC exemption: only the dedicated RC-history filename
-# and an explicit "release-candidate history" label. Broad ".md" / "docs/"
-# / "history" substrings must not hide a current-state RC claim.
-_V1_HISTORICAL_RC_PHRASES = (
-    "v1 release candidate status",
-    "release candidate history",
+# Dedicated historical RC file only. The wording
+# "v1 release candidate status" is not historical by itself.
+_V1_HISTORICAL_RC_FILENAME = "v1 release candidate status.md"
+_C4_SUBJECTS = (
+    "terminal reconsideration",
+    "successor lineage",
 )
+_C4_CLAIM_WINDOW_LINES = 3
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -423,14 +424,26 @@ def _normalized_document(text: str) -> str:
     return _normalize_semantic_text(text).casefold()
 
 
-def _document_has_tokens(text: str, tokens: tuple[str, ...]) -> bool:
-    haystack = _normalized_document(text)
-    return all(_normalize_token(token) in haystack for token in tokens)
-
-
 def _document_has_any_phrase(text: str, phrases: Iterable[str]) -> bool:
     haystack = _normalized_document(text)
     return any(_normalize_token(phrase) in haystack for phrase in phrases)
+
+
+def _is_historical_rc_reference(line: str) -> bool:
+    """True only for the dedicated RC-history file, not RC wording alone.
+
+    ``RELEASE-CANDIDATE WORDING != HISTORICAL PROVENANCE``.
+    A current-state claim such as ``Current project state: V1 release
+    candidate status`` must not be treated as historical just because it
+    contains that phrase. ``docs/CURRENT_STATUS.md`` is also not an
+    RC-history receipt.
+    """
+
+    if _V1_HISTORICAL_RC_FILENAME not in line:
+        return False
+    if "current project state" in line or "v1 research/core" in line:
+        return False
+    return True
 
 
 def _has_current_v1_release_candidate_regression(text: str) -> bool:
@@ -440,15 +453,42 @@ def _has_current_v1_release_candidate_regression(text: str) -> bool:
         line = raw_line.replace("release-candidate", "release candidate")
         if "release candidate" not in line:
             continue
-        remainder = line
-        for phrase in _V1_HISTORICAL_RC_PHRASES:
-            remainder = remainder.replace(phrase, " ")
-        remainder = _normalize_semantic_text(remainder)
-        if "release candidate" not in remainder:
+        if _is_historical_rc_reference(line):
             continue
-        if "v1 research/core" in line or "current project state" in line:
+        return True
+    return False
+
+
+def _has_c4_subject(line: str) -> bool:
+    return any(_normalize_token(subject) in line for subject in _C4_SUBJECTS)
+
+
+def _has_v11_v2_backlog(line: str) -> bool:
+    return "v1.1/v2 backlog" in line
+
+
+def _has_coherent_c4_negative_claim(text: str) -> bool:
+    """Require NOT_IMPLEMENTED and V1.1/V2 BACKLOG in one C4 claim context.
+
+    Same line or the next few lines after a terminal/successor subject.
+    An unrelated backlog mention elsewhere in the document does not count.
+    """
+
+    lines = _normalized_lines(text)
+    for index, line in enumerate(lines):
+        if not _has_c4_subject(line):
+            continue
+        window = " ".join(lines[index : index + _C4_CLAIM_WINDOW_LINES])
+        if "not implemented" in window and _has_v11_v2_backlog(window):
             return True
     return False
+
+
+def _has_c4_positive_implementation(text: str) -> bool:
+    return any(
+        _any_line_has_bare_claim(text, subject, "IMPLEMENTED")
+        for subject in _C4_SUBJECTS
+    )
 
 
 def _maintained_current_section(name: str, text: str) -> str:
@@ -653,15 +693,8 @@ def evaluate_active_navigation_semantics(
                 "1.0.0 / FINAL ACCEPTANCE / offline epistemic E2E verified"
             )
 
-        terminal_derived = _any_line_has_tokens(
-            text, ("terminal reconsideration", "NOT_IMPLEMENTED")
-        ) and (
-            _any_line_has_tokens(text, ("V1.1/V2", "BACKLOG"))
-            or _document_has_tokens(text, ("V1.1/V2 BACKLOG",))
-        )
-        terminal_stale = _any_line_has_bare_claim(
-            text, "terminal reconsideration", "IMPLEMENTED"
-        )
+        terminal_derived = _has_coherent_c4_negative_claim(text)
+        terminal_stale = _has_c4_positive_implementation(text)
         problem = _report_navigation_binding(
             name,
             "C4",

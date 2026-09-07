@@ -29,6 +29,15 @@ from check_doc_freshness import (
 
 _QR = "docs/MENTAURY_QUICK_REFERENCE.md"
 _COMPONENT_MAP = "docs/ai/COMPONENT_MAP.md"
+_QR_CURRENT_CUTOFF = "## Retained compatibility receipts"
+
+
+def _insert_in_qr_current(text: str, block: str) -> str:
+    """Keep fixtures inside the maintained-current section Track C actually reads."""
+
+    if _QR_CURRENT_CUTOFF in text:
+        return text.replace(_QR_CURRENT_CUTOFF, block.rstrip() + "\n\n" + _QR_CURRENT_CUTOFF, 1)
+    return block + text
 
 
 def _real_status() -> str:
@@ -484,16 +493,95 @@ def test_h6_current_rc_claim_with_current_status_link_fails() -> None:
 def test_h7_historical_rc_filename_only_does_not_false_positive() -> None:
     """H7: dedicated RC-history filename/label must not fail current V1."""
 
+    historical = "V1 release-candidate history: docs/V1_RELEASE_CANDIDATE_STATUS.md\n"
+    assert (
+        check_doc_freshness._has_current_v1_release_candidate_regression(historical)
+        is False
+    )
     navigation = _real_navigation()
-    navigation[_QR] = (
-        navigation[_QR]
-        + "\nV1 release-candidate history: docs/V1_RELEASE_CANDIDATE_STATUS.md\n"
+    navigation[_QR] = _insert_in_qr_current(navigation[_QR], historical)
+    assert _QR_CURRENT_CUTOFF in navigation[_QR]
+    assert navigation[_QR].index(historical.strip()) < navigation[_QR].index(
+        _QR_CURRENT_CUTOFF
     )
     assert _evaluate_nav(navigation=navigation) == []
 
 
 def test_h8_real_repository_current_docs_pass() -> None:
     """H8: current correct repository navigation surfaces still pass."""
+
+    assert _evaluate_nav() == []
+    assert check_doc_freshness.main() == 0
+
+
+def test_f1_successor_lineage_implemented_fails() -> None:
+    """F1: successor lineage = IMPLEMENTED contradicts C4 even with valid backlog."""
+
+    navigation = _real_navigation()
+    navigation["README.md"] = "successor lineage = IMPLEMENTED\n" + navigation["README.md"]
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C4 terminal backlog contradictory" in problem and "README.md" in problem
+        for problem in problems
+    )
+
+
+def test_f2_c4_backlog_must_be_local_to_the_claim() -> None:
+    """F2: unrelated V1.1/V2 BACKLOG elsewhere does not satisfy C4."""
+
+    navigation = _real_navigation()
+    stripped = (
+        navigation[_QR]
+        .replace("V1.1/V2_BACKLOG", "")
+        .replace("V1.1 / V2 BACKLOG", "")
+        .replace("V1.1/V2 backlog", "")
+    )
+    navigation[_QR] = _insert_in_qr_current(
+        stripped,
+        "Unrelated later work ledger: V1.1/V2 BACKLOG\n",
+    )
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C4 terminal backlog" in problem
+        and "derived claim missing" in problem
+        and _QR in problem
+        for problem in problems
+    )
+
+
+def test_f3_current_v1_release_candidate_status_wording_fails() -> None:
+    """F3: 'V1 release candidate status' is not historical provenance by itself."""
+
+    current_rc = "Current project state: V1 release candidate status\n"
+    assert check_doc_freshness._has_current_v1_release_candidate_regression(current_rc)
+    navigation = _real_navigation()
+    navigation[_QR] = _insert_in_qr_current(navigation[_QR], current_rc)
+    problems = _evaluate_nav(navigation=navigation)
+    assert any(
+        "C3 V1 contradictory" in problem and _QR in problem for problem in problems
+    )
+
+
+def test_f4_historical_rc_filename_through_detector_does_not_false_positive() -> None:
+    """F4: genuine RC-history file reference through the detector must PASS."""
+
+    historical = (
+        "Historical checkpoint / receipt: docs/V1_RELEASE_CANDIDATE_STATUS.md\n"
+    )
+    assert (
+        check_doc_freshness._has_current_v1_release_candidate_regression(historical)
+        is False
+    )
+    navigation = _real_navigation()
+    navigation[_QR] = _insert_in_qr_current(navigation[_QR], historical)
+    assert navigation[_QR].index("V1_RELEASE_CANDIDATE_STATUS.md") < navigation[
+        _QR
+    ].index(_QR_CURRENT_CUTOFF)
+    assert _evaluate_nav(navigation=navigation) == []
+
+
+def test_f5_real_repository_still_passes() -> None:
+    """F5: current correct repository navigation surfaces still pass."""
 
     assert _evaluate_nav() == []
     assert check_doc_freshness.main() == 0
