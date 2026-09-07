@@ -8,6 +8,15 @@ checked separately because it is structured data: it must declare itself derived
 and must agree with the authoritative current-checkpoint markers for the bounded
 implementation and authority fields it mirrors.
 
+A third, role-aware guard covers surfaces that ``docs/ai/project_manifest.json``
+classifies as ``historical_or_reconcile_before_use`` (currently
+``docs/ENVIRONMENT_MANIFEST.md``). Such a surface is provenance, not a complete
+active current implementation ledger, so it is not held to the P-stage
+full-currentness guard above; it is instead checked for (a) role agreement with
+the manifest and (b) a direct-file currentness/reconciliation marker, and it must
+never also be treated as an active current freshness surface. The manifest is a
+routing/role source here, not an engineering-truth authority.
+
 None of these checks makes a derived surface authoritative. Live merged GitHub
 state plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
 """
@@ -17,17 +26,27 @@ from __future__ import annotations
 import json
 import pathlib
 import re
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CURRENT_STATUS_PATH = ROOT / "docs" / "CURRENT_STATUS.md"
 MACHINE_STATE_PATH = ROOT / "docs" / "state" / "project_state.json"
-DERIVED_DOC_PATHS = (
+PROJECT_MANIFEST_PATH = ROOT / "docs" / "ai" / "project_manifest.json"
+
+# Active current freshness surfaces: the legacy P-stage compatibility marker
+# is still a meaningful full-currentness proxy for these derived navigation
+# pages.
+ACTIVE_DERIVED_DOC_PATHS = (
     ROOT / "README.md",
     ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
-    ROOT / "docs" / "ENVIRONMENT_MANIFEST.md",
 )
+
+# Historical / RECONCILE_BEFORE_USE surfaces per docs/ai/project_manifest.json.
+# These are bounded provenance checkpoints, not active current implementation
+# ledgers; see evaluate_reconcile_before_use_integrity().
+RECONCILE_BEFORE_USE_DOC_PATHS = (ROOT / "docs" / "ENVIRONMENT_MANIFEST.md",)
+
 HUMAN_SEMANTIC_DOC_PATHS = (
     ROOT / "README.md",
     ROOT / "SYSTEM_OVERVIEW.md",
@@ -214,6 +233,75 @@ def evaluate_human_semantic_status(
     return problems
 
 
+_RECONCILE_BEFORE_USE_MARKER_WINDOW = 2500
+_RECONCILE_BEFORE_USE_MARKERS = (
+    "Currentness:",
+    "RECONCILE_BEFORE_USE",
+    "CURRENT_STATUS.md",
+    "live GitHub",
+    "not rewritten",
+)
+
+
+def evaluate_role_conflicts(
+    active_current_paths: Iterable[str],
+    historical_or_reconcile_before_use_paths: Iterable[str],
+    dual_role_allowlist: Iterable[str] = (),
+) -> list[str]:
+    """Fail if a path is both an active current surface and reconcile-before-use.
+
+    ``ACTIVE_CURRENT_ROLE ∩ RECONCILE_BEFORE_USE_ROLE`` must be empty for the
+    freshness classification unless an explicit dual-role rule allowlists the
+    path. This prevents a historical/reconcile-before-use document (per
+    ``docs/ai/project_manifest.json`` routing metadata) from silently being
+    promoted back into an active current freshness surface.
+    """
+
+    conflicts = (
+        set(active_current_paths) & set(historical_or_reconcile_before_use_paths)
+    ) - set(dual_role_allowlist)
+    return [
+        f"{path}: classified as both an active current freshness surface and "
+        "historical_or_reconcile_before_use without an explicit dual-role rule"
+        for path in sorted(conflicts)
+    ]
+
+
+def evaluate_reconcile_before_use_integrity(
+    historical_or_reconcile_before_use_paths: Iterable[str],
+    doc_texts: Mapping[str, str],
+) -> list[str]:
+    """Fail closed when a reconcile-before-use surface loses its role/marker.
+
+    A document the freshness gate treats this way must (a) actually be
+    classified ``historical_or_reconcile_before_use`` by the
+    ``docs/ai/project_manifest.json`` routing contract, and (b) retain its
+    direct-file currentness/reconciliation marker near the top of the file.
+    It is intentionally not required to enumerate every current
+    implementation surface — that active-ledger role is exactly what
+    ``historical_or_reconcile_before_use`` means it no longer holds.
+    """
+
+    historical = set(historical_or_reconcile_before_use_paths)
+    problems: list[str] = []
+    for name, text in doc_texts.items():
+        if name not in historical:
+            problems.append(
+                f"{name}: freshness gate treats this as "
+                "historical_or_reconcile_before_use, but docs/ai/project_manifest.json "
+                "does not classify it that way"
+            )
+            continue
+        head = text[:_RECONCILE_BEFORE_USE_MARKER_WINDOW]
+        missing = [marker for marker in _RECONCILE_BEFORE_USE_MARKERS if marker not in head]
+        if missing:
+            problems.append(
+                f"{name}: historical_or_reconcile_before_use surface is missing "
+                f"direct-file currentness marker(s): {missing}"
+            )
+    return problems
+
+
 def _expect_mapping(snapshot: Mapping[str, Any], key: str) -> Mapping[str, Any] | None:
     value = snapshot.get(key)
     return value if isinstance(value, Mapping) else None
@@ -360,21 +448,35 @@ def evaluate_machine_snapshot(
 
 def main() -> int:
     current_status_text = CURRENT_STATUS_PATH.read_text(encoding="utf-8")
-    derived_doc_texts = {
+    active_doc_texts = {
         str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
-        for doc_path in DERIVED_DOC_PATHS
+        for doc_path in ACTIVE_DERIVED_DOC_PATHS
+    }
+    reconcile_doc_texts = {
+        str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
+        for doc_path in RECONCILE_BEFORE_USE_DOC_PATHS
     }
     semantic_doc_texts = {
         str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
         for doc_path in HUMAN_SEMANTIC_DOC_PATHS
     }
+    manifest = json.loads(PROJECT_MANIFEST_PATH.read_text(encoding="utf-8"))
+    historical_or_reconcile_before_use = manifest.get("historical_or_reconcile_before_use", [])
 
-    problems = evaluate(current_status_text, derived_doc_texts)
+    problems = evaluate(current_status_text, active_doc_texts)
     problems.extend(evaluate_human_semantic_status(current_status_text, semantic_doc_texts))
     problems.extend(
         evaluate_machine_snapshot(
             current_status_text,
             MACHINE_STATE_PATH.read_text(encoding="utf-8"),
+        )
+    )
+    problems.extend(
+        evaluate_role_conflicts(active_doc_texts.keys(), historical_or_reconcile_before_use)
+    )
+    problems.extend(
+        evaluate_reconcile_before_use_integrity(
+            historical_or_reconcile_before_use, reconcile_doc_texts
         )
     )
     if problems:

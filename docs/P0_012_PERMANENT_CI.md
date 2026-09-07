@@ -138,6 +138,21 @@ row in `docs/CURRENT_STATUS.md`. This preserves the original P0-012 security
 and reproducibility boundary above unchanged: no secrets, no writes, no new
 dependencies, no change to the pinned action commits.
 
+> **Later role-aware refinement (#173 Track B):** `docs/ENVIRONMENT_MANIFEST.md`
+> is now classified `RECONCILE_BEFORE_USE` in `docs/ai/project_manifest.json`
+> rather than a complete active current implementation ledger. Its preserved
+> historical P-stage milestone range above is therefore no longer required to
+> mirror every later semantic/versioned V1 surface (CBP/EPR/ATR/HDE/E2E). The
+> freshness gate still verifies its explicit reconciliation/currentness role
+> and fails closed if that role or its direct-file marker silently
+> disappears — it does not simply stop checking the file.
+> `docs/MENTAURY_QUICK_REFERENCE.md` remains an active surface and keeps the
+> milestone-range guard described above unchanged.
+>
+> ```text
+> P-STAGE COMPATIBILITY != FULL SEMANTIC CURRENTNESS
+> ```
+
 ## ➡️ Next controlled milestone
 
 After the workflow is merged, passes on `main`, and status documentation is
