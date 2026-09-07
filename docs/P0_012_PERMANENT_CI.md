@@ -146,8 +146,20 @@ verifies its explicit reconciliation/currentness role and prevents silent
 active-role promotion; only `docs/MENTAURY_QUICK_REFERENCE.md` and `README.md`
 remain checked against the P-stage milestone range described above.
 
+**Later active-navigation semantic refinement (#173 Track C):** the freshness
+gate now also binds the three active human/AI navigation surfaces —
+`README.md`, `docs/MENTAURY_QUICK_REFERENCE.md`, and
+`docs/ai/COMPONENT_MAP.md` — to a bounded final-V1 semantic contract taken
+only from `docs/CURRENT_STATUS.md` `## 1. Current checkpoint`. This is
+derived-surface freshness assurance. It does not make those pages
+authoritative, does not change runtime/Canon/authority state, and does not
+place `docs/ENVIRONMENT_MANIFEST.md` under Track C (Track B still owns that
+`RECONCILE_BEFORE_USE` role).
+
 ```text
 P-STAGE COMPATIBILITY != FULL SEMANTIC CURRENTNESS
+P-STAGE COMPATIBILITY != NAVIGATION SEMANTICS FRESH
+ACTIVE NAVIGATION FRESHNESS != DOCUMENT AUTHORITY
 ```
 
 ## ➡️ Next controlled milestone

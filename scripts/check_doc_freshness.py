@@ -15,6 +15,12 @@ markers for the bounded implementation and authority fields it mirrors.
 
 None of these checks makes a derived surface authoritative. Live merged GitHub
 state plus ``docs/CURRENT_STATUS.md`` remain the conflict resolver.
+
+Active human/AI navigation surfaces (README, Quick Reference, Component Map)
+are additionally bound to a small explicit final-V1 semantic contract taken
+only from the ``CURRENT_STATUS`` current checkpoint. That check is freshness
+assurance, not a promotion of those pages to engineering-truth authority.
+``docs/ENVIRONMENT_MANIFEST.md`` stays outside this navigation contract.
 """
 
 from __future__ import annotations
@@ -144,6 +150,36 @@ _ENVIRONMENT_MANIFEST_CURRENTNESS_MARKERS = (
     "not a complete current implementation ledger",
 )
 _ENVIRONMENT_MANIFEST_MARKER_WINDOW_CHARS = 2500
+
+# Track C (#173): active human/AI navigation surfaces. Distinct from the
+# P-stage compatibility set and from the Environment Manifest Track B role.
+# project_manifest.json is read only as routing/role metadata here.
+ACTIVE_NAVIGATION_DOC_PATHS = (
+    ROOT / "README.md",
+    ROOT / "docs" / "MENTAURY_QUICK_REFERENCE.md",
+    ROOT / "docs" / "ai" / "COMPONENT_MAP.md",
+)
+_NAV_CURRENT_SECTION_CUTOFFS = {
+    "docs/MENTAURY_QUICK_REFERENCE.md": "## Retained compatibility receipts",
+}
+_EPR_ROUTING_PHRASES = (
+    "routing only",
+    "next-owner routing",
+    "routes to the next owner",
+    "routing ≠",
+    "routing !=",
+    "no execution authority",
+    "no mutation/execution",
+    "routing ≠ mutation",
+)
+# Dedicated historical RC file only. The wording
+# "v1 release candidate status" is not historical by itself.
+_V1_HISTORICAL_RC_FILENAME = "v1 release candidate status.md"
+_C4_SUBJECTS = (
+    "terminal reconsideration",
+    "successor lineage",
+)
+_C4_CLAIM_WINDOW_LINES = 3
 
 
 def format_milestone(milestone: Milestone) -> str:
@@ -320,6 +356,424 @@ def evaluate_environment_manifest_role(
     return problems
 
 
+def _normalize_semantic_text(text: str) -> str:
+    """Collapse whitespace/underscores and punctuation spacing for tiny line checks."""
+
+    collapsed = re.sub(r"[\s_]+", " ", text)
+    collapsed = re.sub(r"\s*/\s*", "/", collapsed)
+    collapsed = re.sub(r"\s*·\s*", "·", collapsed)
+    return collapsed.strip()
+
+
+def _normalized_lines(text: str) -> list[str]:
+    return [
+        normalized.casefold()
+        for raw in text.splitlines()
+        if (normalized := _normalize_semantic_text(raw))
+    ]
+
+
+def _normalize_token(token: str) -> str:
+    return _normalize_semantic_text(token).casefold()
+
+
+def _line_has_tokens(line: str, tokens: tuple[str, ...]) -> bool:
+    return all(_normalize_token(token) in line for token in tokens)
+
+
+def _any_line_has_tokens(text: str, tokens: tuple[str, ...]) -> bool:
+    return any(_line_has_tokens(line, tokens) for line in _normalized_lines(text))
+
+
+def _has_bare_word(line: str, word: str) -> bool:
+    """Match ``word`` as its own token, not inside ``not word`` or a larger word.
+
+    ``AUTHORIZED`` must not match inside ``NOT_AUTHORIZED``;
+    ``IMPLEMENTED`` must not match inside ``NOT_IMPLEMENTED``.
+    The line is already whitespace-normalized and casefolded.
+    """
+
+    needle = _normalize_token(word)
+    return (
+        re.search(rf"(?<![a-z])(?<!not ){re.escape(needle)}(?![a-z])", line) is not None
+    )
+
+
+def _any_line_has_bare_claim(text: str, subject: str, word: str) -> bool:
+    """True if a line names ``subject`` and then a bare positive ``word``.
+
+    Order matters: a wrapped prose line that ends one claim with
+    ``implemented bounded`` and starts the next with ``terminal
+    reconsideration`` is not a positive terminal-implementation claim.
+    ``AUTHORIZED`` / ``IMPLEMENTED`` still must not match inside
+    ``NOT_AUTHORIZED`` / ``NOT_IMPLEMENTED``.
+    """
+
+    subject_n = _normalize_token(subject)
+    for line in _normalized_lines(text):
+        idx = line.find(subject_n)
+        if idx < 0:
+            continue
+        after = line[idx + len(subject_n) :]
+        if _has_bare_word(after, word):
+            return True
+    return False
+
+
+def _normalized_document(text: str) -> str:
+    return _normalize_semantic_text(text).casefold()
+
+
+def _document_has_any_phrase(text: str, phrases: Iterable[str]) -> bool:
+    haystack = _normalized_document(text)
+    return any(_normalize_token(phrase) in haystack for phrase in phrases)
+
+
+def _is_historical_rc_reference(line: str) -> bool:
+    """True only for the dedicated RC-history file, not RC wording alone.
+
+    ``RELEASE-CANDIDATE WORDING != HISTORICAL PROVENANCE``.
+    A current-state claim such as ``Current project state: V1 release
+    candidate status`` must not be treated as historical just because it
+    contains that phrase. ``docs/CURRENT_STATUS.md`` is also not an
+    RC-history receipt.
+    """
+
+    if _V1_HISTORICAL_RC_FILENAME not in line:
+        return False
+    if "current project state" in line or "v1 research/core" in line:
+        return False
+    return True
+
+
+def _has_current_v1_release_candidate_regression(text: str) -> bool:
+    """Detect a current-state RC claim; do not skip merely for docs/ or .md."""
+
+    for raw_line in _normalized_lines(text):
+        line = raw_line.replace("release-candidate", "release candidate")
+        if "release candidate" not in line:
+            continue
+        if _is_historical_rc_reference(line):
+            continue
+        return True
+    return False
+
+
+def _has_c4_subject(line: str) -> bool:
+    return any(_normalize_token(subject) in line for subject in _C4_SUBJECTS)
+
+
+def _has_v11_v2_backlog(line: str) -> bool:
+    return "v1.1/v2 backlog" in line
+
+
+def _has_coherent_c4_negative_claim(text: str) -> bool:
+    """Require NOT_IMPLEMENTED and V1.1/V2 BACKLOG in one C4 claim context.
+
+    Same line or the next few lines after a terminal/successor subject.
+    An unrelated backlog mention elsewhere in the document does not count.
+    """
+
+    lines = _normalized_lines(text)
+    for index, line in enumerate(lines):
+        if not _has_c4_subject(line):
+            continue
+        window = " ".join(lines[index : index + _C4_CLAIM_WINDOW_LINES])
+        if "not implemented" in window and _has_v11_v2_backlog(window):
+            return True
+    return False
+
+
+def _has_c4_positive_implementation(text: str) -> bool:
+    return any(
+        _any_line_has_bare_claim(text, subject, "IMPLEMENTED")
+        for subject in _C4_SUBJECTS
+    )
+
+
+def _maintained_current_section(name: str, text: str) -> str:
+    cutoff = _NAV_CURRENT_SECTION_CUTOFFS.get(name)
+    if cutoff and cutoff in text:
+        return text.split(cutoff, 1)[0]
+    return text
+
+
+def _navigation_role_conflicts(
+    project_manifest: Mapping[str, Any],
+    track_c_relative_paths: Iterable[str],
+) -> list[str]:
+    """Fail closed if a Track C surface is reclassified historical/reconcile.
+
+    ``docs/ai/project_manifest.json`` is routing metadata only. It is not
+    treated as engineering truth, and a role conflict is never silently
+    skipped.
+    """
+
+    reconcile_list = project_manifest.get(_RECONCILE_BEFORE_USE_MANIFEST_KEY)
+    if reconcile_list is None:
+        reconcile_list = []
+    if not isinstance(reconcile_list, list):
+        return [
+            "docs/ai/project_manifest.json: "
+            f"{_RECONCILE_BEFORE_USE_MANIFEST_KEY!r} must be a list; "
+            "Track C cannot skip role-conflict detection"
+        ]
+
+    reconcile_set = {item for item in reconcile_list if isinstance(item, str)}
+    problems: list[str] = []
+    for relative_path in track_c_relative_paths:
+        if relative_path in reconcile_set:
+            problems.append(
+                f"{relative_path}: classified both as an active Track C "
+                "navigation surface and as "
+                f"{_RECONCILE_BEFORE_USE_MANIFEST_KEY!r} in "
+                "docs/ai/project_manifest.json; fail closed rather than "
+                "silently skipping the semantic contract"
+            )
+    return problems
+
+
+def _report_navigation_binding(
+    name: str,
+    obligation_id: str,
+    label: str,
+    *,
+    authoritative_present: bool,
+    derived_present: bool,
+    auth_markers: tuple[str, ...],
+) -> str | None:
+    if authoritative_present and not derived_present:
+        return (
+            f"{name}: {obligation_id} {label} derived claim missing while "
+            "CURRENT_STATUS current-checkpoint has "
+            f"{auth_markers!r}"
+        )
+    if derived_present and not authoritative_present:
+        return (
+            f"{name}: {obligation_id} {label} derived claim still present "
+            "while CURRENT_STATUS current-checkpoint no longer has "
+            f"{auth_markers!r}"
+        )
+    return None
+
+
+def evaluate_active_navigation_semantics(
+    current_status_text: str,
+    navigation_doc_texts: Mapping[str, str],
+    project_manifest: Mapping[str, Any],
+    *,
+    track_c_relative_paths: Iterable[str] | None = None,
+) -> list[str]:
+    """Bind active navigation surfaces to the current-checkpoint contract.
+
+    Canonical evidence is taken only from ``## 1. Current checkpoint``.
+    Bidirectional: authoritative present + derived absent fails, and
+    authoritative gone + old derived still present fails. Known stale
+    inverses also fail when the checkpoint still declares the current
+    final-V1 facts, including the contradictory stale+current case.
+
+    This does not make the navigation surfaces authoritative.
+    """
+
+    checkpoint = current_checkpoint(current_status_text)
+    if checkpoint is None:
+        return [
+            "docs/CURRENT_STATUS.md: could not isolate the authoritative "
+            "'## 1. 🧭 Current checkpoint' section"
+        ]
+
+    declared_paths = (
+        tuple(track_c_relative_paths)
+        if track_c_relative_paths is not None
+        else tuple(navigation_doc_texts)
+    )
+    problems = _navigation_role_conflicts(project_manifest, declared_paths)
+
+    cbp_auth = "CLAIM_TO_BELIEF_BINDING_IMPLEMENTED_BOUNDED" in checkpoint
+    epr_auth = "PHASE_4_IMPLEMENTATION_IMPLEMENTED_BOUNDED" in checkpoint
+    v1_version_auth = "V1_RESEARCH_CORE_VERSION_1_0_0" in checkpoint
+    v1_final_auth = "V1_STAGE_5_FINAL_ACCEPTANCE_COMPLETE" in checkpoint
+    v1_e2e_auth = "V1_OFFLINE_EPISTEMIC_E2E_VERIFIED" in checkpoint
+    v1_auth = v1_version_auth and v1_final_auth and v1_e2e_auth
+    terminal_auth = (
+        "TERMINAL_RECONSIDERATION_LINEAGE_NOT_IMPLEMENTED" in checkpoint
+        and "TERMINAL_RECONSIDERATION_LINEAGE_V1_1_OR_V2_BACKLOG" in checkpoint
+    )
+    action_auth = (
+        "ACTION_GATE_NOT_AUTHORIZED" in checkpoint
+        and "RETRIEVAL_EXECUTION_NOT_AUTHORIZED" in checkpoint
+        and "TOOL_EXECUTION_NOT_AUTHORIZED" in checkpoint
+    )
+    deploy_auth = "RUNTIME_DEPLOYMENT_NOT_AUTHORIZED" in checkpoint
+
+    for name, raw_text in navigation_doc_texts.items():
+        text = _maintained_current_section(name, raw_text)
+
+        cbp_derived = _any_line_has_tokens(
+            text, ("CBP-v0.1", "IMPLEMENTED_BOUNDED")
+        ) or _any_line_has_tokens(
+            text, ("CLAIM_TO_BELIEF_BINDING", "IMPLEMENTED_BOUNDED")
+        )
+        cbp_stale = (
+            _any_line_has_tokens(text, ("CBP-v0.1", "NOT_IMPLEMENTED"))
+            or _any_line_has_tokens(text, ("Claim→belief", "NOT_IMPLEMENTED"))
+            or _any_line_has_tokens(
+                text, ("CLAIM_TO_BELIEF_BINDING", "NOT_IMPLEMENTED")
+            )
+        )
+        problem = _report_navigation_binding(
+            name,
+            "C1",
+            "CBP",
+            authoritative_present=cbp_auth,
+            derived_present=cbp_derived,
+            auth_markers=("CLAIM_TO_BELIEF_BINDING_IMPLEMENTED_BOUNDED",),
+        )
+        if problem:
+            problems.append(problem)
+        if cbp_auth and cbp_stale:
+            problems.append(
+                f"{name}: C1 CBP contradictory stale inverse present while "
+                "CURRENT_STATUS current-checkpoint declares "
+                "CLAIM_TO_BELIEF_BINDING_IMPLEMENTED_BOUNDED"
+            )
+
+        epr_derived = _any_line_has_tokens(
+            text, ("EPR-v0.1", "IMPLEMENTED_BOUNDED")
+        ) and _document_has_any_phrase(text, _EPR_ROUTING_PHRASES)
+        epr_stale = _any_line_has_tokens(
+            text, ("EPR-v0.1", "NOT_IMPLEMENTED")
+        ) or _any_line_has_tokens(
+            text, ("EPR-v0.1", "FROZEN_DOCS", "NOT_IMPLEMENTED")
+        )
+        problem = _report_navigation_binding(
+            name,
+            "C2",
+            "EPR",
+            authoritative_present=epr_auth,
+            derived_present=epr_derived,
+            auth_markers=("PHASE_4_IMPLEMENTATION_IMPLEMENTED_BOUNDED",),
+        )
+        if problem:
+            problems.append(problem)
+        if epr_auth and epr_stale:
+            problems.append(
+                f"{name}: C2 EPR contradictory stale inverse present while "
+                "CURRENT_STATUS current-checkpoint declares "
+                "PHASE_4_IMPLEMENTATION_IMPLEMENTED_BOUNDED"
+            )
+
+        v1_derived = (
+            _any_line_has_tokens(text, ("1.0.0", "FINAL ACCEPTANCE"))
+            and _any_line_has_tokens(text, ("offline epistemic", "VERIFIED"))
+        )
+        v1_stale = _has_current_v1_release_candidate_regression(text) or (
+            _any_line_has_tokens(text, ("offline epistemic", "UNVERIFIED"))
+            or _any_line_has_tokens(text, ("E2E", "UNVERIFIED"))
+            or _any_line_has_tokens(text, ("V1 Research/Core", "pending"))
+        )
+        problem = _report_navigation_binding(
+            name,
+            "C3",
+            "V1 final",
+            authoritative_present=v1_auth,
+            derived_present=v1_derived,
+            auth_markers=(
+                "V1_RESEARCH_CORE_VERSION_1_0_0",
+                "V1_STAGE_5_FINAL_ACCEPTANCE_COMPLETE",
+                "V1_OFFLINE_EPISTEMIC_E2E_VERIFIED",
+            ),
+        )
+        if problem:
+            problems.append(problem)
+        if v1_auth and v1_stale:
+            problems.append(
+                f"{name}: C3 V1 contradictory stale inverse present while "
+                "CURRENT_STATUS current-checkpoint declares final V1 "
+                "1.0.0 / FINAL ACCEPTANCE / offline epistemic E2E verified"
+            )
+
+        terminal_derived = _has_coherent_c4_negative_claim(text)
+        terminal_stale = _has_c4_positive_implementation(text)
+        problem = _report_navigation_binding(
+            name,
+            "C4",
+            "terminal backlog",
+            authoritative_present=terminal_auth,
+            derived_present=terminal_derived,
+            auth_markers=(
+                "TERMINAL_RECONSIDERATION_LINEAGE_NOT_IMPLEMENTED",
+                "TERMINAL_RECONSIDERATION_LINEAGE_V1_1_OR_V2_BACKLOG",
+            ),
+        )
+        if problem:
+            problems.append(problem)
+        if terminal_auth and terminal_stale:
+            problems.append(
+                f"{name}: C4 terminal backlog contradictory stale inverse "
+                "present while CURRENT_STATUS current-checkpoint declares "
+                "NOT_IMPLEMENTED + V1.1/V2 BACKLOG"
+            )
+
+        action_derived = (
+            _any_line_has_tokens(text, ("Action Gate", "NOT_AUTHORIZED"))
+            and _any_line_has_tokens(text, ("retrieval", "NOT_AUTHORIZED"))
+            and (
+                _any_line_has_tokens(text, ("tools", "NOT_AUTHORIZED"))
+                or _any_line_has_tokens(text, ("TOOL_EXECUTION", "NOT_AUTHORIZED"))
+            )
+        )
+        action_stale = (
+            _any_line_has_bare_claim(text, "Action Gate", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "retrieval", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "tools", "AUTHORIZED")
+            or _any_line_has_bare_claim(text, "TOOL_EXECUTION", "AUTHORIZED")
+        )
+        problem = _report_navigation_binding(
+            name,
+            "C5",
+            "action/execution ceiling",
+            authoritative_present=action_auth,
+            derived_present=action_derived,
+            auth_markers=(
+                "ACTION_GATE_NOT_AUTHORIZED",
+                "RETRIEVAL_EXECUTION_NOT_AUTHORIZED",
+                "TOOL_EXECUTION_NOT_AUTHORIZED",
+            ),
+        )
+        if problem:
+            problems.append(problem)
+        if action_auth and action_stale:
+            problems.append(
+                f"{name}: C5 action/execution contradictory stale inverse "
+                "present while CURRENT_STATUS current-checkpoint declares "
+                "Action Gate / retrieval / tools NOT_AUTHORIZED"
+            )
+
+        deploy_derived = _any_line_has_tokens(
+            text, ("deployment", "NOT_AUTHORIZED")
+        ) or _any_line_has_tokens(text, ("RUNTIME_DEPLOYMENT", "NOT_AUTHORIZED"))
+        deploy_stale = _any_line_has_bare_claim(text, "deployment", "AUTHORIZED")
+        problem = _report_navigation_binding(
+            name,
+            "C6",
+            "deployment",
+            authoritative_present=deploy_auth,
+            derived_present=deploy_derived,
+            auth_markers=("RUNTIME_DEPLOYMENT_NOT_AUTHORIZED",),
+        )
+        if problem:
+            problems.append(problem)
+        if deploy_auth and deploy_stale:
+            problems.append(
+                f"{name}: C6 deployment contradictory stale inverse present "
+                "while CURRENT_STATUS current-checkpoint declares "
+                "RUNTIME_DEPLOYMENT_NOT_AUTHORIZED"
+            )
+
+    return problems
+
+
 def _expect_mapping(snapshot: Mapping[str, Any], key: str) -> Mapping[str, Any] | None:
     value = snapshot.get(key)
     return value if isinstance(value, Mapping) else None
@@ -479,6 +933,15 @@ def main() -> int:
         str(doc_path.relative_to(ROOT)): doc_path.read_text(encoding="utf-8")
         for doc_path in HUMAN_SEMANTIC_DOC_PATHS
     }
+    navigation_relative_paths = [
+        str(doc_path.relative_to(ROOT)) for doc_path in ACTIVE_NAVIGATION_DOC_PATHS
+    ]
+    navigation_doc_texts = {
+        relative_path: doc_path.read_text(encoding="utf-8")
+        for relative_path, doc_path in zip(
+            navigation_relative_paths, ACTIVE_NAVIGATION_DOC_PATHS
+        )
+    }
     project_manifest = json.loads(
         PROJECT_MANIFEST_PATH.read_text(encoding="utf-8")
     )
@@ -490,6 +953,14 @@ def main() -> int:
             project_manifest,
             ENVIRONMENT_MANIFEST_PATH.read_text(encoding="utf-8"),
             active_derived_relative_paths=active_derived_relative_paths,
+        )
+    )
+    problems.extend(
+        evaluate_active_navigation_semantics(
+            current_status_text,
+            navigation_doc_texts,
+            project_manifest,
+            track_c_relative_paths=navigation_relative_paths,
         )
     )
     problems.extend(
@@ -506,8 +977,9 @@ def main() -> int:
 
     authoritative_max = max(authoritative_milestones(current_status_text))
     print(
-        "doc freshness gate: milestone markers, human semantic state and machine "
-        f"snapshot match {format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
+        "doc freshness gate: milestone markers, human semantic state, active "
+        "navigation semantics and machine snapshot match "
+        f"{format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
     )
     return 0
 
