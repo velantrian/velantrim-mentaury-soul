@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 from .primitives import (
     ActorRef,
@@ -37,6 +38,25 @@ class CommandEnvelope:
     idempotency_key: str
     payload: FrozenPayload = field(repr=False)
 
+    if TYPE_CHECKING:
+        # Вход конструктора — дерево payload вызывающего кода (как у freeze_payload).
+        # Хранимый атрибут после __post_init__ остаётся FrozenPayload; runtime __init__
+        # по-прежнему генерирует dataclass, конверт сам владеет границей freeze.
+        def __init__(
+            self,
+            command_id: str,
+            command_type: str,
+            command_schema: str,
+            target_stream: str,
+            expected_stream_version: int,
+            issued_at: str,
+            issuer: ActorRef,
+            authority: AuthorityRef,
+            correlation_id: str,
+            idempotency_key: str,
+            payload: Mapping[str, object],
+        ) -> None: ...
+
     def __post_init__(self) -> None:
         for field_name in (
             "command_id",
@@ -66,6 +86,17 @@ class PendingEvent:
     payload_schema: str
     affects_domain_state: bool
     payload: FrozenPayload = field(repr=False)
+
+    if TYPE_CHECKING:
+        # Вход конструктора — дерево payload вызывающего кода; freeze остаётся
+        # обязанностью конверта, а не предварительным требованием к вызывающему.
+        def __init__(
+            self,
+            event_type: str,
+            payload_schema: str,
+            affects_domain_state: bool,
+            payload: Mapping[str, object],
+        ) -> None: ...
 
     def __post_init__(self) -> None:
         require_non_empty(self.event_type, "event_type")
