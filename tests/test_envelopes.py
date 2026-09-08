@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import FrozenInstanceError
+import inspect
+from dataclasses import FrozenInstanceError, fields
 from typing import cast
 
 import pytest
@@ -47,6 +48,33 @@ def test_command_takes_detached_immutable_payload_snapshot() -> None:
     assert command.payload["evidence"] == ({"id": "E-1"},)
     with pytest.raises(TypeError):
         command.payload["statement"] = "forbidden"  # type: ignore[index]
+
+
+def test_pending_event_takes_detached_immutable_payload_snapshot() -> None:
+    source = {"belief_id": "B-204", "tags": ["t1"]}
+    pending = PendingEvent(
+        event_type="BELIEF_CREATED",
+        payload_schema="belief-created/v1",
+        affects_domain_state=True,
+        payload=source,
+    )
+
+    source["belief_id"] = "mutated"
+    cast(list[object], source["tags"]).append("t2")
+
+    assert pending.payload["belief_id"] == "B-204"
+    assert pending.payload["tags"] == ("t1",)
+    with pytest.raises(TypeError):
+        pending.payload["belief_id"] = "forbidden"  # type: ignore[index]
+
+
+def test_command_and_pending_constructors_remain_dataclass_generated() -> None:
+    command_params = list(inspect.signature(CommandEnvelope.__init__).parameters)
+    pending_params = list(inspect.signature(PendingEvent.__init__).parameters)
+    assert command_params == ["self", *[item.name for item in fields(CommandEnvelope)]]
+    assert pending_params == ["self", *[item.name for item in fields(PendingEvent)]]
+    assert inspect.signature(CommandEnvelope.__init__).parameters["payload"].annotation == "FrozenPayload"
+    assert inspect.signature(PendingEvent.__init__).parameters["payload"].annotation == "FrozenPayload"
 
 
 def test_envelopes_are_frozen() -> None:
