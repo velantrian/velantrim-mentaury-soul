@@ -291,22 +291,42 @@ Multiple attempts with different outcomes demonstrate why a singular `ATTEMPT_RE
 
 If a future case proves that ordinary bounded history cannot distinguish a specific prior occurrence that changes the correct next step, test the smallest semantic repair separately.
 
-## 13. Next-step classes
-
-The view may yield a bounded orientation class such as:
+## 13. Illustrative next-step language — not a frozen enum
 
 ```text
-DIRECT / ХВАТИТ
-DEEPEN / УГЛУБИТЬСЯ
+ILLUSTRATIVE_ONLY = YES
+FROZEN_NEXT_STEP_ENUM = NO
+```
+
+The O3–O11 fixtures use descriptive orientation language such as:
+
+```text
+DIRECT
+DEEPEN
 VERIFY
-REOPEN
 STOP
 UNKNOWN
 ```
 
-These are orientation outcomes only.
+and bilingual glosses such as `ХВАТИТ` or `УГЛУБИТЬСЯ` in some research examples.
 
-They do not mean:
+These terms are **illustrative shorthand**, not an exhaustive or frozen peer-level semantic vocabulary added by this specification.
+
+In particular, O9 reassessment after a historical objective is `COMPLETED` is represented by creating/selecting a new local `CURRENT_PRIMARY` reassessment/update objective. It does **not** justify a separate `REOPEN` objective status or a frozen `REOPEN` next-step class.
+
+If `reopen` is used descriptively in research discussion, it means only that the current orientation may return to or reassess a subject; it carries no independent status, lifecycle, execution, or authority semantics.
+
+Likewise:
+
+```text
+VERIFY != execute verification automatically
+DIRECT != action permission
+DEEPEN != autonomous inquiry authority
+STOP != policy-level deny verdict
+UNKNOWN != false
+```
+
+Illustrative next-step language does not mean:
 
 ```text
 ALLOW ACTION
@@ -315,7 +335,7 @@ SUPPORTED
 CONTRADICTED
 ```
 
-and do not execute anything.
+and does not execute anything.
 
 ## 14. Stable distinctions
 
