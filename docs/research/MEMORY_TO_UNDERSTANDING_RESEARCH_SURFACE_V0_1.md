@@ -42,8 +42,10 @@ For a bounded task, distinguish at least four questions:
 ### P — Presence
 Was the information required by the task represented in the supplied material?
 
-### A — Availability / access
+### A — Cognitive access / availability
 Was the relevant information available to the current bounded cognitive process, rather than merely existing elsewhere in durable memory?
+
+Here `A` is a cognition-side research label only. It does not establish storage, retrieval, persistence, or representation-level authority; Native Kernel retains the substrate-neutral representation/availability boundary.
 
 ### C — Composition
 Did the output demonstrate the relations needed to combine the relevant elements for the task?
