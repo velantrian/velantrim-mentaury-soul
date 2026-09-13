@@ -1,0 +1,111 @@
+{
+  "arm_profile_sha256": {
+    "B0": "064c05d2d15b2bea5cb097eee0b77d6013e40d1266f3d348d6ffc80a58c2ca0f",
+    "B1": "1478c42f0472abf9e44532d577655fc95aec24018873bfc9b2724d0e6d9a84ab",
+    "C1": "6344b7441c9971898182d144dfa5116984f2caa54f4059bd79ea354a236003fe"
+  },
+  "canonicalization": "mentaury-canonical-json-v0.2",
+  "confirmatory": false,
+  "custody_drive_file_id": "1bM_-zvk9VHf0NNxMN5zrGaHuX3Jcsj57",
+  "custody_drive_folder_id": "13rhlN_OtarVcVl4zzPicAmRYopBlRmdV",
+  "custody_package_sha256": "f6b73a6508ca96c85e1d8ac0678796d5909265ba6d0d2ad95553071a2c1f3d24",
+  "custody_recovery_test": "PASS",
+  "development_count": 6,
+  "execution_authority": "NOT_GRANTED",
+  "experiment_version": "0.2",
+  "hidden_count": 6,
+  "independent_human_semantic_validation": "ABSENT",
+  "items": [
+    {
+      "family": "explicit_material_constraint",
+      "reference_commitment_sha256": "90550306f09c9f9312a293cc3792744a9c25c256bd147ffff9cc2eb52649ee13",
+      "scenario_id": "V02-DEV-01",
+      "semantic_input_sha256": "b40ba7c0b05065b527697b3b259807f901291985fbddbce78f0051b3cc5124be",
+      "split": "development"
+    },
+    {
+      "family": "conditional_constraint",
+      "reference_commitment_sha256": "24fedcf7ae1b83f55314c25446b6f48b1206a6ca0e2877710a62947dd9b488ae",
+      "scenario_id": "V02-DEV-02",
+      "semantic_input_sha256": "05ae31d4a77ae058bf30a529f4cad655ab18f3fc94b10bd8d5a47a594e9bf1a2",
+      "split": "development"
+    },
+    {
+      "family": "revision_scope_change",
+      "reference_commitment_sha256": "24415260c2c31311e8e955646654776615bd6d49c7f61fd0c89407ff802a630b",
+      "scenario_id": "V02-DEV-03",
+      "semantic_input_sha256": "9be6b30dd521c6ea5deac7fd4a427ebba6648753c61c41c12617ea30cf242992",
+      "split": "development"
+    },
+    {
+      "family": "rejected_or_still_plausible_alternative",
+      "reference_commitment_sha256": "b84b1041045f9726db5942b9adf9ec033570ec979c652b15a94230ab9b0cff66",
+      "scenario_id": "V02-DEV-04",
+      "semantic_input_sha256": "650620ff98aa08a8b69a558c2c9eeba42755202a16abb9e2ee4599ea51ffc2c3",
+      "split": "development"
+    },
+    {
+      "family": "ambiguity_caution",
+      "reference_commitment_sha256": "de0109763d11d3d13d9dcce59cfeeb16bf1c80a318e3a294bd24940526db70c0",
+      "scenario_id": "V02-DEV-05",
+      "semantic_input_sha256": "b28dcf40bc580c46ecd8aca5494db716fd45673999f49ffe59d700cc1d1112fd",
+      "split": "development"
+    },
+    {
+      "family": "fabrication_bait",
+      "reference_commitment_sha256": "3ff724e7346c1a8c13daaefc6a087e715e292ceff9f77a6fa188d22ae2c5ca93",
+      "scenario_id": "V02-DEV-06",
+      "semantic_input_sha256": "8cd9f610ee24eb24bb4b3d9c278e651e6bcf146b3cd27001bd48c55c4e6f3eff",
+      "split": "development"
+    },
+    {
+      "family": "temporal_rule",
+      "reference_commitment_sha256": "066bc9c5d3169d9bf825de3741129f4c96f0ede4ad260044124b12cc318aec29",
+      "scenario_id": "V02-HID-01",
+      "semantic_input_sha256": "9726c3d7fb420f9de32bb7a95fc026109edce2629eddc508fb367cc7053f9cc2",
+      "split": "hidden"
+    },
+    {
+      "family": "unresolved_contradiction",
+      "reference_commitment_sha256": "28353b00a1243701424592a3ebb1c6ffda5e57bae871a37f765edd9dc1ad28d9",
+      "scenario_id": "V02-HID-02",
+      "semantic_input_sha256": "73dd35026909e4d831ae7cd13084dc36565a3f7de7ac0c9d60a8b0b2ed07a9fd",
+      "split": "hidden"
+    },
+    {
+      "family": "simple_answer_sufficient",
+      "reference_commitment_sha256": "4a3fb917b85cc2679aecf3011fbc4a9f82c47e9acb8b3230a3a26c581eed5f3b",
+      "scenario_id": "V02-HID-03",
+      "semantic_input_sha256": "6313de289705de439d79843a076c8de6f8f44e6e331f1d8abe6d3bce7d998325",
+      "split": "hidden"
+    },
+    {
+      "family": "justified_stop_defer",
+      "reference_commitment_sha256": "53db32388c3f723ddb64c899237d38e78194f290f36ba6315a0910dd4f2d572f",
+      "scenario_id": "V02-HID-04",
+      "semantic_input_sha256": "7346af57cac8b5808204631b4141a720de6b25256edc015157001c950ed8f35f",
+      "split": "hidden"
+    },
+    {
+      "family": "multiple_plausible_alternatives",
+      "reference_commitment_sha256": "281b376f453827b7e36e382a05cab1c04c606fc8ee60b0f1372f926275409a3f",
+      "scenario_id": "V02-HID-05",
+      "semantic_input_sha256": "506a761d156e3368a0518b0aedaa22d759eaf5d6783027be5e504241c92b6fcb",
+      "split": "hidden"
+    },
+    {
+      "family": "persuasive_prose_trap",
+      "reference_commitment_sha256": "1185f95e7183239e3c623ce21966de57a23936d5ee4293190672dda662705a99",
+      "scenario_id": "V02-HID-06",
+      "semantic_input_sha256": "8cc701d51b2ba83211356337ba0c44a43250fc04cd71ec4a35f962ebf24a2319",
+      "split": "hidden"
+    }
+  ],
+  "mode": "RESEARCH_ONLY_OFFLINE",
+  "private_bundle_sha256": "6d9a84bccb5272479ff5a21089c1cb9ba5a1d3261761240a3a6820b157fe89e7",
+  "private_manifest_sha256": "658f2b38485f9266e8e5647e564b84b96f955598bb8dc3dc7d50d7f55a9e7cdd",
+  "provider_calls": 0,
+  "scenario_count": 12,
+  "schema": "understanding-rehearsal-commitment-v0.2",
+  "shared_governance_sha256": "65cd3d34c1242c4176e1688fa368bfa45e8998600135814b27e299b12947e0bf"
+}
