@@ -1,0 +1,28 @@
+{
+  "canonical_bytes_reproducible": true,
+  "custody_surface": {
+    "canonical_package_file_id": "1bM_-zvk9VHf0NNxMN5zrGaHuX3Jcsj57",
+    "canonical_package_name": "mentaury_b0_b1_c1_v0_2_private_custody_package.zip",
+    "folder_id": "13rhlN_OtarVcVl4zzPicAmRYopBlRmdV",
+    "folder_path": "Mentaury Soul/Research/B0-B1-C1/v0.2-private-custody",
+    "provider": "Google Drive",
+    "visibility_verified": "not_shared"
+  },
+  "development_count": 6,
+  "execution_authority": "NOT_GRANTED",
+  "experiment_version": "0.2",
+  "hidden_count": 6,
+  "human_semantic_validation": "ABSENT",
+  "model_execution": "NOT_STARTED",
+  "per_scenario_evaluator_reference_hashes_verified": true,
+  "per_scenario_model_input_hashes_verified": true,
+  "private_bundle_sha256": "6d9a84bccb5272479ff5a21089c1cb9ba5a1d3261761240a3a6820b157fe89e7",
+  "private_manifest_sha256": "658f2b38485f9266e8e5647e564b84b96f955598bb8dc3dc7d50d7f55a9e7cdd",
+  "provider_calls": 0,
+  "receipt_semantics": "POST_RECOVERY_EVIDENCE. The canonical ZIP was frozen before this receipt existed; the ZIP internal NOT_RUN receipt is a prerecovery template and is not the final recovery status.",
+  "recovered_zip_sha256": "f6b73a6508ca96c85e1d8ac0678796d5909265ba6d0d2ad95553071a2c1f3d24",
+  "recovery_method": "Fresh route resolution through Drive folder hierarchy, raw Drive download, independent byte/hash recomputation from recovered object.",
+  "scenario_records_verified": 12,
+  "schema_version": "mentaury-b0-b1-c1-custody-recovery-receipt-v0.2",
+  "status": "PASS"
+}
