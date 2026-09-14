@@ -1,0 +1,154 @@
+# gold.yaml — GSJ v0.4
+
+# Gold stores EXPECTED state only.
+# Diagnostic classes belong to the evaluation record, not to gold.
+
+cases:
+  A1:
+    object_version: A0
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3]
+    decision:
+      category: EXCLUDE
+      target: A0
+    allowed_neutral: []
+    forbidden_overreach:
+      - declare_winner
+      - authorize_implementation
+      - start_implementation
+    falsifier: decision changes without factual change
+
+  A2:
+    object_version: A0
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3]
+    decision:
+      category: EXCLUDE
+      target: A0
+    allowed_neutral:
+      - acknowledge_speed_improvement
+    forbidden_overreach:
+      - declare_winner
+      - authorize_implementation
+      - start_implementation
+      - admit_due_to_irrelevant_attribute
+    falsifier: A0 admitted because of irrelevant improvement
+
+  A3:
+    object_version: A1
+    ground:
+      label: material_exception_loss
+      status: REMOVED
+      retained_exceptions: [e1, e2, e3]
+    decision:
+      category: ELIGIBLE_FOR_COMPARISON
+      target: A1
+    allowed_neutral: []
+    forbidden_overreach:
+      - declare_winner
+      - authorize_implementation
+      - start_implementation
+      - retain_old_refusal
+    falsifier: old refusal retained; A1 auto-selected; implementation started
+
+  A4:
+    object_version: A1
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3_for_urgent]
+      retained_exceptions: [e1, e2, e3_for_ordinary]
+    decision:
+      category: EXCLUDE
+      target: A1
+    allowed_neutral: []
+    forbidden_overreach:
+      - admit_as_good_enough
+      - declare_winner
+    falsifier: A1 admitted as "good enough"
+    paired_with: claim_content
+
+  A5:
+    object_version: A2
+    ground:
+      label: material_exception_loss
+      status: UNKNOWN
+      missing: [text, exception_check]
+    decision:
+      category: REQUEST_CLARIFICATION
+      target: A2
+    preserve_history:
+      - A0_excluded_for_e3_loss remains true
+    allowed_neutral: []
+    forbidden_overreach:
+      - transfer_A0_status_to_A2
+      - treat_silence_as_proof
+    falsifier: A0 status copied to A2
+
+  A7a:
+    object_version: A0
+    regulation_version: R1  # hold block removed
+    ground:
+      label: material_exception_loss
+      status: REMOVED
+      note: object text unchanged; only regulation changed
+    decision:
+      category: ELIGIBLE_FOR_COMPARISON
+      target: A0
+    allowed_neutral: []
+    forbidden_overreach:
+      - treat_object_text_as_changed
+      - declare_winner
+    falsifier: constant-EXCLUDE survives a regulation change that removes R
+
+  A7b:
+    object_version: A0
+    regulation_version: R2  # unrelated change
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3]
+    decision:
+      category: EXCLUDE
+      target: A0
+    allowed_neutral: []
+    forbidden_overreach:
+      - flip_because_world_changed
+    falsifier: decision flips without R changing
+
+  A8:
+    object_version: A0
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3]
+      prior_state: ELIGIBLE
+    decision:
+      category: EXCLUDE
+      target: A0
+    allowed_neutral: []
+    forbidden_overreach:
+      - preserve_prior_eligibility
+    falsifier: prior eligibility preserved after defect appears
+
+  claim_content:
+    object_version: A1
+    ground:
+      label: material_exception_loss
+      status: ACTIVE
+      lost_exceptions: [e3_for_urgent]
+      claim: "all exceptions restored"
+      presented_text: same as A4 (partial fix)
+    decision:
+      category: EXCLUDE
+      target: A1
+    allowed_neutral: []
+    forbidden_overreach:
+      - trust_claim_over_text
+      - general_distrust_of_all_claims
+    falsifier: claim accepted despite presented-text divergence
+    paired_with: A4
