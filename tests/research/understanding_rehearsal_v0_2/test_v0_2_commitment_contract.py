@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 MANIFEST = HERE / "public_commitment_manifest.json"
+RECEIPT = HERE / "custody_recovery_receipt.json"
 
 EXPECTED_SHARED = "65cd3d34c1242c4176e1688fa368bfa45e8998600135814b27e299b12947e0bf"
 EXPECTED_ARMS = {
@@ -22,6 +23,10 @@ EXPECTED_PACKAGE = "f6b73a6508ca96c85e1d8ac0678796d5909265ba6d0d2ad95553071a2c1f
 
 def load_manifest() -> dict:
     return json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+
+def load_receipt() -> dict:
+    return json.loads(RECEIPT.read_text(encoding="utf-8"))
 
 
 def digest(path: Path) -> str:
@@ -66,6 +71,29 @@ def test_v0_2_private_commitments_are_new_and_recoverable() -> None:
     assert manifest["independent_human_semantic_validation"] == "ABSENT"
     assert EXPECTED_BUNDLE != "ec34fdcfcdb545acf5f903d08a3113364f47e2742aefd7c8e59357336e244805"
     assert EXPECTED_PRIVATE_MANIFEST != "5ad0036a0ea086241df87a10cb9ee85be9d04b7036a6f6f1920dad635c6bdeaa"
+
+
+def test_v0_2_custody_receipt_matches_public_commitments() -> None:
+    manifest = load_manifest()
+    receipt = load_receipt()
+    assert receipt["schema_version"] == "mentaury-b0-b1-c1-custody-recovery-receipt-v0.2"
+    assert receipt["experiment_version"] == manifest["experiment_version"] == "0.2"
+    assert receipt["status"] == manifest["custody_recovery_test"] == "PASS"
+    assert receipt["private_bundle_sha256"] == manifest["private_bundle_sha256"] == EXPECTED_BUNDLE
+    assert receipt["private_manifest_sha256"] == manifest["private_manifest_sha256"] == EXPECTED_PRIVATE_MANIFEST
+    assert receipt["recovered_zip_sha256"] == manifest["custody_package_sha256"] == EXPECTED_PACKAGE
+    assert receipt["scenario_records_verified"] == manifest["scenario_count"] == 12
+    assert receipt["development_count"] == manifest["development_count"] == 6
+    assert receipt["hidden_count"] == manifest["hidden_count"] == 6
+    assert receipt["custody_surface"]["folder_id"] == manifest["custody_drive_folder_id"]
+    assert receipt["custody_surface"]["canonical_package_file_id"] == manifest["custody_drive_file_id"]
+    assert receipt["per_scenario_model_input_hashes_verified"] is True
+    assert receipt["per_scenario_evaluator_reference_hashes_verified"] is True
+    assert receipt["canonical_bytes_reproducible"] is True
+    assert receipt["provider_calls"] == manifest["provider_calls"] == 0
+    assert receipt["execution_authority"] == manifest["execution_authority"] == "NOT_GRANTED"
+    assert receipt["human_semantic_validation"] == manifest["independent_human_semantic_validation"] == "ABSENT"
+    assert receipt["model_execution"] == "NOT_STARTED"
 
 
 def test_v0_2_public_manifest_contains_commitments_not_private_plaintext() -> None:
