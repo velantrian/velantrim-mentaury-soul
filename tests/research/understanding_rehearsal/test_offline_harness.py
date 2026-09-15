@@ -95,7 +95,22 @@ def test_v0_2_complete_symmetric_trio_uses_same_harness_path() -> None:
         assert validate_output_record(ROOT, record, "0.2") == []
     packet, mapping = make_blind_packet(ROOT, records, "seed-v02", "0.2")
     assert packet["scenario_id"] == commitment_manifest(ROOT, "0.2")["items"][0]["scenario_id"]
+    assert packet["commitment_version"] == "0.2"
+    assert mapping["commitment_version"] == "0.2"
     assert set(mapping["mapping"].values()) == set(ARMS)
+
+
+def test_v0_2_freeze_receipt_carries_commitment_provenance() -> None:
+    receipt = output_freeze_receipt(_records("0.2"), "0.2")
+    assert receipt["commitment_version"] == "0.2"
+    assert len(receipt["commitment_binding_sha256"]) == 64
+    assert len(receipt["receipt_sha256"]) == 64
+
+
+def test_v0_1_freeze_receipt_shape_is_backward_compatible() -> None:
+    receipt = output_freeze_receipt(_base_records())
+    assert "commitment_version" not in receipt
+    assert "commitment_binding_sha256" not in receipt
 
 
 def test_v0_2_scenario_is_not_accepted_under_v0_1_binding() -> None:
