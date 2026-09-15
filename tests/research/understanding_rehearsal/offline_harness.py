@@ -11,6 +11,10 @@ from typing import Any
 SCHEMA = "understanding-arm-output-v0.1"
 EVALUATION_SCHEMA = "understanding-blind-evaluation-v0.1"
 ARMS = ("B0", "B1", "C1")
+COMMITMENT_MANIFESTS = {
+    "0.1": Path("tests/research/understanding_rehearsal/corpus_commitment_manifest.json"),
+    "0.2": Path("tests/research/understanding_rehearsal_v0_2/public_commitment_manifest.json"),
+}
 DIMENSIONS = (
     "material_constraint_coverage",
     "meaningful_alternative_coverage",
@@ -74,16 +78,20 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def commitment_manifest(root: Path) -> dict[str, Any]:
-    return load_json(root / "tests/research/understanding_rehearsal/corpus_commitment_manifest.json")
+def commitment_manifest(root: Path, version: str = "0.1") -> dict[str, Any]:
+    try:
+        relative_path = COMMITMENT_MANIFESTS[version]
+    except KeyError as exc:
+        raise ValueError(f"unsupported commitment version: {version}") from exc
+    return load_json(root / relative_path)
 
 
 def _item_by_id(manifest: dict[str, Any], scenario_id: str) -> dict[str, Any] | None:
     return next((item for item in manifest["items"] if item["scenario_id"] == scenario_id), None)
 
 
-def repository_commitment_issues(root: Path) -> list[HarnessIssue]:
-    manifest = commitment_manifest(root)
+def repository_commitment_issues(root: Path, commitment_version: str = "0.1") -> list[HarnessIssue]:
+    manifest = commitment_manifest(root, commitment_version)
     here = root / "tests/research/understanding_rehearsal"
     paths = {
         "B0": here / "b0_profile.txt",
@@ -117,10 +125,14 @@ def _metadata_projection(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def validate_output_record(root: Path, record: Any) -> list[HarnessIssue]:
+def validate_output_record(
+    root: Path,
+    record: Any,
+    commitment_version: str = "0.1",
+) -> list[HarnessIssue]:
     if not isinstance(record, dict):
         return [HarnessIssue("OUTPUT-TYPE", "$", "record must be object")]
-    manifest = commitment_manifest(root)
+    manifest = commitment_manifest(root, commitment_version)
     issues: list[HarnessIssue] = []
     required = {
         "schema", "run_id", "scenario_id", "arm", "semantic_input_sha256",
@@ -165,12 +177,16 @@ def validate_output_record(root: Path, record: Any) -> list[HarnessIssue]:
     return issues
 
 
-def validate_arm_trio(root: Path, records: list[dict[str, Any]]) -> list[HarnessIssue]:
+def validate_arm_trio(
+    root: Path,
+    records: list[dict[str, Any]],
+    commitment_version: str = "0.1",
+) -> list[HarnessIssue]:
     issues: list[HarnessIssue] = []
     if len(records) != 3:
         return [HarnessIssue("INCOMPLETE-RUN", "$", "exactly three arm outputs are required")]
     for index, record in enumerate(records):
-        for issue in validate_output_record(root, record):
+        for issue in validate_output_record(root, record, commitment_version):
             issues.append(HarnessIssue(issue.code, f"$[{index}]{issue.path[1:]}", issue.detail))
     if issues:
         return issues
@@ -185,7 +201,10 @@ def validate_arm_trio(root: Path, records: list[dict[str, Any]]) -> list[Harness
     return issues
 
 
-def output_freeze_receipt(records: list[dict[str, Any]]) -> dict[str, Any]:
+def output_freeze_receipt(
+    records: list[dict[str, Any]],
+    commitment_version: str = "0.1",
+) -> dict[str, Any]:
     ordered = sorted(records, key=lambda row: row["arm"])
     frozen = [
         {
@@ -196,17 +215,29 @@ def output_freeze_receipt(records: list[dict[str, Any]]) -> dict[str, Any]:
         }
         for row in ordered
     ]
-    return {
+    receipt = {
         "schema": "understanding-output-freeze-receipt-v0.1",
         "scenario_id": ordered[0]["scenario_id"],
         "run_id": ordered[0]["run_id"],
         "outputs": frozen,
         "receipt_sha256": sha256_bytes(canonical_json(frozen)),
     }
+    if commitment_version != "0.1":
+        receipt["commitment_version"] = commitment_version
+        receipt["commitment_binding_sha256"] = sha256_bytes(canonical_json({
+            "commitment_version": commitment_version,
+            "outputs": frozen,
+        }))
+    return receipt
 
 
-def make_blind_packet(root: Path, records: list[dict[str, Any]], seed: str) -> tuple[dict[str, Any], dict[str, Any]]:
-    issues = validate_arm_trio(root, records)
+def make_blind_packet(
+    root: Path,
+    records: list[dict[str, Any]],
+    seed: str,
+    commitment_version: str = "0.1",
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    issues = validate_arm_trio(root, records, commitment_version)
     if issues:
         raise ValueError(";".join(issue.code for issue in issues))
     scenario_id = records[0]["scenario_id"]
@@ -228,6 +259,8 @@ def make_blind_packet(root: Path, records: list[dict[str, Any]], seed: str) -> t
         "scenario_id": scenario_id,
         "outputs": packet_outputs,
     }
+    if commitment_version != "0.1":
+        packet["commitment_version"] = commitment_version
     sealed = {
         "schema": "understanding-blind-mapping-v0.1",
         "scenario_id": scenario_id,
@@ -235,6 +268,8 @@ def make_blind_packet(root: Path, records: list[dict[str, Any]], seed: str) -> t
         "mapping": mapping,
         "packet_sha256": sha256_bytes(canonical_json(packet)),
     }
+    if commitment_version != "0.1":
+        sealed["commitment_version"] = commitment_version
     return packet, sealed
 
 

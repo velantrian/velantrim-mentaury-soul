@@ -24,12 +24,12 @@ from tests.research.understanding_rehearsal.offline_harness import (
 ROOT = Path(__file__).resolve().parents[3]
 
 
-def _base_records() -> list[dict]:
-    manifest = commitment_manifest(ROOT)
+def _records(commitment_version: str = "0.1") -> list[dict]:
+    manifest = commitment_manifest(ROOT, commitment_version)
     item = manifest["items"][0]
     common = {
         "schema": SCHEMA,
-        "run_id": "REHEARSAL-LOCAL-001",
+        "run_id": f"REHEARSAL-LOCAL-{commitment_version.replace('.', '')}",
         "scenario_id": item["scenario_id"],
         "semantic_input_sha256": item["semantic_input_sha256"],
         "shared_governance_sha256": manifest["shared_governance_sha256"],
@@ -53,6 +53,10 @@ def _base_records() -> list[dict]:
     return rows
 
 
+def _base_records() -> list[dict]:
+    return _records("0.1")
+
+
 def _evaluation(packet_id: str, scenario_id: str) -> dict:
     return {
         "schema": EVALUATION_SCHEMA,
@@ -73,11 +77,50 @@ def test_repository_commitments_self_verify() -> None:
     assert repository_commitment_issues(ROOT) == []
 
 
+def test_v0_2_repository_commitments_self_verify() -> None:
+    assert repository_commitment_issues(ROOT, "0.2") == []
+
+
 def test_complete_symmetric_trio_passes() -> None:
     records = _base_records()
     assert validate_arm_trio(ROOT, records) == []
     for record in records:
         assert validate_output_record(ROOT, record) == []
+
+
+def test_v0_2_complete_symmetric_trio_uses_same_harness_path() -> None:
+    records = _records("0.2")
+    assert validate_arm_trio(ROOT, records, "0.2") == []
+    for record in records:
+        assert validate_output_record(ROOT, record, "0.2") == []
+    packet, mapping = make_blind_packet(ROOT, records, "seed-v02", "0.2")
+    assert packet["scenario_id"] == commitment_manifest(ROOT, "0.2")["items"][0]["scenario_id"]
+    assert packet["commitment_version"] == "0.2"
+    assert mapping["commitment_version"] == "0.2"
+    assert set(mapping["mapping"].values()) == set(ARMS)
+
+
+def test_v0_2_freeze_receipt_carries_commitment_provenance() -> None:
+    receipt = output_freeze_receipt(_records("0.2"), "0.2")
+    assert receipt["commitment_version"] == "0.2"
+    assert len(receipt["commitment_binding_sha256"]) == 64
+    assert len(receipt["receipt_sha256"]) == 64
+
+
+def test_v0_1_freeze_receipt_shape_is_backward_compatible() -> None:
+    receipt = output_freeze_receipt(_base_records())
+    assert "commitment_version" not in receipt
+    assert "commitment_binding_sha256" not in receipt
+
+
+def test_v0_2_scenario_is_not_accepted_under_v0_1_binding() -> None:
+    record = _records("0.2")[0]
+    assert "OUTPUT-SCENARIO-UNKNOWN" in codes(validate_output_record(ROOT, record, "0.1"))
+
+
+def test_unknown_commitment_version_is_rejected() -> None:
+    with pytest.raises(ValueError, match="unsupported commitment version"):
+        commitment_manifest(ROOT, "9.9")
 
 
 def test_missing_arm_is_incomplete_not_synthesized() -> None:
