@@ -201,7 +201,10 @@ def validate_arm_trio(
     return issues
 
 
-def output_freeze_receipt(records: list[dict[str, Any]]) -> dict[str, Any]:
+def output_freeze_receipt(
+    records: list[dict[str, Any]],
+    commitment_version: str = "0.1",
+) -> dict[str, Any]:
     ordered = sorted(records, key=lambda row: row["arm"])
     frozen = [
         {
@@ -212,13 +215,20 @@ def output_freeze_receipt(records: list[dict[str, Any]]) -> dict[str, Any]:
         }
         for row in ordered
     ]
-    return {
+    receipt = {
         "schema": "understanding-output-freeze-receipt-v0.1",
         "scenario_id": ordered[0]["scenario_id"],
         "run_id": ordered[0]["run_id"],
         "outputs": frozen,
         "receipt_sha256": sha256_bytes(canonical_json(frozen)),
     }
+    if commitment_version != "0.1":
+        receipt["commitment_version"] = commitment_version
+        receipt["commitment_binding_sha256"] = sha256_bytes(canonical_json({
+            "commitment_version": commitment_version,
+            "outputs": frozen,
+        }))
+    return receipt
 
 
 def make_blind_packet(
@@ -249,6 +259,8 @@ def make_blind_packet(
         "scenario_id": scenario_id,
         "outputs": packet_outputs,
     }
+    if commitment_version != "0.1":
+        packet["commitment_version"] = commitment_version
     sealed = {
         "schema": "understanding-blind-mapping-v0.1",
         "scenario_id": scenario_id,
@@ -256,6 +268,8 @@ def make_blind_packet(
         "mapping": mapping,
         "packet_sha256": sha256_bytes(canonical_json(packet)),
     }
+    if commitment_version != "0.1":
+        sealed["commitment_version"] = commitment_version
     return packet, sealed
 
 
