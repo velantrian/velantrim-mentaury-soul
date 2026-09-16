@@ -217,3 +217,58 @@ PHENOMENON != MECHANISM
 CORRECT OUTPUT != PROOF OF UNDERSTANDING
 FAILURE TO COMPOSE != PROOF OF NO UNDERSTANDING
 ```
+
+## 11. Practical thread-memory / relevance checkpoint — 2026-09-16
+
+A direct product-use observation sharpens the research surface: a remembered item can be true and personally meaningful while still being a poor input to the current task.
+
+Therefore the bounded research unit should distinguish at least:
+
+```text
+DURABLE MEMORY EXISTS
+!=
+MEMORY RETRIEVED
+!=
+MEMORY TASK-RELEVANT
+!=
+MEMORY USED APPROPRIATELY
+```
+
+Additional distinctions:
+
+```text
+PERSONALLY RELEVANT != TASK RELEVANT
+RECALLED != TRUE
+OLD MEMORY != CURRENT STATE
+NOT RETRIEVED != ABSENT
+```
+
+A minimal **Active Thread** is a candidate working representation of current cognitive position, not a new storage owner or Soul module:
+
+```text
+WHERE WE STOPPED
+WHAT REMAINS OPEN
+NEXT STEP
+OPTIONAL PRIMARY SOURCES
+```
+
+Active Thread is a practical checkpoint projection that may draw on the frozen `Cognitive Orientation View v0.1` (§6), materially relevant bounded history, and source references. It does not modify, extend, or compete with that freeze and does not introduce new orientation semantics, persistence ownership, or runtime requirements.
+
+A separate navigation map can answer where knowledge lives; the Active Thread answers where the current thought is. The two functions should not be collapsed by default.
+
+For early dogfooding, an initial set of three observable dimensions is useful for collecting failure cases without promoting them to scientific validation:
+
+- **Continuity** — did a fresh context recover the correct working position?
+- **Relevance** — did the recalled material help the present task?
+- **Intrusion** — did true-but-irrelevant memory distort or distract the current task?
+
+These observations may later motivate bounded fixtures around cognition-side memory use, but they are not themselves TCE or EDCA experiments.
+
+```text
+THREAD MEMORY DOGFOODING != CONTROLLED EXPERIMENT
+GOOD RETRIEVAL != EDCA
+ACTIVE THREAD SUCCESS != TCE PASS
+USEFUL BEHAVIOR != UNDERSTANDING PROOF
+```
+
+The practical target is intentionally modest: make context rollover survivable for real work, then use the resulting failure corpus to decide whether the next missing distinction belongs to continuity, provenance/version qualification, routing/orientation, applicability, or another existing owner.

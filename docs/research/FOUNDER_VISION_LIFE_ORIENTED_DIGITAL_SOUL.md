@@ -127,3 +127,54 @@ DOCS-ONLY RECONCILIATION ≠ IMPLEMENTATION SELECTION
 ```
 
 Current Mentaury Soul governance, V1 status, safety boundaries, retrieval/tool restrictions, identity/relationship mutation constraints and deployment authority remain unchanged.
+
+## 7. Practical continuity / Active Thread checkpoint — 2026-09-16
+
+A current practical expression of the founder intent is deliberately smaller than the long-horizon digital-soul vision.
+
+The immediate user need is a system that **does not restart the intellectual relationship from zero whenever a model context, chat, device, or working session changes**. It should be able to restore the current position of thought: where the work stopped, what remains open, and what next step is still live.
+
+This practical checkpoint does not require a perfect memory system or a new Soul module. A minimal working state can be represented as:
+
+```text
+WHERE WE STOPPED
+WHAT REMAINS OPEN
+NEXT STEP
+OPTIONAL: 2–3 PRIMARY SOURCES
+```
+
+The intended long-term UX is that the system proposes this checkpoint automatically and the human confirms or corrects it. External memory should reduce cognitive load rather than create a new manual journaling obligation.
+
+A separate navigation surface such as a Knowledge Tree answers **where knowledge lives**. An Active Thread answers **where the current thought is**. These roles should not be collapsed.
+
+A second practical finding is that memory quality is not only a question of whether something can be recalled. A true memory can still be wrong for the present task.
+
+```text
+MEMORY AVAILABLE ≠ MEMORY RELEVANT
+PERSONALLY RELEVANT ≠ TASK RELEVANT
+RECALLED ≠ TRUE
+OLD MEMORY ≠ CURRENT STATE
+NOT RETRIEVED ≠ ABSENT
+```
+
+This makes cognition-side selection and use of memory a direct Mentaury Soul research concern while leaving storage/retrieval ownership boundaries unchanged.
+
+The desired context-rollover behavior is conceptually:
+
+```text
+ACTIVE CONTEXT
+→ checkpoint current thread
+→ preserve bounded working state
+→ start fresh model context
+→ restore Active Thread + only relevant durable context
+→ continue
+```
+
+This is a practical usability target and a source of future research observations. It does **not** by itself establish TCE, EDCA, understanding, identity continuity, learning, or any runtime authority.
+
+```text
+THREAD MEMORY DOGFOODING ≠ CONTROLLED EXPERIMENT
+GOOD RETRIEVAL ≠ EDCA
+ACTIVE THREAD SUCCESS ≠ TCE PASS
+USEFUL CONTINUITY ≠ IDENTITY PROOF
+```
