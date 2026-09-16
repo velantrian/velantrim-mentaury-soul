@@ -252,9 +252,11 @@ NEXT STEP
 OPTIONAL PRIMARY SOURCES
 ```
 
+Active Thread is a practical checkpoint projection that may draw on the frozen `Cognitive Orientation View v0.1` (§6), materially relevant bounded history, and source references. It does not modify, extend, or compete with that freeze and does not introduce new orientation semantics, persistence ownership, or runtime requirements.
+
 A separate navigation map can answer where knowledge lives; the Active Thread answers where the current thought is. The two functions should not be collapsed by default.
 
-For early dogfooding, three observable scores are sufficient to collect failure cases without promoting them to scientific validation:
+For early dogfooding, an initial set of three observable dimensions is useful for collecting failure cases without promoting them to scientific validation:
 
 - **Continuity** — did a fresh context recover the correct working position?
 - **Relevance** — did the recalled material help the present task?
