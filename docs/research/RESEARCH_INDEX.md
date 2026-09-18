@@ -798,3 +798,19 @@ NEXT_BOUNDED_RESEARCH = ISSUE_129_POST_HDE_COGNITIVE_GAP_DISCRIMINATION   # CLOS
 NON_PROJECTION_RUNTIME = NOT_AUTHORIZED
 NO_POST_P1_003_RUNTIME_MILESTONE_AUTHORIZED
 ```
+
+---
+
+## 2026-09-18 · History-conditioned cognition / orientation delta
+
+- [History-Conditioned Cognition / Orientation — Reconciliation](HISTORY_CONDITIONED_COGNITION_RECONCILIATION_2026_09_18.md)
+
+```text
+Status: RESEARCH SYNTHESIS · NON-CANONICAL · DOCS_ONLY
+HISTORY ≠ ARCHIVE
+CONTENT CONTINUITY ≠ ORIENTATION CONTINUITY   # research synthesis, not isolated empirical construct
+NO NEW MODULE / OWNER / RUNTIME AUTHORITY
+ARCHITECTURE CONSEQUENCE = NONE
+```
+
+Next bounded research question: after interruption, discriminate `CONTENT` vs `GOAL` vs `CONTEXT` vs `RATIONALE / ORIENTATION-LIKE STATE` under matched-information and matched-format / budget controls.
