@@ -813,4 +813,4 @@ NO NEW MODULE / OWNER / RUNTIME AUTHORITY
 ARCHITECTURE CONSEQUENCE = NONE
 ```
 
-Next bounded research question: after interruption, discriminate `CONTENT` vs `GOAL` vs `CONTEXT` vs `RATIONALE / ORIENTATION-LIKE STATE` under matched-information controls.
+Next bounded research question: after interruption, discriminate `CONTENT` vs `GOAL` vs `CONTEXT` vs `RATIONALE / ORIENTATION-LIKE STATE` under matched-information and matched-format / budget controls.
