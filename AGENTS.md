@@ -69,6 +69,18 @@ Historical checkpoints remain history. Do not rewrite provenance to make current
 
 ## 6. Documentation Impact Guard
 
-The current guard is **contract-level**, not executable CI. Use `docs/ai/project_manifest.json`, the structural path hints, and the three change classes above as conservative triage.
+The current documentation freshness protection is **hybrid**:
 
-If a changed path affects a listed structural hint or an owning architecture/Canon surface, classify it at least as `REVIEW_REQUIRED` until the maintained landing layer has been checked. An executable CI guard may be added later as a separate technical milestone; its absence does not weaken the staleness obligation.
+- bounded executable CI in `scripts/check_doc_freshness.py` checks selected currentness markers, active-navigation semantics and machine-snapshot consistency;
+- broader structural and visual impact review remains contract-level and must be treated as human `REVIEW_REQUIRED` until the maintained landing layer has been checked.
+
+Use `docs/ai/project_manifest.json`, the structural path hints, and the three change classes above as conservative triage. If a changed path affects a listed structural hint or an owning architecture/Canon surface, executable freshness CI does not remove the obligation to review the affected human landing representations.
+
+```text
+CI GUARD != COMPLETE SEMANTIC PROOF
+AUTOMATED FRESHNESS CHECK != HUMAN STRUCTURAL / VISUAL REVIEW
+CURRENTNESS CHECK != ARCHITECTURE AUTHORITY
+CI GREEN != RUNTIME / DEPLOYMENT / ACTION AUTHORITY
+```
+
+Further role-aware or semantic freshness expansion is a separate bounded milestone; it is not implied by the existing executable guard.
