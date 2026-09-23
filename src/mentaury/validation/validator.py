@@ -127,9 +127,9 @@ def _validate(
             ]
         active.add(identity)
         try:
-            issues: list[ValidationIssue] = []
+            array_issues: list[ValidationIssue] = []
             if len(value) < spec.min_items:
-                issues.append(
+                array_issues.append(
                     _issue(
                         ValidationCode.ARRAY_TOO_SHORT,
                         path,
@@ -137,10 +137,10 @@ def _validate(
                     )
                 )
             for index, item in enumerate(value):
-                issues.extend(
+                array_issues.extend(
                     _validate(item, spec.items, f"{path}[{index}]", active)
                 )
-            return issues
+            return array_issues
         finally:
             active.remove(identity)
 
@@ -158,11 +158,11 @@ def _validate(
             ]
         active.add(identity)
         try:
-            issues: list[ValidationIssue] = []
+            object_issues: list[ValidationIssue] = []
             string_keys = {key for key in value if isinstance(key, str)}
             for key in value:
                 if not isinstance(key, str):
-                    issues.append(
+                    object_issues.append(
                         _issue(
                             ValidationCode.NON_STRING_OBJECT_KEY,
                             f"{path}.<key>",
@@ -170,7 +170,7 @@ def _validate(
                         )
                     )
             for required in sorted(spec.required.difference(string_keys)):
-                issues.append(
+                object_issues.append(
                     _issue(
                         ValidationCode.MISSING_REQUIRED_FIELD,
                         f"{path}.{required}",
@@ -183,7 +183,7 @@ def _validate(
                 child_spec = spec.properties.get(key)
                 if child_spec is None:
                     if not spec.additional_properties:
-                        issues.append(
+                        object_issues.append(
                             _issue(
                                 ValidationCode.FORBIDDEN_FIELD,
                                 f"{path}.{key}",
@@ -191,10 +191,10 @@ def _validate(
                             )
                         )
                     continue
-                issues.extend(
+                object_issues.extend(
                     _validate(item, child_spec, f"{path}.{key}", active)
                 )
-            return issues
+            return object_issues
         finally:
             active.remove(identity)
 

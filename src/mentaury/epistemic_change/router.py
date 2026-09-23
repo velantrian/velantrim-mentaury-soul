@@ -48,7 +48,7 @@ def route_epistemic_change(
     if belief is not None:
         _verify_binding(record, belief)
 
-    canonical_input = {
+    canonical_input: dict[str, object] = {
         "contract_version": EPISTEMIC_CHANGE_CONTRACT_VERSION,
         "record": record.to_value(),
         "belief": belief.to_value() if belief is not None else None,
