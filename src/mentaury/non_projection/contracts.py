@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Final
+from typing import Final, Literal, overload
 
 NON_PROJECTION_CONTRACT_VERSION: Final[str] = "NPG-v0.1"
 ATTRIBUTED_INTERPRETATION_ENVELOPE_VERSION: Final[str] = "AIE-v0.1"
@@ -166,6 +166,18 @@ def _require_exact_type(value: object, expected: type[object], name: str) -> Non
 def _require_exact_enum(value: object, expected: type[StrEnum], name: str) -> None:
     if type(value) is not expected:
         raise NonProjectionContractError(f"{name} must be exact {expected.__name__} member")
+
+
+@overload
+def _require_string(
+    value: object, name: str, *, optional: Literal[False] = False
+) -> str: ...
+
+
+@overload
+def _require_string(
+    value: object, name: str, *, optional: Literal[True]
+) -> str | None: ...
 
 
 def _require_string(value: object, name: str, *, optional: bool = False) -> str | None:
