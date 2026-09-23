@@ -148,8 +148,8 @@ class R0IntegrityVerifier:
             return R0IntegrityReport(stream_id, True, 0, None)
 
         event_ids = {event.event_id for event in events}
-        for evidence in redactions.values():
-            if evidence.target_event_id not in event_ids:
+        for redaction in redactions.values():
+            if redaction.target_event_id not in event_ids:
                 return self._fail(
                     stream_id,
                     0,
