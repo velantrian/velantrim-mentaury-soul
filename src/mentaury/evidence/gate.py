@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timezone
+from typing import TypedDict, Unpack
 
 from mentaury.epistemic_types import ClaimType, EvidenceSide
 from mentaury.contracts import canonical_json_bytes, canonical_timestamp
@@ -23,6 +24,18 @@ from .contracts import (
 
 class EvidenceGateError(ValueError):
     """Raised when gate inputs are structurally invalid or incomplete."""
+
+
+class _EvidenceGateEvaluationInputs(TypedDict):
+    belief_id: str
+    belief_revision: int
+    claim_type: ClaimType
+    statement: str
+    evidence_for: Sequence[str]
+    evidence_against: Sequence[str]
+    records: Iterable[EvidenceRecord]
+    policy: EvidenceGatePolicy
+    evaluated_at: str
 
 
 class EvidenceGate:
@@ -169,6 +182,13 @@ class EvidenceGate:
             for record in sorted(snapshotted, key=lambda item: item.evidence_ref)
         ]
         evidence_set_digest = _digest({"records": records_value})
+        qualifying_for_refs = sorted(
+            record.evidence_ref for record in qualified_for
+        )
+        qualifying_against_refs = sorted(
+            record.evidence_ref for record in qualified_against
+        )
+        sorted_rejected_refs = sorted(rejected_refs)
         body = {
             "profile": EVIDENCE_GATE_PROFILE,
             "belief_id": belief_id,
@@ -180,15 +200,11 @@ class EvidenceGate:
             "policy_digest": policy_digest,
             "evidence_set_digest": evidence_set_digest,
             "outcome": outcome.value,
-            "qualifying_for_refs": sorted(
-                record.evidence_ref for record in qualified_for
-            ),
-            "qualifying_against_refs": sorted(
-                record.evidence_ref for record in qualified_against
-            ),
+            "qualifying_for_refs": qualifying_for_refs,
+            "qualifying_against_refs": qualifying_against_refs,
             "source_groups_for": groups_for,
             "source_groups_against": groups_against,
-            "rejected_refs": sorted(rejected_refs),
+            "rejected_refs": sorted_rejected_refs,
         }
         return EvidenceGateReceipt(
             profile=EVIDENCE_GATE_PROFILE,
@@ -201,18 +217,18 @@ class EvidenceGate:
             policy_digest=policy_digest,
             evidence_set_digest=evidence_set_digest,
             outcome=outcome,
-            qualifying_for_refs=tuple(body["qualifying_for_refs"]),
-            qualifying_against_refs=tuple(body["qualifying_against_refs"]),
+            qualifying_for_refs=tuple(qualifying_for_refs),
+            qualifying_against_refs=tuple(qualifying_against_refs),
             source_groups_for=tuple(groups_for),
             source_groups_against=tuple(groups_against),
-            rejected_refs=tuple(body["rejected_refs"]),
+            rejected_refs=tuple(sorted_rejected_refs),
             receipt_digest=_digest(body),
         )
 
     def verify_receipt(
         self,
         receipt_value: Mapping[str, object],
-        **evaluation_inputs: object,
+        **evaluation_inputs: Unpack[_EvidenceGateEvaluationInputs],
     ) -> EvidenceGateReceipt:
         if not isinstance(receipt_value, Mapping):
             raise EvidenceGateError("receipt must be an object")
