@@ -6,6 +6,10 @@ on:
       - 'src/mentaury/claim_belief_binding/**'
       - 'src/mentaury/claims/contracts.py'
       - 'src/mentaury/non_projection/contracts.py'
+      - 'src/mentaury/validation/validator.py'
+      - 'src/mentaury/epistemic_change/router.py'
+      - 'src/mentaury/storage/integrity.py'
+      - 'src/mentaury/beliefs/gated_reducer.py'
       - 'tests/typecheck/claim_bound_lifecycle_boundary.py'
       - '.github/workflows/typecheck.yml'
       - 'requirements-typecheck.lock'
@@ -44,7 +48,7 @@ jobs:
         run: python -m mypy --python-version 3.13 --warn-unused-ignores --show-error-codes --pretty tests/typecheck/claim_bound_lifecycle_boundary.py
 
   contract-string-narrowing:
-    name: Python 3.13 · Contract string narrowing
+    name: Python 3.13 · Focused source typing
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -64,8 +68,8 @@ jobs:
           python -m pip install -r requirements-typecheck.lock
           python -m pip install --no-build-isolation --no-deps -e .
           python -m pip check
-      - name: Verify required-string narrowing boundaries
-        run: python -m mypy --python-version 3.13 --follow-imports=skip --warn-unused-ignores --show-error-codes --pretty src/mentaury/claims/contracts.py src/mentaury/non_projection/contracts.py
+      - name: Verify repaired source typing boundaries
+        run: python -m mypy --python-version 3.13 --follow-imports=skip --warn-unused-ignores --show-error-codes --pretty src/mentaury/claims/contracts.py src/mentaury/non_projection/contracts.py src/mentaury/validation/validator.py src/mentaury/epistemic_change/router.py src/mentaury/storage/integrity.py src/mentaury/beliefs/gated_reducer.py
 
   package-baseline:
     if: github.event_name == 'workflow_dispatch'
