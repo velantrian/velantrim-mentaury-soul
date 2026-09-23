@@ -403,9 +403,12 @@ def _peek_registry_availability(value: object) -> RegistryAvailability | None:
         return value.availability
     if not isinstance(value, Mapping):
         return None
+    raw_availability = value.get("availability")
+    if not isinstance(raw_availability, str):
+        return None
     try:
-        return RegistryAvailability(value.get("availability"))
-    except (TypeError, ValueError):
+        return RegistryAvailability(raw_availability)
+    except ValueError:
         return None
 
 
@@ -431,7 +434,7 @@ def _parse_registry_snapshot(value: object) -> RegistrySnapshot:
             revision, "live head revision"
         )
     return RegistrySnapshot(
-        availability=RegistryAvailability(mapping["availability"]),
+        availability=RegistryAvailability(_string(mapping["availability"], "availability")),
         unavailable_reason=_optional_string(
             mapping["unavailable_reason"], "unavailable_reason"
         ),
@@ -439,7 +442,10 @@ def _parse_registry_snapshot(value: object) -> RegistrySnapshot:
             mapping["registry_schema_version"], "registry_schema_version"
         ),
         live_heads=heads,
-        records=tuple(_array(mapping["records"], "records")),
+        records=tuple(
+            _mapping(item, "registry record")
+            for item in _array(mapping["records"], "records")
+        ),
     )
 
 
@@ -485,7 +491,7 @@ def _parse_record(value: object) -> CapabilityLeaseRecord:
         supersedes_revision=_optional_positive(
             mapping["supersedes_revision"], "supersedes_revision"
         ),
-        status=LeaseStatus(mapping["status"]),
+        status=LeaseStatus(_string(mapping["status"], "status")),
         tool_id=_optional_string(mapping["tool_id"], "tool_id"),
         granted_by=GrantedBy(
             actor_type=_string(granted["actor_type"], "actor_type"),
