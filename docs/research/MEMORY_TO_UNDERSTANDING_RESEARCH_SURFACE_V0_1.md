@@ -272,3 +272,58 @@ USEFUL BEHAVIOR != UNDERSTANDING PROOF
 ```
 
 The practical target is intentionally modest: make context rollover survivable for real work, then use the resulting failure corpus to decide whether the next missing distinction belongs to continuity, provenance/version qualification, routing/orientation, applicability, or another existing owner.
+
+## 12. Source-bound donor note — retrieval, reconstruction, and recursive derivation · 2026-09-24
+
+**Status:** `SOURCE-BOUND RESEARCH NOTE · NON-CANONICAL · DOCS_ONLY`  
+**Runtime authority:** `NONE`  
+**Architecture promotion:** `NONE`  
+**New organ/module:** `NO`
+
+Source: user-supplied transcript of a 10:39 YouTube video by Keith Scott-Mumby, discussed in the research thread as “fractal memory”.
+
+### Transcript-supported core
+
+The bounded donor value is that human memory is reconstructive rather than guaranteed verbatim replay, and that reconsolidation research is relevant to the possibility that retrieved memories can, under some conditions, become labile and be updated.
+
+Do not strengthen this into:
+
+```text
+EVERY RETRIEVAL REWRITES MEMORY
+```
+
+Boundary conditions matter.
+
+### Author-specific / not established here
+
+The transcript's `MIMP → MIMP+ → MIMP++` / “fractalization” framing, any suggestion of a pristine recoverable original, and related branded terminology are treated as source claims or metaphor, not as an established scientific mechanism.
+
+### Velantrim research inference
+
+A derived-representation chain such as:
+
+```text
+SOURCE / EVENT
+→ INTERPRETATION
+→ SUMMARY
+→ SUMMARY-OF-SUMMARY
+```
+
+may accumulate provenance, status, commitment, or authority drift if a later representation is treated as though it were the source.
+
+This is a cognition-side failure candidate, not a demonstrated mechanism and not a new invariant. It cross-references existing substrate-neutral distinctions:
+
+```text
+SUMMARY != SOURCE
+RETRIEVAL != REVISION
+CURRENT != HISTORY
+```
+
+Research caution:
+
+- keep a reopenable path to the primary source/event;
+- keep derived interpretations attributable;
+- do not let retrieval or summary silently replace source history;
+- do not allow repetition of a derived representation to acquire durable authority.
+
+This note creates no experiment ID and authorizes no implementation.
