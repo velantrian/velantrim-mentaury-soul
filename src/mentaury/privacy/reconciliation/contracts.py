@@ -198,15 +198,35 @@ class PrivacyMaterial:
         if isinstance(value, cls):
             return value
         mapping = _require_exact_mapping(value, name="material", fields=cls._FIELDS)
+        material_id = _require_non_empty(mapping["material_id"], "material_id")
+        privacy_class = _require_enum(mapping["privacy_class"], PrivacyClass, "privacy_class")
+        state = _require_enum(mapping["state"], MaterialState, "state")
+        policy_revision = _require_positive_int(mapping["policy_revision"], "policy_revision")
+        permitted_purposes = _require_canonical_strings(
+            mapping["permitted_purposes"], "permitted_purposes"
+        )
+        withdrawn_purposes = _require_canonical_strings(
+            mapping["withdrawn_purposes"], "withdrawn_purposes"
+        )
+        permitted_branches = _require_canonical_strings(
+            mapping["permitted_branches"], "permitted_branches"
+        )
+        if set(permitted_purposes) & set(withdrawn_purposes):
+            raise PrivacyContractError(
+                "a purpose cannot be both permitted and withdrawn"
+            )
+        third_party_permission = _require_bool(
+            mapping["third_party_permission"], "third_party_permission"
+        )
         return cls(
-            material_id=mapping["material_id"],
-            privacy_class=mapping["privacy_class"],
-            state=mapping["state"],
-            policy_revision=mapping["policy_revision"],
-            permitted_purposes=mapping["permitted_purposes"],
-            withdrawn_purposes=mapping["withdrawn_purposes"],
-            permitted_branches=mapping["permitted_branches"],
-            third_party_permission=mapping["third_party_permission"],
+            material_id=material_id,
+            privacy_class=privacy_class,
+            state=state,
+            policy_revision=policy_revision,
+            permitted_purposes=permitted_purposes,
+            withdrawn_purposes=withdrawn_purposes,
+            permitted_branches=permitted_branches,
+            third_party_permission=third_party_permission,
         )
 
     def to_value(self) -> dict[str, object]:
@@ -278,14 +298,21 @@ class PrivacyCopy:
         if isinstance(value, cls):
             return value
         mapping = _require_exact_mapping(value, name="copy", fields=cls._FIELDS)
+        copy_id = _require_non_empty(mapping["copy_id"], "copy_id")
+        material_id = _require_non_empty(mapping["material_id"], "material_id")
+        branch_id = _require_non_empty(mapping["branch_id"], "branch_id")
+        surface = _require_enum(mapping["surface"], SurfaceKind, "surface")
+        policy_revision = _require_positive_int(mapping["policy_revision"], "policy_revision")
+        state = _require_enum(mapping["state"], CopyState, "state")
+        contains_material = _require_bool(mapping["contains_material"], "contains_material")
         return cls(
-            copy_id=mapping["copy_id"],
-            material_id=mapping["material_id"],
-            branch_id=mapping["branch_id"],
-            surface=mapping["surface"],
-            policy_revision=mapping["policy_revision"],
-            state=mapping["state"],
-            contains_material=mapping["contains_material"],
+            copy_id=copy_id,
+            material_id=material_id,
+            branch_id=branch_id,
+            surface=surface,
+            policy_revision=policy_revision,
+            state=state,
+            contains_material=contains_material,
         )
 
     def to_value(self) -> dict[str, object]:
@@ -322,11 +349,10 @@ class PrivacyAccessIntent:
         if isinstance(value, cls):
             return value
         mapping = _require_exact_mapping(value, name="intent", fields=cls._FIELDS)
-        return cls(
-            copy_id=mapping["copy_id"],
-            branch_id=mapping["branch_id"],
-            purpose=mapping["purpose"],
-        )
+        copy_id = _require_non_empty(mapping["copy_id"], "copy_id")
+        branch_id = _require_non_empty(mapping["branch_id"], "branch_id")
+        purpose = _require_non_empty(mapping["purpose"], "purpose")
+        return cls(copy_id=copy_id, branch_id=branch_id, purpose=purpose)
 
     def to_value(self) -> dict[str, object]:
         return {
@@ -360,10 +386,15 @@ class PrivacyReconciliationBudget:
         if isinstance(value, cls):
             return value
         mapping = _require_exact_mapping(value, name="budget", fields=cls._FIELDS)
+        max_serialized_bytes = _require_positive_int(
+            mapping["max_serialized_bytes"], "max_serialized_bytes"
+        )
+        max_purposes = _require_positive_int(mapping["max_purposes"], "max_purposes")
+        max_branches = _require_positive_int(mapping["max_branches"], "max_branches")
         return cls(
-            max_serialized_bytes=mapping["max_serialized_bytes"],
-            max_purposes=mapping["max_purposes"],
-            max_branches=mapping["max_branches"],
+            max_serialized_bytes=max_serialized_bytes,
+            max_purposes=max_purposes,
+            max_branches=max_branches,
         )
 
     def to_value(self) -> dict[str, object]:
