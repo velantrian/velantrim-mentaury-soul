@@ -211,6 +211,10 @@ class PrivacyMaterial:
         permitted_branches = _require_canonical_strings(
             mapping["permitted_branches"], "permitted_branches"
         )
+        if set(permitted_purposes) & set(withdrawn_purposes):
+            raise PrivacyContractError(
+                "a purpose cannot be both permitted and withdrawn"
+            )
         third_party_permission = _require_bool(
             mapping["third_party_permission"], "third_party_permission"
         )
