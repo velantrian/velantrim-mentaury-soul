@@ -12,6 +12,7 @@ on:
       - 'src/mentaury/beliefs/gated_reducer.py'
       - 'src/mentaury/capabilities/lease/resolver.py'
       - 'src/mentaury/evidence/gate.py'
+      - 'src/mentaury/privacy/reconciliation/contracts.py'
       - 'tests/typecheck/claim_bound_lifecycle_boundary.py'
       - '.github/workflows/typecheck.yml'
       - 'requirements-typecheck.lock'
@@ -71,7 +72,7 @@ jobs:
           python -m pip install --no-build-isolation --no-deps -e .
           python -m pip check
       - name: Verify repaired source typing boundaries
-        run: python -m mypy --python-version 3.13 --follow-imports=skip --warn-unused-ignores --show-error-codes --pretty src/mentaury/claims/contracts.py src/mentaury/non_projection/contracts.py src/mentaury/validation/validator.py src/mentaury/epistemic_change/router.py src/mentaury/storage/integrity.py src/mentaury/beliefs/gated_reducer.py src/mentaury/capabilities/lease/resolver.py src/mentaury/evidence/gate.py
+        run: python -m mypy --python-version 3.13 --follow-imports=skip --warn-unused-ignores --show-error-codes --pretty src/mentaury/claims/contracts.py src/mentaury/non_projection/contracts.py src/mentaury/validation/validator.py src/mentaury/epistemic_change/router.py src/mentaury/storage/integrity.py src/mentaury/beliefs/gated_reducer.py src/mentaury/capabilities/lease/resolver.py src/mentaury/evidence/gate.py src/mentaury/privacy/reconciliation/contracts.py
 
   package-baseline:
     if: github.event_name == 'workflow_dispatch'
