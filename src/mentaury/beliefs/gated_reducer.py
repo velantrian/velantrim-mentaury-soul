@@ -196,7 +196,7 @@ class EvidenceGatedBeliefReducer(BeliefReducer):
             "history": history,
         }
         if canonical_json_bytes(receipt.to_value()) != canonical_json_bytes(
-            dict(payload["receipt"])
+            dict(receipt_value)
         ):
             raise BeliefReducerError("receipt changed after successful verification")
         return copied

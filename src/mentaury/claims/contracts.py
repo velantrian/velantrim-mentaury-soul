@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Final
+from typing import Final, Literal, overload
 
 from mentaury.epistemic_types import ClaimType
 from mentaury.non_projection import (
@@ -57,6 +57,18 @@ def _require_exact_enum(value: object, expected: type[StrEnum], name: str) -> No
         raise ProvenanceClaimContractError(
             f"{name} must be exact {expected.__name__} member"
         )
+
+
+@overload
+def _require_string(
+    value: object, name: str, *, optional: Literal[False] = False
+) -> str: ...
+
+
+@overload
+def _require_string(
+    value: object, name: str, *, optional: Literal[True]
+) -> str | None: ...
 
 
 def _require_string(
