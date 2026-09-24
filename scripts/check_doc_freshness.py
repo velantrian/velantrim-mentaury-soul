@@ -977,9 +977,10 @@ def main() -> int:
 
     authoritative_max = max(authoritative_milestones(current_status_text))
     print(
-        "doc freshness gate: milestone markers, human semantic state, active "
-        "navigation semantics and machine snapshot match "
-        f"{format_milestone(authoritative_max)} / CURRENT_STATUS PASS"
+        "doc freshness gate: legacy P-stage frontier "
+        f"{format_milestone(authoritative_max)} matches CURRENT_STATUS; "
+        "human semantic state, final-V1 navigation semantics, environment-role "
+        "integrity and machine snapshot also PASS"
     )
     return 0
 
