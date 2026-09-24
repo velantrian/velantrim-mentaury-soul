@@ -75,7 +75,7 @@ jobs:
         run: python -m mypy --python-version 3.13 --follow-imports=skip --warn-unused-ignores --show-error-codes --pretty src/mentaury/claims/contracts.py src/mentaury/non_projection/contracts.py src/mentaury/validation/validator.py src/mentaury/epistemic_change/router.py src/mentaury/storage/integrity.py src/mentaury/beliefs/gated_reducer.py src/mentaury/capabilities/lease/resolver.py src/mentaury/evidence/gate.py src/mentaury/privacy/reconciliation/contracts.py
 
   package-baseline:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     name: Python 3.13 · mypy baseline
     runs-on: ubuntu-24.04
     timeout-minutes: 20
