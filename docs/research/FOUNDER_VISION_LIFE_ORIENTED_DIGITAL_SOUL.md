@@ -132,7 +132,7 @@ Current Mentaury Soul governance, V1 status, safety boundaries, retrieval/tool r
 
 This document remains the **historical origin and long-horizon research intent**. The current cross-project synthesis that organizes these ideas without making them Canon is maintained in:
 
-- [Mentaury-Life](https://docs.google.com/document/d/1DoPzWOkMsE0qXzqEqGDpCn0GeJw4KNK7t8IaQaQJmJk/edit?usp=drivesdk)
+- [docs/MENTAURY_LIFE.md](../MENTAURY_LIFE.md)
 
 The composition-specific validation route is maintained separately in:
 
