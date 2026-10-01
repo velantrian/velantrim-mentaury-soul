@@ -128,7 +128,28 @@ DOCS-ONLY RECONCILIATION ≠ IMPLEMENTATION SELECTION
 
 Current Mentaury Soul governance, V1 status, safety boundaries, retrieval/tool restrictions, identity/relationship mutation constraints and deployment authority remain unchanged.
 
-## 7. Practical continuity / Active Thread checkpoint — 2026-09-16
+## 7. Cross-document synchronization
+
+This document remains the **historical origin and long-horizon research intent**. The current cross-project synthesis that organizes these ideas without making them Canon is maintained in:
+
+- [docs/MENTAURY_LIFE.md](../MENTAURY_LIFE.md)
+
+Related Mentaury-Kernel documentation is maintained separately in:
+
+- [Mentaury-Kernel founder lineage](https://github.com/velantrian/Mentaury-Kernel/blob/main/docs/FOUNDER_ORIGIN_AND_LINEAGE.md)
+
+The relationship is not replacement or authority transfer:
+
+```text
+Founder Vision = historical origin / long-horizon intent
+Mentaury-Life  = current founder/research synthesis
+Mentaury-Kernel = cross-domain composition boundaries
+Mentaury Soul  = cognition and individuality-domain ownership
+```
+
+`Mentaury-Life` may consolidate and clarify the intent recorded here. It must not silently rewrite this historical document, and this document must not be read as a current Canon, identity authority, runtime authorization or implementation selection.
+
+## 8. Practical continuity / Active Thread checkpoint — 2026-09-16
 
 A current practical expression of the founder intent is deliberately smaller than the long-horizon digital-soul vision.
 
