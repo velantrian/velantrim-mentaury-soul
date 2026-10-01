@@ -47,7 +47,7 @@ Two natural questions arose for the owner:
 1. Why SQLite now, rather than PostgreSQL as a more powerful main store?
 2. Is a graph layer needed for relationships — a temporal context-graph framework such as Graphiti, or an embedded graph database such as LadybugDB?
 
-The answer at the current checkpoint is: **do not connect one**, but retain the candidates as `CAPTURED`, with explicit non-claims and criteria for a future selection.
+The answer at the current checkpoint is: **do not connect either candidate**, but retain the candidates as `CAPTURED`, with explicit non-claims and criteria for a future selection.
 
 ---
 

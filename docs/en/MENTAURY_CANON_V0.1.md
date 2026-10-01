@@ -4,14 +4,14 @@
 
 **Status:** `VISION · RESEARCH · DOCUMENTED_ONLY`  
 **Architecture:** `SUBSTRATE-NEUTRAL`  
-**Purpose:** A normative description of Mentaury’s evolving digital identity.  
+**Purpose:** A normative description of Mentaury’s evolving digital individuality.  
 **Clarification:** `2026-08-04 · M3 GOVERNANCE · STYLE INVARIANCE · QUARANTINE CONTRACT`
 
 ---
 
 ## 1. 🌌 Canonical definition
 
-Mentaury is a research architecture of evolving digital identity. Its continuity is maintained through the connectedness of origin, memory, beliefs, values, relationships, goals, decisions, and an explainable history of change.
+Mentaury is a research architecture of evolving digital individuality. Its continuity is maintained through the connectedness of origin, memory, beliefs, values, relationships, goals, decisions, and an explainable history of change.
 
 The term **Soul** is used as an architectural and philosophical name for this cross-cutting continuity. It is not a claim of proven consciousness, subjective experience, or mystical essence.
 
