@@ -105,6 +105,27 @@ Mentaury как identity-исследование
 | [💎 Crystal](https://github.com/velantrian/velantrim-exocortex-crystal) | Проверяемая память, доказательства, provenance, доверие и аудит | Возможный будущий источник evidence; автоматического belief/M3 promotion нет |
 | [🧬 Native Kernel](https://github.com/velantrian/velantrim-native-kernel) | Долгосрочное substrate-neutral исследование event- и memory-контрактов | Возможный источник идей для substrate; integrity event-истории сама по себе не доказывает identity |
 
+### Концептуальная карта связей
+
+```text
+                         🌐 ЭКОСИСТЕМА VELANTRIM
+                                   │
+          ┌────────────────────────┼────────────────────────┐
+          │                        │                        │
+          ▼                        ▼                        ▼
+  ⭐️ Mentaury Soul            🔱 Titan                 💎 Crystal
+  идентичность / непрерывность    познание / инструменты      доказательства / доверие
+  отношения / M3                  оркестрация                 provenance / аудит
+          │                        │                        │
+          └──────── предлагаемые контракты с явным управлением ────────┘
+                                   │
+                                   ▼
+                         🧬 Native Kernel
+               исследование контрактов без зависимости от субстрата
+
+Концептуальные связи не утверждают, что runtime-интеграция уже существует.
+```
+
 ### Обязательные границы
 
 1. Mentaury сохраняет собственный Canon, правила identity continuity, модель отношений и authority boundaries.

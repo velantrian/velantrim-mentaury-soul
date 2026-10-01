@@ -1,5 +1,9 @@
 # 🧬 Mentaury Soul
 
+> **Language:** [English](README.md) · [Русский](README.ru.md)
+>
+> **Documentation navigation:** [English translation index](docs/en/README.md) · [Russian root README](README.ru.md) · [Research index](docs/research/RESEARCH_INDEX.md)
+
 > **A substrate-neutral research architecture for persistent digital individuality, provenance-aware memory, governed cognition, identity continuity, character and explainable self-development.**
 
 > 👤 **Human start:** stay on this page for the fast mental model, then open [`SYSTEM_OVERVIEW.md`](SYSTEM_OVERVIEW.md) for the deeper human explanation.  
