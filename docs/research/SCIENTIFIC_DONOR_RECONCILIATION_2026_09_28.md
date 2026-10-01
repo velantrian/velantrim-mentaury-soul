@@ -1,8 +1,8 @@
 # 🔬 Scientific Donor Reconciliation — Cross-Cultural Research Lines · 2026-09-28
 
-**Status:** `DOCS_ONLY · NON_CANONICAL · RESEARCH · DONOR_RECONCILIATION`  
-**Runtime authority:** `NONE`  
-**Canon authority:** `NONE`  
+**Status:** `DOCS_ONLY · NON_CANONICAL · RESEARCH · DONOR_RECONCILIATION`\
+**Runtime authority:** `NONE`\
+**Canon authority:** `NONE`\
 **Architecture promotion:** `NONE`
 
 ## Purpose
@@ -10,6 +10,8 @@
 This note reconciles a recent research pass across Soviet/Russian, European and Anglo-American scientific / philosophical donor lines relevant to long-lived cognition, memory, provenance, continuity, feedback, augmentation and state-dependent processing.
 
 It does not treat any scientist, school or analogy as architecture authority.
+
+Provenance note: Donor attributions orient this research synthesis; not every primary-source mapping has been independently reproduced in this PR.
 
 ```text
 SCIENTIFIC DONOR != VELANTRIM MECHANISM
@@ -26,7 +28,7 @@ Donor lines:
 - Daniel Schacter — misattribution, suggestibility and constructive memory;
 - Maurice Halbwachs / Paul Ricoeur — reconstructive memory and critical historical reconstruction.
 
-Current Velantrim overlap is already strong across Crystal, Native Kernel, Mentaury Soul, Mentaury-Kernel and CLOS.
+At a preliminary research/crosswalk level, there appears to be overlap between the donor material and distinctions documented across Crystal, Native Kernel, Mentaury Soul, Mentaury-Kernel and CLOS. This does not establish implementation or runtime coverage.
 
 Useful bounded distinctions:
 
@@ -57,7 +59,7 @@ AUGMENTATION != OWNERSHIP TRANSFER
 ASSISTANCE != DECISION OWNERSHIP
 ```
 
-These support existing relation, ownership and self/non-self research. They do not establish a graph requirement or a new Exo-Cortex owner.
+These are relevant to and can be crosswalked to existing relation, ownership and self/non-self research. They do not establish a graph requirement or a new Exo-Cortex owner.
 
 ## 3. Goal / activity / feedback / adaptive control
 
@@ -97,7 +99,12 @@ AGENT STATE != STATIC CONTEXT
 STATE MODULATION != AUTHORITY
 ```
 
-Existing CLOS / Mentaury-Life already protect against endogenous signals becoming external-world evidence by default.
+Existing CLOS / Mentaury-Life research already contains distinctions against treating endogenous state as external-world evidence by default. This does not establish runtime enforcement.
+
+```text
+EXISTING DISTINCTION != IMPLEMENTED PROTECTION
+RESEARCH COVERAGE != RUNTIME COVERAGE
+```
 
 Residual question:
 
@@ -107,7 +114,7 @@ Residual question:
 
 ## 5. Residuals after deduplication
 
-The majority of the donor material maps to existing Velantrim distinctions and therefore should not create new architecture.
+A preliminary research crosswalk suggests that much of the donor material may map to existing Velantrim distinctions; this does not establish implementation or runtime coverage and does not justify new architecture on its own.
 
 The six questions below are the residual set from this reconciliation. Each remains `OPEN_RESEARCH`; these are research questions, not accepted principles or architecture requirements.
 
