@@ -134,9 +134,8 @@ This document remains the **historical origin and long-horizon research intent**
 
 - [docs/MENTAURY_LIFE.md](../MENTAURY_LIFE.md)
 
-The composition-specific validation route is maintained separately in:
+Related Mentaury-Kernel documentation is maintained separately in:
 
-- [Mentaury-Kernel neutrality test scenario — NTA-01](https://github.com/velantrian/Mentaury-Kernel/blob/main/docs/NEUTRALITY_TEST_SCENARIO.md)
 - [Mentaury-Kernel founder lineage](https://github.com/velantrian/Mentaury-Kernel/blob/main/docs/FOUNDER_ORIGIN_AND_LINEAGE.md)
 
 The relationship is not replacement or authority transfer:
