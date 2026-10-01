@@ -602,3 +602,15 @@ DRAFT SYNTHESIS
 ≠ RUNTIME AUTHORIZATION
 ≠ CONSCIOUSNESS CLAIM
 ```
+
+---
+
+## 12. 🔬 Cross-cultural scientific donor residuals
+
+Most donor formulations overlap with the principles above. The residual
+questions and their research disposition are kept in the dedicated
+[`scientific donor reconciliation`](research/SCIENTIFIC_DONOR_RECONCILIATION_2026_09_28.md).
+
+Those residuals remain `OPEN_RESEARCH` only; this index adds no Canon, runtime or
+architecture authority. Any promotion requires the note's stated evidence review
+and an explicit owner-local decision.
