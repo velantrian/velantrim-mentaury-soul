@@ -814,3 +814,14 @@ ARCHITECTURE CONSEQUENCE = NONE
 ```
 
 Next bounded research question: after interruption, discriminate `CONTENT` vs `GOAL` vs `CONTEXT` vs `RATIONALE / ORIENTATION-LIKE STATE` under matched-information and matched-format / budget controls.
+
+---
+
+## 2026-10-14 · INIT-01 unresolved-belief return (spec)
+
+- [INIT-01 — Return of UNRESOLVED beliefs to active work](INIT_01_UNRESOLVED_RETURN_SPEC_2026_10_14.md)
+
+```text
+Status: RESEARCH NOTE · NON-CANONICAL · DOCS_ONLY · Tier C
+NO RUNTIME / ACTION / AUTHORITY
+```
