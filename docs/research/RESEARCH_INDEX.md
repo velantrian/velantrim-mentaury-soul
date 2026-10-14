@@ -814,3 +814,16 @@ ARCHITECTURE CONSEQUENCE = NONE
 ```
 
 Next bounded research question: after interruption, discriminate `CONTENT` vs `GOAL` vs `CONTEXT` vs `RATIONALE / ORIENTATION-LIKE STATE` under matched-information and matched-format / budget controls.
+
+---
+
+## 2026-10-14 · Consciousness architecture research notes (from Mentaury-Kernel PR #20)
+
+- [Consciousness architecture — research notes 2026-10-14](consciousness-architecture-2026-10-14/README.md)
+
+```text
+Status: CAPTURED · RESEARCH_NOTES · NON_CANONICAL · NON_NORMATIVE · DOCS_ONLY · TIER_C
+CANDIDATE PROBES C/D = NOT_IMPLEMENTED
+NO NEW MODULE / OWNER / RUNTIME AUTHORITY
+ARCHITECTURE CONSEQUENCE = NONE
+```
