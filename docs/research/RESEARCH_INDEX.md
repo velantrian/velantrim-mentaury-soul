@@ -817,6 +817,19 @@ Next bounded research question: after interruption, discriminate `CONTENT` vs `G
 
 ---
 
+## 2026-10-14 · Consciousness architecture research notes (from Mentaury-Kernel PR #20)
+
+- [Consciousness architecture — research notes 2026-10-14](consciousness-architecture-2026-10-14/README.md)
+
+```text
+Status: CAPTURED · RESEARCH_NOTES · NON_CANONICAL · NON_NORMATIVE · DOCS_ONLY · TIER_C
+CANDIDATE PROBES C/D = NOT_IMPLEMENTED
+NO NEW MODULE / OWNER / RUNTIME AUTHORITY
+ARCHITECTURE CONSEQUENCE = NONE
+```
+
+---
+
 ## 2026-10-14 · INIT-01 unresolved-belief return (spec)
 
 - [INIT-01 — Return of UNRESOLVED beliefs to active work](INIT_01_UNRESOLVED_RETURN_SPEC_2026_10_14.md)
