@@ -6,7 +6,7 @@
 >
 > **Example:** A borrowed autobiography must not automatically become the system's own experience or a verified claim.
 >
-> **Scope:** Research architecture; neither consciousness nor autonomous deployment is established.
+> **Scope:** Research architecture; no deployed or autonomous runtime is claimed.
 
 > **Language:** [English](README.md) · [Русский](README.ru.md)
 >
