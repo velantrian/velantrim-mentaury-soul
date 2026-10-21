@@ -1,5 +1,13 @@
 # 🧬 Mentaury Soul
 
+> 🧬 **Investigating persistent digital individuality with boundaries for evidence and identity.**
+>
+> **Why:** Long-running AI systems may confuse a user's history, retrieved content and their own generated interpretations. Mentaury Soul studies attribution, continuity and governed revision.
+>
+> **Example:** A borrowed autobiography must not automatically become the system's own experience or a verified claim.
+>
+> **Scope:** Research architecture; no deployed or autonomous runtime is claimed.
+
 > **Language:** [English](README.md) · [Русский](README.ru.md)
 >
 > **Documentation navigation:** [English translation index](docs/en/README.md) · [Russian root README](README.ru.md) · [Research index](docs/research/RESEARCH_INDEX.md)
