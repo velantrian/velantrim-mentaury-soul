@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Mapping
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
 from mentaury.contracts import (
     EventEnvelope,
@@ -14,6 +15,9 @@ from mentaury.contracts import (
 )
 from mentaury.validation import SchemaRegistry
 
+if TYPE_CHECKING:
+    from mentaury.contracts import OperationAdmissionState
+
 
 def compute_payload_digest(payload_bytes: bytes) -> str:
     if not isinstance(payload_bytes, bytes):
@@ -21,10 +25,17 @@ def compute_payload_digest(payload_bytes: bytes) -> str:
     return f"sha256:{hashlib.sha256(payload_bytes).hexdigest()}"
 
 
-def compute_event_hash(event: EventEnvelope) -> str:
+def compute_event_hash(
+    event: EventEnvelope,
+    admission: OperationAdmissionState | None = None,
+) -> str:
+    """Event hash; with ``admission`` the hash projection is bounded and charged."""
+
     if not isinstance(event, EventEnvelope):
         raise TypeError("event must be an EventEnvelope")
-    digest = hashlib.sha256(canonical_event_hash_input_bytes(event)).hexdigest()
+    digest = hashlib.sha256(
+        canonical_event_hash_input_bytes(event, admission)
+    ).hexdigest()
     return f"sha256:{digest}"
 
 
@@ -33,6 +44,7 @@ def seal_event_bytes(
     payload_bytes: bytes,
     *,
     previous_hash: str,
+    admission: OperationAdmissionState | None = None,
 ) -> EventEnvelope:
     """Allocate canonical timestamps, digest, chain link, and event hash.
 
@@ -55,7 +67,9 @@ def seal_event_bytes(
         previous_hash=previous_hash,
         event_hash="sha256:pending",
     )
-    return replace(provisional, event_hash=compute_event_hash(provisional))
+    return replace(
+        provisional, event_hash=compute_event_hash(provisional, admission)
+    )
 
 
 def seal_event(
@@ -63,16 +77,27 @@ def seal_event(
     payload: object,
     *,
     previous_hash: str | None = None,
+    admission: OperationAdmissionState | None = None,
 ) -> EventEnvelope:
-    """Return a deterministically sealed event without persisting it."""
+    """Return a deterministically sealed event without persisting it.
+
+    With an explicit ``admission`` the payload is serialized through the bounded
+    canonical path (same bytes, charged to the operation budget).
+    """
 
     selected_previous_hash = (
         event.previous_hash if previous_hash is None else previous_hash
     )
+    payload_bytes = (
+        canonical_json_bytes(payload)
+        if admission is None
+        else admission.canonical_payload(payload)[0]
+    )
     return seal_event_bytes(
         event,
-        canonical_json_bytes(payload),
+        payload_bytes,
         previous_hash=selected_previous_hash,
+        admission=admission,
     )
 
 
@@ -80,11 +105,21 @@ def validate_event_for_commit(
     event: EventEnvelope,
     payload: Mapping[str, object],
     registry: SchemaRegistry,
+    admission: OperationAdmissionState | None = None,
 ) -> bytes:
     """Fail closed on event/schema identity, payload structure, and encoding.
 
     The returned bytes are the exact canonical payload bytes used for both the
     payload digest and immutable persistence.
+
+    With an explicit ``admission`` the resource admission runs first: the
+    payload is admitted through the bounded canonical path (depth, nodes,
+    lengths, bytes, aggregate budget) *before* the schema validator walks it,
+    and every validator step (including each ``OneOfSpec`` alternative) is
+    charged to the operation as well. The bytes come from the same trusted
+    snapshot that is validated. Canonical failures (floats, duplicate keys,
+    lone surrogates) surface as ``CanonicalJSONError`` here, ahead of the schema
+    issues the legacy order would report for the same input.
     """
 
     if not isinstance(event, EventEnvelope):
@@ -94,6 +129,19 @@ def validate_event_for_commit(
     if not isinstance(registry, SchemaRegistry):
         raise TypeError("registry must be a SchemaRegistry")
 
+    if admission is None:
+        registry.require_event_envelope(event)
+        registry.require_event_payload(event, payload)
+        return canonical_json_bytes(payload)
+    # One trusted, detached representation: the bytes are rendered from the
+    # snapshot and the schema validator walks that same snapshot, so what is
+    # validated is exactly what is digested and persisted (a mapping that
+    # reports different content on a second read cannot split the two).
+    payload_bytes, snapshot = admission.admit_payload(payload)
     registry.require_event_envelope(event)
-    registry.require_event_payload(event, payload)
-    return canonical_json_bytes(payload)
+    registry.require_event_payload(
+        event,
+        snapshot,  # type: ignore[arg-type]
+        admission.validation_visit,
+    )
+    return payload_bytes

@@ -13,7 +13,7 @@ import re
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
-from typing import Final, TypeAlias
+from typing import TYPE_CHECKING, Final, TypeAlias
 
 from .admission import (
     CanonicalAdmissionBudget,
@@ -22,6 +22,9 @@ from .admission import (
 )
 from .envelopes import CommandEnvelope, EventEnvelope, PendingEvent, snapshot_pending_batch
 from .primitives import ActorRef, AuthorityRef, ProducerRef
+
+if TYPE_CHECKING:
+    from .operation_admission import OperationAdmissionState
 
 PROFILE_NAME: Final[str] = "MENTAURY_CANONICAL_JSON_V1"
 SAFE_INTEGER_MAX: Final[int] = (1 << 53) - 1
@@ -222,22 +225,43 @@ class _ByteMeter:
         self.total = 0
 
     def add(self, size: int) -> None:
+        # ``total`` is only ever bytes that were admitted; a refused increment
+        # is reported through ``observed`` but never counted as spend.
+        if self.total + size > self.limit:
+            raise PayloadAdmissionExceeded(
+                "output_bytes", self.limit, self.total + size
+            )
         self.total += size
-        if self.total > self.limit:
-            raise PayloadAdmissionExceeded("output_bytes", self.limit, self.total)
 
 
 def _canonical_text_bounded(
     value: object,
     budget: CanonicalAdmissionBudget,
 ) -> str:
+    return _canonical_bounded(value, budget)[0]
+
+
+def _canonical_bounded(
+    value: object,
+    budget: CanonicalAdmissionBudget,
+    state: PayloadAdmissionState | None = None,
+    meter: _ByteMeter | None = None,
+) -> tuple[str, int, CanonicalValue]:
+    """Bounded canonical text, nodes visited and the trusted prepared snapshot.
+
+    The prepared snapshot is the detached, validated copy (exact ``str``/``int``,
+    plain ``dict``/``list``, duplicate keys rejected) from which the text is
+    rendered, so anything validated afterwards is exactly what is serialized.
+    A caller that needs the spend even when the call fails passes its own
+    ``state``/``meter``; otherwise fresh per-call ones are used.
+    """
+
     if not isinstance(budget, CanonicalAdmissionBudget):
         raise TypeError("budget must be a CanonicalAdmissionBudget")
-    state = PayloadAdmissionState(budget.payload)
-    meter = _ByteMeter(budget.max_output_bytes)
-    prepared = _prepare_bounded(value, state, meter)
-    text = _emit_bounded(prepared)
-    return text
+    spend = state if state is not None else PayloadAdmissionState(budget.payload)
+    used = meter if meter is not None else _ByteMeter(budget.max_output_bytes)
+    prepared = _prepare_bounded(value, spend, used)
+    return _emit_bounded(prepared), spend.nodes_visited, prepared
 
 
 def _prepare_bounded(
@@ -558,9 +582,7 @@ def producer_ref_value(value: ProducerRef) -> dict[str, CanonicalValue]:
     return {"component": value.component, "version": value.version}
 
 
-def command_envelope_value(command: CommandEnvelope) -> dict[str, CanonicalValue]:
-    if not isinstance(command, CommandEnvelope):
-        raise TypeError("command must be a CommandEnvelope")
+def _command_document(command: CommandEnvelope, payload: object) -> dict[str, object]:
     return {
         "command_id": command.command_id,
         "command_type": command.command_type,
@@ -572,19 +594,33 @@ def command_envelope_value(command: CommandEnvelope) -> dict[str, CanonicalValue
         "authority": authority_ref_value(command.authority),
         "correlation_id": command.correlation_id,
         "idempotency_key": command.idempotency_key,
-        "payload": _prepare(command.payload, "$.payload", set()),
+        "payload": payload,
+    }
+
+
+def command_envelope_value(command: CommandEnvelope) -> dict[str, CanonicalValue]:
+    if not isinstance(command, CommandEnvelope):
+        raise TypeError("command must be a CommandEnvelope")
+    return _command_document(  # type: ignore[return-value]
+        command, _prepare(command.payload, "$.payload", set())
+    )
+
+
+def _pending_document(event: PendingEvent, payload: object) -> dict[str, object]:
+    return {
+        "event_type": event.event_type,
+        "payload_schema": event.payload_schema,
+        "affects_domain_state": event.affects_domain_state,
+        "payload": payload,
     }
 
 
 def pending_event_value(event: PendingEvent) -> dict[str, CanonicalValue]:
     if not isinstance(event, PendingEvent):
         raise TypeError("event must be a PendingEvent")
-    return {
-        "event_type": event.event_type,
-        "payload_schema": event.payload_schema,
-        "affects_domain_state": event.affects_domain_state,
-        "payload": _prepare(event.payload, "$.payload", set()),
-    }
+    return _pending_document(  # type: ignore[return-value]
+        event, _prepare(event.payload, "$.payload", set())
+    )
 
 
 def pending_batch_value(events: Iterable[PendingEvent]) -> list[CanonicalValue]:
@@ -632,17 +668,57 @@ def event_hash_input_value(event: EventEnvelope) -> dict[str, CanonicalValue]:
     return value
 
 
-def canonical_command_bytes(command: CommandEnvelope) -> bytes:
-    return canonical_json_bytes(command_envelope_value(command))
+def canonical_command_bytes(
+    command: CommandEnvelope,
+    admission: OperationAdmissionState | None = None,
+) -> bytes:
+    """Canonical command bytes; with ``admission`` the bounded path is used.
+
+    Bounded mode enforces the per-payload limits on the command payload and the
+    aggregate limits on the whole document; the bytes are identical.
+    """
+
+    if admission is None:
+        return canonical_json_bytes(command_envelope_value(command))
+    if not isinstance(command, CommandEnvelope):
+        raise TypeError("command must be a CommandEnvelope")
+    return admission.canonical_document_with_payloads(
+        lambda snapshots: _command_document(command, snapshots[0]),
+        payloads=(command.payload,),
+    )
 
 
-def canonical_pending_batch_bytes(events: Iterable[PendingEvent]) -> bytes:
-    return canonical_json_bytes(pending_batch_value(events))
+def canonical_pending_batch_bytes(
+    events: Iterable[PendingEvent],
+    admission: OperationAdmissionState | None = None,
+) -> bytes:
+    if admission is None:
+        return canonical_json_bytes(pending_batch_value(events))
+    batch = snapshot_pending_batch(events, admission)
+    return admission.canonical_document_with_payloads(
+        lambda snapshots: [
+            _pending_document(event, snapshot)
+            for event, snapshot in zip(batch, snapshots, strict=True)
+        ],
+        payloads=tuple(event.payload for event in batch),
+    )
 
 
-def canonical_event_bytes(event: EventEnvelope) -> bytes:
-    return canonical_json_bytes(event_envelope_value(event))
+def canonical_event_bytes(
+    event: EventEnvelope,
+    admission: OperationAdmissionState | None = None,
+) -> bytes:
+    if admission is None:
+        return canonical_json_bytes(event_envelope_value(event))
+    return admission.canonical_document(event_envelope_value(event))
 
 
-def canonical_event_hash_input_bytes(event: EventEnvelope) -> bytes:
-    return canonical_json_bytes(event_hash_input_value(event))
+def canonical_event_hash_input_bytes(
+    event: EventEnvelope,
+    admission: OperationAdmissionState | None = None,
+) -> bytes:
+    """Hash-projection bytes; with ``admission`` it is bounded and charged."""
+
+    if admission is None:
+        return canonical_json_bytes(event_hash_input_value(event))
+    return admission.canonical_document(event_hash_input_value(event))

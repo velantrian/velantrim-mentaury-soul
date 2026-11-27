@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
 
@@ -115,6 +115,7 @@ class SchemaRegistry:
         self,
         event: EventEnvelope,
         payload: Mapping[str, object],
+        visit: Callable[[], None] | None = None,
     ) -> tuple[ValidationIssue, ...]:
         if not isinstance(event, EventEnvelope):
             raise TypeError("event must be an EventEnvelope")
@@ -125,15 +126,16 @@ class SchemaRegistry:
             event.envelope_schema_version,
         )
         if definition is not None:
-            issues.extend(validate_value(payload, definition.payload))
+            issues.extend(validate_value(payload, definition.payload, "$", visit))
         return tuple(issues)
 
     def require_event_payload(
         self,
         event: EventEnvelope,
         payload: Mapping[str, object],
+        visit: Callable[[], None] | None = None,
     ) -> None:
-        self._require(self.validate_event_payload(event, payload))
+        self._require(self.validate_event_payload(event, payload, visit))
 
     @staticmethod
     def _require(issues: tuple[ValidationIssue, ...]) -> None:

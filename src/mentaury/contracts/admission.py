@@ -97,12 +97,18 @@ class PayloadAdmissionState:
         self._budget = budget
         self._nodes = 0
 
+    @property
+    def nodes_visited(self) -> int:
+        return self._nodes
+
     def charge_node(self) -> None:
-        self._nodes += 1
-        if self._nodes > self._budget.max_nodes:
+        # A refused visit is not performed, so it is not counted as spend;
+        # ``observed`` still reports the count that would have been reached.
+        if self._nodes + 1 > self._budget.max_nodes:
             raise PayloadAdmissionExceeded(
-                "nodes", self._budget.max_nodes, self._nodes
+                "nodes", self._budget.max_nodes, self._nodes + 1
             )
+        self._nodes += 1
 
     def check_depth(self, depth: int) -> None:
         if depth > self._budget.max_depth:

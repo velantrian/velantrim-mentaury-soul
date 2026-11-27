@@ -8,7 +8,7 @@ import sqlite3
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from mentaury.contracts import (
     CommandEnvelope,
@@ -42,6 +42,9 @@ from .concurrency import (
 )
 from .sealing import compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
+
+if TYPE_CHECKING:
+    from mentaury.contracts import OperationAdmissionState
 
 IDEMPOTENCY_PROFILE: Final[str] = "MENTAURY_IDEMPOTENCY_V1"
 
@@ -102,6 +105,36 @@ class IdempotentBatchRequest:
         object.__setattr__(self, "entries", entries)
         _validate_request_alignment(self.command, pending, entries)
 
+    @classmethod
+    def admitted(
+        cls,
+        admission: OperationAdmissionState,
+        command: CommandEnvelope,
+        pending_events: Iterable[PendingEvent],
+        entries: Iterable[BatchEntry],
+    ) -> IdempotentBatchRequest:
+        """Build a request consuming both collections through ``admission``.
+
+        Explicit opt-in. Both iterables are drawn through the operation budget
+        before any copy, and the payload-alignment comparison uses the bounded
+        canonical path (charged to the same operation state).
+        """
+
+        if not isinstance(command, CommandEnvelope):
+            raise TypeError("command must be a CommandEnvelope")
+        pending = snapshot_pending_batch(pending_events, admission)
+        entries_tuple = admission.take_entries(entries)
+        if not entries_tuple or any(
+            not isinstance(entry, BatchEntry) for entry in entries_tuple
+        ):
+            raise TypeError("entries must contain BatchEntry values")
+        request = object.__new__(cls)
+        object.__setattr__(request, "command", command)
+        object.__setattr__(request, "pending_events", pending)
+        object.__setattr__(request, "entries", entries_tuple)
+        _validate_request_alignment(command, pending, entries_tuple, admission)
+        return request
+
 
 @dataclass(frozen=True, slots=True)
 class IdempotentAppendResult:
@@ -129,11 +162,23 @@ class SQLiteIdempotentBatchAppender:
         self._registry = registry
         self._busy_policy = busy_policy
 
-    def append(self, request: IdempotentBatchRequest) -> IdempotentAppendResult:
+    def append(
+        self,
+        request: IdempotentBatchRequest,
+        *,
+        admission: OperationAdmissionState | None = None,
+    ) -> IdempotentAppendResult:
+        """Apply or replay one request.
+
+        With an explicit ``admission`` the fingerprint, payload validation and
+        replay verification all draw on the one operation budget; a refusal is
+        a ``PayloadAdmissionExceeded`` that writes nothing and issues no receipt.
+        """
+
         if not isinstance(request, IdempotentBatchRequest):
             raise TypeError("request must be an IdempotentBatchRequest")
         fingerprint = idempotency_fingerprint(
-            request.command, request.pending_events
+            request.command, request.pending_events, admission
         )
         connection = self._store._connection
         self._store._require_initialized()
@@ -170,6 +215,7 @@ class SQLiteIdempotentBatchAppender:
                     connection,
                     receipt,
                     request,
+                    admission,
                 )
                 commit_with_retry(connection, self._busy_policy)
                 return IdempotentAppendResult(
@@ -178,8 +224,8 @@ class SQLiteIdempotentBatchAppender:
                     receipt,
                 )
 
-            prepared = _prepare_batch(request.entries, self._registry)
-            committed = _insert_prepared_batch(connection, prepared)
+            prepared = _prepare_batch(request.entries, self._registry, admission)
+            committed = _insert_prepared_batch(connection, prepared, admission)
             receipt = _receipt_from_prepared(committed)
             connection.execute(
                 """
@@ -195,7 +241,9 @@ class SQLiteIdempotentBatchAppender:
                     fingerprint,
                     receipt.batch_id,
                     receipt.stream_id,
-                    canonical_json_bytes(list(receipt.event_ids)),
+                    canonical_json_bytes(list(receipt.event_ids))
+                    if admission is None
+                    else admission.canonical_document(list(receipt.event_ids)),
                     receipt.first_stream_version,
                     receipt.last_stream_version,
                     canonical_timestamp(committed[0].event.recorded_at),
@@ -228,29 +276,57 @@ class SQLiteIdempotentBatchAppender:
 def idempotency_fingerprint(
     command: CommandEnvelope,
     pending_events: Iterable[PendingEvent],
+    admission: OperationAdmissionState | None = None,
 ) -> str:
     """Fingerprint semantic command intent plus the ordered proposed batch.
 
     Volatile command/event identifiers and timestamps are deliberately excluded.
+    With an explicit ``admission`` the batch is consumed through the operation
+    budget; each payload is admitted under the per-payload AND aggregate limits
+    and the whole document is then serialized in one bounded canonical pass (no
+    unbounded pre-walk). The digest is identical.
     """
 
     if not isinstance(command, CommandEnvelope):
         raise TypeError("command must be a CommandEnvelope")
-    pending = snapshot_pending_batch(pending_events)
-    semantic_value = {
-        "profile": IDEMPOTENCY_PROFILE,
-        "command": {
-            "command_type": command.command_type,
-            "command_schema": command.command_schema,
-            "target_stream": command.target_stream,
-            "expected_stream_version": command.expected_stream_version,
-            "issuer": actor_ref_value(command.issuer),
-            "authority": authority_ref_value(command.authority),
-            "payload": command.payload,
-        },
-        "pending_events": pending_batch_value(pending),
+    pending = snapshot_pending_batch(pending_events, admission)
+    command_value: dict[str, object] = {
+        "command_type": command.command_type,
+        "command_schema": command.command_schema,
+        "target_stream": command.target_stream,
+        "expected_stream_version": command.expected_stream_version,
+        "issuer": actor_ref_value(command.issuer),
+        "authority": authority_ref_value(command.authority),
+        "payload": command.payload,
     }
-    digest = hashlib.sha256(canonical_json_bytes(semantic_value)).hexdigest()
+    if admission is None:
+        semantic_value = {
+            "profile": IDEMPOTENCY_PROFILE,
+            "command": command_value,
+            "pending_events": pending_batch_value(pending),
+        }
+        canonical = canonical_json_bytes(semantic_value)
+    else:
+        def build(snapshots: tuple[object, ...]) -> dict[str, object]:
+            return {
+                "profile": IDEMPOTENCY_PROFILE,
+                "command": {**command_value, "payload": snapshots[0]},
+                "pending_events": [
+                    {
+                        "event_type": event.event_type,
+                        "payload_schema": event.payload_schema,
+                        "affects_domain_state": event.affects_domain_state,
+                        "payload": snapshot,
+                    }
+                    for event, snapshot in zip(pending, snapshots[1:], strict=True)
+                ],
+            }
+
+        canonical = admission.canonical_document_with_payloads(
+            build,
+            payloads=(command.payload, *(event.payload for event in pending)),
+        )
+    digest = hashlib.sha256(canonical).hexdigest()
     return f"sha256:{digest}"
 
 
@@ -258,6 +334,7 @@ def _validate_request_alignment(
     command: CommandEnvelope,
     pending: tuple[PendingEvent, ...],
     entries: tuple[BatchEntry, ...],
+    admission: OperationAdmissionState | None = None,
 ) -> None:
     if len(pending) != len(entries):
         raise IdempotencyInvariantError(
@@ -303,7 +380,16 @@ def _validate_request_alignment(
             raise IdempotencyInvariantError(
                 f"affects_domain_state mismatch at batch index {index}"
             )
-        if canonical_json_bytes(entry.payload) != canonical_json_bytes(proposed.payload):
+        if admission is None:
+            payloads_equal = canonical_json_bytes(entry.payload) == canonical_json_bytes(
+                proposed.payload
+            )
+        else:
+            payloads_equal = (
+                admission.canonical_payload(entry.payload)[0]
+                == admission.canonical_payload(proposed.payload)[0]
+            )
+        if not payloads_equal:
             raise IdempotencyInvariantError(
                 f"payload mismatch at batch index {index}"
             )
@@ -401,6 +487,7 @@ def _verify_stored_receipt(
     connection: sqlite3.Connection,
     receipt: BatchAppendReceipt,
     request: IdempotentBatchRequest,
+    admission: OperationAdmissionState | None = None,
 ) -> None:
     idempotency_key = request.command.idempotency_key
     expected_first_version = request.command.expected_stream_version + 1
@@ -458,7 +545,11 @@ def _verify_stored_receipt(
             ),
             (
                 row["payload_digest"]
-                == compute_payload_digest(canonical_json_bytes(proposed.payload)),
+                == compute_payload_digest(
+                    canonical_json_bytes(proposed.payload)
+                    if admission is None
+                    else admission.canonical_payload(proposed.payload)[0]
+                ),
                 "payload_digest",
             ),
             (

@@ -14,7 +14,7 @@ import time
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Final, Self
+from typing import TYPE_CHECKING, Final, Self
 
 from mentaury.contracts import (
     ActorRef,
@@ -57,6 +57,9 @@ from .stream_meta import (
 SCHEMA_VERSION: Final[int] = 4
 MINIMUM_SQLITE_VERSION: Final[tuple[int, int, int]] = (3, 37, 0)
 
+
+if TYPE_CHECKING:
+    from mentaury.contracts import OperationAdmissionState
 
 class StorageError(RuntimeError):
     """Base error for controlled P0 storage failures."""
@@ -418,8 +421,14 @@ class SQLiteEventPayloadStore:
         payload: Mapping[str, object],
         *,
         registry: SchemaRegistry,
+        admission: OperationAdmissionState | None = None,
     ) -> EventEnvelope:
         """Validate, seal, and atomically commit one event and its payload.
+
+        With an explicit ``admission`` the payload admission, the schema
+        validation and the hash projection all run through the bounded paths of
+        that one operation budget; a refusal happens before the transaction (or
+        rolls back this operation's own one) and writes nothing.
 
         Input digest/hash/previous-hash fields are non-authoritative. The
         committed envelope is returned with fields allocated under the stream
@@ -433,7 +442,9 @@ class SQLiteEventPayloadStore:
                 "single-event append requires batch_size 1 and batch_index 0"
             )
         self._require_initialized()
-        payload_bytes = validate_event_for_commit(event, payload, registry)
+        payload_bytes = validate_event_for_commit(
+            event, payload, registry, admission
+        )
         created_at = canonical_timestamp(event.recorded_at)
         committed: EventEnvelope | None = None
 
@@ -448,6 +459,7 @@ class SQLiteEventPayloadStore:
                 event,
                 payload_bytes,
                 previous_hash=previous_meta.last_event_hash,
+                admission=admission,
             )
             self._insert_payload(committed, payload_bytes, created_at)
             self._insert_event(committed)
