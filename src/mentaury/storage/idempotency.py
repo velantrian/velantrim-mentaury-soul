@@ -138,8 +138,10 @@ class SQLiteIdempotentBatchAppender:
         self._store._require_initialized()
         receipt: BatchAppendReceipt | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(connection, self._busy_policy)
         try:
-            begin_immediate(connection, self._busy_policy)
             existing = connection.execute(
                 """
                 SELECT fingerprint_profile, fingerprint, batch_id, stream_id,

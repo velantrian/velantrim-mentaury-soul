@@ -39,6 +39,33 @@ The connection profile exposes an explicit `busy_timeout_ms`; application retry
 policy remains bounded and testable. Unsupported SQLite runtimes fail before
 storage use. STRICT tables require SQLite ≥3.37.
 
+## Transaction ownership (Stage 01 remediation)
+
+```text
+Public writers + initialize_schema REQUIRE AN IDLE CONNECTION.
+OPERATION MAY COMMIT OR ROLLBACK ONLY ITS OWN TRANSACTION.
+```
+
+`TransactionOwnershipError` (also exported from `mentaury.storage`) is raised
+when `connection.in_transaction` is already true: in `begin_immediate` before
+any BEGIN or retry, and in `initialize_schema` before the first `executescript`,
+DDL or PRAGMA. The refusal neither commits nor rolls back the caller's work.
+Writers call `begin_immediate` *before* their rollback-guarded `try` block, so
+their handlers only ever undo a transaction they opened themselves. This
+includes idempotent replay (`ALREADY_APPLIED` / `ALREADY_REDACTED`) paths, which
+are refused rather than answered inside a foreign transaction.
+
+```text
+isolation_level=None / autocommit=True   → idle connection supported
+isolation_level="" / "IMMEDIATE" (legacy) → supported while idle; a driver-opened
+                                            implicit BEGIN is a foreign transaction
+autocommit=False                         → always in a transaction → always refused
+```
+
+No savepoint-based composition is provided, and sharing one connection between
+concurrent threads is not a supported contract. Ownership is not authority:
+this guard grants no runtime, action or deployment authority.
+
 ## Controlled races
 
 ```text

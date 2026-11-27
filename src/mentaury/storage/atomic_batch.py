@@ -83,8 +83,10 @@ class SQLiteAtomicBatchAppender:
         connection = self._store._connection
         committed: tuple[_PreparedEntry, ...] | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(connection, self._busy_policy)
         try:
-            begin_immediate(connection, self._busy_policy)
             committed = _insert_prepared_batch(connection, prepared)
         except sqlite3.IntegrityError as exc:
             if connection.in_transaction:

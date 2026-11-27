@@ -237,8 +237,10 @@ class SQLiteRedactionExecutor:
         fingerprint = redaction_fingerprint(request)
         sealed_audit: EventEnvelope | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(connection, self._busy_policy)
         try:
-            begin_immediate(connection, self._busy_policy)
 
             existing_by_key = connection.execute(
                 """

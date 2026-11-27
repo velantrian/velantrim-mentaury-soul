@@ -37,6 +37,7 @@ from .concurrency import (
     commit_with_retry,
     is_busy_error,
     is_stream_version_conflict,
+    require_idle_connection,
 )
 from .sealing import (
     compute_event_hash,
@@ -312,6 +313,10 @@ class SQLiteEventPayloadStore:
         ):
             raise TypeError("migration_budget must be a VerificationBudget or None")
 
+        # executescript() implicitly COMMITs a pending transaction in legacy
+        # transaction-control mode, so an externally owned transaction must be
+        # refused before any script, DDL or PRAGMA runs.
+        require_idle_connection(self._connection, "initialize_schema")
         self._connection.executescript(_SCHEMA_SQL)
         version = self._connection.execute(
             "SELECT schema_version FROM p0_schema_meta WHERE singleton = 1"
@@ -328,8 +333,8 @@ class SQLiteEventPayloadStore:
                 raise
             current = 2
         if current == 2:
+            begin_immediate(self._connection, self._busy_policy)
             try:
-                begin_immediate(self._connection, self._busy_policy)
                 _verify_v2_ledger_before_migration(
                     self._connection,
                     migration_registry,
@@ -347,8 +352,8 @@ class SQLiteEventPayloadStore:
                 raise
             current = 3
         if current == 3:
+            begin_immediate(self._connection, self._busy_policy)
             try:
-                begin_immediate(self._connection, self._busy_policy)
                 for statement in _CREATE_REDACTIONS_STATEMENTS:
                     self._connection.execute(statement)
                 self._connection.execute(
@@ -434,8 +439,10 @@ class SQLiteEventPayloadStore:
         created_at = canonical_timestamp(event.recorded_at)
         committed: EventEnvelope | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(self._connection, self._busy_policy)
         try:
-            begin_immediate(self._connection, self._busy_policy)
             previous_meta = require_expected_stream_version(
                 self._connection, event
             )

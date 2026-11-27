@@ -16,6 +16,22 @@ class StoreBusyError(RuntimeError):
         super().__init__(f"STORE_BUSY after {attempts} attempts: {last_error}")
 
 
+class TransactionOwnershipError(RuntimeError):
+    """Raised when a write operation finds a transaction it does not own.
+
+    Public writers require an idle connection. An already-active transaction
+    belongs to the caller, so the operation refuses without committing,
+    rolling back, or otherwise touching it.
+    """
+
+    def __init__(self, operation: str) -> None:
+        self.operation = operation
+        super().__init__(
+            f"TRANSACTION_OWNERSHIP: {operation} requires an idle connection; "
+            "an externally owned transaction is active and was left untouched"
+        )
+
+
 class VersionConflictError(RuntimeError):
     """Raised when a stream/version pair was already committed."""
 
@@ -46,14 +62,35 @@ class BusyRetryPolicy:
 DEFAULT_BUSY_RETRY_POLICY = BusyRetryPolicy()
 
 
+def require_idle_connection(
+    connection: sqlite3.Connection,
+    operation: str,
+) -> None:
+    """Refuse, without side effects, when the caller already owns a transaction.
+
+    Invariant: an operation may commit or roll back only its own transaction.
+    Ownership can be claimed only after a successful ``BEGIN``; therefore any
+    transaction visible beforehand is foreign and must not be touched.
+    """
+
+    if connection.in_transaction:
+        raise TransactionOwnershipError(operation)
+
+
 def begin_immediate(
     connection: sqlite3.Connection,
     policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
 ) -> int:
-    """Acquire SQLite's reserved write lock using a bounded retry policy."""
+    """Acquire SQLite's reserved write lock using a bounded retry policy.
+
+    Fails closed with ``TransactionOwnershipError`` before any BEGIN or retry
+    when the connection already has an active (externally owned) transaction.
+    Rollbacks below only ever undo a transaction this call itself opened.
+    """
 
     if not isinstance(policy, BusyRetryPolicy):
         raise TypeError("policy must be a BusyRetryPolicy")
+    require_idle_connection(connection, "begin_immediate")
     last_error: sqlite3.OperationalError | None = None
     for attempt in range(1, policy.max_attempts + 1):
         try:
