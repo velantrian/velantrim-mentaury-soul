@@ -11,7 +11,12 @@ from mentaury.validation import SchemaRegistry
 
 from ._snapshot import sqlite_read_snapshot
 from .budget import ResourceBudgetExceeded, VerificationBudget
-from .redaction import REDACTION_EVENT_TYPE, REDACTION_PAYLOAD_SCHEMA
+from .redaction import (
+    EVIDENCE_COLUMNS,
+    REDACTION_EVENT_TYPE,
+    REDACTION_PAYLOAD_SCHEMA,
+    preflight_redaction_rows,
+)
 from .sealing import compute_event_hash, compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
 from .stream_meta import GENESIS_HASH, read_stream_meta
@@ -138,6 +143,15 @@ class R0IntegrityVerifier:
         ).fetchone()[0]
         try:
             self._budget.require_event_count(event_count)
+            # Redaction metadata is measured in SQL (rows, record bytes, total
+            # bytes) inside this same snapshot, before any events or redaction
+            # values are materialized.
+            redaction_rows = preflight_redaction_rows(
+                self._store._connection,
+                stream_id,
+                EVIDENCE_COLUMNS,
+                self._budget,
+            )
         except ResourceBudgetExceeded as exc:
             return self._budget_fail(stream_id, 0, exc)
 
@@ -158,6 +172,14 @@ class R0IntegrityVerifier:
             )
         meta = read_stream_meta(self._store._connection, stream_id)
         redactions = self._redaction_evidence_for_stream(stream_id)
+        if len(redactions) != redaction_rows:
+            return self._fail(
+                stream_id,
+                0,
+                IntegrityCode.SNAPSHOT_INCOHERENT,
+                "fetched redaction evidence differs from the measured rows "
+                "within one read snapshot",
+            )
 
         if not events:
             if redactions:
@@ -410,6 +432,8 @@ class R0IntegrityVerifier:
         self,
         stream_id: str,
     ) -> dict[str, _RedactionEvidence]:
+        # The fetch itself is capped (row limit + 1) so that even a row that
+        # appeared after the preflight can never be materialized unboundedly.
         rows = self._store._connection.execute(
             """
             SELECT target_event_id, target_stream_id, target_payload_ref,
@@ -417,8 +441,9 @@ class R0IntegrityVerifier:
                    capability_revision
             FROM redactions
             WHERE target_stream_id = ?
+            LIMIT ?
             """,
-            (stream_id,),
+            (stream_id, self._budget.effective_redaction_rows + 1),
         ).fetchall()
         return {
             row["target_event_id"]: _RedactionEvidence(

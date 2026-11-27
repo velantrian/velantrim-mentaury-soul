@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
@@ -29,6 +31,7 @@ from mentaury.contracts.primitives import require_non_empty
 from mentaury.validation import SchemaRegistry
 
 from ._event_rows import insert_event_row
+from .budget import VerificationBudget
 from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
@@ -433,23 +436,110 @@ class SQLiteRedactionExecutor:
         )
 
 
+EVIDENCE_COLUMNS: Final[tuple[str, ...]] = (
+    "target_event_id",
+    "target_stream_id",
+    "target_payload_ref",
+    "reason",
+    "capability_lease_id",
+)
+_TARGET_COLUMNS: Final[tuple[str, ...]] = ("target_event_id", "target_payload_ref")
+
+
+def preflight_redaction_rows(
+    connection: sqlite3.Connection,
+    stream_id: str,
+    columns: tuple[str, ...],
+    budget: VerificationBudget,
+) -> int:
+    """Measure one stream's redaction rows in SQL and enforce the budget.
+
+    Row count, the largest record and the total size of ``columns`` (in UTF-8
+    bytes) are computed by SQLite aggregates, so Python receives three integers
+    and no row value (in particular no ``reason``) is fetched before the check.
+    Raises ``ResourceBudgetExceeded``; returns the row count otherwise. This
+    bounds Python-side materialization only, not SQLite's own work. Column names
+    are fixed module constants, never caller input.
+    """
+
+    size = " + ".join(f"LENGTH(CAST({column} AS BLOB))" for column in columns)
+    count, biggest, total = connection.execute(
+        f"""
+        SELECT COUNT(*), COALESCE(MAX(size), 0), COALESCE(SUM(size), 0)
+        FROM (SELECT {size} AS size FROM redactions WHERE target_stream_id = ?)
+        """,
+        (stream_id,),
+    ).fetchone()
+    budget.require_redaction_rows(count)
+    budget.require_redaction_record_size(biggest)
+    budget.require_total_redaction_size(total)
+    return int(count)
+
+
+@contextmanager
+def _consistent_read(connection: sqlite3.Connection) -> Iterator[None]:
+    """One read snapshot for preflight + fetch without touching a caller's work.
+
+    A connection already inside a caller-owned transaction is used as is (that
+    transaction is the snapshot and is never committed or rolled back here);
+    otherwise a savepoint opens and releases this call's own snapshot.
+    """
+
+    if connection.in_transaction:
+        yield
+        return
+    connection.execute("SAVEPOINT mentaury_redaction_bounded_read")
+    try:
+        yield
+        connection.execute("RELEASE mentaury_redaction_bounded_read")
+    except BaseException as exc:
+        rollback_after_failure(connection, exc)
+        raise
+
+
 def redacted_targets_for_stream(
-    connection: sqlite3.Connection, stream_id: str
+    connection: sqlite3.Connection,
+    stream_id: str,
+    budget: VerificationBudget | None = None,
 ) -> dict[str, str]:
     """Return ``{target_event_id: target_payload_ref}`` for one stream.
 
     This is the authoritative evidence R0 uses to distinguish a governed
     redaction from missing-payload corruption.
+
+    Without ``budget`` the legacy unbounded read is used (unchanged). With an
+    explicit ``VerificationBudget`` the redaction rows are measured in SQL
+    (count and the size of the two loaded columns) and refused with
+    ``ResourceBudgetExceeded`` *before* any row is fetched; the fetch is
+    additionally capped at the row limit plus one and happens in the same
+    snapshot as the preflight. A partial selection is never returned: the result
+    is either the complete evidence or an exception.
     """
 
-    rows = connection.execute(
-        """
-        SELECT target_event_id, target_payload_ref
-        FROM redactions WHERE target_stream_id = ?
-        """,
-        (stream_id,),
-    ).fetchall()
-    return {row["target_event_id"]: row["target_payload_ref"] for row in rows}
+    if budget is None:
+        rows = connection.execute(
+            """
+            SELECT target_event_id, target_payload_ref
+            FROM redactions WHERE target_stream_id = ?
+            """,
+            (stream_id,),
+        ).fetchall()
+        return {row["target_event_id"]: row["target_payload_ref"] for row in rows}
+    if not isinstance(budget, VerificationBudget):
+        raise TypeError("budget must be a VerificationBudget")
+    limit = budget.effective_redaction_rows
+    with _consistent_read(connection):
+        count = preflight_redaction_rows(connection, stream_id, _TARGET_COLUMNS, budget)
+        fetched = connection.execute(
+            """
+            SELECT target_event_id, target_payload_ref
+            FROM redactions WHERE target_stream_id = ? LIMIT ?
+            """,
+            (stream_id, limit + 1),
+        ).fetchall()
+    if len(fetched) != count:
+        raise RedactionError("redaction evidence changed during the bounded read")
+    return {row[0]: row[1] for row in fetched}
 
 
 def _insert_audit_event(connection: sqlite3.Connection, event: EventEnvelope) -> None:
