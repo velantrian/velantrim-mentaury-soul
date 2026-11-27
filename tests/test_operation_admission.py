@@ -226,17 +226,19 @@ def test_work_based_accounting_is_exact_for_freeze_canonical_and_validation() ->
     payload = {"a": [1, 2]}  # root + key + list + 2 scalars = 5 nodes, 11 bytes
     event = atomic.event(0, batch_size=1)
     reg = atomic.registry()
-    s = state(total_nodes=15, total_bytes=11)
+    # validator steps for this additional-properties schema: the root visit plus
+    # one step per key in each of its three key loops = 4
+    s = state(total_nodes=14, total_bytes=11)
     frozen = s.freeze_payload(payload)
     assert s.nodes == 5
     out = validate_event_for_commit(event, frozen, reg, s)
     assert out == b'{"a":[1,2]}'
-    assert (s.nodes, s.output_bytes) == (15, 11)  # freeze + canonical + validation walk
+    assert (s.nodes, s.output_bytes) == (14, 11)  # freeze 5 + canonical 5 + validator 4
     # one node / one byte less is refused with the *aggregate* dimension
-    s2 = state(total_nodes=14, total_bytes=11)
+    s2 = state(total_nodes=13, total_bytes=11)
     f2 = s2.freeze_payload(payload)
     assert raises_exceeded(lambda: validate_event_for_commit(event, f2, reg, s2)).dimension == "total_nodes"
-    s3 = state(total_nodes=15, total_bytes=10)
+    s3 = state(total_nodes=14, total_bytes=10)
     f3 = s3.freeze_payload(payload)
     err = raises_exceeded(lambda: validate_event_for_commit(event, f3, reg, s3))
     assert err.dimension == "total_output_bytes"
@@ -288,8 +290,11 @@ def test_seal_event_bounded_equals_legacy_and_is_charged() -> None:
     event = atomic.event(0, batch_size=1)
     payload = {"a": [1, 2]}
     s = state()
-    assert seal_event(event, payload, admission=s) == seal_event(event, payload)
-    assert s.output_bytes == len(b'{"a":[1,2]}') and s.nodes == 5
+    sealed = seal_event(event, payload, admission=s)
+    assert sealed == seal_event(event, payload)
+    # payload (11 bytes, 5 nodes) plus the event hash projection are both charged
+    projection = len(canonical_event_hash_input_bytes(sealed))
+    assert s.output_bytes == 11 + projection and s.nodes > 5
     assert raises_exceeded(lambda: seal_event(event, payload, admission=state(payload_bytes=10))).dimension == "output_bytes"
 
 
@@ -566,3 +571,327 @@ def test_legacy_calls_remain_unbounded_and_unchanged() -> None:
         store.initialize_schema()
         SQLiteAtomicBatchAppender(store, atomic.registry()).append(atomic.entries(3))
         assert len(_rows(store)["events"]) == 3
+
+
+# --- final ingress boundaries (review findings F1-F4) ------------------------------------------------------------------------
+
+from collections.abc import Mapping  # noqa: E402
+
+from mentaury.contracts import (  # noqa: E402
+    CanonicalJSONError,
+    canonical_command_bytes,
+    canonical_event_bytes,
+    canonical_event_hash_input_bytes,
+    canonical_pending_batch_bytes,
+)
+from mentaury.storage.sealing import compute_event_hash  # noqa: E402
+from mentaury.validation import (  # noqa: E402
+    ArraySpec,
+    EventSchemaDefinition,
+    IntegerSpec,
+    ObjectSpec,
+    OneOfSpec,
+    SchemaRegistry,
+    StringSpec,
+)
+
+
+def _registry_for(spec) -> SchemaRegistry:
+    return SchemaRegistry([EventSchemaDefinition(
+        event_type="BELIEF_EVENT", payload_schema="belief-event/v1",
+        affects_domain_state=True, payload=spec)])
+
+
+class _Flip(Mapping):
+    """Reports different content on each read: invalid first, valid afterwards."""
+
+    def __init__(self, first, later) -> None:
+        self.first, self.later, self.reads = first, later, 0
+
+    def __len__(self) -> int:
+        return 1
+
+    def __getitem__(self, key):  # pragma: no cover
+        raise KeyError(key)
+
+    def __iter__(self):
+        return iter(("n",))
+
+    def items(self):
+        self.reads += 1
+        return iter([("n", self.first if self.reads == 1 else self.later)])
+
+
+# F1 ------------------------------------------------------------------------------------------------------------------------------
+
+def test_f1_validated_representation_is_the_one_that_is_serialized() -> None:
+    reg = _registry_for(ObjectSpec({"n": IntegerSpec(minimum=0)}, required=frozenset({"n"})))
+    event = atomic.event(0, batch_size=1)
+    flip = _Flip(-1, 3)  # schema-invalid when serialized, valid on any later read
+    with pytest.raises(SchemaValidationError):
+        validate_event_for_commit(event, flip, reg, state())
+    assert flip.reads == 1  # read exactly once; everything else works on the snapshot
+
+
+def test_f1_valid_mapping_yields_bytes_of_exactly_the_validated_snapshot() -> None:
+    reg = _registry_for(ObjectSpec({"n": IntegerSpec(minimum=0)}, required=frozenset({"n"})))
+    event = atomic.event(0, batch_size=1)
+    flip = _Flip(3, -1)  # valid on the first read; a re-read would be invalid
+    assert validate_event_for_commit(event, flip, reg, state()) == b'{"n":3}'
+
+
+def test_f1_duplicate_keys_and_canonical_semantics_are_still_rejected() -> None:
+    class Dup(Mapping):
+        def __len__(self):
+            return 2
+
+        def __getitem__(self, key):  # pragma: no cover
+            raise KeyError(key)
+
+        def __iter__(self):  # pragma: no cover
+            return iter(())
+
+        def items(self):
+            return iter([("k", 1), ("k", 2)])
+
+    event, reg = atomic.event(0, batch_size=1), atomic.registry()
+    with pytest.raises(CanonicalJSONError, match="duplicate object key"):
+        validate_event_for_commit(event, Dup(), reg, state())
+    with pytest.raises(CanonicalJSONError, match="float is forbidden"):
+        validate_event_for_commit(event, {"x": 1.5}, reg, state())
+    with pytest.raises(CanonicalJSONError, match="lone surrogate"):
+        validate_event_for_commit(event, {"x": "\ud800"}, reg, state())
+
+
+# F2 ------------------------------------------------------------------------------------------------------------------------------
+
+from mentaury.validation import BooleanSpec, NullSpec  # noqa: E402
+
+# mutually exclusive alternatives; each non-matching array option still walks every item
+_ONE_OF_SPEC = ObjectSpec(
+    {"a": OneOfSpec((ArraySpec(StringSpec()), ArraySpec(IntegerSpec()),
+                     ArraySpec(BooleanSpec()), ArraySpec(NullSpec())))},
+    required=frozenset({"a"}),
+)
+
+
+def test_f2_validator_work_including_oneof_alternatives_is_charged() -> None:
+    payload = {"a": ["x"] * 10}
+    event, reg = atomic.event(0, batch_size=1), _registry_for(_ONE_OF_SPEC)
+    probe = state()
+    frozen = probe.freeze_payload(payload)
+    n = probe.nodes  # freeze visits: root + key + list + 10 scalars
+    validate_event_for_commit(event, frozen, reg, probe)
+    validation_work = probe.nodes - 2 * n  # whatever the validator actually did
+    assert validation_work >= 4 * 10  # OneOf walks the array once per alternative
+    # a total budget that fits freeze + canonical + a node-count-sized validation pass
+    # (the old model) but not the real validator work must be refused
+    tight = state(total_nodes=3 * n + 2)
+    f2 = tight.freeze_payload(payload)
+    err = raises_exceeded(lambda: validate_event_for_commit(event, f2, reg, tight))
+    assert err.dimension == "total_nodes"
+
+
+def test_f2_validation_aborts_mid_walk_instead_of_finishing_unbounded_work() -> None:
+    import mentaury.validation.validator as validator_module
+
+    calls = 0
+    real = validator_module._validate
+
+    def spy(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return real(*args, **kwargs)
+
+    payload = {"a": ["x"] * 10}
+    event, reg = atomic.event(0, batch_size=1), _registry_for(_ONE_OF_SPEC)
+    s = state(total_nodes=40)
+    frozen = s.freeze_payload(payload)
+    import pytest as _p
+    mp = _p.MonkeyPatch()
+    mp.setattr(validator_module, "_validate", spy)
+    try:
+        raises_exceeded(lambda: validate_event_for_commit(event, frozen, reg, s))
+    finally:
+        mp.undo()
+    assert calls < 4 * 10 + 5  # stopped as soon as the budget ran out, not after all alternatives
+
+
+def test_f2_legacy_validation_is_unchanged_and_unmetered() -> None:
+    reg = _registry_for(_ONE_OF_SPEC)
+    event = atomic.event(0, batch_size=1)
+    assert validate_event_for_commit(event, {"a": ["x"] * 10}, reg).startswith(b'{"a"')
+
+
+def test_f2_a_refused_state_stays_refused_and_its_spend_is_not_reset() -> None:
+    s = state(total_nodes=7)
+    s.freeze_payload({"k": 1})
+    first = raises_exceeded(lambda: s.freeze_payload({"k": 2, "j": 3}))  # needs more than is left
+    spent = s.nodes
+    assert spent >= 3
+    for action in (
+        lambda: s.freeze_payload({}),
+        lambda: s.take_entries([1]),
+        lambda: s.canonical_payload({"a": 1}),
+    ):
+        again = raises_exceeded(action)
+        assert (again.dimension, again.limit) == (first.dimension, first.limit)
+    assert s.nodes == spent  # nothing silently reset or advanced after the refusal
+
+
+def test_f2_a_non_admission_failure_does_not_poison_the_state() -> None:
+    s = state()
+    with pytest.raises(TypeError):
+        s.freeze_payload([1, 2])  # not a mapping: caller error, not a resource refusal
+    assert s.freeze_payload({"a": 1}) == {"a": 1}
+
+
+# F3 ------------------------------------------------------------------------------------------------------------------------------
+
+def _plain_pending(payload) -> tuple[PendingEvent, ...]:
+    return (PendingEvent("BELIEF_CREATED", "belief-created/v1", True, payload),)
+
+
+def _command_with(payload) -> CommandEnvelope:
+    return CommandEnvelope(**COMMAND_FIELDS, payload=payload)
+
+
+GENEROUS = dict(total_nodes=10_000, total_bytes=100_000)
+
+
+@pytest.mark.parametrize("where", ["command", "pending"])
+def test_f3_per_payload_depth_is_enforced_in_the_fingerprint(where) -> None:
+    deep = {"a": {"b": {"c": 1}}}  # depth 3
+    cmd, pending = (_command_with(deep), _plain_pending({"x": 1})) if where == "command" else (
+        _command_with({"x": 1}), _plain_pending(deep))
+    idempotency_fingerprint(cmd, pending, state(depth=3, **GENEROUS))
+    assert raises_exceeded(lambda: idempotency_fingerprint(cmd, pending, state(depth=2, **GENEROUS))).dimension == "depth"
+
+
+@pytest.mark.parametrize("where", ["command", "pending"])
+def test_f3_per_payload_nodes_are_enforced_in_the_fingerprint(where) -> None:
+    wide = {f"k{i}": i for i in range(6)}  # root + 6 keys + 6 values = 13 nodes
+    cmd, pending = (_command_with(wide), _plain_pending({"x": 1})) if where == "command" else (
+        _command_with({"x": 1}), _plain_pending(wide))
+    idempotency_fingerprint(cmd, pending, state(nodes=13, **GENEROUS))
+    assert raises_exceeded(lambda: idempotency_fingerprint(cmd, pending, state(nodes=12, **GENEROUS))).dimension == "nodes"
+
+
+@pytest.mark.parametrize("where", ["command", "pending"])
+def test_f3_per_payload_bytes_are_enforced_in_the_fingerprint(where) -> None:
+    payload = {"k": "v" * 30}
+    size = len(canonical_json_bytes(payload))
+    cmd, pending = (_command_with(payload), _plain_pending({"x": 1})) if where == "command" else (
+        _command_with({"x": 1}), _plain_pending(payload))
+    idempotency_fingerprint(cmd, pending, state(payload_bytes=size, string=64, **GENEROUS))
+    err = raises_exceeded(lambda: idempotency_fingerprint(cmd, pending, state(payload_bytes=size - 1, string=64, **GENEROUS)))
+    assert err.dimension == "output_bytes"
+
+
+def test_f3_aggregate_limits_still_hold_alongside_the_per_payload_limits() -> None:
+    cmd, pending = idem.command(), idem.pending_batch()
+    assert raises_exceeded(lambda: idempotency_fingerprint(cmd, pending, state(total_nodes=8))).dimension == "total_nodes"
+    assert raises_exceeded(lambda: idempotency_fingerprint(cmd, pending, state(total_bytes=40))).dimension == "total_output_bytes"
+    assert idempotency_fingerprint(cmd, pending, state(**GENEROUS)) == idempotency_fingerprint(cmd, pending)
+
+
+# F4 ------------------------------------------------------------------------------------------------------------------------------
+
+def test_f4_append_one_with_admission_is_identical_to_legacy_and_bounded() -> None:
+    event = atomic.event(0, batch_size=1)
+    with SQLiteEventPayloadStore.in_memory() as legacy, SQLiteEventPayloadStore.in_memory() as bounded:
+        for s in (legacy, bounded):
+            s.initialize_schema()
+        a = legacy.append_one(event, {"v": [1, 2]}, registry=atomic.registry())
+        op = state()
+        b = bounded.append_one(event, {"v": [1, 2]}, registry=atomic.registry(), admission=op)
+        assert a == b and _rows(legacy) == _rows(bounded)
+        assert op.nodes > 0 and op.output_bytes > len(b'{"v":[1,2]}')  # payload + hash projection charged
+
+
+def test_f4_append_one_refusal_writes_nothing_and_keeps_foreign_transactions() -> None:
+    event = atomic.event(0, batch_size=1)
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        before = _rows(store)
+        err = raises_exceeded(lambda: store.append_one(
+            event, {"k": "v" * 100}, registry=atomic.registry(), admission=state(string=10)))
+        assert err.dimension == "string_length" and _rows(store) == before
+        c = store.raw_connection_for_tests()
+        c.execute("CREATE TABLE sentinel(x)")
+        c.execute("BEGIN")
+        c.execute("INSERT INTO sentinel VALUES (1)")
+        with pytest.raises(TransactionOwnershipError):
+            store.append_one(event, {"a": 1}, registry=atomic.registry(), admission=state())
+        assert c.in_transaction and c.execute("SELECT COUNT(*) FROM sentinel").fetchone()[0] == 1
+        c.execute("ROLLBACK")
+
+
+def test_f4_envelope_serializers_match_legacy_bytes_with_admission() -> None:
+    cmd, pending = idem.command(), idem.pending_batch()
+    event = idem.entries_for(cmd, pending)[0].event
+    assert canonical_command_bytes(cmd, state()) == canonical_command_bytes(cmd)
+    assert canonical_pending_batch_bytes(pending, state()) == canonical_pending_batch_bytes(pending)
+    assert canonical_event_bytes(event, state()) == canonical_event_bytes(event)
+    assert canonical_event_hash_input_bytes(event, state()) == canonical_event_hash_input_bytes(event)
+    assert compute_event_hash(event, state()) == compute_event_hash(event)
+
+
+def test_f4_envelope_serializers_enforce_per_payload_and_aggregate_limits() -> None:
+    deep = {"a": {"b": {"c": 1}}}
+    cmd = _command_with(deep)
+    canonical_command_bytes(cmd, state(depth=3, **GENEROUS))
+    assert raises_exceeded(lambda: canonical_command_bytes(cmd, state(depth=2, **GENEROUS))).dimension == "depth"
+    assert raises_exceeded(lambda: canonical_command_bytes(cmd, state(total_bytes=30))).dimension == "total_output_bytes"
+    pending = _plain_pending(deep)
+    assert raises_exceeded(lambda: canonical_pending_batch_bytes(pending, state(depth=2, **GENEROUS))).dimension == "depth"
+    assert raises_exceeded(lambda: canonical_pending_batch_bytes(idem.pending_batch(), state(entries=1))).dimension == "batch_entries"
+    event = idem.entries_for(idem.command(), idem.pending_batch())[0].event
+    assert raises_exceeded(lambda: canonical_event_hash_input_bytes(event, state(total_bytes=50))).dimension == "total_output_bytes"
+
+
+def _spy_all_prepare(monkeypatch) -> list[str]:
+    seen: list[str] = []
+    real = canonical_module._prepare
+
+    def prepare(value, path, active):
+        if path == "$":
+            seen.append(type(value).__name__)
+        return real(value, path, active)
+
+    monkeypatch.setattr(canonical_module, "_prepare", prepare)
+    return seen
+
+
+def test_f4_bounded_operations_never_fall_back_to_unbounded_serialization(monkeypatch) -> None:
+    seen = _spy_all_prepare(monkeypatch)
+    event = atomic.event(0, batch_size=1)
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        store.append_one(event, {"a": 1}, registry=atomic.registry(), admission=state())
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        SQLiteAtomicBatchAppender(store, atomic.registry()).append(atomic.entries(3), admission=state())
+    cmd, pending = idem.command(), idem.pending_batch()
+    request = IdempotentBatchRequest.admitted(state(), cmd, pending, idem.entries_for(cmd, pending))
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        SQLiteIdempotentBatchAppender(store, idem.registry()).append(request, admission=state())
+    seal_event(event, {"a": 1}, previous_hash="sha256:p", admission=state())
+    canonical_command_bytes(cmd, state())
+    canonical_pending_batch_bytes(pending, state())
+    canonical_event_bytes(event, state())
+    canonical_event_hash_input_bytes(event, state())
+    assert seen == []  # not one unbounded top-level serialization, hash projections included
+    canonical_json_bytes({"control": 1})
+    assert seen == ["dict"]  # the spy is live
+
+
+def test_f4_legacy_serializer_and_append_one_calls_are_unchanged() -> None:
+    cmd, pending = idem.command(), idem.pending_batch()
+    assert canonical_command_bytes(cmd).startswith(b'{"authority"')
+    event = atomic.event(0, batch_size=1)
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        store.append_one(event, {"a": 1}, registry=atomic.registry())
+        assert len(_rows(store)["events"]) == 1

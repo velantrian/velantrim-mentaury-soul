@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from decimal import Decimal
 
 from mentaury.contracts import SAFE_INTEGER_MAX, SAFE_INTEGER_MIN
@@ -22,9 +22,21 @@ from .specs import (
 
 
 def validate_value(
-    value: object, spec: ValueSpec, path: str = "$"
+    value: object,
+    spec: ValueSpec,
+    path: str = "$",
+    visit: Callable[[], None] | None = None,
 ) -> tuple[ValidationIssue, ...]:
-    return tuple(_validate(value, spec, path, set()))
+    """Validate ``value`` against ``spec``.
+
+    ``visit`` is an optional work meter: it is called once per validator step
+    (every value-under-spec visit, which includes every ``OneOfSpec``
+    alternative that re-walks the value, and every object-key loop iteration).
+    A meter that raises aborts the walk immediately. Recursion depth is bounded
+    by the nesting of the (finite, acyclic) schema, never by the value size.
+    """
+
+    return tuple(_validate(value, spec, path, set(), visit))
 
 
 def _validate(
@@ -32,14 +44,17 @@ def _validate(
     spec: ValueSpec,
     path: str,
     active: set[int],
+    visit: Callable[[], None] | None = None,
 ) -> list[ValidationIssue]:
+    if visit is not None:
+        visit()
     portability_issue = _portable_issue(value, path)
     if portability_issue is not None:
         return [portability_issue]
 
     if isinstance(spec, OneOfSpec):
         options = [
-            _validate(value, option, path, set(active))
+            _validate(value, option, path, set(active), visit)
             for option in spec.options
         ]
         matches = sum(not result for result in options)
@@ -138,7 +153,7 @@ def _validate(
                 )
             for index, item in enumerate(value):
                 array_issues.extend(
-                    _validate(item, spec.items, f"{path}[{index}]", active)
+                    _validate(item, spec.items, f"{path}[{index}]", active, visit)
                 )
             return array_issues
         finally:
@@ -159,8 +174,15 @@ def _validate(
         active.add(identity)
         try:
             object_issues: list[ValidationIssue] = []
-            string_keys = {key for key in value if isinstance(key, str)}
+            string_keys = set()
             for key in value:
+                if visit is not None:
+                    visit()
+                if isinstance(key, str):
+                    string_keys.add(key)
+            for key in value:
+                if visit is not None:
+                    visit()
                 if not isinstance(key, str):
                     object_issues.append(
                         _issue(
@@ -178,6 +200,8 @@ def _validate(
                     )
                 )
             for key, item in value.items():
+                if visit is not None:
+                    visit()
                 if not isinstance(key, str):
                     continue
                 child_spec = spec.properties.get(key)
@@ -192,7 +216,7 @@ def _validate(
                         )
                     continue
                 object_issues.extend(
-                    _validate(item, child_spec, f"{path}.{key}", active)
+                    _validate(item, child_spec, f"{path}.{key}", active, visit)
                 )
             return object_issues
         finally:

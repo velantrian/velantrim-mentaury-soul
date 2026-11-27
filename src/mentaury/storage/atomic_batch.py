@@ -121,7 +121,7 @@ class SQLiteAtomicBatchAppender:
         # exhaustion here must not reach the rollback handlers below.
         begin_immediate(connection, self._busy_policy)
         try:
-            committed = _insert_prepared_batch(connection, prepared)
+            committed = _insert_prepared_batch(connection, prepared, admission)
         except sqlite3.IntegrityError as exc:
             rollback_after_failure(connection, exc)
             if is_stream_version_conflict(exc):
@@ -201,6 +201,7 @@ def _prepare_batch(
 def _insert_prepared_batch(
     connection: sqlite3.Connection,
     prepared: tuple[_PreparedEntry, ...],
+    admission: OperationAdmissionState | None = None,
 ) -> tuple[_PreparedEntry, ...]:
     """Seal and insert a prevalidated batch under the active write lock."""
 
@@ -212,6 +213,7 @@ def _insert_prepared_batch(
             item.event,
             item.payload_bytes,
             previous_hash=previous_hash,
+            admission=admission,
         )
         committed_item = _PreparedEntry(
             event=sealed,

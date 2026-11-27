@@ -225,7 +225,7 @@ class SQLiteIdempotentBatchAppender:
                 )
 
             prepared = _prepare_batch(request.entries, self._registry, admission)
-            committed = _insert_prepared_batch(connection, prepared)
+            committed = _insert_prepared_batch(connection, prepared, admission)
             receipt = _receipt_from_prepared(committed)
             connection.execute(
                 """
@@ -241,7 +241,9 @@ class SQLiteIdempotentBatchAppender:
                     fingerprint,
                     receipt.batch_id,
                     receipt.stream_id,
-                    canonical_json_bytes(list(receipt.event_ids)),
+                    canonical_json_bytes(list(receipt.event_ids))
+                    if admission is None
+                    else admission.canonical_document(list(receipt.event_ids)),
                     receipt.first_stream_version,
                     receipt.last_stream_version,
                     canonical_timestamp(committed[0].event.recorded_at),
@@ -280,8 +282,9 @@ def idempotency_fingerprint(
 
     Volatile command/event identifiers and timestamps are deliberately excluded.
     With an explicit ``admission`` the batch is consumed through the operation
-    budget and the whole fingerprint document is serialized in one bounded
-    canonical pass (no separate unbounded pre-walk); the digest is identical.
+    budget; each payload is admitted under the per-payload AND aggregate limits
+    and the whole document is then serialized in one bounded canonical pass (no
+    unbounded pre-walk). The digest is identical.
     """
 
     if not isinstance(command, CommandEnvelope):
@@ -317,7 +320,10 @@ def idempotency_fingerprint(
                 for event in pending
             ],
         }
-        canonical = admission.canonical_payload(bounded_value, whole_operation=True)[0]
+        canonical = admission.canonical_document(
+            bounded_value,
+            payloads=(command.payload, *(event.payload for event in pending)),
+        )
     digest = hashlib.sha256(canonical).hexdigest()
     return f"sha256:{digest}"
 
