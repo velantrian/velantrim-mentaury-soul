@@ -9,6 +9,11 @@ from enum import StrEnum
 from mentaury.contracts import EventEnvelope, canonical_json_bytes
 from mentaury.validation import SchemaRegistry
 
+from ._bounded_read import (
+    PayloadChangedError,
+    PayloadStorageTypeError,
+    admit_and_load,
+)
 from ._snapshot import sqlite_read_snapshot
 from .budget import ResourceBudgetExceeded, VerificationBudget
 from .redaction import (
@@ -25,6 +30,7 @@ from .stream_meta import GENESIS_HASH, read_stream_meta
 
 class IntegrityCode(StrEnum):
     ACTIVE_TRANSACTION = "ACTIVE_TRANSACTION"
+    PAYLOAD_STORAGE_TYPE_INVALID = "PAYLOAD_STORAGE_TYPE_INVALID"
     SNAPSHOT_INCOHERENT = "SNAPSHOT_INCOHERENT"
     RESOURCE_BUDGET_EXCEEDED = "RESOURCE_BUDGET_EXCEEDED"
     STREAM_VERSION_GAP = "STREAM_VERSION_GAP"
@@ -78,6 +84,23 @@ class R0IntegrityReport:
     ok: bool
     checked_events: int
     failure: IntegrityFailure | None
+
+
+class _PayloadAccount:
+    """Per-verification logical payload spend, keyed by *event identity*.
+
+    A payload is charged once per event, at that event's first admission (the
+    redaction evidence check for a linked audit event, otherwise the event's own
+    verification). A later admission of the same event reads it again but does not
+    charge it again. Different events that happen to share a ``payload_ref`` are
+    different keys and are charged separately.
+    """
+
+    __slots__ = ("total", "charged")
+
+    def __init__(self) -> None:
+        self.total = 0
+        self.charged: dict[str, int] = {}
 
 
 @dataclass(frozen=True, slots=True)
@@ -226,7 +249,7 @@ class R0IntegrityVerifier:
         expected_previous_hash = GENESIS_HASH
         checked = 0
         batch_start = 0
-        total_payload_bytes = 0
+        account = _PayloadAccount()
         for index, event in enumerate(events):
             expected_version = index + 1
             if event.stream_version != expected_version:
@@ -293,7 +316,8 @@ class R0IntegrityVerifier:
                         IntegrityCode.REDACTION_PAYLOAD_REF_MISMATCH,
                         "redaction record payload_ref differs from event payload_ref",
                     )
-                if self._store.load_payload(event.payload_ref) is not None:
+                # existence only: a redacted payload's content is never read
+                if self._store.payload_exists(event.payload_ref):
                     return self._event_fail(
                         event,
                         checked,
@@ -304,6 +328,7 @@ class R0IntegrityVerifier:
                     event,
                     evidence,
                     checked,
+                    account,
                 )
                 if linkage_failure is not None:
                     return linkage_failure
@@ -325,22 +350,54 @@ class R0IntegrityVerifier:
                 checked += 1
                 continue
 
-            payload = self._store.load_payload(event.payload_ref)
-            if payload is None:
+            # Probe the stored size/type and admit it against the individual and
+            # the remaining aggregate budget *before* the BLOB is fetched.
+            already_charged = account.charged.get(event.event_id)
+            try:
+                loaded = admit_and_load(
+                    self._store._connection,
+                    event.payload_ref,
+                    self._budget,
+                    account.total,
+                    charge_total=already_charged is None,
+                )
+            except ResourceBudgetExceeded as exc:
+                return self._event_budget_fail(event, checked, exc)
+            except PayloadStorageTypeError as exc:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.PAYLOAD_STORAGE_TYPE_INVALID,
+                    str(exc),
+                )
+            except PayloadChangedError:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.SNAPSHOT_INCOHERENT,
+                    "payload changed between size preflight and load "
+                    "within one read snapshot",
+                )
+            if loaded is None:
                 return self._event_fail(
                     event,
                     checked,
                     IntegrityCode.PAYLOAD_MISSING,
                     "payload material is missing",
                 )
+            payload_bytes = loaded.payload_bytes
+            if already_charged is None:
+                account.total += loaded.size
+                account.charged[event.event_id] = loaded.size
+            elif already_charged != loaded.size:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.SNAPSHOT_INCOHERENT,
+                    "payload size changed between two reads within one read snapshot",
+                )
             try:
-                self._budget.require_payload_size(len(payload.payload_bytes))
-                total_payload_bytes += len(payload.payload_bytes)
-                self._budget.require_total_payload_size(total_payload_bytes)
-            except ResourceBudgetExceeded as exc:
-                return self._event_budget_fail(event, checked, exc)
-            try:
-                decoded = json.loads(payload.payload_bytes.decode("utf-8"))
+                decoded = json.loads(payload_bytes.decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 return self._event_fail(
                     event,
@@ -364,7 +421,7 @@ class R0IntegrityVerifier:
                     IntegrityCode.SCHEMA_INVALID,
                     f"payload is not canonically representable: {exc}",
                 )
-            if canonical_payload != payload.payload_bytes:
+            if canonical_payload != payload_bytes:
                 return self._event_fail(
                     event,
                     checked,
@@ -380,7 +437,7 @@ class R0IntegrityVerifier:
                     str(payload_issues[0]),
                 )
             if event.payload_digest != compute_payload_digest(
-                payload.payload_bytes
+                payload_bytes
             ):
                 return self._event_fail(
                     event,
@@ -465,6 +522,7 @@ class R0IntegrityVerifier:
         target_event: EventEnvelope,
         evidence: _RedactionEvidence,
         checked: int,
+        account: _PayloadAccount,
     ) -> R0IntegrityReport | None:
         audit_event = self._store.load_event(evidence.audit_event_id)
         if audit_event is None:
@@ -523,20 +581,59 @@ class R0IntegrityVerifier:
                 str(envelope_issues[0]),
             )
 
-        audit_payload = self._store.load_payload(audit_event.payload_ref)
-        if audit_payload is None:
+        # The audit payload is admitted against the individual limit AND the
+        # remaining logical aggregate before it is loaded, and is charged here,
+        # at its first admission, under the audit *event's* identity. When the
+        # stream loop later verifies that same event it reads the payload again
+        # without charging it again (no double count), so a valid journal keeps
+        # exactly the same logical total as before.
+        already_charged = account.charged.get(audit_event.event_id)
+        try:
+            audit_loaded = admit_and_load(
+                self._store._connection,
+                audit_event.payload_ref,
+                self._budget,
+                account.total,
+                charge_total=already_charged is None,
+            )
+        except ResourceBudgetExceeded as exc:
+            return self._event_budget_fail(target_event, checked, exc)
+        except PayloadStorageTypeError as exc:
+            return self._event_fail(
+                target_event,
+                checked,
+                IntegrityCode.PAYLOAD_STORAGE_TYPE_INVALID,
+                f"redaction audit payload: {exc}",
+            )
+        except PayloadChangedError:
+            return self._event_fail(
+                target_event,
+                checked,
+                IntegrityCode.SNAPSHOT_INCOHERENT,
+                "redaction audit payload changed between size preflight and "
+                "load within one read snapshot",
+            )
+        if audit_loaded is None:
             return self._event_fail(
                 target_event,
                 checked,
                 IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING,
                 "redaction audit payload material is missing",
             )
+        audit_bytes = audit_loaded.payload_bytes
+        if already_charged is None:
+            account.total += audit_loaded.size
+            account.charged[audit_event.event_id] = audit_loaded.size
+        elif already_charged != audit_loaded.size:
+            return self._event_fail(
+                target_event,
+                checked,
+                IntegrityCode.SNAPSHOT_INCOHERENT,
+                "redaction audit payload size changed between two reads "
+                "within one read snapshot",
+            )
         try:
-            self._budget.require_payload_size(len(audit_payload.payload_bytes))
-        except ResourceBudgetExceeded as exc:
-            return self._event_budget_fail(target_event, checked, exc)
-        try:
-            decoded = json.loads(audit_payload.payload_bytes.decode("utf-8"))
+            decoded = json.loads(audit_bytes.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             return self._event_fail(
                 target_event,
@@ -560,7 +657,7 @@ class R0IntegrityVerifier:
                 IntegrityCode.REDACTION_AUDIT_PAYLOAD_NOT_CANONICAL,
                 f"redaction audit payload is not representable: {exc}",
             )
-        if canonical_payload != audit_payload.payload_bytes:
+        if canonical_payload != audit_bytes:
             return self._event_fail(
                 target_event,
                 checked,
@@ -597,7 +694,7 @@ class R0IntegrityVerifier:
                 str(payload_issues[0]),
             )
         if audit_event.payload_digest != compute_payload_digest(
-            audit_payload.payload_bytes
+            audit_bytes
         ):
             return self._event_fail(
                 target_event,

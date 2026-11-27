@@ -20,6 +20,11 @@ from mentaury.storage import (
     VerificationBudget,
     compute_payload_digest,
 )
+from mentaury.storage._bounded_read import (
+    PayloadChangedError,
+    PayloadStorageTypeError,
+    admit_and_load,
+)
 from mentaury.storage._snapshot import sqlite_read_snapshot
 from mentaury.storage.stream_meta import GENESIS_HASH
 from mentaury.validation import SchemaRegistry
@@ -442,23 +447,15 @@ class R1ReplayVerifier:
                         )
                     )
 
-                stored_payload = self._store.load_payload(event.payload_ref)
-                if stored_payload is None:
-                    raise _ReplayAborted(
-                        ReplayFailure(
-                            ReplayFailureCode.PAYLOAD_UNAVAILABLE,
-                            stream_id,
-                            "state-affecting payload material is unavailable; "
-                            "snapshot cannot replace missing history",
-                            event.event_id,
-                            event.stream_version,
-                        )
-                    )
-                payload_bytes = stored_payload.payload_bytes
+                # Probe size/type and admit against the individual and remaining
+                # aggregate budget before the BLOB is fetched (same read snapshot).
                 try:
-                    self._budget.require_payload_size(len(payload_bytes))
-                    total_payload_bytes += len(payload_bytes)
-                    self._budget.require_total_payload_size(total_payload_bytes)
+                    loaded = admit_and_load(
+                        self._store._connection,
+                        event.payload_ref,
+                        self._budget,
+                        total_payload_bytes,
+                    )
                 except ResourceBudgetExceeded as exc:
                     raise _ReplayAborted(
                         ReplayFailure(
@@ -469,6 +466,39 @@ class R1ReplayVerifier:
                             event.stream_version,
                         )
                     ) from exc
+                except PayloadStorageTypeError as exc:
+                    raise _ReplayAborted(
+                        ReplayFailure(
+                            ReplayFailureCode.PAYLOAD_DECODE_ERROR,
+                            stream_id,
+                            str(exc),
+                            event.event_id,
+                            event.stream_version,
+                        )
+                    ) from exc
+                except PayloadChangedError as exc:
+                    raise _ReplayAborted(
+                        ReplayFailure(
+                            ReplayFailureCode.STREAM_CHANGED_DURING_VERIFICATION,
+                            stream_id,
+                            "stored payload changed between size preflight and load",
+                            event.event_id,
+                            event.stream_version,
+                        )
+                    ) from exc
+                if loaded is None:
+                    raise _ReplayAborted(
+                        ReplayFailure(
+                            ReplayFailureCode.PAYLOAD_UNAVAILABLE,
+                            stream_id,
+                            "state-affecting payload material is unavailable; "
+                            "snapshot cannot replace missing history",
+                            event.event_id,
+                            event.stream_version,
+                        )
+                    )
+                payload_bytes = loaded.payload_bytes
+                total_payload_bytes += loaded.size
 
                 payload = _decode_payload(stream_id, event, payload_bytes)
                 state = self._apply_twice(stream_id, state, event, payload)
