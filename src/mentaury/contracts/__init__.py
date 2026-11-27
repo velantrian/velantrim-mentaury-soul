@@ -30,6 +30,7 @@ from .envelopes import (
     PendingEvent,
     snapshot_pending_batch,
 )
+from .admission import PayloadAdmissionBudget, PayloadAdmissionExceeded
 from .primitives import ActorRef, AuthorityRef, ProducerRef
 
 __all__ = [
@@ -41,6 +42,8 @@ __all__ = [
     "CanonicalJSONError",
     "CommandEnvelope",
     "EventEnvelope",
+    "PayloadAdmissionBudget",
+    "PayloadAdmissionExceeded",
     "PendingEvent",
     "ProducerRef",
     "canonical_command_bytes",
