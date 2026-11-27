@@ -231,13 +231,26 @@ def _canonical_text_bounded(
     value: object,
     budget: CanonicalAdmissionBudget,
 ) -> str:
+    return _canonical_bounded(value, budget)[0]
+
+
+def _canonical_bounded(
+    value: object,
+    budget: CanonicalAdmissionBudget,
+    state: PayloadAdmissionState | None = None,
+) -> tuple[str, int]:
+    """Bounded canonical text and the number of nodes visited.
+
+    A caller that needs the spend even when the call fails passes its own
+    ``state``; otherwise a fresh per-call state is used.
+    """
+
     if not isinstance(budget, CanonicalAdmissionBudget):
         raise TypeError("budget must be a CanonicalAdmissionBudget")
-    state = PayloadAdmissionState(budget.payload)
+    spend = state if state is not None else PayloadAdmissionState(budget.payload)
     meter = _ByteMeter(budget.max_output_bytes)
-    prepared = _prepare_bounded(value, state, meter)
-    text = _emit_bounded(prepared)
-    return text
+    prepared = _prepare_bounded(value, spend, meter)
+    return _emit_bounded(prepared), spend.nodes_visited
 
 
 def _prepare_bounded(

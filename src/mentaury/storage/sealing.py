@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Mapping
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
 from mentaury.contracts import (
     EventEnvelope,
@@ -13,6 +14,9 @@ from mentaury.contracts import (
     canonical_timestamp,
 )
 from mentaury.validation import SchemaRegistry
+
+if TYPE_CHECKING:
+    from mentaury.contracts import OperationAdmissionState
 
 
 def compute_payload_digest(payload_bytes: bytes) -> str:
@@ -63,15 +67,25 @@ def seal_event(
     payload: object,
     *,
     previous_hash: str | None = None,
+    admission: OperationAdmissionState | None = None,
 ) -> EventEnvelope:
-    """Return a deterministically sealed event without persisting it."""
+    """Return a deterministically sealed event without persisting it.
+
+    With an explicit ``admission`` the payload is serialized through the bounded
+    canonical path (same bytes, charged to the operation budget).
+    """
 
     selected_previous_hash = (
         event.previous_hash if previous_hash is None else previous_hash
     )
+    payload_bytes = (
+        canonical_json_bytes(payload)
+        if admission is None
+        else admission.canonical_payload(payload)[0]
+    )
     return seal_event_bytes(
         event,
-        canonical_json_bytes(payload),
+        payload_bytes,
         previous_hash=selected_previous_hash,
     )
 
@@ -80,11 +94,18 @@ def validate_event_for_commit(
     event: EventEnvelope,
     payload: Mapping[str, object],
     registry: SchemaRegistry,
+    admission: OperationAdmissionState | None = None,
 ) -> bytes:
     """Fail closed on event/schema identity, payload structure, and encoding.
 
     The returned bytes are the exact canonical payload bytes used for both the
     payload digest and immutable persistence.
+
+    With an explicit ``admission`` the resource admission runs first: the
+    payload is serialized through the bounded canonical path (depth, nodes,
+    lengths, bytes, aggregate budget) *before* the schema validator walks it,
+    and that walk is charged to the operation as well. The bytes come from the
+    same immutable snapshot that is validated and later persisted.
     """
 
     if not isinstance(event, EventEnvelope):
@@ -94,6 +115,12 @@ def validate_event_for_commit(
     if not isinstance(registry, SchemaRegistry):
         raise TypeError("registry must be a SchemaRegistry")
 
+    if admission is None:
+        registry.require_event_envelope(event)
+        registry.require_event_payload(event, payload)
+        return canonical_json_bytes(payload)
+    payload_bytes, nodes = admission.canonical_payload(payload)
+    admission.charge_validation_pass(nodes)
     registry.require_event_envelope(event)
     registry.require_event_payload(event, payload)
-    return canonical_json_bytes(payload)
+    return payload_bytes

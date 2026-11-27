@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from .primitives import (
     ActorRef,
@@ -16,6 +16,9 @@ from .primitives import (
     require_non_negative,
     require_positive,
 )
+
+if TYPE_CHECKING:
+    from .operation_admission import OperationAdmissionState
 
 
 @dataclass(frozen=True, slots=True)
@@ -77,6 +80,19 @@ class CommandEnvelope:
             raise TypeError("authority must be an AuthorityRef")
         object.__setattr__(self, "payload", freeze_payload(self.payload))
 
+    @classmethod
+    def admitted(cls, admission: OperationAdmissionState, /, **fields: object) -> Self:
+        """Build an envelope whose payload is frozen under ``admission``.
+
+        Explicit opt-in: ``CommandEnvelope(...)`` itself is unchanged. All other
+        fields are validated exactly as in the normal constructor.
+        """
+
+        payload = _pop_payload(fields)
+        shell = cls(**fields, payload={})  # type: ignore[arg-type]
+        object.__setattr__(shell, "payload", admission.freeze_payload(payload))
+        return shell
+
 
 @dataclass(frozen=True, slots=True)
 class PendingEvent:
@@ -104,6 +120,15 @@ class PendingEvent:
         if not isinstance(self.affects_domain_state, bool):
             raise ValueError("affects_domain_state must be a boolean")
         object.__setattr__(self, "payload", freeze_payload(self.payload))
+
+    @classmethod
+    def admitted(cls, admission: OperationAdmissionState, /, **fields: object) -> Self:
+        """Build a pending event whose payload is frozen under ``admission``."""
+
+        payload = _pop_payload(fields)
+        shell = cls(**fields, payload={})  # type: ignore[arg-type]
+        object.__setattr__(shell, "payload", admission.freeze_payload(payload))
+        return shell
 
 
 @dataclass(frozen=True, slots=True)
@@ -165,12 +190,27 @@ class EventEnvelope:
             raise TypeError("authority must be an AuthorityRef")
 
 
+def _pop_payload(fields: dict[str, object]) -> object:
+    if "payload" not in fields:
+        raise TypeError("payload is required")
+    return fields.pop("payload")
+
+
 def snapshot_pending_batch(
     pending_events: Iterable[PendingEvent],
+    admission: OperationAdmissionState | None = None,
 ) -> tuple[PendingEvent, ...]:
-    """Return an immutable ordered batch without assigning versions or hashes."""
+    """Return an immutable ordered batch without assigning versions or hashes.
 
-    batch = tuple(pending_events)
+    With an explicit ``admission`` the iterable is consumed through the
+    operation budget (at most ``max_batch_entries + 1`` items) before any copy.
+    """
+
+    batch = (
+        tuple(pending_events)
+        if admission is None
+        else admission.take_entries(pending_events)
+    )
     if not batch:
         raise ValueError("pending event batch must not be empty")
     if any(not isinstance(item, PendingEvent) for item in batch):

@@ -97,6 +97,10 @@ class PayloadAdmissionState:
         self._budget = budget
         self._nodes = 0
 
+    @property
+    def nodes_visited(self) -> int:
+        return self._nodes
+
     def charge_node(self) -> None:
         self._nodes += 1
         if self._nodes > self._budget.max_nodes:

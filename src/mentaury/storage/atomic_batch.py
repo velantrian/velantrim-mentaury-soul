@@ -5,6 +5,7 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from mentaury.contracts import EventEnvelope, canonical_timestamp
 from mentaury.contracts.primitives import FrozenPayload, freeze_payload
@@ -24,6 +25,9 @@ from .sealing import seal_event_bytes, validate_event_for_commit
 from .sqlite_store import SQLiteEventPayloadStore
 from .stream_meta import require_expected_stream_version, update_stream_meta
 
+if TYPE_CHECKING:
+    from mentaury.contracts import OperationAdmissionState
+
 
 class BatchInvariantError(ValueError):
     """Raised before storage when batch metadata is incoherent."""
@@ -40,6 +44,19 @@ class BatchEntry:
         if not isinstance(self.payload, Mapping):
             raise TypeError("payload must be a mapping")
         object.__setattr__(self, "payload", freeze_payload(self.payload))
+
+    @classmethod
+    def admitted(
+        cls,
+        admission: OperationAdmissionState,
+        event: EventEnvelope,
+        payload: Mapping[str, object],
+    ) -> BatchEntry:
+        """Build an entry whose payload is frozen under ``admission`` (opt-in)."""
+
+        shell = cls(event, {})
+        object.__setattr__(shell, "payload", admission.freeze_payload(payload))
+        return shell
 
 
 @dataclass(frozen=True, slots=True)
@@ -78,8 +95,24 @@ class SQLiteAtomicBatchAppender:
         self._registry = registry
         self._busy_policy = busy_policy
 
-    def append(self, entries: Iterable[BatchEntry]) -> BatchAppendReceipt:
-        prepared = _prepare_batch(tuple(entries), self._registry)
+    def append(
+        self,
+        entries: Iterable[BatchEntry],
+        *,
+        admission: OperationAdmissionState | None = None,
+    ) -> BatchAppendReceipt:
+        """Append one batch atomically.
+
+        With an explicit ``admission`` the iterable is consumed through the
+        operation budget and every payload is admitted (bounded canonical
+        serialization, then validation) before any transaction is opened, so a
+        refusal can never leave partial writes.
+        """
+
+        entries_tuple = (
+            tuple(entries) if admission is None else admission.take_entries(entries)
+        )
+        prepared = _prepare_batch(entries_tuple, self._registry, admission)
         self._store._require_initialized()
         connection = self._store._connection
         committed: tuple[_PreparedEntry, ...] | None = None
@@ -111,6 +144,7 @@ class SQLiteAtomicBatchAppender:
 def _prepare_batch(
     entries: tuple[BatchEntry, ...],
     registry: SchemaRegistry,
+    admission: OperationAdmissionState | None = None,
 ) -> tuple[_PreparedEntry, ...]:
     if not entries:
         raise BatchInvariantError("batch cannot be empty")
@@ -156,6 +190,7 @@ def _prepare_batch(
                 entry.event,
                 entry.payload,
                 registry,
+                admission,
             ),
             created_at=canonical_timestamp(entry.event.recorded_at),
         )

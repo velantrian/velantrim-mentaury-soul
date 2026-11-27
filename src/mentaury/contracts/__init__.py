@@ -35,6 +35,7 @@ from .admission import (
     PayloadAdmissionBudget,
     PayloadAdmissionExceeded,
 )
+from .operation_admission import OperationAdmissionBudget, OperationAdmissionState
 from .primitives import ActorRef, AuthorityRef, ProducerRef
 
 __all__ = [
@@ -47,6 +48,8 @@ __all__ = [
     "CanonicalJSONError",
     "CommandEnvelope",
     "EventEnvelope",
+    "OperationAdmissionBudget",
+    "OperationAdmissionState",
     "PayloadAdmissionBudget",
     "PayloadAdmissionExceeded",
     "PendingEvent",
