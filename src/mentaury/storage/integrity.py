@@ -9,6 +9,7 @@ from enum import StrEnum
 from mentaury.contracts import EventEnvelope, canonical_json_bytes
 from mentaury.validation import SchemaRegistry
 
+from ._snapshot import sqlite_read_snapshot
 from .budget import ResourceBudgetExceeded, VerificationBudget
 from .redaction import REDACTION_EVENT_TYPE, REDACTION_PAYLOAD_SCHEMA
 from .sealing import compute_event_hash, compute_payload_digest
@@ -17,6 +18,8 @@ from .stream_meta import GENESIS_HASH, read_stream_meta
 
 
 class IntegrityCode(StrEnum):
+    ACTIVE_TRANSACTION = "ACTIVE_TRANSACTION"
+    SNAPSHOT_INCOHERENT = "SNAPSHOT_INCOHERENT"
     RESOURCE_BUDGET_EXCEEDED = "RESOURCE_BUDGET_EXCEEDED"
     STREAM_VERSION_GAP = "STREAM_VERSION_GAP"
     BATCH_INCOMPLETE = "BATCH_INCOMPLETE"
@@ -102,6 +105,32 @@ class R0IntegrityVerifier:
         self._budget = budget
 
     def verify_stream(self, stream_id: str) -> R0IntegrityReport:
+        """Public, self-contained R0 entry point.
+
+        Every read (COUNT, events, stream metadata, redaction evidence,
+        payloads) runs inside one SQLite read snapshot opened and released
+        here. An unfinished external transaction cannot be certified, so it is
+        refused with ``ACTIVE_TRANSACTION`` and left untouched.
+        """
+
+        if self._store._connection.in_transaction:
+            return self._fail(
+                stream_id,
+                0,
+                IntegrityCode.ACTIVE_TRANSACTION,
+                "R0 verification requires an idle connection; "
+                "uncommitted state cannot be certified",
+            )
+        with sqlite_read_snapshot(self._store, "R0 verification"):
+            return self._verify_stream_in_snapshot(stream_id)
+
+    def _verify_stream_in_snapshot(self, stream_id: str) -> R0IntegrityReport:
+        """Internal R0 path; the caller must already hold a read snapshot.
+
+        R1 calls this inside its own snapshot so that R0 and replay observe one
+        coherent state and no second, independent snapshot is opened.
+        """
+
         self._store._require_initialized()
         event_count = self._store._connection.execute(
             "SELECT COUNT(*) FROM events WHERE stream_id = ?",
@@ -113,6 +142,20 @@ class R0IntegrityVerifier:
             return self._budget_fail(stream_id, 0, exc)
 
         events = self._store.list_stream(stream_id)
+        # The count bounds materialization up front; the number of events
+        # actually fetched is verified as well and must match inside a snapshot.
+        try:
+            self._budget.require_event_count(len(events))
+        except ResourceBudgetExceeded as exc:
+            return self._budget_fail(stream_id, 0, exc)
+        if len(events) != event_count:
+            return self._fail(
+                stream_id,
+                0,
+                IntegrityCode.SNAPSHOT_INCOHERENT,
+                "fetched event count differs from the counted events "
+                "within one read snapshot",
+            )
         meta = read_stream_meta(self._store._connection, stream_id)
         redactions = self._redaction_evidence_for_stream(stream_id)
 

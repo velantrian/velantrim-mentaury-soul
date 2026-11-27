@@ -780,3 +780,16 @@ def test_r1_refuses_uncommitted_connection_state() -> None:
             connection.execute("ROLLBACK")
 
         assert _failure_code(report) is ReplayFailureCode.ACTIVE_TRANSACTION
+
+
+def test_r1_reuses_its_own_snapshot_for_r0_without_a_second_one() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        first = _append_counter(store, "EVT-1", 1, 2)
+        statements: list[str] = []
+        store.raw_connection_for_tests().set_trace_callback(statements.append)
+        report = _verifier(store).verify_stream(STREAM_ID, _snapshot_after_first(first))
+        store.raw_connection_for_tests().set_trace_callback(None)
+        assert report.ok
+        assert sum(s.startswith("SAVEPOINT") for s in statements) == 1
+        assert not store.raw_connection_for_tests().in_transaction

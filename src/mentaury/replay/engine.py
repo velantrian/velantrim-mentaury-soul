@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 from mentaury.contracts import (
@@ -21,6 +20,7 @@ from mentaury.storage import (
     VerificationBudget,
     compute_payload_digest,
 )
+from mentaury.storage._snapshot import sqlite_read_snapshot
 from mentaury.storage.stream_meta import GENESIS_HASH
 from mentaury.validation import SchemaRegistry
 
@@ -140,7 +140,7 @@ class R1ReplayVerifier:
                 ),
             )
 
-        with _sqlite_read_snapshot(self._store):
+        with sqlite_read_snapshot(self._store, "R1 verification"):
             return self._verify_stream_in_snapshot(stream_id, snapshot)
 
     def _verify_stream_in_snapshot(
@@ -168,7 +168,7 @@ class R1ReplayVerifier:
                 self._store,
                 self._registry,
                 self._budget,
-            ).verify_stream(stream_id)
+            )._verify_stream_in_snapshot(stream_id)
             if not r0_report.ok:
                 assert r0_report.failure is not None
                 return self._failed_report(
@@ -650,25 +650,6 @@ class R1ReplayVerifier:
             tail_state_hash=tail_state_hash,
             failure=failure,
         )
-
-
-@contextmanager
-def _sqlite_read_snapshot(
-    store: SQLiteEventPayloadStore,
-) -> Iterator[None]:
-    """Hold one SQLite snapshot across R0, capture and replay reads."""
-
-    connection = store._connection
-    savepoint = "mentaury_r1_read_snapshot"
-    connection.execute(f"SAVEPOINT {savepoint}")
-    try:
-        yield
-    except BaseException:
-        connection.execute(f"ROLLBACK TO {savepoint}")
-        connection.execute(f"RELEASE {savepoint}")
-        raise
-    else:
-        connection.execute(f"RELEASE {savepoint}")
 
 
 def _require_state_budget(
