@@ -900,3 +900,34 @@ def test_r11_missing_audit_payload_is_preserved_and_not_confused_with_missing_ev
         assert not store.raw_connection_for_tests().in_transaction
         assert code() is IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING
         assert code() is not IntegrityCode.REDACTION_AUDIT_EVENT_MISSING
+
+
+def test_s03_governed_redaction_between_evidence_and_payload_reads_is_coherent(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A governed redaction committed by another connection after R0 read the
+    (empty) redaction evidence must not be misreported as payload corruption."""
+
+    database = tmp_path / "r0-vs-redaction.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as setup:
+        setup.initialize_schema()
+        append_target(setup)
+    reader = SQLiteEventPayloadStore.connect(database)
+    writer = SQLiteEventPayloadStore.connect(database)
+    with reader, writer:
+        r0 = verifier(reader)
+        original = type(r0)._redaction_evidence_for_stream
+
+        def evidence_then_redact(self, stream_id):
+            evidence = original(self, stream_id)
+            executor(writer).redact(redaction_request())  # commits on connection 2
+            return evidence
+
+        monkeypatch.setattr(type(r0), "_redaction_evidence_for_stream", evidence_then_redact)
+        report = r0.verify_stream("test:stream")
+        assert report.ok, report.failure  # not PAYLOAD_MISSING; snapshot predates redaction
+        assert report.checked_events == 1
+        monkeypatch.undo()
+        later = verifier(reader).verify_stream("test:stream")
+        assert later.ok and later.checked_events == 2  # sees the governed redaction
+        assert not reader.raw_connection_for_tests().in_transaction

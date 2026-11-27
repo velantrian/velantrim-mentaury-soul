@@ -490,3 +490,185 @@ def test_populated_v2_migration_budget_exhaustion_rolls_back(tmp_path: Path) -> 
             candidate.raw_connection_for_tests().execute(
                 "SELECT stream_id FROM stream_meta LIMIT 0"
             )
+
+
+# ---------------------------------------------------------------------------
+# Stage 03: standalone R0 reads everything from one coherent SQLite snapshot.
+# Real independent WAL connections; the "other writer" runs at deterministic
+# points between R0's reads (via wrappers around the verifier's own read calls).
+# ---------------------------------------------------------------------------
+
+import mentaury.storage.integrity as integrity_module  # noqa: E402
+
+
+def _file_pair(tmp_path: Path, name: str, events: int = 1):
+    database = tmp_path / name
+    with SQLiteEventPayloadStore.connect(database) as setup:
+        setup.initialize_schema()  # also switches file databases to WAL
+        append_valid_stream(setup, events)
+    return database
+
+
+def _connections(database: Path):
+    return (
+        SQLiteEventPayloadStore.connect(database),
+        SQLiteEventPayloadStore.connect(database),
+    )
+
+
+def _append_next(writer: SQLiteEventPayloadStore, version: int) -> None:
+    writer.append_one(raw_event(version), {"n": version}, registry=registry())
+
+
+def test_s03_append_between_count_and_event_read_cannot_bypass_event_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    database = _file_pair(tmp_path, "count-vs-events.sqlite3", events=1)
+    reader, writer = _connections(database)
+    with reader, writer:
+        original = reader.list_stream
+
+        def append_then_list(stream_id: str):
+            _append_next(writer, 2)  # lands between COUNT and the event read
+            return original(stream_id)
+
+        monkeypatch.setattr(reader, "list_stream", append_then_list)
+        report = verifier(reader, budget=verification_budget(max_events=1)).verify_stream(
+            "test:stream"
+        )
+        # One coherent snapshot: still exactly the 1 counted event, within budget.
+        assert report.ok and report.checked_events == 1
+        assert not reader.raw_connection_for_tests().in_transaction
+        monkeypatch.undo()
+        # Verification after the snapshot ended sees the new state (2 > max_events).
+        later = verifier(reader, budget=verification_budget(max_events=1)).verify_stream(
+            "test:stream"
+        )
+        assert later.failure is not None
+        assert later.failure.code is IntegrityCode.RESOURCE_BUDGET_EXCEEDED
+
+
+def test_s03_append_between_event_read_and_metadata_read_is_not_a_false_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    database = _file_pair(tmp_path, "events-vs-meta.sqlite3", events=2)
+    reader, writer = _connections(database)
+    with reader, writer:
+        original = integrity_module.read_stream_meta
+
+        def append_then_read_meta(connection, stream_id):
+            _append_next(writer, 3)  # lands between the event read and metadata read
+            return original(connection, stream_id)
+
+        monkeypatch.setattr(integrity_module, "read_stream_meta", append_then_read_meta)
+        report = verifier(reader).verify_stream("test:stream")
+        assert report.ok, report.failure  # not STREAM_META_*_MISMATCH
+        assert report.checked_events == 2
+        monkeypatch.undo()
+        later = verifier(reader).verify_stream("test:stream")
+        assert later.ok and later.checked_events == 3  # new state visible afterwards
+
+
+def test_s03_payload_deleted_by_other_connection_mid_verification(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Synthetic: another connection removes a payload after R0 read the events."""
+
+    database = _file_pair(tmp_path, "payload-delete.sqlite3", events=2)
+    reader, writer = _connections(database)
+    with reader, writer:
+        original = reader.list_stream
+
+        def list_then_delete_payload(stream_id: str):
+            events = original(stream_id)
+            writer.raw_connection_for_tests().execute(
+                "DELETE FROM event_payloads WHERE payload_ref = 'PAYLOAD-2'"
+            )
+            return events
+
+        monkeypatch.setattr(reader, "list_stream", list_then_delete_payload)
+        report = verifier(reader).verify_stream("test:stream")
+        assert report.ok, report.failure  # the snapshot predates the deletion
+        monkeypatch.undo()
+        later = verifier(reader).verify_stream("test:stream")
+        assert later.failure is not None
+        assert later.failure.code is IntegrityCode.PAYLOAD_MISSING
+        assert not reader.raw_connection_for_tests().in_transaction
+
+
+def test_s03_r0_refuses_external_transaction_and_leaves_it_untouched() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_valid_stream(store, 1)
+        connection = store.raw_connection_for_tests()
+        connection.execute("CREATE TABLE sentinel(x)")
+        connection.execute("BEGIN")
+        connection.execute("INSERT INTO sentinel VALUES (1)")
+
+        report = verifier(store).verify_stream("test:stream")
+
+        assert not report.ok
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.ACTIVE_TRANSACTION
+        assert report.checked_events == 0
+        assert connection.in_transaction
+        assert connection.execute("SELECT COUNT(*) FROM sentinel").fetchone()[0] == 1
+        connection.execute("ROLLBACK")
+        assert connection.execute("SELECT COUNT(*) FROM sentinel").fetchone()[0] == 0
+
+
+def test_s03_own_snapshot_is_released_on_success_failure_and_exception(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_valid_stream(store, 3)
+        connection = store.raw_connection_for_tests()
+
+        assert verifier(store).verify_stream("test:stream").ok  # success
+        assert not connection.in_transaction
+
+        failed = verifier(store, budget=verification_budget(max_events=1)).verify_stream(
+            "test:stream"
+        )  # controlled refusal
+        assert not failed.ok and not connection.in_transaction
+
+        def boom(stream_id: str):
+            raise RuntimeError("forced")
+
+        monkeypatch.setattr(store, "list_stream", boom)  # exception
+        with pytest.raises(RuntimeError, match="forced"):
+            verifier(store).verify_stream("test:stream")
+        assert not connection.in_transaction
+        monkeypatch.undo()
+        assert verifier(store).verify_stream("test:stream").ok  # reusable
+
+
+def test_s03_r0_uses_exactly_one_snapshot_and_materialized_events_are_budgeted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_valid_stream(store, 3)
+        statements: list[str] = []
+        store.raw_connection_for_tests().set_trace_callback(statements.append)
+        assert verifier(store).verify_stream("test:stream").ok
+        store.raw_connection_for_tests().set_trace_callback(None)
+        assert sum(s.startswith("SAVEPOINT") for s in statements) == 1
+
+        # Defensive: if more events are materialized than were counted/allowed,
+        # the actually fetched count is budget-checked as well (never trusted
+        # from the earlier COUNT alone).
+        original = store.list_stream
+        monkeypatch.setattr(
+            store, "list_stream", lambda stream_id: original(stream_id) + original(stream_id)
+        )
+        report = verifier(store, budget=verification_budget(max_events=4)).verify_stream(
+            "test:stream"
+        )
+        assert not report.ok
+        assert report.failure is not None
+        assert report.failure.code in {
+            IntegrityCode.RESOURCE_BUDGET_EXCEEDED,
+            IntegrityCode.SNAPSHOT_INCOHERENT,
+        }
