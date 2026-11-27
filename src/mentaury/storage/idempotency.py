@@ -38,6 +38,7 @@ from .concurrency import (
     begin_immediate,
     commit_with_retry,
     is_stream_version_conflict,
+    rollback_after_failure,
 )
 from .sealing import compute_payload_digest
 from .sqlite_store import SQLiteEventPayloadStore
@@ -138,8 +139,10 @@ class SQLiteIdempotentBatchAppender:
         self._store._require_initialized()
         receipt: BatchAppendReceipt | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(connection, self._busy_policy)
         try:
-            begin_immediate(connection, self._busy_policy)
             existing = connection.execute(
                 """
                 SELECT fingerprint_profile, fingerprint, batch_id, stream_id,
@@ -199,8 +202,7 @@ class SQLiteIdempotentBatchAppender:
                 ),
             )
         except sqlite3.IntegrityError as exc:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+            rollback_after_failure(connection, exc)
             if is_stream_version_conflict(exc):
                 first = request.entries[0].event
                 raise VersionConflictError(
@@ -208,9 +210,8 @@ class SQLiteIdempotentBatchAppender:
                     first.stream_version,
                 ) from exc
             raise
-        except Exception:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+        except Exception as exc:
+            rollback_after_failure(connection, exc)
             raise
         else:
             commit_with_retry(connection, self._busy_policy)

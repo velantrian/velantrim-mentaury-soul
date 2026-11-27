@@ -36,6 +36,7 @@ from .concurrency import (
     begin_immediate,
     commit_with_retry,
     is_stream_version_conflict,
+    rollback_after_failure,
 )
 from .sealing import seal_event_bytes, validate_event_for_commit
 from .sqlite_store import SQLiteEventPayloadStore
@@ -237,8 +238,10 @@ class SQLiteRedactionExecutor:
         fingerprint = redaction_fingerprint(request)
         sealed_audit: EventEnvelope | None = None
 
+        # Ownership is established only once BEGIN succeeds; a refusal or busy
+        # exhaustion here must not reach the rollback handlers below.
+        begin_immediate(connection, self._busy_policy)
         try:
-            begin_immediate(connection, self._busy_policy)
 
             existing_by_key = connection.execute(
                 """
@@ -371,16 +374,14 @@ class SQLiteRedactionExecutor:
                 ),
             )
         except sqlite3.IntegrityError as exc:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+            rollback_after_failure(connection, exc)
             if is_stream_version_conflict(exc):
                 raise VersionConflictError(
                     request.target_stream, request.expected_stream_version + 1
                 ) from exc
             raise
-        except Exception:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+        except Exception as exc:
+            rollback_after_failure(connection, exc)
             raise
         else:
             commit_with_retry(connection, self._busy_policy)

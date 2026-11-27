@@ -11,6 +11,7 @@ from .concurrency import (
     DEFAULT_BUSY_RETRY_POLICY,
     BusyRetryPolicy,
     StoreBusyError,
+    TransactionOwnershipError,
     VersionConflictError,
 )
 from .integrity import (
@@ -112,6 +113,7 @@ __all__ = [
     "StoredPayload",
     "StoreBusyError",
     "StoreNotInitializedError",
+    "TransactionOwnershipError",
     "VersionConflictError",
     "compute_event_hash",
     "compute_payload_digest",

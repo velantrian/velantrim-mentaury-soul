@@ -16,6 +16,22 @@ class StoreBusyError(RuntimeError):
         super().__init__(f"STORE_BUSY after {attempts} attempts: {last_error}")
 
 
+class TransactionOwnershipError(RuntimeError):
+    """Raised when a write operation finds a transaction it does not own.
+
+    Public writers require an idle connection. An already-active transaction
+    belongs to the caller, so the operation refuses without committing,
+    rolling back, or otherwise touching it.
+    """
+
+    def __init__(self, operation: str) -> None:
+        self.operation = operation
+        super().__init__(
+            f"TRANSACTION_OWNERSHIP: {operation} requires an idle connection; "
+            "an externally owned transaction is active and was left untouched"
+        )
+
+
 class VersionConflictError(RuntimeError):
     """Raised when a stream/version pair was already committed."""
 
@@ -46,25 +62,46 @@ class BusyRetryPolicy:
 DEFAULT_BUSY_RETRY_POLICY = BusyRetryPolicy()
 
 
+def require_idle_connection(
+    connection: sqlite3.Connection,
+    operation: str,
+) -> None:
+    """Refuse, without side effects, when the caller already owns a transaction.
+
+    Invariant: an operation may commit or roll back only its own transaction.
+    Ownership can be claimed only after a successful ``BEGIN``; therefore any
+    transaction visible beforehand is foreign and must not be touched.
+    """
+
+    if connection.in_transaction:
+        raise TransactionOwnershipError(operation)
+
+
 def begin_immediate(
     connection: sqlite3.Connection,
     policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
 ) -> int:
-    """Acquire SQLite's reserved write lock using a bounded retry policy."""
+    """Acquire SQLite's reserved write lock using a bounded retry policy.
+
+    Fails closed with ``TransactionOwnershipError`` before any BEGIN or retry
+    when the connection already has an active (externally owned) transaction.
+    Rollbacks below only ever undo a transaction this call itself opened.
+    """
 
     if not isinstance(policy, BusyRetryPolicy):
         raise TypeError("policy must be a BusyRetryPolicy")
+    require_idle_connection(connection, "begin_immediate")
     last_error: sqlite3.OperationalError | None = None
     for attempt in range(1, policy.max_attempts + 1):
         try:
             connection.execute("BEGIN IMMEDIATE")
             return attempt
         except sqlite3.OperationalError as exc:
+            # A failed BEGIN opened nothing, so ownership was never established
+            # and there is nothing of ours to roll back.
             if not is_busy_error(exc):
-                _rollback_if_active(connection)
                 raise
             last_error = exc
-            _rollback_if_active(connection)
             if attempt < policy.max_attempts and policy.backoff_seconds:
                 time.sleep(policy.backoff_seconds)
     assert last_error is not None
@@ -91,7 +128,14 @@ def commit_with_retry(
     connection: sqlite3.Connection,
     policy: BusyRetryPolicy = DEFAULT_BUSY_RETRY_POLICY,
 ) -> int:
-    """Complete an active transaction with bounded retries and fail-closed rollback."""
+    """Complete the caller's *own* active transaction, fail-closed.
+
+    Must only be called after a successful ``begin_immediate`` by the same
+    operation. Busy contention is retried under ``policy``. Any other
+    ``sqlite3.Error`` (for example a deferred foreign-key ``IntegrityError`` or
+    an authorizer denial) can leave the transaction open, so it is rolled back
+    and the original error is re-raised unchanged.
+    """
 
     if not isinstance(policy, BusyRetryPolicy):
         raise TypeError("policy must be a BusyRetryPolicy")
@@ -102,16 +146,37 @@ def commit_with_retry(
             return attempt
         except sqlite3.OperationalError as exc:
             if not is_busy_error(exc):
-                _rollback_if_active(connection)
+                rollback_after_failure(connection, exc)
                 raise
             last_error = exc
             if attempt < policy.max_attempts and policy.backoff_seconds:
                 time.sleep(policy.backoff_seconds)
+        except sqlite3.Error as exc:
+            rollback_after_failure(connection, exc)
+            raise
     assert last_error is not None
-    _rollback_if_active(connection)
+    rollback_after_failure(connection, last_error)
     raise StoreBusyError(policy.max_attempts, last_error)
 
 
-def _rollback_if_active(connection: sqlite3.Connection) -> None:
-    if connection.in_transaction:
+def rollback_after_failure(
+    connection: sqlite3.Connection,
+    original: BaseException,
+) -> None:
+    """Roll back our own transaction after ``original`` without masking it.
+
+    A failing ROLLBACK is attached to ``original`` as a note instead of
+    replacing it. Success is claimed only if the connection is verifiably idle
+    afterwards; otherwise the note says the rollback is unconfirmed.
+    """
+
+    if not connection.in_transaction:
+        return
+    try:
         connection.execute("ROLLBACK")
+    except sqlite3.Error as rollback_error:
+        original.add_note(f"rollback failed: {rollback_error!r}")
+    if connection.in_transaction:
+        original.add_note(
+            "rollback unconfirmed: connection is still inside a transaction"
+        )
