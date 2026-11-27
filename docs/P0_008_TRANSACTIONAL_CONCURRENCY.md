@@ -62,6 +62,14 @@ isolation_level="" / "IMMEDIATE" (legacy) → supported while idle; a driver-ope
 autocommit=False                         → always in a transaction → always refused
 ```
 
+`commit_with_retry` and every writer's failure handler end the operation's *own*
+transaction through `rollback_after_failure`. Non-busy COMMIT failures
+(`IntegrityError` from deferred foreign keys, authorizer denials, any other
+`sqlite3.Error`) are rolled back and re-raised unchanged; a failing ROLLBACK is
+attached to the original error as a note and never replaces it, and success is
+claimed only once `in_transaction` is verifiably false. A failed BEGIN opened
+nothing and is never followed by a rollback.
+
 No savepoint-based composition is provided, and sharing one connection between
 concurrent threads is not a supported contract. Ownership is not authority:
 this guard grants no runtime, action or deployment authority.

@@ -38,6 +38,7 @@ from .concurrency import (
     is_busy_error,
     is_stream_version_conflict,
     require_idle_connection,
+    rollback_after_failure,
 )
 from .sealing import (
     compute_event_hash,
@@ -327,9 +328,8 @@ class SQLiteEventPayloadStore:
         if current == 1:
             try:
                 self._connection.executescript(_MIGRATE_1_TO_2_SQL)
-            except Exception:
-                if self._connection.in_transaction:
-                    self._connection.execute("ROLLBACK")
+            except Exception as exc:
+                rollback_after_failure(self._connection, exc)
                 raise
             current = 2
         if current == 2:
@@ -346,9 +346,8 @@ class SQLiteEventPayloadStore:
                     "UPDATE p0_schema_meta SET schema_version = 3 WHERE singleton = 1"
                 )
                 commit_with_retry(self._connection, self._busy_policy)
-            except Exception:
-                if self._connection.in_transaction:
-                    self._connection.execute("ROLLBACK")
+            except Exception as exc:
+                rollback_after_failure(self._connection, exc)
                 raise
             current = 3
         if current == 3:
@@ -360,9 +359,8 @@ class SQLiteEventPayloadStore:
                     "UPDATE p0_schema_meta SET schema_version = 4 WHERE singleton = 1"
                 )
                 commit_with_retry(self._connection, self._busy_policy)
-            except Exception:
-                if self._connection.in_transaction:
-                    self._connection.execute("ROLLBACK")
+            except Exception as exc:
+                rollback_after_failure(self._connection, exc)
                 raise
             current = 4
         if current != SCHEMA_VERSION:
@@ -455,17 +453,15 @@ class SQLiteEventPayloadStore:
             self._insert_event(committed)
             update_stream_meta(self._connection, (committed,), previous_meta)
         except sqlite3.IntegrityError as exc:
-            if self._connection.in_transaction:
-                self._connection.execute("ROLLBACK")
+            rollback_after_failure(self._connection, exc)
             if is_stream_version_conflict(exc):
                 raise VersionConflictError(
                     event.stream_id,
                     event.stream_version,
                 ) from exc
             raise
-        except Exception:
-            if self._connection.in_transaction:
-                self._connection.execute("ROLLBACK")
+        except Exception as exc:
+            rollback_after_failure(self._connection, exc)
             raise
         else:
             commit_with_retry(self._connection, self._busy_policy)

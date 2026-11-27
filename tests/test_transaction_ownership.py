@@ -431,3 +431,145 @@ def test_autocommit_true_connection_behaves_like_idle_connection() -> None:
     _w_append_one(store)
     assert not connection.in_transaction
     store.close()
+
+
+# COMMIT-failure handling (follow-up) ---------------------------------------------
+
+def _deny(*, commit: bool = False, rollback: bool = False, begin: bool = False,
+          seen: list[str] | None = None) -> Callable[..., int]:
+    denied = {
+        name
+        for name, flag in (("COMMIT", commit), ("ROLLBACK", rollback), ("BEGIN", begin))
+        if flag
+    }
+
+    def authorizer(action: int, arg1: object, *_: object) -> int:
+        if action == sqlite3.SQLITE_TRANSACTION:
+            if seen is not None:
+                seen.append(str(arg1))
+            if arg1 in denied:
+                return sqlite3.SQLITE_DENY
+        return sqlite3.SQLITE_OK
+
+    return authorizer
+
+
+def _arm_deferred_fk_failure(connection: sqlite3.Connection) -> None:
+    """Every events insert also writes a child row whose FK only fails at COMMIT."""
+
+    connection.execute("CREATE TABLE fk_parent(id INTEGER PRIMARY KEY)")
+    connection.execute(
+        "CREATE TABLE fk_child(parent_id INTEGER REFERENCES fk_parent(id) "
+        "DEFERRABLE INITIALLY DEFERRED)"
+    )
+    connection.execute(
+        "CREATE TRIGGER fk_probe AFTER INSERT ON events "
+        "BEGIN INSERT INTO fk_child VALUES (424242); END"
+    )
+
+
+def _disarm_deferred_fk_failure(connection: sqlite3.Connection) -> None:
+    connection.execute("DROP TRIGGER fk_probe")
+
+
+@pytest.mark.parametrize("writer, prepare", WRITERS)
+def test_commit_denied_by_authorizer_rolls_back_own_transaction(
+    writer: Writer,
+    prepare: Callable[[SQLiteEventPayloadStore], None] | None,
+) -> None:
+    with _ready_store() as store:
+        if prepare:
+            prepare(store)
+        connection = store.raw_connection_for_tests()
+        before = _row_counts(connection)
+        connection.set_authorizer(_deny(commit=True))
+
+        with pytest.raises(sqlite3.DatabaseError, match="not authorized"):
+            writer(store)
+
+        assert not connection.in_transaction  # own transaction was ended
+        connection.set_authorizer(None)
+        assert _row_counts(connection) == before  # nothing partially persisted
+        writer(store)  # connection is immediately reusable
+        assert not connection.in_transaction
+
+
+@pytest.mark.parametrize("writer, prepare", WRITERS)
+def test_deferred_foreign_key_failure_at_commit_rolls_back_own_transaction(
+    writer: Writer,
+    prepare: Callable[[SQLiteEventPayloadStore], None] | None,
+) -> None:
+    with _ready_store() as store:
+        if prepare:
+            prepare(store)
+        connection = store.raw_connection_for_tests()
+        before = _row_counts(connection)
+        _arm_deferred_fk_failure(connection)
+
+        with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
+            writer(store)
+
+        assert not connection.in_transaction
+        assert _row_counts(connection) == before
+        assert connection.execute("SELECT COUNT(*) FROM fk_child").fetchone()[0] == 0
+        _disarm_deferred_fk_failure(connection)
+        writer(store)
+        assert not connection.in_transaction
+
+
+def test_commit_failure_does_not_touch_a_foreign_transaction() -> None:
+    with _ready_store() as store:
+        connection = store.raw_connection_for_tests()
+        connection.set_authorizer(_deny(commit=True))
+        _open_external(connection)
+        with pytest.raises(TransactionOwnershipError):
+            _w_append_one(store)
+        connection.set_authorizer(None)
+        assert connection.in_transaction
+        assert _sentinel_count(connection) == 1
+        connection.execute("ROLLBACK")
+
+
+def test_failed_rollback_never_masks_commit_error_and_is_reported_unconfirmed() -> None:
+    from mentaury.storage.concurrency import commit_with_retry
+
+    with _ready_store() as store:
+        connection = store.raw_connection_for_tests()
+        connection.execute("BEGIN IMMEDIATE")
+        connection.execute("INSERT INTO sentinel VALUES (1)")
+        connection.set_authorizer(_deny(commit=True, rollback=True))
+
+        with pytest.raises(sqlite3.DatabaseError) as captured:
+            commit_with_retry(connection)
+
+        assert "not authorized" in str(captured.value)  # original error preserved
+        notes = " ".join(getattr(captured.value, "__notes__", []))
+        assert "rollback" in notes and "unconfirmed" in notes
+        assert connection.in_transaction  # honestly reported, not faked
+        connection.set_authorizer(None)
+        connection.execute("ROLLBACK")
+
+
+def test_confirmed_rollback_after_commit_error_adds_no_unconfirmed_note() -> None:
+    from mentaury.storage.concurrency import commit_with_retry
+
+    with _ready_store() as store:
+        connection = store.raw_connection_for_tests()
+        connection.execute("BEGIN IMMEDIATE")
+        connection.set_authorizer(_deny(commit=True))
+        with pytest.raises(sqlite3.DatabaseError) as captured:
+            commit_with_retry(connection)
+        assert not getattr(captured.value, "__notes__", [])
+        assert not connection.in_transaction
+
+
+def test_failed_begin_is_never_followed_by_a_rollback() -> None:
+    seen: list[str] = []
+    with _ready_store() as store:
+        connection = store.raw_connection_for_tests()
+        connection.set_authorizer(_deny(begin=True, seen=seen))
+        with pytest.raises(sqlite3.DatabaseError, match="not authorized"):
+            begin_immediate(connection)
+        assert "ROLLBACK" not in seen  # no ownership was ever established
+        assert "BEGIN" in seen
+        connection.set_authorizer(None)

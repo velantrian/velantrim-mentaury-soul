@@ -36,6 +36,7 @@ from .concurrency import (
     begin_immediate,
     commit_with_retry,
     is_stream_version_conflict,
+    rollback_after_failure,
 )
 from .sealing import seal_event_bytes, validate_event_for_commit
 from .sqlite_store import SQLiteEventPayloadStore
@@ -373,16 +374,14 @@ class SQLiteRedactionExecutor:
                 ),
             )
         except sqlite3.IntegrityError as exc:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+            rollback_after_failure(connection, exc)
             if is_stream_version_conflict(exc):
                 raise VersionConflictError(
                     request.target_stream, request.expected_stream_version + 1
                 ) from exc
             raise
-        except Exception:
-            if connection.in_transaction:
-                connection.execute("ROLLBACK")
+        except Exception as exc:
+            rollback_after_failure(connection, exc)
             raise
         else:
             commit_with_retry(connection, self._busy_policy)
