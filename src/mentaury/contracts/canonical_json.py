@@ -15,6 +15,11 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Final, TypeAlias
 
+from .admission import (
+    CanonicalAdmissionBudget,
+    PayloadAdmissionExceeded,
+    PayloadAdmissionState,
+)
 from .envelopes import CommandEnvelope, EventEnvelope, PendingEvent, snapshot_pending_batch
 from .primitives import ActorRef, AuthorityRef, ProducerRef
 
@@ -36,6 +41,19 @@ class CanonicalJSONError(ValueError):
     """Raised when a value cannot enter MENTAURY_CANONICAL_JSON_V1."""
 
 
+def _unsafe_integer_error(path: str, value: int) -> CanonicalJSONError:
+    """Error for an out-of-range integer without ever formatting a huge value.
+
+    ``str(int)`` raises ``ValueError`` beyond Python's digit-conversion limit,
+    which would escape as an uncontrolled error. Values that fit in 64 bits keep
+    the historical message; larger ones omit the value.
+    """
+
+    if value.bit_length() <= 64:
+        return CanonicalJSONError(f"integer outside safe range at {path}: {value}")
+    return CanonicalJSONError(f"integer outside safe range at {path}")
+
+
 def _validate_unicode_scalar_text(value: str, path: str) -> str:
     for character in value:
         code_point = ord(character)
@@ -49,9 +67,7 @@ def _prepare(value: object, path: str, active: set[int]) -> CanonicalValue:
         return value
     if isinstance(value, int):
         if value < SAFE_INTEGER_MIN or value > SAFE_INTEGER_MAX:
-            raise CanonicalJSONError(
-                f"integer outside safe range at {path}: {value}"
-            )
+            raise _unsafe_integer_error(path, value)
         return value
     if isinstance(value, float):
         raise CanonicalJSONError(f"float is forbidden at {path}")
@@ -99,9 +115,19 @@ def _prepare(value: object, path: str, active: set[int]) -> CanonicalValue:
     )
 
 
-def canonical_json_text(value: object) -> str:
-    """Serialize one portable value tree without insignificant whitespace."""
+def canonical_json_text(
+    value: object,
+    budget: CanonicalAdmissionBudget | None = None,
+) -> str:
+    """Serialize one portable value tree without insignificant whitespace.
 
+    Without ``budget`` the original unbounded path runs (unchanged). With an
+    explicit ``CanonicalAdmissionBudget`` the bounded iterative path runs; its
+    output is byte-identical to the unbounded path for every value both accept.
+    """
+
+    if budget is not None:
+        return _canonical_text_bounded(value, budget)
     prepared = _prepare(value, "$", set())
     return json.dumps(
         prepared,
@@ -112,21 +138,276 @@ def canonical_json_text(value: object) -> str:
     )
 
 
-def canonical_json_bytes(value: object) -> bytes:
+def canonical_json_bytes(
+    value: object,
+    budget: CanonicalAdmissionBudget | None = None,
+) -> bytes:
     """Return the canonical UTF-8 byte representation."""
 
-    return canonical_json_text(value).encode("utf-8")
+    return canonical_json_text(value, budget).encode("utf-8")
 
 
-def canonical_decimal_string(value: Decimal | str) -> str:
+class _CFrame:
+    __slots__ = ("container", "iterator", "is_mapping", "out", "identity", "key", "seen")
+
+    def __init__(
+        self,
+        container: object,
+        iterator: object,
+        is_mapping: bool,
+        identity: int,
+    ) -> None:
+        # Strong reference keeps ``container`` (and so its id()) alive until
+        # the frame completes.
+        self.container = container
+        self.iterator = iterator
+        self.is_mapping = is_mapping
+        self.out: dict[str, CanonicalValue] | list[CanonicalValue] = (
+            {} if is_mapping else []
+        )
+        self.identity = identity
+        self.key = ""
+        self.seen = 0
+
+
+def _path_of(stack: Sequence[_CFrame]) -> str:
+    path = "$"
+    for frame in stack:
+        path += f".{frame.key}" if frame.is_mapping else f"[{len(frame.out)}]"
+    return path
+
+
+def _scalar_text(value: CanonicalValue) -> str:
+    if value is None:
+        return "null"
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, int):
+        return str(value)
+    return json.dumps(value, ensure_ascii=False)
+
+
+def _exact_str(value: str) -> str:
+    """Exact ``str`` copy so subclass overrides cannot influence content."""
+
+    return str.__getitem__(value, slice(None))
+
+
+class _ByteMeter:
+    __slots__ = ("limit", "total")
+
+    def __init__(self, limit: int) -> None:
+        self.limit = limit
+        self.total = 0
+
+    def add(self, size: int) -> None:
+        self.total += size
+        if self.total > self.limit:
+            raise PayloadAdmissionExceeded("output_bytes", self.limit, self.total)
+
+
+def _canonical_text_bounded(
+    value: object,
+    budget: CanonicalAdmissionBudget,
+) -> str:
+    if not isinstance(budget, CanonicalAdmissionBudget):
+        raise TypeError("budget must be a CanonicalAdmissionBudget")
+    state = PayloadAdmissionState(budget.payload)
+    meter = _ByteMeter(budget.max_output_bytes)
+    prepared = _prepare_bounded(value, state, meter)
+    text = _emit_bounded(prepared)
+    return text
+
+
+def _prepare_bounded(
+    value: object,
+    state: PayloadAdmissionState,
+    meter: _ByteMeter,
+) -> CanonicalValue:
+    """Validate, account and copy ``value`` iteratively (no recursion)."""
+
+    active: set[int] = set()
+    stack: list[_CFrame] = []
+    to_visit: object = value
+    while True:
+        state.charge_node()
+        path = _path_of(stack)
+        produced: CanonicalValue
+        scalar = True
+        if to_visit is None or isinstance(to_visit, bool):
+            produced = to_visit
+        elif isinstance(to_visit, int):
+            number = int.__index__(to_visit)
+            if number < SAFE_INTEGER_MIN or number > SAFE_INTEGER_MAX:
+                raise _unsafe_integer_error(path, number)
+            produced = number
+        elif isinstance(to_visit, float):
+            raise CanonicalJSONError(f"float is forbidden at {path}")
+        elif isinstance(to_visit, Decimal):
+            raise CanonicalJSONError(
+                f"Decimal is forbidden at {path}; encode it explicitly as a canonical string"
+            )
+        elif isinstance(to_visit, str):
+            state.check_string(to_visit)
+            produced = _validate_unicode_scalar_text(_exact_str(to_visit), path)
+        elif isinstance(to_visit, Mapping) or (
+            isinstance(to_visit, Sequence)
+            and not isinstance(to_visit, (bytes, bytearray, memoryview))
+        ):
+            scalar = False
+        else:
+            raise CanonicalJSONError(
+                f"unsupported canonical JSON type at {path}: {type(to_visit).__name__}"
+            )
+
+        if scalar:
+            meter.add(len(_scalar_text(produced).encode("utf-8")))
+            # a child of an open container: separators are metered on delivery
+        else:
+            state.check_depth(len(stack) + 1)
+            identity = id(to_visit)
+            kind = "mapping" if isinstance(to_visit, Mapping) else "sequence"
+            if identity in active:
+                raise CanonicalJSONError(f"cyclic {kind} is forbidden at {path}")
+            active.add(identity)
+            if isinstance(to_visit, Mapping):
+                frame = _CFrame(to_visit, iter(to_visit.items()), True, identity)
+            else:
+                assert isinstance(to_visit, Sequence)  # narrowed by the branch above
+                frame = _CFrame(to_visit, iter(to_visit), False, identity)
+            stack.append(frame)
+            meter.add(2)  # "{}" or "[]"
+            has_child, child = _advance_bounded(frame, state, meter, stack)
+            if has_child:
+                to_visit = child
+                continue
+            stack.pop()
+            active.discard(frame.identity)
+            produced = frame.out
+
+        while True:
+            if not stack:
+                return produced
+            frame = stack[-1]
+            if frame.is_mapping:
+                assert isinstance(frame.out, dict)
+                frame.out[frame.key] = produced
+            else:
+                assert isinstance(frame.out, list)
+                frame.out.append(produced)
+            has_child, child = _advance_bounded(frame, state, meter, stack)
+            if not has_child:
+                stack.pop()
+                active.discard(frame.identity)
+                produced = frame.out
+                continue
+            to_visit = child
+            break
+
+
+def _advance_bounded(
+    frame: _CFrame,
+    state: PayloadAdmissionState,
+    meter: _ByteMeter,
+    stack: list[_CFrame],
+) -> tuple[bool, object]:
+    """Next child as ``(has_child, child)``; meters separators and keys."""
+
+    try:
+        item = next(frame.iterator)  # type: ignore[call-overload]
+    except StopIteration:
+        return False, None
+    if frame.seen:
+        meter.add(1)  # comma
+    frame.seen += 1
+    if frame.is_mapping:
+        key, child = item
+        path = _path_of(stack[:-1])  # the mapping's own path, as in the original
+        if not isinstance(key, str):
+            raise CanonicalJSONError(f"object key must be a string at {path}")
+        state.charge_node()
+        state.check_key(key)
+        safe_key = _exact_str(key)
+        _validate_unicode_scalar_text(safe_key, f"{path}.<key>")
+        assert isinstance(frame.out, dict)
+        if safe_key in frame.out:
+            raise CanonicalJSONError(f"duplicate object key at {path}: {safe_key}")
+        frame.key = safe_key
+        meter.add(len(json.dumps(safe_key, ensure_ascii=False).encode("utf-8")) + 1)
+        return True, child
+    return True, item
+
+
+def _emit_bounded(prepared: CanonicalValue) -> str:
+    """Iteratively render a prepared tree exactly like ``json.dumps``."""
+
+    pieces: list[str] = []
+    stack: list[tuple[object, object, bool]] = []  # (iterator, source, is_dict)
+    firsts: list[bool] = []
+    to_emit: CanonicalValue = prepared
+    while True:
+        if isinstance(to_emit, dict):
+            pieces.append("{")
+            stack.append((iter(sorted(to_emit)), to_emit, True))
+            firsts.append(True)
+        elif isinstance(to_emit, list):
+            pieces.append("[")
+            stack.append((iter(to_emit), to_emit, False))
+            firsts.append(True)
+        else:
+            pieces.append(_scalar_text(to_emit))
+        while True:
+            if not stack:
+                return "".join(pieces)
+            iterator, source, is_dict = stack[-1]
+            try:
+                nxt = next(iterator)  # type: ignore[call-overload]
+            except StopIteration:
+                pieces.append("}" if is_dict else "]")
+                stack.pop()
+                firsts.pop()
+                continue
+            if not firsts[-1]:
+                pieces.append(",")
+            firsts[-1] = False
+            if is_dict:
+                pieces.append(json.dumps(nxt, ensure_ascii=False) + ":")
+                to_emit = source[nxt]  # type: ignore[index]
+            else:
+                to_emit = nxt
+            break
+
+
+def canonical_decimal_string(
+    value: Decimal | str,
+    max_rendered_chars: int | None = None,
+) -> str:
     """Normalize a finite decimal to a schema-controlled JSON string value.
 
     Decimal objects are never serialized implicitly because JSON numbers cannot
     preserve decimal intent across runtimes. Callers must store the returned
     string in a field whose schema declares decimal-string semantics.
+
+    ``max_rendered_chars`` is an explicit, opt-in admission bound (no default).
+    It limits the input text length and the *pre-normalization* plain-notation
+    length (digits plus exponent padding), which is evaluated before the
+    potentially huge ``format(..., "f")`` string is built. Exceeding it raises
+    ``PayloadAdmissionExceeded("decimal_chars", ...)``.
     """
 
+    if max_rendered_chars is not None and (
+        isinstance(max_rendered_chars, bool)
+        or not isinstance(max_rendered_chars, int)
+        or max_rendered_chars < 1
+    ):
+        raise ValueError("max_rendered_chars must be a positive integer")
     if isinstance(value, str):
+        if max_rendered_chars is not None and str.__len__(value) > max_rendered_chars:
+            raise PayloadAdmissionExceeded(
+                "decimal_chars", max_rendered_chars, str.__len__(value)
+            )
         if not value or value != value.strip():
             raise CanonicalJSONError("decimal text must be non-empty and unpadded")
         try:
@@ -142,6 +423,16 @@ def canonical_decimal_string(value: Decimal | str) -> str:
         raise CanonicalJSONError("decimal must be finite")
     if decimal_value.is_zero():
         return "0"
+    if max_rendered_chars is not None:
+        digits = len(decimal_value.as_tuple().digits)
+        exponent = decimal_value.as_tuple().exponent
+        assert isinstance(exponent, int)  # finite
+        # sign + plain notation (digits + zero padding, or "0." + leading zeros)
+        estimate = 1 + (digits + exponent if exponent >= 0 else max(digits, -exponent) + 1)
+        if estimate > max_rendered_chars:
+            raise PayloadAdmissionExceeded(
+                "decimal_chars", max_rendered_chars, estimate
+            )
 
     rendered = format(decimal_value, "f")
     if "." in rendered:

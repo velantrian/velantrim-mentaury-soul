@@ -65,6 +65,27 @@ class PayloadAdmissionBudget:
                 raise ValueError(f"{name} must be a positive integer")
 
 
+@dataclass(frozen=True, slots=True)
+class CanonicalAdmissionBudget:
+    """Limits for one bounded canonical serialization (Stage 04B.2).
+
+    ``payload`` bounds the traversal exactly like the bounded freeze;
+    ``max_output_bytes`` bounds the exact UTF-8 size of the canonical output and
+    is enforced incrementally, before the output text is materialized.
+    Caller-supplied, inclusive, no defaults.
+    """
+
+    payload: PayloadAdmissionBudget
+    max_output_bytes: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.payload, PayloadAdmissionBudget):
+            raise TypeError("payload must be a PayloadAdmissionBudget")
+        value = self.max_output_bytes
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ValueError("max_output_bytes must be a positive integer")
+
+
 class PayloadAdmissionState:
     """Mutable spend tracker for exactly one operation (never shared)."""
 
