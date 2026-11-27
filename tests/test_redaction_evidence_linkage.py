@@ -367,6 +367,12 @@ def test_r0_applies_payload_budget_before_decoding_linked_audit_payload() -> Non
                 max_events=100,
                 max_payload_bytes=1,
                 max_total_payload_bytes=1,
+                # Stage 04C: with only the three legacy limits the redaction
+                # metadata bounds are derived from them and this infeasible
+                # 1-byte profile would be refused at the metadata preflight.
+                # The explicit bounds keep this test about the payload budget.
+                max_redaction_record_bytes=10_000,
+                max_total_redaction_bytes=10_000,
             ),
         ).verify_stream("test:stream")
 
