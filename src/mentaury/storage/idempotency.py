@@ -307,21 +307,23 @@ def idempotency_fingerprint(
         }
         canonical = canonical_json_bytes(semantic_value)
     else:
-        bounded_value: dict[str, object] = {
-            "profile": IDEMPOTENCY_PROFILE,
-            "command": command_value,
-            "pending_events": [
-                {
-                    "event_type": event.event_type,
-                    "payload_schema": event.payload_schema,
-                    "affects_domain_state": event.affects_domain_state,
-                    "payload": event.payload,
-                }
-                for event in pending
-            ],
-        }
-        canonical = admission.canonical_document(
-            bounded_value,
+        def build(snapshots: tuple[object, ...]) -> dict[str, object]:
+            return {
+                "profile": IDEMPOTENCY_PROFILE,
+                "command": {**command_value, "payload": snapshots[0]},
+                "pending_events": [
+                    {
+                        "event_type": event.event_type,
+                        "payload_schema": event.payload_schema,
+                        "affects_domain_state": event.affects_domain_state,
+                        "payload": snapshot,
+                    }
+                    for event, snapshot in zip(pending, snapshots[1:], strict=True)
+                ],
+            }
+
+        canonical = admission.canonical_document_with_payloads(
+            build,
             payloads=(command.payload, *(event.payload for event in pending)),
         )
     digest = hashlib.sha256(canonical).hexdigest()

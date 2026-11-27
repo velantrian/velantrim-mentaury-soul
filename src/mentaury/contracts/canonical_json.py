@@ -225,9 +225,13 @@ class _ByteMeter:
         self.total = 0
 
     def add(self, size: int) -> None:
+        # ``total`` is only ever bytes that were admitted; a refused increment
+        # is reported through ``observed`` but never counted as spend.
+        if self.total + size > self.limit:
+            raise PayloadAdmissionExceeded(
+                "output_bytes", self.limit, self.total + size
+            )
         self.total += size
-        if self.total > self.limit:
-            raise PayloadAdmissionExceeded("output_bytes", self.limit, self.total)
 
 
 def _canonical_text_bounded(
@@ -678,8 +682,9 @@ def canonical_command_bytes(
         return canonical_json_bytes(command_envelope_value(command))
     if not isinstance(command, CommandEnvelope):
         raise TypeError("command must be a CommandEnvelope")
-    return admission.canonical_document(
-        _command_document(command, command.payload), payloads=(command.payload,)
+    return admission.canonical_document_with_payloads(
+        lambda snapshots: _command_document(command, snapshots[0]),
+        payloads=(command.payload,),
     )
 
 
@@ -690,8 +695,11 @@ def canonical_pending_batch_bytes(
     if admission is None:
         return canonical_json_bytes(pending_batch_value(events))
     batch = snapshot_pending_batch(events, admission)
-    return admission.canonical_document(
-        [_pending_document(event, event.payload) for event in batch],
+    return admission.canonical_document_with_payloads(
+        lambda snapshots: [
+            _pending_document(event, snapshot)
+            for event, snapshot in zip(batch, snapshots, strict=True)
+        ],
         payloads=tuple(event.payload for event in batch),
     )
 

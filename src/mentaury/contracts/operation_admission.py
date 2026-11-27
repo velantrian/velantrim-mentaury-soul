@@ -30,7 +30,7 @@ poison the state.
 from __future__ import annotations
 
 import itertools
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import TypeVar
 
@@ -154,14 +154,21 @@ class OperationAdmissionState:
             budget.max_key_length,
         )
         spend = PayloadAdmissionState(effective)
+        nodes_before = self._nodes
         try:
             frozen = _freeze_payload_value_bounded(payload, spend)
         except PayloadAdmissionExceeded as exc:
-            self._nodes += spend.nodes_visited
             raise self._refuse(
-                self._remap(exc, node_aggregate=remaining < budget.max_nodes)
+                self._remap(
+                    exc,
+                    node_aggregate=remaining < budget.max_nodes,
+                    nodes_before=nodes_before,
+                )
             ) from None
-        self._nodes += spend.nodes_visited
+        finally:
+            # whatever happened after the traversal began (success, refusal,
+            # TypeError, ...), the visits actually performed stay charged
+            self._nodes += spend.nodes_visited
         assert isinstance(frozen, Mapping)
         return frozen
 
@@ -184,35 +191,50 @@ class OperationAdmissionState:
         encoded, _ = self.admit_payload(value)
         return encoded, self._nodes - before
 
-    def canonical_document(
-        self,
-        document: object,
-        payloads: Iterable[object] = (),
-    ) -> bytes:
-        """Canonical bytes of a document, per-payload limits kept.
+    def canonical_document(self, document: object) -> bytes:
+        """Canonical bytes of a *metadata-only* document, aggregate limits only.
 
-        Every embedded payload is admitted individually first (per-payload and
-        aggregate limits, charged); the whole-document pass then runs under the
-        aggregate limits. The relaxed whole-document pass can therefore never
-        admit a payload the per-payload limits would refuse.
+        Contract: ``document`` must not embed caller-controlled payload trees.
+        It is meant for documents the operation built itself from already
+        validated scalar fields (event metadata, the hash projection, receipt id
+        lists). A document that embeds payloads must use
+        ``canonical_document_with_payloads`` so every payload is admitted under
+        the per-payload limits and rendered from one trusted snapshot.
         """
 
-        for payload in payloads:
-            self.admit_payload(payload)
         text, _, _ = self._canonical(document, whole_document=True)
+        return text.encode("utf-8")
+
+    def canonical_document_with_payloads(
+        self,
+        build: Callable[[tuple[CanonicalValue, ...]], object],
+        payloads: Iterable[object],
+    ) -> bytes:
+        """Canonical bytes of a document that embeds payloads.
+
+        Every payload is admitted once under the per-payload AND aggregate
+        limits; ``build`` receives the resulting trusted snapshots (in order)
+        and must construct the document from *those*, never from the original
+        objects. The whole-document pass then reads only snapshots, so the
+        admitted payload and the serialized payload are the same data even if
+        the original is a mapping that reports different content per read.
+        """
+
+        snapshots = tuple(self.admit_payload(payload)[1] for payload in payloads)
+        text, _, _ = self._canonical(build(snapshots), whole_document=True)
         return text.encode("utf-8")
 
     def validation_visit(self) -> None:
         """Work meter for the schema validator: one unit per validator step."""
 
         self._guard()
-        self._nodes += 1
-        if self._nodes > self._budget.max_total_nodes:
+        if self._nodes + 1 > self._budget.max_total_nodes:
             raise self._refuse(
                 PayloadAdmissionExceeded(
-                    "total_nodes", self._budget.max_total_nodes, self._nodes
+                    "total_nodes", self._budget.max_total_nodes, self._nodes + 1
                 )
             )
+        self._nodes += 1
 
     # -- internals --------------------------------------------------------------------------
 
@@ -252,16 +274,24 @@ class OperationAdmissionState:
         )
         spend = PayloadAdmissionState(budget.payload)
         meter = _ByteMeter(byte_cap)
+        nodes_before, bytes_before = self._nodes, self._bytes
         try:
             text, nodes, prepared = _canonical_bounded(value, budget, spend, meter)
         except PayloadAdmissionExceeded as exc:
-            self._nodes += spend.nodes_visited
-            self._bytes += min(meter.total, byte_cap)
             raise self._refuse(
-                self._remap(exc, node_aggregate=node_aggregate, byte_aggregate=byte_aggregate)
+                self._remap(
+                    exc,
+                    node_aggregate=node_aggregate,
+                    byte_aggregate=byte_aggregate,
+                    nodes_before=nodes_before,
+                    bytes_before=bytes_before,
+                )
             ) from None
-        self._nodes += nodes
-        self._bytes += meter.total
+        finally:
+            # visits and bytes actually performed/admitted stay charged on every
+            # outcome after the traversal began (success, refusal, CanonicalJSONError, ...)
+            self._nodes += spend.nodes_visited
+            self._bytes += meter.total
         return text, nodes, prepared
 
     def _remaining_nodes(self) -> int:
@@ -280,15 +310,26 @@ class OperationAdmissionState:
         *,
         node_aggregate: bool = False,
         byte_aggregate: bool = False,
+        nodes_before: int = 0,
+        bytes_before: int = 0,
     ) -> PayloadAdmissionExceeded:
+        """Re-express a pass-local refusal as an aggregate one.
+
+        ``exc.observed`` is the pass-local count that would have been reached;
+        the aggregate observed value is the spend *before* the pass plus that
+        count, so no unit is counted twice and the refused unit is counted once.
+        """
+
         if exc.dimension == "nodes" and node_aggregate:
             return PayloadAdmissionExceeded(
-                "total_nodes", self._budget.max_total_nodes, self._nodes + 1
+                "total_nodes",
+                self._budget.max_total_nodes,
+                nodes_before + (exc.observed or 0),
             )
         if exc.dimension == "output_bytes" and byte_aggregate:
             return PayloadAdmissionExceeded(
                 "total_output_bytes",
                 self._budget.max_total_output_bytes,
-                self._bytes + (exc.observed or 1),
+                bytes_before + (exc.observed or 0),
             )
         return exc

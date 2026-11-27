@@ -895,3 +895,109 @@ def test_f4_legacy_serializer_and_append_one_calls_are_unchanged() -> None:
         store.initialize_schema()
         store.append_one(event, {"a": 1}, registry=atomic.registry())
         assert len(_rows(store)["events"]) == 1
+
+
+# --- final accounting correction ---------------------------------------------------------------------------------------------
+
+def test_acct1_work_done_before_a_non_admission_error_stays_charged() -> None:
+    s = state()
+    with pytest.raises(TypeError, match="unsupported payload value"):
+        s.freeze_payload({"a": 1, "b": b"x"})  # root, key a, 1, key b, then the bytes visit
+    assert s.nodes == 5 and not s.refused
+    before = s.nodes
+    with pytest.raises(CanonicalJSONError, match="float is forbidden"):
+        s.canonical_payload({"a": 1.5})  # root, key, float visit; "{}" + "a": = 6 bytes metered
+    assert (s.nodes, s.output_bytes) == (before + 3, 6) and not s.refused
+    # the state is still usable and the spend only ever grows
+    s.freeze_payload({"ok": 1})
+    assert s.nodes == before + 3 + 3
+
+
+def test_acct1_validation_steps_before_a_schema_error_stay_charged() -> None:
+    reg = _registry_for(ObjectSpec({"n": IntegerSpec(minimum=0)}, required=frozenset({"n"})))
+    event = atomic.event(0, batch_size=1)
+    s = state()
+    with pytest.raises(SchemaValidationError):
+        validate_event_for_commit(event, {"n": -1}, reg, s)
+    assert s.nodes > 3 and not s.refused  # freeze-free path: canonical (3) + validator steps
+
+
+def test_acct1_an_error_before_any_work_spends_nothing() -> None:
+    s = state()
+    with pytest.raises(TypeError, match="mapping"):
+        s.freeze_payload([1, 2, 3])
+    assert (s.nodes, s.output_bytes) == (0, 0) and not s.refused
+    with pytest.raises(TypeError):
+        OperationAdmissionState(object())  # type: ignore[arg-type]
+
+
+def test_acct2_total_nodes_observed_counts_each_visit_once() -> None:
+    s = state(nodes=10, total_nodes=7)
+    s.freeze_payload({"k": 1})  # 3 visits
+    err = raises_exceeded(lambda: s.freeze_payload({"a": 1, "b": 2, "c": 3}))  # 7 visits wanted, 4 left
+    assert (err.dimension, err.limit, err.observed) == ("total_nodes", 7, 8)  # 3 + 4 admitted + 1 refused
+    assert s.nodes == 7  # only the admitted visits are spent: no double count, no phantom visit
+
+
+def test_acct2_total_output_bytes_observed_counts_each_byte_once() -> None:
+    s = state(total_bytes=20, payload_bytes=100)
+    s.canonical_payload({"a": 1})  # 7 bytes
+    err = raises_exceeded(lambda: s.canonical_payload({"k": "v" * 10}))  # 18 bytes wanted, 13 left
+    assert (err.dimension, err.limit, err.observed) == ("total_output_bytes", 20, 25)  # 7 + 18
+    assert s.output_bytes == 7 + 8  # 7 spent before + the 8 bytes metered before the refusal
+
+
+def test_acct2_individual_exceedance_keeps_its_own_dimension_and_exact_observed() -> None:
+    s = state(nodes=5, total_nodes=100)
+    err = raises_exceeded(lambda: s.freeze_payload({"a": 1, "b": 2, "c": 3}))
+    assert (err.dimension, err.limit, err.observed) == ("nodes", 5, 6)
+    s2 = state(payload_bytes=10, total_bytes=100)
+    err2 = raises_exceeded(lambda: s2.canonical_payload({"k": "v" * 10}))
+    assert err2.dimension == "output_bytes" and err2.limit == 10 and err2.observed == 18
+
+
+def test_acct2_validation_meter_observed_is_exact_and_not_overshooting() -> None:
+    reg = _registry_for(_ONE_OF_SPEC)
+    event = atomic.event(0, batch_size=1)
+    s = state(total_nodes=20)
+    err = raises_exceeded(lambda: validate_event_for_commit(event, {"a": ["x"] * 10}, reg, s))
+    assert err.dimension == "total_nodes" and err.observed == 21 and s.nodes == 20
+
+
+def test_acct3_payload_documents_are_built_from_one_trusted_snapshot_per_payload() -> None:
+    flip = _Flip(1, 2)  # content differs on every later read
+    s = state()
+    out = s.canonical_document_with_payloads(lambda snaps: {"p": snaps[0], "tag": "x"}, payloads=(flip,))
+    assert out == b'{"p":{"n":1},"tag":"x"}'  # the admitted first read, never a re-read
+    assert flip.reads == 1
+
+
+def test_acct3_two_payloads_share_no_state_and_keep_their_order() -> None:
+    a, b = _Flip(1, 9), _Flip(2, 9)
+    out = state().canonical_document_with_payloads(lambda snaps: [snaps[1], snaps[0]], payloads=(a, b))
+    assert out == b'[{"n":2},{"n":1}]' and (a.reads, b.reads) == (1, 1)
+
+
+def test_acct3_per_payload_limits_still_apply_in_the_payload_document_path() -> None:
+    deep = {"a": {"b": {"c": 1}}}
+    s = state(depth=2, **GENEROUS)
+    err = raises_exceeded(lambda: s.canonical_document_with_payloads(lambda snaps: [snaps[0]], payloads=(deep,)))
+    assert err.dimension == "depth" and s.refused
+
+
+def test_acct3_plain_canonical_document_is_metadata_only() -> None:
+    s = state()
+    assert s.canonical_document({"k": ["v", 1]}) == b'{"k":["v",1]}'
+    with pytest.raises(TypeError):
+        s.canonical_document({"k": 1}, payloads=(1,))  # type: ignore[call-arg]
+
+
+def test_acct_terminality_and_canonical_bytes_are_preserved() -> None:
+    cmd, pending = idem.command(), idem.pending_batch()
+    assert idempotency_fingerprint(cmd, pending, state(**GENEROUS)) == idempotency_fingerprint(cmd, pending)
+    assert canonical_command_bytes(cmd, state()) == canonical_command_bytes(cmd)
+    assert canonical_pending_batch_bytes(pending, state()) == canonical_pending_batch_bytes(pending)
+    s = state(total_nodes=3)
+    err = raises_exceeded(lambda: s.freeze_payload({"a": 1, "b": 2}))
+    again = raises_exceeded(lambda: s.canonical_payload({"x": 1}))
+    assert (again.dimension, again.limit, again.observed) == (err.dimension, err.limit, err.observed)
