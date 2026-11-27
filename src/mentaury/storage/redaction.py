@@ -436,14 +436,51 @@ class SQLiteRedactionExecutor:
         )
 
 
+# Every text column the R0 evidence fetch loads, in loading order. The fetch's
+# SELECT list is built from this constant, so a loaded text column can never
+# escape the preflight measurement. ``capability_revision`` is the only other
+# loaded column and is an integer.
 EVIDENCE_COLUMNS: Final[tuple[str, ...]] = (
     "target_event_id",
     "target_stream_id",
     "target_payload_ref",
+    "audit_event_id",
     "reason",
     "capability_lease_id",
 )
+EVIDENCE_NUMERIC_COLUMNS: Final[tuple[str, ...]] = ("capability_revision",)
 _TARGET_COLUMNS: Final[tuple[str, ...]] = ("target_event_id", "target_payload_ref")
+
+
+def redaction_size_expression(
+    connection: sqlite3.Connection,
+    columns: tuple[str, ...],
+) -> str:
+    """SQL expression for the UTF-8 size of ``columns``, whatever the encoding.
+
+    SQLite stores TEXT in the database encoding, and ``LENGTH(CAST(x AS BLOB))``
+    is the stored size, not the UTF-8 size. Two supported cases, both verified
+    by tests:
+
+    * UTF-8 databases (the default): the stored size *is* the UTF-8 size, so the
+      measurement is exact.
+    * UTF-16LE/BE databases (and any other non-UTF-8 encoding): SQL cannot
+      re-encode, so the size is a conservative upper bound that never
+      under-counts: at most 3 UTF-8 bytes per UTF-16 code unit
+      (``ceil(1.5 * stored_bytes)``). It is exact for CJK text and over-counts
+      ASCII/Latin text by up to 3x, so such databases should set explicit
+      ``max_redaction_*`` limits sized for that bound.
+
+    The database format is never changed. Column names are fixed module
+    constants, never caller input.
+    """
+
+    encoding = str(connection.execute("PRAGMA encoding").fetchone()[0])
+    if encoding.upper().replace("-", "") == "UTF8":
+        part = "LENGTH(CAST({column} AS BLOB))"
+    else:
+        part = "((LENGTH(CAST({column} AS BLOB)) * 3 + 1) / 2)"
+    return " + ".join(part.format(column=column) for column in columns)
 
 
 def preflight_redaction_rows(
@@ -454,15 +491,16 @@ def preflight_redaction_rows(
 ) -> int:
     """Measure one stream's redaction rows in SQL and enforce the budget.
 
-    Row count, the largest record and the total size of ``columns`` (in UTF-8
-    bytes) are computed by SQLite aggregates, so Python receives three integers
-    and no row value (in particular no ``reason``) is fetched before the check.
-    Raises ``ResourceBudgetExceeded``; returns the row count otherwise. This
-    bounds Python-side materialization only, not SQLite's own work. Column names
-    are fixed module constants, never caller input.
+    Row count, the largest record and the total size of ``columns`` (UTF-8
+    bytes, or the conservative bound for non-UTF-8 databases; see
+    ``redaction_size_expression``) are computed by SQLite aggregates, so Python
+    receives three integers and no row value (in particular no ``reason`` or
+    ``audit_event_id``) is fetched before the check. Raises
+    ``ResourceBudgetExceeded``; returns the row count otherwise. This bounds
+    Python-side materialization only, not SQLite's own work.
     """
 
-    size = " + ".join(f"LENGTH(CAST({column} AS BLOB))" for column in columns)
+    size = redaction_size_expression(connection, columns)
     count, biggest, total = connection.execute(
         f"""
         SELECT COUNT(*), COALESCE(MAX(size), 0), COALESCE(SUM(size), 0)

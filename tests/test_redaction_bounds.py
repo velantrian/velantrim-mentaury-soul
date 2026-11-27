@@ -15,6 +15,7 @@ import pytest
 
 import test_r1_replay as r1
 import test_redaction as red
+from mentaury.storage.redaction import EVIDENCE_COLUMNS, redaction_size_expression
 from mentaury.storage import (
     IntegrityCode,
     R0IntegrityVerifier,
@@ -169,11 +170,10 @@ def test_aggregate_metadata_size_over_the_budget_is_refused() -> None:
 
 
 def test_record_and_total_byte_boundaries_are_exact() -> None:
-    cols = ("target_event_id", "target_stream_id", "target_payload_ref", "reason", "capability_lease_id")
-    expr = " + ".join(f"LENGTH(CAST({c} AS BLOB))" for c in cols)
     with SQLiteEventPayloadStore.in_memory() as store:
         store.initialize_schema()
         two_redactions(store)
+        expr = redaction_size_expression(store.raw_connection_for_tests(), EVIDENCE_COLUMNS)
         sizes = [r[0] for r in store.raw_connection_for_tests().execute(
             f"SELECT {expr} FROM redactions ORDER BY 1").fetchall()]
         biggest, total = max(sizes), sum(sizes)
@@ -368,3 +368,150 @@ def test_infeasible_three_limit_profile_is_still_a_resource_refusal_never_a_succ
         report = R0IntegrityVerifier(store, red.registry(), VerificationBudget(100, 1, 1)).verify_stream(STREAM)
         assert not report.ok and report.failure.code is IntegrityCode.RESOURCE_BUDGET_EXCEEDED
         assert "redaction_record_bytes" in report.failure.message
+
+
+# --- final measurement fixes (review findings F1, F2) ------------------------------------------------------------------
+
+import re  # noqa: E402
+import sqlite3 as _sqlite3  # noqa: E402
+
+
+
+def test_f1_every_text_column_r0_loads_is_measured() -> None:
+    with fresh() as store:
+        statements = traced(store)
+        r0(store, max_events=100).verify_stream(STREAM)
+        untrace(store)
+        fetch = next(s for s in statements if s.strip().startswith(FETCH_PREFIX))
+        loaded = [c.strip() for c in re.search(r"SELECT (.*?)\s+FROM redactions", fetch, re.S).group(1).split(",")]
+        text_loaded = {c for c in loaded if c != "capability_revision"}  # the only non-text column
+        assert text_loaded == set(EVIDENCE_COLUMNS)  # nothing loaded escapes the measurement
+        assert "audit_event_id" in EVIDENCE_COLUMNS
+
+
+def test_f1_a_huge_audit_event_id_is_refused_before_it_is_fetched() -> None:
+    with fresh() as store:
+        forge(store, 1, audit="A" * 100_000)  # tiny reason, huge audit_event_id
+        statements = traced(store)
+        report = r0(store).verify_stream(STREAM)  # payload limit 1000
+        untrace(store)
+        refused(report)
+        assert "redaction_record_bytes" in report.failure.message
+        assert not any(s.strip().startswith(FETCH_PREFIX) for s in statements)
+
+
+def test_f1_helper_still_measures_exactly_the_columns_it_loads() -> None:
+    with fresh() as store:
+        forge(store, 1, audit="A" * 100_000)  # not loaded by the helper -> not measured by it
+        c = store.raw_connection_for_tests()
+        assert len(redacted_targets_for_stream(c, STREAM, budget(max_events=10))) == 1
+
+
+def test_f1_record_boundary_counts_the_audit_event_id_exactly() -> None:
+    audit = "AUDIT-" + "X" * 200
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        red.append_target(store)
+        red.executor(store).redact(red.redaction_request(audit_event_id=audit))
+        c = store.raw_connection_for_tests()
+        expr = redaction_size_expression(c, EVIDENCE_COLUMNS)
+        size = c.execute(f"SELECT {expr} FROM redactions").fetchone()[0]
+        explicit = dict(max_events=100, max_payload_bytes=10_000, max_total_payload_bytes=100_000)
+        assert R0IntegrityVerifier(store, red.registry(), VerificationBudget(
+            **explicit, max_redaction_record_bytes=size)).verify_stream(STREAM).ok
+        refused_report = R0IntegrityVerifier(store, red.registry(), VerificationBudget(
+            **explicit, max_redaction_record_bytes=size - 1)).verify_stream(STREAM)
+        refused(refused_report)
+        assert f"observed {size}" in refused_report.failure.message
+
+
+def test_compat_correct_journal_with_long_audit_id_vs_derived_and_explicit_limits() -> None:
+    """CONTRACT POINT FOR THE OWNER. The audit_event_id is the audit *event's* id and is not
+    part of the audit payload, so no legacy limit bounds it. A correct journal whose row
+    (including a long audit id) exceeds max_payload_bytes passes with the pre-04C budget
+    semantics but is refused by the derived default; an explicit limit restores acceptance."""
+
+    audit = "AUDIT-" + "X" * 1_500
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        red.append_target(store)
+        red.executor(store).redact(red.redaction_request(audit_event_id=audit))
+        legacy_three = VerificationBudget(100, 1_000, 100_000)  # reason/payload are far below 1000
+        report = R0IntegrityVerifier(store, red.registry(), legacy_three).verify_stream(STREAM)
+        # derived per-record default (= max_payload_bytes) now refuses this correct journal
+        refused(report)
+        assert "redaction_record_bytes" in report.failure.message
+        explicit = VerificationBudget(100, 1_000, 100_000, max_redaction_record_bytes=2_000)
+        assert R0IntegrityVerifier(store, red.registry(), explicit).verify_stream(STREAM).ok
+
+
+# F2 ---------------------------------------------------------------------------------------------------------------------------
+
+TEXT_CASES = {
+    "cjk": "世" * 1000, "ascii": "a" * 1000, "latin": "é" * 500 + "a" * 10,
+    "astral": "\U0001F600" * 100, "mixed": "é" * 50 + "世" * 50 + "a" * 50 + "\U0001F600" * 10,
+    "nul": "ab\x00cd" + "世" * 3, "empty": "",
+}
+
+
+def encoded_database(tmp_path: Path, encoding: str) -> SQLiteEventPayloadStore:
+    """A database whose text encoding is fixed *before* the package creates its schema."""
+
+    path = tmp_path / f"{encoding}.sqlite3"
+    raw = _sqlite3.connect(path)
+    raw.execute(f"PRAGMA encoding = '{encoding}'")
+    raw.execute("CREATE TABLE seed(x)")
+    raw.commit()
+    raw.close()
+    store = SQLiteEventPayloadStore.connect(path)
+    store.initialize_schema()
+    return store
+
+
+@pytest.mark.parametrize("encoding", ["UTF-8", "UTF-16le", "UTF-16be"])
+def test_f2_measured_size_never_undercounts_utf8_bytes_in_any_database_encoding(tmp_path, encoding) -> None:
+    with encoded_database(tmp_path, encoding) as store:
+        c = store.raw_connection_for_tests()
+        assert c.execute("PRAGMA encoding").fetchone()[0].lower() == encoding.lower()
+        c.execute("CREATE TABLE probe(k TEXT, x TEXT)")
+        for key, value in TEXT_CASES.items():
+            c.execute("INSERT INTO probe VALUES (?, ?)", (key, value))
+        expr = redaction_size_expression(c, ("x",))
+        measured = dict(c.execute(f"SELECT k, {expr} FROM probe").fetchall())
+        for key, value in TEXT_CASES.items():
+            true_utf8 = len(value.encode("utf-8"))
+            assert measured[key] >= true_utf8, (encoding, key)  # never under-counts
+            if encoding == "UTF-8":
+                assert measured[key] == true_utf8, key  # exact where the stored form is UTF-8
+        if encoding != "UTF-8":
+            assert measured["cjk"] == 3000  # the review case: 1000 CJK chars are 3000 UTF-8 bytes
+
+
+@pytest.mark.parametrize("encoding", ["UTF-16le", "UTF-16be"])
+def test_f2_utf16_databases_are_neither_refused_outright_nor_silently_converted(tmp_path, encoding) -> None:
+    with encoded_database(tmp_path, encoding) as store:
+        red.append_target(store)
+        red.executor(store).redact(red.redaction_request(reason="世" * 1000))
+        c = store.raw_connection_for_tests()
+        explicit = dict(max_events=100, max_payload_bytes=100_000, max_total_payload_bytes=1_000_000)
+        assert R0IntegrityVerifier(store, red.registry(), VerificationBudget(**explicit)).verify_stream(STREAM).ok
+        # the 1000-character reason is 3000 UTF-8 bytes: a 2500-byte record limit must refuse it
+        # (the stored UTF-16 size, 2000+, would have slipped under it)
+        report = R0IntegrityVerifier(store, red.registry(), VerificationBudget(
+            **explicit, max_redaction_record_bytes=2_500)).verify_stream(STREAM)
+        refused(report)
+        assert "redaction_record_bytes" in report.failure.message
+        assert c.execute("PRAGMA encoding").fetchone()[0].lower() == encoding.lower()  # format untouched
+        assert len(redacted_targets_for_stream(c, STREAM, VerificationBudget(**explicit))) == 1
+
+
+@pytest.mark.parametrize("encoding", ["UTF-16le", "UTF-16be"])
+def test_f2_huge_reason_in_a_utf16_database_is_refused_unfetched(tmp_path, encoding) -> None:
+    with encoded_database(tmp_path, encoding) as store:
+        red.append_target(store)
+        forge(store, 1, reason="世" * 5_000)  # 15,000 UTF-8 bytes against a 1,000-byte limit
+        statements = traced(store)
+        report = r0(store).verify_stream(STREAM)
+        untrace(store)
+        refused(report)
+        assert not any(s.strip().startswith(FETCH_PREFIX) for s in statements)

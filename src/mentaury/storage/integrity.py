@@ -13,6 +13,7 @@ from ._snapshot import sqlite_read_snapshot
 from .budget import ResourceBudgetExceeded, VerificationBudget
 from .redaction import (
     EVIDENCE_COLUMNS,
+    EVIDENCE_NUMERIC_COLUMNS,
     REDACTION_EVENT_TYPE,
     REDACTION_PAYLOAD_SCHEMA,
     preflight_redaction_rows,
@@ -434,11 +435,12 @@ class R0IntegrityVerifier:
     ) -> dict[str, _RedactionEvidence]:
         # The fetch itself is capped (row limit + 1) so that even a row that
         # appeared after the preflight can never be materialized unboundedly.
+        # The SELECT list is built from the constant the preflight measures, so
+        # every loaded text column is covered by the measurement.
+        select_list = ", ".join(EVIDENCE_COLUMNS + EVIDENCE_NUMERIC_COLUMNS)
         rows = self._store._connection.execute(
-            """
-            SELECT target_event_id, target_stream_id, target_payload_ref,
-                   audit_event_id, reason, capability_lease_id,
-                   capability_revision
+            f"""
+            SELECT {select_list}
             FROM redactions
             WHERE target_stream_id = ?
             LIMIT ?

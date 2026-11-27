@@ -29,11 +29,16 @@ class VerificationBudget:
     max_payload_bytes: int
     max_total_payload_bytes: int
     # Optional explicit redaction-metadata bounds (Stage 04C). When unset they
-    # are derived from the three limits above, with no new numeric choice: a
-    # governed redaction row is backed by a same-stream target event and a
-    # same-stream audit event (both counted by ``max_events``) and its text
-    # columns are copied from the audit payload (bounded by the payload limits),
-    # so a legitimate stream can never exceed the derived values.
+    # are derived from the three limits above (rows <- max_events, record bytes
+    # <- max_payload_bytes, total bytes <- max_total_payload_bytes). The
+    # derivation is exact reasoning only for the rows themselves and for the
+    # text columns copied from the audit payload (target ids/refs, reason,
+    # lease id), which the payload limits already bound. ``audit_event_id`` is
+    # the audit *event's* id and is NOT part of the payload, so no legacy limit
+    # bounds it: a correct journal whose row exceeds ``max_payload_bytes``
+    # because of a long audit id is refused by the derived record limit and
+    # needs an explicit ``max_redaction_record_bytes``. Sizes are UTF-8 bytes
+    # (a conservative upper bound for non-UTF-8 databases).
     max_redaction_rows: int | None = None
     max_redaction_record_bytes: int | None = None
     max_total_redaction_bytes: int | None = None
