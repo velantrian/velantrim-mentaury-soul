@@ -367,3 +367,133 @@ def test_no_hidden_defaults_unbudgeted_calls_and_constructors_are_unchanged() ->
     assert len(freeze_payload(big)["items"]) == 5_000
     pending = PendingEvent("TEST_EVENT", "test-event/v1", True, big)
     assert len(pending.payload["items"]) == 5_000  # constructors are not budgeted
+
+
+# --- final boundary fixes (review findings F1-F3) -----------------------------------
+
+import gc  # noqa: E402
+import weakref  # noqa: E402
+
+from mentaury.contracts import primitives as _primitives  # noqa: E402
+
+
+class _LyingStr(str):
+    """A str subclass whose len() lies; the real content length is len via str."""
+
+    claimed = 0
+
+    def __len__(self) -> int:
+        return type(self).claimed
+
+
+def test_f1_lying_str_value_cannot_bypass_string_limit() -> None:
+    long_value = _LyingStr("x" * 100)  # claims len() == 0
+    err = exceeded([long_value], budget(string=5))
+    assert (err.dimension, err.limit, err.observed) == ("string_length", 5, 100)
+
+
+def test_f1_lying_str_key_cannot_bypass_key_limit() -> None:
+    long_key = _LyingStr("k" * 100)
+    err = exceeded({long_key: 1}, budget(key=5))
+    assert (err.dimension, err.limit, err.observed) == ("key_length", 5, 100)
+
+
+def test_f1_overstated_len_does_not_reject_short_content() -> None:
+    class Overstated(str):
+        def __len__(self) -> int:
+            return 10_000
+
+    frozen = freeze_payload_value({Overstated("ab"): Overstated("cd")}, budget(string=5, key=5))
+    assert list(frozen.items()) == [("ab", "cd")]  # real length 2 is within limits
+
+
+class _Dyn(Sequence):
+    """Container whose iterator is independent of ``self`` and yields fresh children."""
+
+    registry: list = []
+    alive_at_leaf: list = []
+    max_depth = 0
+
+    def __init__(self, depth: int) -> None:
+        self.depth = depth
+        type(self).registry.append(weakref.ref(self))
+
+    def __len__(self) -> int:
+        return 1
+
+    def __getitem__(self, index):  # pragma: no cover
+        raise IndexError
+
+    def __iter__(self):
+        return _dyn_children(self.depth)
+
+
+def _dyn_children(depth: int):
+    # Deliberately holds no reference to the container object itself.
+    if depth >= _Dyn.max_depth:
+        gc.collect()
+        _Dyn.alive_at_leaf = [ref() is not None for ref in _Dyn.registry]
+        yield "leaf"
+        return
+    yield _Dyn(depth + 1)
+
+
+def test_f2_active_containers_stay_alive_so_ids_cannot_be_reused() -> None:
+    _Dyn.registry = []
+    _Dyn.alive_at_leaf = []
+    _Dyn.max_depth = 25
+    frozen = freeze_payload_value(_Dyn(0), budget(depth=100, nodes=1_000))
+    for _ in range(25):
+        frozen = frozen[0]  # type: ignore[index]
+    assert frozen == ("leaf",)
+    # every ancestor (all registered containers) was still alive at the leaf
+    assert _Dyn.alive_at_leaf and all(_Dyn.alive_at_leaf)
+
+
+def test_f2_containers_are_released_after_the_freeze_finishes() -> None:
+    _Dyn.registry = []
+    _Dyn.max_depth = 5
+    freeze_payload_value(_Dyn(0), budget(depth=100, nodes=1_000))
+    gc.collect()
+    assert all(ref() is None for ref in _Dyn.registry)  # no lingering strong refs
+
+
+def test_f2_real_cycles_and_dags_are_still_handled_with_dynamic_containers() -> None:
+    class SelfYielding(Sequence):
+        def __len__(self):
+            return 1
+
+        def __getitem__(self, index):  # pragma: no cover
+            raise IndexError
+
+        def __iter__(self):
+            return iter([self])  # a genuine cycle via an independent iterator
+
+    with pytest.raises(TypeError, match="cyclic"):
+        freeze_payload_value(SelfYielding(), budget(depth=50, nodes=1_000))
+    shared = _Dyn(0)
+    _Dyn.max_depth = 1
+    freeze_payload_value([shared, shared], budget(depth=10, nodes=1_000))  # DAG, no cycle
+
+
+def _former_sentinel() -> object:
+    return getattr(_primitives, "_END", object())
+
+
+def test_f3_sentinel_as_sequence_item_is_not_silent_truncation() -> None:
+    marker = _former_sentinel()
+    with pytest.raises(TypeError, match="unsupported payload value"):
+        freeze_payload_value([1, marker, 3], budget())
+
+
+def test_f3_sentinel_as_mapping_value_is_not_silent_truncation() -> None:
+    marker = _former_sentinel()
+    with pytest.raises(TypeError, match="unsupported payload value"):
+        freeze_payload_value({"a": 1, "b": marker, "c": 3}, budget())
+
+
+def test_f3_sentinel_as_root_and_nested_is_rejected() -> None:
+    marker = _former_sentinel()
+    for value in (marker, [[marker]], {"k": [marker]}):
+        with pytest.raises(TypeError):
+            freeze_payload_value(value, budget())

@@ -66,19 +66,20 @@ def freeze_payload_value(
     return _freeze_payload_value_bounded(value, PayloadAdmissionState(budget))
 
 
-_END: object = object()
-
-
 class _Frame:
-    __slots__ = ("iterator", "is_mapping", "out", "identity", "key")
+    __slots__ = ("container", "iterator", "is_mapping", "out", "identity", "key")
 
     def __init__(
         self,
+        container: object,
         iterator: object,
         is_mapping: bool,
         out: dict[str, FrozenPayloadValue] | list[FrozenPayloadValue],
         identity: int,
     ) -> None:
+        # Strong reference: keeps the container alive for the whole frame so
+        # its id() cannot be reused by another object while it is "active".
+        self.container = container
         self.iterator = iterator
         self.is_mapping = is_mapping
         self.out = out
@@ -86,13 +87,20 @@ class _Frame:
         self.key: str = ""
 
 
-def _advance(frame: _Frame, state: PayloadAdmissionState) -> object:
-    """Pull the next child value of ``frame`` (charging mapping keys)."""
+def _advance(
+    frame: _Frame,
+    state: PayloadAdmissionState,
+) -> tuple[bool, object]:
+    """Pull the next child of ``frame`` as ``(has_child, child)``.
+
+    Exhaustion is signalled by the boolean, never by an in-band value, so no
+    payload value can be mistaken for the end of iteration.
+    """
 
     try:
         item = next(frame.iterator)  # type: ignore[call-overload]
     except StopIteration:
-        return _END
+        return False, None
     if frame.is_mapping:
         key, child = item
         if not isinstance(key, str):
@@ -100,8 +108,8 @@ def _advance(frame: _Frame, state: PayloadAdmissionState) -> object:
         state.charge_node()
         state.check_key(key)
         frame.key = key
-        return child
-    return item
+        return True, child
+    return True, item
 
 
 def _freeze_payload_value_bounded(
@@ -129,12 +137,12 @@ def _freeze_payload_value_bounded(
             active.add(identity)
             is_mapping = isinstance(to_visit, Mapping)
             if isinstance(to_visit, Mapping):
-                frame = _Frame(iter(to_visit.items()), True, {}, identity)
+                frame = _Frame(to_visit, iter(to_visit.items()), True, {}, identity)
             else:
-                frame = _Frame(iter(to_visit), False, [], identity)
+                frame = _Frame(to_visit, iter(to_visit), False, [], identity)
             stack.append(frame)
-            child = _advance(frame, state)
-            if child is not _END:
+            has_child, child = _advance(frame, state)
+            if has_child:
                 to_visit = child
                 continue
             stack.pop()
@@ -156,8 +164,8 @@ def _freeze_payload_value_bounded(
                 frame.out[frame.key] = produced  # type: ignore[call-overload]
             else:
                 frame.out.append(produced)  # type: ignore[union-attr]
-            child = _advance(frame, state)
-            if child is _END:
+            has_child, child = _advance(frame, state)
+            if not has_child:
                 stack.pop()
                 active.discard(frame.identity)
                 produced = (

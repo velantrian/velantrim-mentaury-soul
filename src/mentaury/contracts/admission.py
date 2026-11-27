@@ -88,13 +88,17 @@ class PayloadAdmissionState:
             raise PayloadAdmissionExceeded("depth", self._budget.max_depth, depth)
 
     def check_string(self, value: str) -> None:
-        if len(value) > self._budget.max_string_length:
+        # str.__len__ measures the real code points even for str subclasses
+        # that override __len__ with an untrustworthy value.
+        length = str.__len__(value)
+        if length > self._budget.max_string_length:
             raise PayloadAdmissionExceeded(
-                "string_length", self._budget.max_string_length, len(value)
+                "string_length", self._budget.max_string_length, length
             )
 
     def check_key(self, key: str) -> None:
-        if len(key) > self._budget.max_key_length:
+        length = str.__len__(key)
+        if length > self._budget.max_key_length:
             raise PayloadAdmissionExceeded(
-                "key_length", self._budget.max_key_length, len(key)
+                "key_length", self._budget.max_key_length, length
             )
