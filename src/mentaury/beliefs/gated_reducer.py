@@ -15,6 +15,7 @@ from mentaury.evidence import (
     EvidenceGateOutcome,
     EvidenceGatePolicyRegistry,
     policy_from_value,
+    MAX_EVIDENCE_RECORDS,
     records_from_value,
 )
 
@@ -239,6 +240,10 @@ def _state_claim_type(mapping: Mapping[str, object]) -> ClaimType:
 
 def _state_strings(mapping: Mapping[str, object], key: str) -> tuple[str, ...]:
     value = mapping.get(key)
+    if isinstance(value, tuple) and len(value) > MAX_EVIDENCE_RECORDS:
+        raise BeliefReducerError(
+            f"state {key} accepts at most {MAX_EVIDENCE_RECORDS} references"
+        )
     if not isinstance(value, tuple) or any(
         not isinstance(item, str) or not item for item in value
     ):

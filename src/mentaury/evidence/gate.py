@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 from typing import TypedDict, Unpack
@@ -73,6 +74,8 @@ class EvidenceGate:
                 f"policy {policy.policy_id} does not allow claim type {claim_type.value}"
             )
 
+        # Bound input size before any traversal, copy or set construction.
+        _require_ref_budget(evidence_for, evidence_against)
         for_refs = _unique_refs(evidence_for, "evidence_for")
         against_refs = _unique_refs(evidence_against, "evidence_against")
         overlap = set(for_refs).intersection(against_refs)
@@ -84,15 +87,11 @@ class EvidenceGate:
         if not expected_refs:
             raise EvidenceGateError("evidence gate requires attached evidence")
 
-        snapshotted = tuple(records)
+        snapshotted = _bounded_records(records)
         if not snapshotted or any(
             not isinstance(record, EvidenceRecord) for record in snapshotted
         ):
             raise TypeError("records must contain EvidenceRecord values")
-        if len(snapshotted) > MAX_EVIDENCE_RECORDS:
-            raise EvidenceGateError(
-                f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} records"
-            )
         by_ref: dict[str, EvidenceRecord] = {}
         content_digests: set[str] = set()
         provenance_refs: set[str] = set()
@@ -283,6 +282,8 @@ def policy_from_value(value: object) -> EvidenceGatePolicy:
 def records_from_value(value: object) -> tuple[EvidenceRecord, ...]:
     if not isinstance(value, (tuple, list)):
         raise EvidenceGateError("records must be an array")
+    if len(value) > MAX_EVIDENCE_RECORDS:
+        raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
     records: list[EvidenceRecord] = []
     try:
         for item in value:
@@ -321,6 +322,48 @@ def records_from_value(value: object) -> tuple[EvidenceRecord, ...]:
             raise
         raise EvidenceGateError("invalid evidence record") from exc
     return tuple(records)
+
+
+_RECORDS_LIMIT_MESSAGE = f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} records"
+
+
+def _bounded_records(records: Iterable[EvidenceRecord]) -> tuple[EvidenceRecord, ...]:
+    """Snapshot ``records`` while consuming at most MAX_EVIDENCE_RECORDS + 1 items.
+
+    Sequences are size-checked before copying. Other iterables are drawn
+    through ``islice`` so an unbounded or very large producer is never fully
+    consumed. This bounds how many items are requested; it cannot interrupt a
+    single blocking ``next()`` call.
+    """
+
+    if isinstance(records, (tuple, list)):
+        if len(records) > MAX_EVIDENCE_RECORDS:
+            raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
+        return tuple(records)
+    try:
+        iterator = iter(records)
+    except TypeError as exc:
+        raise TypeError("records must be an iterable of EvidenceRecord values") from exc
+    taken = tuple(itertools.islice(iterator, MAX_EVIDENCE_RECORDS + 1))
+    if len(taken) > MAX_EVIDENCE_RECORDS:
+        raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
+    return taken
+
+
+def _require_ref_budget(*sides: object) -> None:
+    """Bound the combined attached references of both sides before traversal.
+
+    Exact record/reference matching already caps the combined total at
+    MAX_EVIDENCE_RECORDS, so no new limit is introduced. Non-sequences are left
+    for ``_unique_refs`` to reject with its existing message.
+    """
+
+    total = sum(len(side) for side in sides if isinstance(side, (tuple, list)))
+    if total > MAX_EVIDENCE_RECORDS:
+        raise EvidenceGateError(
+            f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} "
+            "evidence references across both sides"
+        )
 
 
 def _unique_refs(value: Sequence[str], name: str) -> tuple[str, ...]:

@@ -19,6 +19,7 @@ from mentaury.evidence import (
     EvidenceGatePolicyRegistry,
     EvidenceGateReceipt,
     EvidenceGateRejectionCode,
+    MAX_EVIDENCE_RECORDS,
     records_from_value,
 )
 
@@ -327,6 +328,10 @@ def _required_state_string(state: Mapping[str, object], key: str) -> str:
 
 def _state_strings(state: Mapping[str, object], key: str) -> tuple[str, ...]:
     value = state.get(key)
+    if isinstance(value, (tuple, list)) and len(value) > MAX_EVIDENCE_RECORDS:
+        raise ValueError(
+            f"state {key} accepts at most {MAX_EVIDENCE_RECORDS} references"
+        )
     if not isinstance(value, (tuple, list)) or any(
         not isinstance(item, str) or not item for item in value
     ):
