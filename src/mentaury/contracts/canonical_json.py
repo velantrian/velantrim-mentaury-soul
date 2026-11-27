@@ -195,6 +195,25 @@ def _exact_str(value: str) -> str:
     return str.__getitem__(value, slice(None))
 
 
+_STRING_CHUNK: Final[int] = 256  # implementation chunk size for metering, not a limit
+
+
+def _meter_json_string(text: str, path: str, meter: "_ByteMeter") -> None:
+    """Validate ``text`` and meter its exact JSON size incrementally.
+
+    ``text`` must already be an exact ``str``. The size covers the two quotes
+    plus every escape and UTF-8 byte. It is accumulated chunk by chunk, so a
+    value that exceeds the output budget is rejected after at most one chunk
+    beyond the limit and is never serialized or encoded as a whole.
+    """
+
+    meter.add(2)  # opening and closing quote
+    for start in range(0, str.__len__(text), _STRING_CHUNK):
+        chunk = text[start : start + _STRING_CHUNK]
+        _validate_unicode_scalar_text(chunk, path)
+        meter.add(len(json.dumps(chunk, ensure_ascii=False).encode("utf-8")) - 2)
+
+
 class _ByteMeter:
     __slots__ = ("limit", "total")
 
@@ -251,7 +270,8 @@ def _prepare_bounded(
             )
         elif isinstance(to_visit, str):
             state.check_string(to_visit)
-            produced = _validate_unicode_scalar_text(_exact_str(to_visit), path)
+            produced = _exact_str(to_visit)
+            _meter_json_string(produced, path, meter)  # validates + meters in chunks
         elif isinstance(to_visit, Mapping) or (
             isinstance(to_visit, Sequence)
             and not isinstance(to_visit, (bytes, bytearray, memoryview))
@@ -263,7 +283,8 @@ def _prepare_bounded(
             )
 
         if scalar:
-            meter.add(len(_scalar_text(produced).encode("utf-8")))
+            if not isinstance(produced, str):  # strings were metered incrementally
+                meter.add(len(_scalar_text(produced).encode("utf-8")))
             # a child of an open container: separators are metered on delivery
         else:
             state.check_depth(len(stack) + 1)
@@ -330,12 +351,12 @@ def _advance_bounded(
         state.charge_node()
         state.check_key(key)
         safe_key = _exact_str(key)
-        _validate_unicode_scalar_text(safe_key, f"{path}.<key>")
+        _meter_json_string(safe_key, f"{path}.<key>", meter)  # validates + meters
         assert isinstance(frame.out, dict)
         if safe_key in frame.out:
             raise CanonicalJSONError(f"duplicate object key at {path}: {safe_key}")
         frame.key = safe_key
-        meter.add(len(json.dumps(safe_key, ensure_ascii=False).encode("utf-8")) + 1)
+        meter.add(1)  # colon
         return True, child
     return True, item
 
@@ -427,6 +448,15 @@ def canonical_decimal_string(
         or max_rendered_chars < 1
     ):
         raise ValueError("max_rendered_chars must be a positive integer")
+    if max_rendered_chars is not None:
+        # Trusted representation: subclasses may override as_tuple(),
+        # is_finite(), is_zero(), __format__() or str methods. Decimal(x) copies
+        # the numeric value of any Decimal exactly without calling them, and an
+        # exact str copy cannot change behavior either.
+        if isinstance(value, Decimal):
+            value = Decimal(value)
+        elif isinstance(value, str):
+            value = _exact_str(value)
     if isinstance(value, str):
         if max_rendered_chars is not None and str.__len__(value) > max_rendered_chars:
             raise PayloadAdmissionExceeded(

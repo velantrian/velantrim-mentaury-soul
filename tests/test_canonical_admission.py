@@ -400,3 +400,148 @@ def test_decimal_huge_exponents_are_exact_and_refused_without_formatting(sign) -
 def test_decimal_zero_is_never_expanded_whatever_its_exponent_or_sign() -> None:
     for text in ("0", "-0", "0E+100000", "-0E-100000", "0.000"):
         assert canonical_decimal_string(Decimal(text), 1) == "0"
+
+
+# --- final resource boundaries (review findings F1, F2) ----------------------------------------
+
+import mentaury.contracts.canonical_json as _cj  # noqa: E402
+from decimal import DecimalTuple  # noqa: E402
+
+
+class _DumpsSpy:
+    """Records the size of every str handed to json.dumps (instrumentation)."""
+
+    def __init__(self, real) -> None:
+        self.real = real
+        self.largest = 0
+
+    def __call__(self, obj, *args, **kwargs):
+        if isinstance(obj, str):
+            self.largest = max(self.largest, len(obj))
+        return self.real(obj, *args, **kwargs)
+
+
+def _spy(monkeypatch) -> _DumpsSpy:
+    spy = _DumpsSpy(_cj.json.dumps)
+    monkeypatch.setattr(_cj.json, "dumps", spy)
+    return spy
+
+
+def test_f1_rejected_string_value_is_never_fully_materialized(monkeypatch) -> None:
+    spy = _spy(monkeypatch)
+    big = "é" * 50_000  # 100,000 UTF-8 bytes; string budget is far larger than output
+    err = exceeded([big], cb(string=100_000, nodes=10, out=100))
+    assert (err.dimension, err.limit) == ("output_bytes", 100)
+    assert err.observed is not None and err.observed < 100 + 4 * _cj._STRING_CHUNK
+    assert spy.largest <= _cj._STRING_CHUNK  # no full-string json.dumps / encode
+
+
+def test_f1_rejected_key_is_never_fully_materialized(monkeypatch) -> None:
+    spy = _spy(monkeypatch)
+    err = exceeded({"k" * 50_000: 1}, cb(key=100_000, string=100_000, nodes=10, out=100))
+    assert err.dimension == "output_bytes"
+    assert spy.largest <= _cj._STRING_CHUNK
+
+
+def test_f1_escape_heavy_input_is_rejected_incrementally(monkeypatch) -> None:
+    spy = _spy(monkeypatch)
+    # 20,000 code points but 6 bytes each once escaped (\u0000): ~120 kB
+    err = exceeded(["\u0000" * 20_000], cb(string=100_000, nodes=10, out=500))
+    assert err.dimension == "output_bytes"
+    assert spy.largest <= _cj._STRING_CHUNK
+
+
+@pytest.mark.parametrize("length", [0, 1, 255, 256, 257, 511, 512, 513, 1_000, 2_049])
+def test_f1_incremental_size_is_exact_across_chunk_boundaries(length) -> None:
+    alphabet = ['a', 'é', '€', '\U0001F600', '"', '\\', '\n', '\t', '\u0000', '\u001f', '\u007f', ' ']
+    text = "".join(alphabet[i % len(alphabet)] for i in range(length))
+    value = {text: text}
+    expected = canonical_json_bytes(value)
+    canonical_json_bytes(value, cb(string=5_000, key=5_000, out=len(expected)))
+    err = exceeded(value, cb(string=5_000, key=5_000, out=len(expected) - 1))
+    assert err.dimension == "output_bytes"
+    assert canonical_json_bytes(value, cb(string=5_000, key=5_000, out=10**7)) == expected
+
+
+def test_f1_lone_surrogate_in_a_long_string_is_still_a_canonical_error() -> None:
+    value = ["a" * 700 + "\ud800" + "b" * 10]
+    with pytest.raises(CanonicalJSONError, match="lone surrogate is forbidden at \\$\\[0\\]"):
+        canonical_json_bytes(value, cb(string=5_000, out=10**7))
+
+
+class _LiarDecimal(Decimal):
+    """Overrides every inspection hook an estimate might rely on."""
+
+    def as_tuple(self):
+        return DecimalTuple(0, (1,), 0)  # always claims "1"
+
+    def is_finite(self):
+        return True
+
+    def is_zero(self):
+        return True
+
+    def __format__(self, spec):
+        return "1"
+
+
+class _SmallTupleLiar(Decimal):
+    def as_tuple(self):
+        return DecimalTuple(0, (1,), 0)
+
+
+class _ZeroLiar(Decimal):
+    def is_zero(self):
+        return True
+
+
+class _FiniteLiar(Decimal):
+    def is_finite(self):
+        return True
+
+
+class _FormatLiar(Decimal):
+    def __format__(self, spec):
+        return "999"
+
+
+@pytest.mark.parametrize("liar", [_LiarDecimal, _SmallTupleLiar, _ZeroLiar])
+def test_f2_decimal_subclass_cannot_bypass_the_rendered_char_limit(liar) -> None:
+    with pytest.raises(PayloadAdmissionExceeded) as captured:
+        canonical_decimal_string(liar("1E+100000"), 100)
+    assert (captured.value.dimension, captured.value.observed) == ("decimal_chars", 100_001)
+    with pytest.raises(PayloadAdmissionExceeded):
+        canonical_decimal_string(liar("-1E-100000"), 100)
+
+
+def test_f2_zero_flag_lie_cannot_turn_a_nonzero_value_into_zero() -> None:
+    assert canonical_decimal_string(_ZeroLiar("1.50"), 100) == "1.5"
+    assert canonical_decimal_string(_LiarDecimal("2.5"), 100) == "2.5"
+
+
+def test_f2_finite_flag_lie_cannot_smuggle_nan_or_infinity() -> None:
+    for text in ("NaN", "Infinity", "-Infinity", "sNaN"):
+        with pytest.raises(CanonicalJSONError, match="finite"):
+            canonical_decimal_string(_FiniteLiar(text), 100)
+
+
+def test_f2_format_override_cannot_change_the_result() -> None:
+    assert canonical_decimal_string(_FormatLiar("1.50"), 100) == "1.5"
+    assert canonical_decimal_string(_FormatLiar("-0.01"), 5) == "-0.01"
+    with pytest.raises(PayloadAdmissionExceeded):
+        canonical_decimal_string(_FormatLiar("-0.01"), 4)
+
+
+def test_f2_str_subclass_input_is_normalized_before_inspection() -> None:
+    class StrLiar(str):
+        def strip(self, *args):
+            return str.__str__(self)  # pretends there is no padding
+
+    with pytest.raises(CanonicalJSONError, match="unpadded"):
+        canonical_decimal_string(StrLiar(" 1"), 10)
+
+
+def test_f2_ordinary_decimals_and_the_unbudgeted_path_are_unchanged() -> None:
+    for text in ("1.2300", "-0", "0", "1E+3", "-12.5", "0.000123", "1E-6"):
+        assert canonical_decimal_string(Decimal(text), 1_000) == canonical_decimal_string(Decimal(text))
+        assert canonical_decimal_string(text, 1_000) == canonical_decimal_string(text)
