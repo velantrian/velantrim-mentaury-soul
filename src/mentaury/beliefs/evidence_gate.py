@@ -23,6 +23,8 @@ from mentaury.evidence import (
     records_from_value,
 )
 
+from mentaury.evidence.gate import bounded_items
+
 from .contracts import BeliefStatus, ClaimType, belief_stream_id
 
 _COMMAND_KEYS = frozenset({"belief_id", "expected_revision", "policy_id", "records"})
@@ -328,15 +330,17 @@ def _required_state_string(state: Mapping[str, object], key: str) -> str:
 
 def _state_strings(state: Mapping[str, object], key: str) -> tuple[str, ...]:
     value = state.get(key)
-    if isinstance(value, (tuple, list)) and len(value) > MAX_EVIDENCE_RECORDS:
-        raise ValueError(
-            f"state {key} accepts at most {MAX_EVIDENCE_RECORDS} references"
-        )
-    if not isinstance(value, (tuple, list)) or any(
-        not isinstance(item, str) or not item for item in value
-    ):
+    if not isinstance(value, (tuple, list)):
         raise ValueError(f"state {key} must be a string sequence")
-    result = tuple(value)
+    result = bounded_items(
+        value,
+        MAX_EVIDENCE_RECORDS,
+        lambda: ValueError(
+            f"state {key} accepts at most {MAX_EVIDENCE_RECORDS} references"
+        ),
+    )
+    if any(not isinstance(item, str) or not item for item in result):
+        raise ValueError(f"state {key} must be a string sequence")
     if len(set(result)) != len(result):
         raise ValueError(f"state {key} must not contain duplicates")
     return result

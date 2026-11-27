@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import hashlib
 import itertools
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime, timezone
-from typing import TypedDict, Unpack
+from typing import TypedDict, TypeVar, Unpack
 
 from mentaury.epistemic_types import ClaimType, EvidenceSide
 from mentaury.contracts import canonical_json_bytes, canonical_timestamp
 
 MAX_EVIDENCE_RECORDS = 256
+_T = TypeVar("_T")
 
 
 from .contracts import (
@@ -78,6 +79,8 @@ class EvidenceGate:
         _require_ref_budget(evidence_for, evidence_against)
         for_refs = _unique_refs(evidence_for, "evidence_for")
         against_refs = _unique_refs(evidence_against, "evidence_against")
+        if len(for_refs) + len(against_refs) > MAX_EVIDENCE_RECORDS:
+            raise EvidenceGateError(_REFS_TOTAL_LIMIT_MESSAGE)  # actual, not declared
         overlap = set(for_refs).intersection(against_refs)
         if overlap:
             raise EvidenceGateError(
@@ -282,11 +285,14 @@ def policy_from_value(value: object) -> EvidenceGatePolicy:
 def records_from_value(value: object) -> tuple[EvidenceRecord, ...]:
     if not isinstance(value, (tuple, list)):
         raise EvidenceGateError("records must be an array")
-    if len(value) > MAX_EVIDENCE_RECORDS:
-        raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
+    items = bounded_items(
+        value,
+        MAX_EVIDENCE_RECORDS,
+        lambda: EvidenceGateError(_RECORDS_LIMIT_MESSAGE),
+    )
     records: list[EvidenceRecord] = []
     try:
-        for item in value:
+        for item in items:
             if not isinstance(item, Mapping):
                 raise EvidenceGateError("each evidence record must be an object")
             _require_exact_keys(
@@ -325,53 +331,80 @@ def records_from_value(value: object) -> tuple[EvidenceRecord, ...]:
 
 
 _RECORDS_LIMIT_MESSAGE = f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} records"
+_REFS_TOTAL_LIMIT_MESSAGE = (
+    f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} "
+    "evidence references across both sides"
+)
 
 
-def _bounded_records(records: Iterable[EvidenceRecord]) -> tuple[EvidenceRecord, ...]:
-    """Snapshot ``records`` while consuming at most MAX_EVIDENCE_RECORDS + 1 items.
+def bounded_items(
+    value: Iterable[_T],
+    limit: int,
+    overflow: Callable[[], Exception],
+) -> tuple[_T, ...]:
+    """Snapshot ``value`` consuming at most ``limit + 1`` items; fail on overflow.
 
-    Sequences are size-checked before copying. Other iterables are drawn
-    through ``islice`` so an unbounded or very large producer is never fully
-    consumed. This bounds how many items are requested; it cannot interrupt a
-    single blocking ``next()`` call.
+    Only *exact* built-in ``list``/``tuple`` take the copy fast path (their
+    ``len`` is trustworthy). Subclasses and every other iterable can report a
+    length that does not match their iteration, so they are drawn through
+    ``islice`` regardless of any declared length. A declared length above the
+    limit is still rejected early, before any iteration. This bounds how many
+    items are requested; it cannot interrupt a single blocking ``next()``.
     """
 
-    if isinstance(records, (tuple, list)):
-        if len(records) > MAX_EVIDENCE_RECORDS:
-            raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
-        return tuple(records)
+    if type(value) in (list, tuple):
+        if len(value) > limit:  # type: ignore[arg-type]
+            raise overflow()
+        return tuple(value)
     try:
-        iterator = iter(records)
-    except TypeError as exc:
-        raise TypeError("records must be an iterable of EvidenceRecord values") from exc
-    taken = tuple(itertools.islice(iterator, MAX_EVIDENCE_RECORDS + 1))
-    if len(taken) > MAX_EVIDENCE_RECORDS:
-        raise EvidenceGateError(_RECORDS_LIMIT_MESSAGE)
+        declared = len(value)  # type: ignore[arg-type]
+    except TypeError:
+        declared = None
+    if declared is not None and declared > limit:
+        raise overflow()
+    taken = tuple(itertools.islice(iter(value), limit + 1))
+    if len(taken) > limit:
+        raise overflow()
     return taken
 
 
-def _require_ref_budget(*sides: object) -> None:
-    """Bound the combined attached references of both sides before traversal.
+def _bounded_records(records: Iterable[EvidenceRecord]) -> tuple[EvidenceRecord, ...]:
+    try:
+        return bounded_items(
+            records,
+            MAX_EVIDENCE_RECORDS,
+            lambda: EvidenceGateError(_RECORDS_LIMIT_MESSAGE),
+        )
+    except EvidenceGateError:
+        raise
+    except TypeError as exc:
+        raise TypeError("records must be an iterable of EvidenceRecord values") from exc
 
-    Exact record/reference matching already caps the combined total at
-    MAX_EVIDENCE_RECORDS, so no new limit is introduced. Non-sequences are left
-    for ``_unique_refs`` to reject with its existing message.
+
+def _require_ref_budget(*sides: object) -> None:
+    """Early rejection of declared-oversized reference lists (no iteration).
+
+    ``len`` is only a hint here (it can lie for subclasses); the actual combined
+    size is verified again after bounded materialization in ``evaluate``.
     """
 
     total = sum(len(side) for side in sides if isinstance(side, (tuple, list)))
     if total > MAX_EVIDENCE_RECORDS:
-        raise EvidenceGateError(
-            f"evidence gate accepts at most {MAX_EVIDENCE_RECORDS} "
-            "evidence references across both sides"
-        )
+        raise EvidenceGateError(_REFS_TOTAL_LIMIT_MESSAGE)
 
 
 def _unique_refs(value: Sequence[str], name: str) -> tuple[str, ...]:
-    if not isinstance(value, (tuple, list)) or any(
-        not isinstance(item, str) or not item for item in value
-    ):
+    if not isinstance(value, (tuple, list)):
         raise EvidenceGateError(f"{name} must be a string sequence")
-    result = tuple(value)
+    result = bounded_items(
+        value,
+        MAX_EVIDENCE_RECORDS,
+        lambda: EvidenceGateError(
+            f"{name} accepts at most {MAX_EVIDENCE_RECORDS} references"
+        ),
+    )
+    if any(not isinstance(item, str) or not item for item in result):
+        raise EvidenceGateError(f"{name} must be a string sequence")
     if len(set(result)) != len(result):
         raise EvidenceGateError(f"{name} must not contain duplicates")
     return result

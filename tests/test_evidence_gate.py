@@ -1371,3 +1371,132 @@ def test_s04a_reducer_bounds_records_and_state_ref_tuples() -> None:
     with pytest.raises(BeliefReducerError):
         _apply(EvidenceGatedBeliefReducer(), big_state, event, 4, "EVT-BIGSTATE")
     assert _CountingTuple.iterations == 0
+
+
+# --- Stage 04A boundary fix: subclasses whose len() disagrees with iteration ---
+
+class _LyingList(list):
+    """len() == 1, but iteration yields ``source`` (possibly endless)."""
+
+    def __init__(self, source) -> None:
+        super().__init__(["x"])
+        self.counter = _CountingIterable(source)
+
+    def __len__(self) -> int:
+        return 1
+
+    def __iter__(self):
+        return self.counter
+
+
+class _LyingTuple(tuple):
+    def __new__(cls, source):
+        obj = super().__new__(cls, ("x",))
+        obj.counter = _CountingIterable(source)
+        return obj
+
+    def __len__(self) -> int:
+        return 1
+
+    def __iter__(self):
+        return self.counter
+
+
+_LYING = pytest.mark.parametrize("lying", [_LyingList, _LyingTuple], ids=["list", "tuple"])
+
+
+def _endless_refs(prefix: str = "evidence:for"):
+    return (f"{prefix}:{i}" for i in itertools.count())
+
+
+@_LYING
+def test_s04a_lying_records_subclass_consumption_is_bounded(lying) -> None:
+    record = _for_records(1)[0]
+    records = lying(itertools.repeat(record))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=("evidence:for:0",))
+    assert records.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_lying_ref_subclass_is_not_prematerialized_by_any_or_tuple(lying) -> None:
+    refs = lying(_endless_refs())
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(_for_records(1), evidence_for=refs)
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_lying_sides_are_rejected_on_actual_combined_size(lying) -> None:
+    for_refs = lying(iter([f"evidence:for:{i}" for i in range(200)]))
+    against_refs = lying(iter([f"evidence:against:{i}" for i in range(100)]))
+    with pytest.raises(EvidenceGateError, match="across both sides"):
+        _evaluate(_for_records(1), evidence_for=for_refs, evidence_against=against_refs)
+    assert for_refs.counter.next_calls <= MAX_EVIDENCE_RECORDS + 1
+    assert against_refs.counter.next_calls <= MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_honest_looking_subclass_within_limit_yields_same_receipt(lying) -> None:
+    records = _for_records(3)
+    refs = [r.evidence_ref for r in records]
+    expected = _evaluate(records)
+    receipt = _evaluate(records, evidence_for=lying(iter(refs)))
+    assert receipt.receipt_digest == expected.receipt_digest
+    assert _evaluate(lying(iter(records)), evidence_for=tuple(refs)).receipt_digest == (
+        expected.receipt_digest
+    )
+
+
+@_LYING
+def test_s04a_oversized_records_with_valid_reference_count(lying) -> None:
+    refs = ("evidence:for:0", "evidence:for:1")
+    oversized = _for_records(MAX_EVIDENCE_RECORDS + 44)
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(list(oversized), evidence_for=refs)
+    records = lying(iter(oversized))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=refs)
+    assert records.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_records_from_value_bounds_lying_subclass_before_conversion(lying) -> None:
+    value = lying(itertools.repeat(1))  # not mappings: would fail per-item if reached
+    if not isinstance(value, (tuple, list)):
+        pytest.skip("not a sequence")
+    with pytest.raises(EvidenceGateError, match="at most"):
+        records_from_value(value)
+    assert value.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_lifecycle_state_lying_list_is_bounded() -> None:
+    state = dict(_support_state())
+    refs = _LyingList(_endless_refs())
+    state["evidence_for"] = refs
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.INVALID_EVIDENCE_SET
+    assert decision.message is not None and "at most" in decision.message
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_reducer_state_lying_tuple_is_bounded() -> None:
+    state = _support_state()
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert decision.accepted
+    event = decision.domain_events[0]
+    big_state = dict(state)
+    refs = _LyingTuple(_endless_refs())
+    big_state["evidence_for"] = refs
+    with pytest.raises(BeliefReducerError, match="at most"):
+        _apply(EvidenceGatedBeliefReducer(), big_state, event, 4, "EVT-LYING")
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
