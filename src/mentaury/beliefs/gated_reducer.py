@@ -15,8 +15,11 @@ from mentaury.evidence import (
     EvidenceGateOutcome,
     EvidenceGatePolicyRegistry,
     policy_from_value,
+    MAX_EVIDENCE_RECORDS,
     records_from_value,
 )
+
+from mentaury.evidence.gate import bounded_items
 
 from .contracts import BeliefStatus, ClaimType, belief_stream_id
 from .reducer import BeliefReducer, BeliefReducerError
@@ -239,13 +242,20 @@ def _state_claim_type(mapping: Mapping[str, object]) -> ClaimType:
 
 def _state_strings(mapping: Mapping[str, object], key: str) -> tuple[str, ...]:
     value = mapping.get(key)
-    if not isinstance(value, tuple) or any(
-        not isinstance(item, str) or not item for item in value
-    ):
+    if not isinstance(value, tuple):
         raise BeliefReducerError(f"state {key} must be an immutable string sequence")
-    if len(set(value)) != len(value):
+    result = bounded_items(
+        value,
+        MAX_EVIDENCE_RECORDS,
+        lambda: BeliefReducerError(
+            f"state {key} accepts at most {MAX_EVIDENCE_RECORDS} references"
+        ),
+    )
+    if any(not isinstance(item, str) or not item for item in result):
+        raise BeliefReducerError(f"state {key} must be an immutable string sequence")
+    if len(set(result)) != len(result):
         raise BeliefReducerError(f"state {key} must not contain duplicates")
-    return value
+    return result
 
 
 def _state_objects(

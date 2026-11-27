@@ -46,6 +46,7 @@ from mentaury.evidence import (
     EvidenceGateRejectionCode,
     EvidenceRecord,
     evidence_gate_schema_definitions,
+    records_from_value,
 )
 from mentaury.replay import (
     R1ReplayVerifier,
@@ -1110,3 +1111,392 @@ def test_lifecycle_conflict_uses_qualifying_evidence_fail_closed_message() -> No
     assert decision.receipt is not None
     assert decision.receipt.outcome is EvidenceGateOutcome.CONFLICT
     assert "satisfy the approved policy" not in (decision.message or "")
+
+
+# ---------------------------------------------------------------------------
+# Stage 04A: bounded evidence admission. MAX_EVIDENCE_RECORDS must bound the
+# *processing* of input collections, not only the final result. These tests
+# bound consumption (count of next()/__iter__ calls); they do not claim to stop
+# a single blocking next() call.
+# ---------------------------------------------------------------------------
+
+import itertools  # noqa: E402
+
+_RUNAWAY_CAP = 20_000  # safety net so a regression fails instead of hanging
+
+
+class _CountingIterable:
+    """Yields ``source`` lazily and counts next() calls; aborts runaway use."""
+
+    def __init__(self, source) -> None:
+        self._source = iter(source)
+        self.next_calls = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.next_calls += 1
+        if self.next_calls > _RUNAWAY_CAP:
+            raise RuntimeError("runaway consumption of an unbounded iterable")
+        return next(self._source)
+
+
+class _CountingList(list):
+    iterations = 0
+
+    def __iter__(self):
+        type(self).iterations += 1
+        return super().__iter__()
+
+
+class _CountingTuple(tuple):
+    iterations = 0
+
+    def __iter__(self):
+        type(self).iterations += 1
+        return super().__iter__()
+
+
+def _for_records(count: int) -> tuple[EvidenceRecord, ...]:
+    return tuple(
+        _record(f"evidence:for:{i}", EvidenceSide.FOR, f"source:{i}")
+        for i in range(count)
+    )
+
+
+def _evaluate(records, *, evidence_for=None, evidence_against=(), refs_count=None):
+    if evidence_for is None:
+        n = len(records) if refs_count is None else refs_count
+        evidence_for = tuple(f"evidence:for:{i}" for i in range(n))
+    return EvidenceGate().evaluate(
+        belief_id=BELIEF_ID,
+        belief_revision=1,
+        claim_type=ClaimType.CONTEXTUAL,
+        statement="Bounded admission.",
+        evidence_for=evidence_for,
+        evidence_against=evidence_against,
+        records=records,
+        policy=P0_015_CONTEXTUAL_POLICY,
+        evaluated_at=EVALUATED_AT,
+    )
+
+
+@pytest.mark.parametrize("count", [MAX_EVIDENCE_RECORDS - 1, MAX_EVIDENCE_RECORDS])
+def test_s04a_records_at_or_below_limit_are_accepted(count: int) -> None:
+    receipt = _evaluate(_for_records(count))
+    assert receipt.outcome is EvidenceGateOutcome.SUPPORTED
+
+
+def test_s04a_one_record_over_limit_is_rejected_as_gate_error() -> None:
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(_for_records(MAX_EVIDENCE_RECORDS + 1))
+
+
+def test_s04a_large_finite_iterable_is_not_fully_consumed() -> None:
+    record = _for_records(1)[0]
+    records = _CountingIterable(itertools.repeat(record, 100_000))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=("evidence:for:0",))
+    assert records.next_calls <= MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_unbounded_productive_iterable_consumes_at_most_limit_plus_one() -> None:
+    record = _for_records(1)[0]
+    records = _CountingIterable(itertools.repeat(record))  # never ends
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=("evidence:for:0",))
+    assert records.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_exact_limit_iterable_is_accepted_and_matches_sequence_receipt() -> None:
+    records = _for_records(MAX_EVIDENCE_RECORDS)
+    from_list = _evaluate(list(records))
+    from_tuple = _evaluate(records)
+    refs = tuple(r.evidence_ref for r in records)
+    from_iter = _evaluate(_CountingIterable(iter(records)), evidence_for=refs)
+    assert from_list.receipt_digest == from_tuple.receipt_digest == from_iter.receipt_digest
+    assert from_list.to_value() == from_iter.to_value()
+
+
+def test_s04a_records_over_limit_rejected_before_per_record_conversion() -> None:
+    class SpyMapping(dict):
+        touched = 0
+
+        def __iter__(self):
+            type(self).touched += 1
+            return super().__iter__()
+
+        def __getitem__(self, key):
+            type(self).touched += 1
+            return super().__getitem__(key)
+
+    value = [SpyMapping() for _ in range(MAX_EVIDENCE_RECORDS + 1)]
+    with pytest.raises(EvidenceGateError, match="at most"):
+        records_from_value(value)
+    assert SpyMapping.touched == 0
+
+    # Same limit, wrong element type: the size limit is reported first.
+    with pytest.raises(EvidenceGateError, match="at most"):
+        records_from_value([1] * (MAX_EVIDENCE_RECORDS + 1))
+
+
+def test_s04a_records_from_value_accepts_exact_limit() -> None:
+    value = [r.to_value() for r in _for_records(MAX_EVIDENCE_RECORDS)]
+    assert len(records_from_value(value)) == MAX_EVIDENCE_RECORDS
+    assert records_from_value(tuple(value[:3])) == _for_records(3)
+
+
+def test_s04a_total_refs_of_both_sides_are_bounded_before_traversal() -> None:
+    _CountingList.iterations = 0
+    spy_records = _CountingIterable(iter(_for_records(2)))
+    for_refs = _CountingList(f"evidence:for:{i}" for i in range(200))
+    against_refs = _CountingList(f"evidence:against:{i}" for i in range(100))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(spy_records, evidence_for=for_refs, evidence_against=against_refs)
+    assert _CountingList.iterations == 0  # no traversal of either side
+    assert spy_records.next_calls == 0  # records not consumed either
+
+
+def test_s04a_single_oversized_ref_list_is_not_traversed() -> None:
+    _CountingList.iterations = 0
+    refs = _CountingList(f"evidence:for:{i}" for i in range(MAX_EVIDENCE_RECORDS + 1))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(_for_records(1), evidence_for=refs)
+    assert _CountingList.iterations == 0
+
+
+def test_s04a_valid_total_refs_across_both_sides_at_limit_still_work() -> None:
+    records = _for_records(128) + tuple(
+        _record(f"evidence:against:{i}", EvidenceSide.AGAINST, f"source:against:{i}")
+        for i in range(128)
+    )
+    receipt = _evaluate(
+        records,
+        evidence_for=tuple(f"evidence:for:{i}" for i in range(128)),
+        evidence_against=tuple(f"evidence:against:{i}" for i in range(128)),
+    )
+    assert receipt.outcome is EvidenceGateOutcome.CONFLICT
+
+
+def test_s04a_duplicates_overlap_and_invalid_types_keep_their_errors() -> None:
+    records = _for_records(2)
+    with pytest.raises(EvidenceGateError, match="duplicates"):
+        _evaluate(records, evidence_for=("evidence:for:0", "evidence:for:0"))
+    with pytest.raises(EvidenceGateError, match="both sides"):
+        _evaluate(records, evidence_for=("evidence:for:0",), evidence_against=("evidence:for:0",))
+    with pytest.raises(EvidenceGateError, match="string sequence"):
+        _evaluate(records, evidence_for="evidence:for:0")
+    with pytest.raises(EvidenceGateError, match="string sequence"):
+        _evaluate(records, evidence_for=("evidence:for:0", 7))
+    with pytest.raises(TypeError, match="EvidenceRecord"):
+        _evaluate(["not a record"], evidence_for=("evidence:for:0",))
+    with pytest.raises(TypeError, match="EvidenceRecord"):
+        _evaluate((), evidence_for=("evidence:for:0",))
+    with pytest.raises(TypeError):
+        _evaluate(12345, evidence_for=("evidence:for:0",))  # not iterable
+
+
+def test_s04a_receipt_is_deterministic_and_still_verifiable() -> None:
+    gate = EvidenceGate()
+    records = _for_records(4)
+    refs = tuple(f"evidence:for:{i}" for i in range(4))
+    kwargs = dict(
+        belief_id=BELIEF_ID,
+        belief_revision=1,
+        claim_type=ClaimType.CONTEXTUAL,
+        statement="Bounded admission.",
+        evidence_for=refs,
+        evidence_against=(),
+        policy=P0_015_CONTEXTUAL_POLICY,
+        evaluated_at=EVALUATED_AT,
+    )
+    first = gate.evaluate(records=records, **kwargs)
+    second = gate.evaluate(records=iter(reversed(records)), **kwargs)
+    assert first.receipt_digest == second.receipt_digest
+    verified = gate.verify_receipt(first.to_value(), records=iter(records), **kwargs)
+    assert verified.receipt_digest == first.receipt_digest
+
+
+def test_s04a_lifecycle_rejects_oversized_records_payload_before_conversion() -> None:
+    state = _support_state()
+    command = _gate_command(state, _for_records(2))
+    payload = dict(command.payload)
+    payload["records"] = [1] * (MAX_EVIDENCE_RECORDS + 1)
+    decision = EvidenceGatedBeliefLifecycle().decide(
+        replace(command, payload=freeze_payload(payload)), state
+    )
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.INVALID_EVIDENCE_SET
+    assert decision.message is not None and "at most" in decision.message
+
+
+def test_s04a_lifecycle_state_ref_lists_are_bounded_before_traversal() -> None:
+    state = dict(_support_state())
+    _CountingList.iterations = 0
+    state["evidence_for"] = _CountingList(
+        f"evidence:for:{i}" for i in range(MAX_EVIDENCE_RECORDS + 1)
+    )
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.INVALID_EVIDENCE_SET
+    assert _CountingList.iterations == 0
+
+
+def test_s04a_reducer_bounds_records_and_state_ref_tuples() -> None:
+    state = _support_state()
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert decision.accepted
+    event = decision.domain_events[0]
+
+    oversized = dict(event.payload)
+    oversized["records"] = [1] * (MAX_EVIDENCE_RECORDS + 1)
+    tampered = PendingEvent(event.event_type, event.payload_schema, True, oversized)
+    with pytest.raises(BeliefReducerError, match="at most"):
+        _apply(EvidenceGatedBeliefReducer(), state, tampered, 4, "EVT-OVERSIZED")
+
+    _CountingTuple.iterations = 0
+    big_state = dict(state)
+    big_state["evidence_for"] = _CountingTuple(
+        f"evidence:for:{i}" for i in range(MAX_EVIDENCE_RECORDS + 1)
+    )
+    with pytest.raises(BeliefReducerError):
+        _apply(EvidenceGatedBeliefReducer(), big_state, event, 4, "EVT-BIGSTATE")
+    assert _CountingTuple.iterations == 0
+
+
+# --- Stage 04A boundary fix: subclasses whose len() disagrees with iteration ---
+
+class _LyingList(list):
+    """len() == 1, but iteration yields ``source`` (possibly endless)."""
+
+    def __init__(self, source) -> None:
+        super().__init__(["x"])
+        self.counter = _CountingIterable(source)
+
+    def __len__(self) -> int:
+        return 1
+
+    def __iter__(self):
+        return self.counter
+
+
+class _LyingTuple(tuple):
+    def __new__(cls, source):
+        obj = super().__new__(cls, ("x",))
+        obj.counter = _CountingIterable(source)
+        return obj
+
+    def __len__(self) -> int:
+        return 1
+
+    def __iter__(self):
+        return self.counter
+
+
+_LYING = pytest.mark.parametrize("lying", [_LyingList, _LyingTuple], ids=["list", "tuple"])
+
+
+def _endless_refs(prefix: str = "evidence:for"):
+    return (f"{prefix}:{i}" for i in itertools.count())
+
+
+@_LYING
+def test_s04a_lying_records_subclass_consumption_is_bounded(lying) -> None:
+    record = _for_records(1)[0]
+    records = lying(itertools.repeat(record))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=("evidence:for:0",))
+    assert records.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_lying_ref_subclass_is_not_prematerialized_by_any_or_tuple(lying) -> None:
+    refs = lying(_endless_refs())
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(_for_records(1), evidence_for=refs)
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_lying_sides_are_rejected_on_actual_combined_size(lying) -> None:
+    for_refs = lying(iter([f"evidence:for:{i}" for i in range(200)]))
+    against_refs = lying(iter([f"evidence:against:{i}" for i in range(100)]))
+    with pytest.raises(EvidenceGateError, match="across both sides"):
+        _evaluate(_for_records(1), evidence_for=for_refs, evidence_against=against_refs)
+    assert for_refs.counter.next_calls <= MAX_EVIDENCE_RECORDS + 1
+    assert against_refs.counter.next_calls <= MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_honest_looking_subclass_within_limit_yields_same_receipt(lying) -> None:
+    records = _for_records(3)
+    refs = [r.evidence_ref for r in records]
+    expected = _evaluate(records)
+    receipt = _evaluate(records, evidence_for=lying(iter(refs)))
+    assert receipt.receipt_digest == expected.receipt_digest
+    assert _evaluate(lying(iter(records)), evidence_for=tuple(refs)).receipt_digest == (
+        expected.receipt_digest
+    )
+
+
+@_LYING
+def test_s04a_oversized_records_with_valid_reference_count(lying) -> None:
+    refs = ("evidence:for:0", "evidence:for:1")
+    oversized = _for_records(MAX_EVIDENCE_RECORDS + 44)
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(list(oversized), evidence_for=refs)
+    records = lying(iter(oversized))
+    with pytest.raises(EvidenceGateError, match="at most"):
+        _evaluate(records, evidence_for=refs)
+    assert records.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+@_LYING
+def test_s04a_records_from_value_bounds_lying_subclass_before_conversion(lying) -> None:
+    value = lying(itertools.repeat(1))  # not mappings: would fail per-item if reached
+    if not isinstance(value, (tuple, list)):
+        pytest.skip("not a sequence")
+    with pytest.raises(EvidenceGateError, match="at most"):
+        records_from_value(value)
+    assert value.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_lifecycle_state_lying_list_is_bounded() -> None:
+    state = dict(_support_state())
+    refs = _LyingList(_endless_refs())
+    state["evidence_for"] = refs
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert not decision.accepted
+    assert decision.rejection_code is EvidenceGateRejectionCode.INVALID_EVIDENCE_SET
+    assert decision.message is not None and "at most" in decision.message
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
+
+
+def test_s04a_reducer_state_lying_tuple_is_bounded() -> None:
+    state = _support_state()
+    records = (
+        _record("evidence:for:1", EvidenceSide.FOR, "source:a"),
+        _record("evidence:for:2", EvidenceSide.FOR, "source:b"),
+    )
+    decision = EvidenceGatedBeliefLifecycle().decide(_gate_command(state, records), state)
+    assert decision.accepted
+    event = decision.domain_events[0]
+    big_state = dict(state)
+    refs = _LyingTuple(_endless_refs())
+    big_state["evidence_for"] = refs
+    with pytest.raises(BeliefReducerError, match="at most"):
+        _apply(EvidenceGatedBeliefReducer(), big_state, event, 4, "EVT-LYING")
+    assert refs.counter.next_calls == MAX_EVIDENCE_RECORDS + 1
