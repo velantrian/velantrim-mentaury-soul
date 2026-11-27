@@ -476,6 +476,15 @@ def test_redaction_and_r0_survive_explicit_reopen(tmp_path: Path) -> None:
         ).fetchone()[0]
         assert row == 1
 
+        # Stage 02: after reopen, the persisted audit payload is still protected.
+        before = _state(reopened)
+        with pytest.raises(RedactionEvidenceInUseError):
+            executor(reopened).redact(_attack_audit_request())
+        assert reopened.load_payload("PAYLOAD-REDACTION-AUDIT-1") is not None
+        assert _state(reopened) == before
+        assert not reopened.raw_connection_for_tests().in_transaction
+        assert verifier(reopened).verify_stream("test:stream").ok
+
 
 def _run_redaction(
     database: Path,
@@ -556,6 +565,11 @@ def _state(store: SQLiteEventPayloadStore) -> dict[str, list[tuple[object, ...]]
     }
 
 
+def _assert_r0_ok(store: SQLiteEventPayloadStore) -> None:
+    report = verifier(store).verify_stream("test:stream")
+    assert report.ok, report.failure
+
+
 def _redacted_store() -> SQLiteEventPayloadStore:
     """In-memory store with EVT-1 redacted; audit event AUDIT-1 is evidence."""
 
@@ -603,11 +617,13 @@ def _insert_alias_event(store: SQLiteEventPayloadStore) -> None:
 def test_r01_direct_redaction_of_audit_event_is_refused_and_changes_nothing() -> None:
     with _redacted_store() as store:
         before = _state(store)
+        _assert_r0_ok(store)  # R0.ok before the refused attempt
         with pytest.raises(RedactionEvidenceInUseError) as captured:
             executor(store).redact(_attack_audit_request())
         assert captured.value.target_event_id == "AUDIT-1"
         assert store.load_payload("PAYLOAD-REDACTION-AUDIT-1") is not None
         assert _state(store) == before  # R04: all affected tables identical
+        _assert_r0_ok(store)  # and R0.ok after
 
 
 def test_r02_alias_in_other_stream_sharing_audit_payload_ref_is_refused() -> None:
@@ -660,10 +676,12 @@ def test_r03_protection_is_linkage_based_not_a_bare_event_type_rule() -> None:
 def test_r05_refusal_is_repeatable_and_writes_no_receipt() -> None:
     with _redacted_store() as store:
         before = _state(store)
+        _assert_r0_ok(store)
         for key in ("REDACT-ATTACK", "REDACT-ATTACK", "REDACT-ATTACK-2"):
             with pytest.raises(RedactionEvidenceInUseError):
                 executor(store).redact(_attack_audit_request(idempotency_key=key))
-        assert _state(store) == before
+            assert _state(store) == before  # full state after every attempt
+            _assert_r0_ok(store)  # R0 after every attempt
         count = store.raw_connection_for_tests().execute(
             "SELECT COUNT(*) FROM redactions WHERE idempotency_key LIKE 'REDACT-ATTACK%'"
         ).fetchone()[0]
@@ -811,6 +829,7 @@ def test_r09_committed_evidence_from_another_connection_is_seen_after_lock(
             "SELECT COUNT(*) FROM redactions"
         ).fetchone()[0] == 1
         assert not check.raw_connection_for_tests().in_transaction
+        assert verifier(check).verify_stream("test:stream").ok  # R0.ok after the race
 
 
 def test_r10_r0_diagnostics_on_corrupt_history_are_unchanged() -> None:
@@ -852,3 +871,32 @@ def test_r10_r0_diagnostics_on_corrupt_history_are_unchanged() -> None:
         report = verifier(store).verify_stream("test:stream")
         assert report.failure is not None
         assert report.failure.code is IntegrityCode.REDACTION_AUDIT_EVENT_MISSING
+
+
+def test_r11_missing_audit_payload_is_preserved_and_not_confused_with_missing_event() -> None:
+    """Historical state: audit event exists, its payload is gone.
+
+    R0 must keep reporting REDACTION_AUDIT_PAYLOAD_MISSING (not
+    REDACTION_AUDIT_EVENT_MISSING) before and after a refused redaction, and
+    the refused attempt must not change anything.
+    """
+
+    with _redacted_store() as store:
+        store.raw_connection_for_tests().execute(
+            "DELETE FROM event_payloads WHERE payload_ref = 'PAYLOAD-REDACTION-AUDIT-1'"
+        )
+        assert store.load_event("AUDIT-1") is not None  # the event row still exists
+
+        def code() -> IntegrityCode:
+            report = verifier(store).verify_stream("test:stream")
+            assert report.failure is not None
+            return report.failure.code
+
+        assert code() is IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING
+        before = _state(store)
+        with pytest.raises(RedactionEvidenceInUseError):
+            executor(store).redact(_attack_audit_request())
+        assert _state(store) == before
+        assert not store.raw_connection_for_tests().in_transaction
+        assert code() is IntegrityCode.REDACTION_AUDIT_PAYLOAD_MISSING
+        assert code() is not IntegrityCode.REDACTION_AUDIT_EVENT_MISSING
