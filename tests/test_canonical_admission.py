@@ -347,3 +347,56 @@ def test_unbudgeted_callers_and_envelope_serializers_are_untouched() -> None:
     big = {"items": list(range(5_000))}
     assert canonical_json_bytes(big).startswith(b'{"items":[0,1,2')
     assert canonical_json_bytes([]) == b"[]"
+
+
+# --- decimal pre-estimate must equal the real plain-notation length ---------------------------
+
+@pytest.mark.parametrize(
+    "text, actual",
+    [("-0.01", 5), ("1", 1), ("-1", 2), ("0.5", 3), ("-0.5", 4), ("10", 2), ("-10", 3),
+     ("123.456", 7), ("-123.456", 8), ("0.00100", 7), ("1E+3", 4), ("-1E+3", 5),
+     ("1E-3", 5), ("-1E-3", 6), ("12E-1", 3), ("-12E-1", 4), ("120E-1", 4)],
+)
+def test_decimal_limit_is_exact_at_the_boundary_for_both_signs(text, actual) -> None:
+    value = Decimal(text)
+    assert len(format(value, "f")) == actual  # the table itself is real
+    expected = canonical_decimal_string(value)
+    assert canonical_decimal_string(value, actual) == expected  # limit == length: ok
+    assert canonical_decimal_string(value, actual + 1) == expected
+    if actual > 1:
+        with pytest.raises(PayloadAdmissionExceeded) as captured:
+            canonical_decimal_string(value, actual - 1)  # one below: refused
+        assert (captured.value.dimension, captured.value.limit) == ("decimal_chars", actual - 1)
+        assert captured.value.observed == actual  # reported value is the exact length
+
+
+def test_decimal_estimate_equals_real_length_over_a_grid() -> None:
+    from mentaury.contracts.canonical_json import _plain_notation_length
+
+    for sign in ("", "-"):
+        for digits in ("1", "7", "10", "12", "105", "9999", "100000"):
+            for exponent in range(-8, 9):
+                value = Decimal(f"{sign}{digits}E{exponent:+d}")
+                assert _plain_notation_length(value) == len(format(value, "f")), value
+
+
+@pytest.mark.parametrize("sign", ["", "-"])
+def test_decimal_huge_exponents_are_exact_and_refused_without_formatting(sign) -> None:
+    from mentaury.contracts.canonical_json import _plain_notation_length
+
+    for text, length in ((f"{sign}1E+100000", 100_001), (f"{sign}1E-100000", 100_002)):
+        value = Decimal(text)
+        expected = length + (1 if sign else 0)
+        assert _plain_notation_length(value) == expected
+        with pytest.raises(PayloadAdmissionExceeded) as captured:
+            canonical_decimal_string(value, expected - 1)
+        assert captured.value.observed == expected
+    # exactly at the limit the (large but admitted) value still normalizes
+    assert len(canonical_decimal_string(Decimal(f"{sign}1E+2000"), 2_001 + (1 if sign else 0))) == (
+        2_001 + (1 if sign else 0)
+    )
+
+
+def test_decimal_zero_is_never_expanded_whatever_its_exponent_or_sign() -> None:
+    for text in ("0", "-0", "0E+100000", "-0E-100000", "0.000"):
+        assert canonical_decimal_string(Decimal(text), 1) == "0"

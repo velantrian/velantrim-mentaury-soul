@@ -380,6 +380,29 @@ def _emit_bounded(prepared: CanonicalValue) -> str:
             break
 
 
+def _plain_notation_length(value: Decimal) -> int:
+    """Exact length of ``format(value, "f")`` for a finite non-zero Decimal.
+
+    Computed from sign, digit count and exponent only, so no large string is
+    built. With ``n`` coefficient digits and exponent ``e``:
+
+    * ``e >= 0``: ``n + e`` characters (digits followed by ``e`` zeros);
+    * ``e < 0``: integer part ``max(n + e, 1)`` characters ("0" when the value
+      is below one), a decimal point, and ``-e`` fractional digits.
+
+    A leading ``-`` adds one character; a positive value has no sign.
+    """
+
+    sign, digits, exponent = value.as_tuple()
+    assert isinstance(exponent, int)  # finite
+    count = len(digits)
+    if exponent >= 0:
+        length = count + exponent
+    else:
+        length = max(count + exponent, 1) + 1 + (-exponent)
+    return length + (1 if sign else 0)
+
+
 def canonical_decimal_string(
     value: Decimal | str,
     max_rendered_chars: int | None = None,
@@ -391,8 +414,9 @@ def canonical_decimal_string(
     string in a field whose schema declares decimal-string semantics.
 
     ``max_rendered_chars`` is an explicit, opt-in admission bound (no default).
-    It limits the input text length and the *pre-normalization* plain-notation
-    length (digits plus exponent padding), which is evaluated before the
+    It limits the input text length and the exact *pre-normalization*
+    plain-notation length (sign, integer and fractional digits, point; i.e.
+    ``len(format(value, "f"))``), which is computed arithmetically before the
     potentially huge ``format(..., "f")`` string is built. Exceeding it raises
     ``PayloadAdmissionExceeded("decimal_chars", ...)``.
     """
@@ -424,14 +448,10 @@ def canonical_decimal_string(
     if decimal_value.is_zero():
         return "0"
     if max_rendered_chars is not None:
-        digits = len(decimal_value.as_tuple().digits)
-        exponent = decimal_value.as_tuple().exponent
-        assert isinstance(exponent, int)  # finite
-        # sign + plain notation (digits + zero padding, or "0." + leading zeros)
-        estimate = 1 + (digits + exponent if exponent >= 0 else max(digits, -exponent) + 1)
-        if estimate > max_rendered_chars:
+        plain_length = _plain_notation_length(decimal_value)
+        if plain_length > max_rendered_chars:
             raise PayloadAdmissionExceeded(
-                "decimal_chars", max_rendered_chars, estimate
+                "decimal_chars", max_rendered_chars, plain_length
             )
 
     rendered = format(decimal_value, "f")
