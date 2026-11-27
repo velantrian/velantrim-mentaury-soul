@@ -12,8 +12,6 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
-from collections.abc import Iterator
-from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Final
@@ -30,6 +28,7 @@ from mentaury.contracts.canonical_json import authority_ref_value
 from mentaury.contracts.primitives import require_non_empty
 from mentaury.validation import SchemaRegistry
 
+from ._bounded_read import consistent_read, payload_exists
 from ._event_rows import insert_event_row
 from .budget import VerificationBudget
 from .concurrency import (
@@ -368,7 +367,8 @@ class SQLiteRedactionExecutor:
                 unsealed_audit, payload, self._registry
             )
 
-            if self._store.load_payload(target.payload_ref) is None:
+            # existence only: the payload content is deleted next, never read
+            if not payload_exists(connection, target.payload_ref):
                 raise TargetPayloadMissingError(target.payload_ref)
 
             connection.execute(
@@ -514,27 +514,6 @@ def preflight_redaction_rows(
     return int(count)
 
 
-@contextmanager
-def _consistent_read(connection: sqlite3.Connection) -> Iterator[None]:
-    """One read snapshot for preflight + fetch without touching a caller's work.
-
-    A connection already inside a caller-owned transaction is used as is (that
-    transaction is the snapshot and is never committed or rolled back here);
-    otherwise a savepoint opens and releases this call's own snapshot.
-    """
-
-    if connection.in_transaction:
-        yield
-        return
-    connection.execute("SAVEPOINT mentaury_redaction_bounded_read")
-    try:
-        yield
-        connection.execute("RELEASE mentaury_redaction_bounded_read")
-    except BaseException as exc:
-        rollback_after_failure(connection, exc)
-        raise
-
-
 def redacted_targets_for_stream(
     connection: sqlite3.Connection,
     stream_id: str,
@@ -566,7 +545,7 @@ def redacted_targets_for_stream(
     if not isinstance(budget, VerificationBudget):
         raise TypeError("budget must be a VerificationBudget")
     limit = budget.effective_redaction_rows
-    with _consistent_read(connection):
+    with consistent_read(connection):
         count = preflight_redaction_rows(connection, stream_id, _TARGET_COLUMNS, budget)
         fetched = connection.execute(
             """

@@ -26,6 +26,12 @@ from mentaury.contracts import (
 )
 from mentaury.validation import SchemaRegistry
 
+from ._bounded_read import (
+    PayloadStorageError,
+    admit_and_load,
+    consistent_read,
+    payload_exists,
+)
 from ._event_rows import insert_event_row
 from .budget import VerificationBudget
 from .concurrency import (
@@ -508,23 +514,65 @@ class SQLiteEventPayloadStore:
             return None
         return _event_from_row(row)
 
-    def load_payload(self, payload_ref: str) -> StoredPayload | None:
+    def load_payload(
+        self,
+        payload_ref: str,
+        budget: VerificationBudget | None = None,
+        *,
+        total_loaded_bytes: int = 0,
+    ) -> StoredPayload | None:
+        """Load one payload.
+
+        Without ``budget`` this is the legacy unbounded read (unchanged). With an
+        explicit ``VerificationBudget`` the size and SQLite type are probed first
+        and the BLOB is fetched only if it fits both ``max_payload_bytes`` and the
+        aggregate limit given what the caller already loaded
+        (``total_loaded_bytes``); otherwise ``ResourceBudgetExceeded`` is raised
+        and nothing was fetched. A non-BLOB stored value raises
+        ``PayloadStorageTypeError`` instead of being converted. Probe and fetch
+        share one snapshot (the caller's transaction, or this call's own).
+        """
+
         self._require_initialized()
-        row = self._connection.execute(
-            """
-            SELECT payload_ref, payload_bytes, created_at
-            FROM event_payloads
-            WHERE payload_ref = ?
-            """,
-            (payload_ref,),
-        ).fetchone()
-        if row is None:
-            return None
+        if budget is None:
+            row = self._connection.execute(
+                """
+                SELECT payload_ref, payload_bytes, created_at
+                FROM event_payloads
+                WHERE payload_ref = ?
+                """,
+                (payload_ref,),
+            ).fetchone()
+            if row is None:
+                return None
+            return StoredPayload(
+                payload_ref=row["payload_ref"],
+                payload_bytes=bytes(row["payload_bytes"]),
+                created_at=row["created_at"],
+            )
+        if not isinstance(budget, VerificationBudget):
+            raise TypeError("budget must be a VerificationBudget")
+        with consistent_read(self._connection):
+            loaded = admit_and_load(
+                self._connection, payload_ref, budget, total_loaded_bytes
+            )
+            if loaded is None:
+                return None
+            created_at = self._connection.execute(
+                "SELECT created_at FROM event_payloads WHERE payload_ref = ?",
+                (payload_ref,),
+            ).fetchone()[0]
         return StoredPayload(
-            payload_ref=row["payload_ref"],
-            payload_bytes=bytes(row["payload_bytes"]),
-            created_at=row["created_at"],
+            payload_ref=payload_ref,
+            payload_bytes=loaded.payload_bytes,
+            created_at=created_at,
         )
+
+    def payload_exists(self, payload_ref: str) -> bool:
+        """Existence only; no payload content is read."""
+
+        self._require_initialized()
+        return payload_exists(self._connection, payload_ref)
 
     def list_stream(self, stream_id: str) -> tuple[EventEnvelope, ...]:
         self._require_initialized()
@@ -603,16 +651,20 @@ def _verify_v2_ledger_before_migration(
         if event.previous_hash != expected_previous_hash:
             raise StorageError("v2 migration rejected: previous_hash mismatch")
 
-        payload_row = connection.execute(
-            "SELECT payload_bytes FROM event_payloads WHERE payload_ref = ?",
-            (event.payload_ref,),
-        ).fetchone()
-        if payload_row is None:
+        # Probe, admit, then load inside the migration's own write transaction:
+        # an oversized or mistyped BLOB is refused before it is fetched.
+        try:
+            loaded = admit_and_load(
+                connection, event.payload_ref, budget, total_payload_bytes
+            )
+        except PayloadStorageError as exc:
+            raise StorageError(
+                f"v2 migration rejected: payload storage invalid ({type(exc).__name__})"
+            ) from exc
+        if loaded is None:
             raise StorageError("v2 migration rejected: payload missing")
-        payload_bytes = bytes(payload_row["payload_bytes"])
-        budget.require_payload_size(len(payload_bytes))
-        total_payload_bytes += len(payload_bytes)
-        budget.require_total_payload_size(total_payload_bytes)
+        payload_bytes = loaded.payload_bytes
+        total_payload_bytes += loaded.size
         try:
             decoded = json.loads(payload_bytes.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:

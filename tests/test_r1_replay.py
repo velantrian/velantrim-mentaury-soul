@@ -793,3 +793,16 @@ def test_r1_reuses_its_own_snapshot_for_r0_without_a_second_one() -> None:
         assert report.ok
         assert sum(s.startswith("SAVEPOINT") for s in statements) == 1
         assert not store.raw_connection_for_tests().in_transaction
+
+
+def _snapshot_after_first_for_empty() -> ReplaySnapshot:
+    """Genesis snapshot (version 0) so replay starts from the first event."""
+
+    return make_replay_snapshot(
+        reducer_id=CounterReducer.reducer_id,
+        reducer_version=CounterReducer.reducer_version,
+        stream_id=STREAM_ID,
+        through_stream_version=0,
+        through_event_hash=GENESIS_HASH,
+        state={"total": 0, "event_ids": []},
+    )

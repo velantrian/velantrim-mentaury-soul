@@ -1,5 +1,10 @@
 """Explicit P0 storage, trusted-write, batch, and idempotency primitives."""
 
+from ._bounded_read import (
+    PayloadChangedError,
+    PayloadStorageError,
+    PayloadStorageTypeError,
+)
 from .atomic_batch import (
     BatchAppendReceipt,
     BatchEntry,
@@ -75,6 +80,9 @@ __all__ = [
     "IntegrityFailure",
     "R0IntegrityReport",
     "R0IntegrityVerifier",
+    "PayloadChangedError",
+    "PayloadStorageError",
+    "PayloadStorageTypeError",
     "REDACTION_EVENT_TYPE",
     "REDACTION_IDEMPOTENCY_PROFILE",
     "REDACTION_PAYLOAD_SCHEMA",
