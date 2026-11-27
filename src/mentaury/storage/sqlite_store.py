@@ -31,6 +31,7 @@ from ._bounded_read import (
     admit_and_load,
     consistent_read,
     payload_exists,
+    require_total_loaded_bytes,
 )
 from ._event_rows import insert_event_row
 from .budget import VerificationBudget
@@ -531,8 +532,11 @@ class SQLiteEventPayloadStore:
         and nothing was fetched. A non-BLOB stored value raises
         ``PayloadStorageTypeError`` instead of being converted. Probe and fetch
         share one snapshot (the caller's transaction, or this call's own).
+        ``total_loaded_bytes`` must be a genuine non-negative ``int`` (validated
+        before anything is read).
         """
 
+        total_loaded = require_total_loaded_bytes(total_loaded_bytes)
         self._require_initialized()
         if budget is None:
             row = self._connection.execute(
@@ -554,7 +558,7 @@ class SQLiteEventPayloadStore:
             raise TypeError("budget must be a VerificationBudget")
         with consistent_read(self._connection):
             loaded = admit_and_load(
-                self._connection, payload_ref, budget, total_loaded_bytes
+                self._connection, payload_ref, budget, total_loaded
             )
             if loaded is None:
                 return None

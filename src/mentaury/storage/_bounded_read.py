@@ -45,6 +45,22 @@ class PayloadChangedError(PayloadStorageError):
         super().__init__("stored payload changed between the size preflight and the load")
 
 
+def require_total_loaded_bytes(value: object) -> int:
+    """Accept only a genuine non-negative ``int`` for a caller-supplied running total.
+
+    The exact-type test excludes ``bool``, floats (including NaN and infinity),
+    strings, ``None`` and ``int`` subclasses whose arithmetic or comparisons could
+    be overridden to understate the spend; negative values would otherwise
+    *increase* the remaining budget.
+    """
+
+    if type(value) is not int:
+        raise TypeError("total_loaded_bytes must be an int")
+    if value < 0:
+        raise ValueError("total_loaded_bytes must be non-negative")
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class LoadedPayload:
     payload_bytes: bytes

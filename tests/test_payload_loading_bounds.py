@@ -510,3 +510,140 @@ def test_external_transaction_is_still_refused_by_r0_and_left_untouched() -> Non
         assert r0(store).verify_stream(ATOMIC_STREAM).failure.code is IntegrityCode.ACTIVE_TRANSACTION
         assert c.in_transaction and c.execute("SELECT COUNT(*) FROM sentinel").fetchone()[0] == 1
         c.execute("ROLLBACK")
+
+
+# --- final payload admission fixes (review findings F1, F2) ---------------------------------------------------------------------
+
+AUDIT_REF = "PAYLOAD-REDACTION-AUDIT-1"
+
+
+def journal_with_kept_event_then_redaction() -> SQLiteEventPayloadStore:
+    """Correct journal: EVT-1 (kept), EVT-2 (redaction target), AUDIT-1 (audit event)."""
+
+    store = SQLiteEventPayloadStore.in_memory()
+    store.initialize_schema()
+    red.append_target(store, event_id="EVT-1", version=1)
+    red.append_target(store, event_id="EVT-2", version=2, n=2)
+    red.executor(store).redact(red.redaction_request(
+        target_event_id="EVT-2", expected_stream_version=2))
+    return store
+
+
+def sizes(store) -> tuple[int, int]:
+    kept = len(store.load_payload("PAYLOAD-EVT-1").payload_bytes)
+    audit = len(store.load_payload(AUDIT_REF).payload_bytes)
+    return kept, audit
+
+
+def test_f1_audit_payload_is_reserved_against_the_remaining_budget_before_it_is_loaded() -> None:
+    with journal_with_kept_event_then_redaction() as store:
+        kept, audit = sizes(store)
+        statements = trace(store)
+        # individual limit admits the audit payload, the aggregate cannot hold kept + audit
+        report = red_r0(store, payload=audit, total=kept + audit - 1).verify_stream(STREAM)
+        untrace(store)
+        refused(report)
+        assert f"total_payload_bytes limit {kept + audit - 1}, observed {kept + audit}" in report.failure.message
+        assert full_loads(statements, AUDIT_REF) == 0  # not loaded although it could never be admitted
+        # resource refusals are reported where the logical total first overflows: the audit payload
+        # is now charged at its first admission (the redaction target), not later at the audit event
+        assert report.failure.event_id == "EVT-2"
+
+
+def test_f1_exact_aggregate_passes_without_double_charging_and_reports_physical_loads() -> None:
+    with journal_with_kept_event_then_redaction() as store:
+        kept, audit = sizes(store)
+        statements = trace(store)
+        assert red_r0(store, payload=audit, total=kept + audit).verify_stream(STREAM).ok  # same sum as before
+        untrace(store)
+        assert full_loads(statements, AUDIT_REF) == 2  # evidence read + the event's own verification
+        assert full_loads(statements, "PAYLOAD-EVT-1") == 1
+
+
+def test_f1_two_redactions_are_charged_once_each() -> None:
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        red.append_target(store, event_id="EVT-1", version=1)
+        red.executor(store).redact(red.redaction_request())
+        red.append_target(store, event_id="EVT-3", version=3, n=3)
+        red.executor(store).redact(red.redaction_request(
+            idempotency_key="REDACT-2", command_id="CMD-2", target_event_id="EVT-3",
+            expected_stream_version=3, audit_event_id="AUDIT-2", correlation_id="CORR-2"))
+        p1 = len(store.load_payload("PAYLOAD-REDACTION-AUDIT-1").payload_bytes)
+        p2 = len(store.load_payload("PAYLOAD-REDACTION-AUDIT-2").payload_bytes)
+        top = max(p1, p2)
+        assert red_r0(store, payload=top, total=p1 + p2).verify_stream(STREAM).ok
+        report = red_r0(store, payload=top, total=p1 + p2 - 1).verify_stream(STREAM)
+        refused(report)
+        assert f"observed {p1 + p2}" in report.failure.message
+
+
+def test_f1_charges_follow_event_identity_not_the_shared_payload_ref() -> None:
+    """Another event whose row points at the audit payload ref is a different event: it is
+    charged on its own, never merged with the audit event's charge."""
+
+    from dataclasses import replace as _replace
+
+    from mentaury.storage import GENESIS_HASH, seal_event_bytes  # noqa: F401
+
+    with journal_with_kept_event_then_redaction() as store:
+        kept, audit = sizes(store)
+        audit_event = store.load_event("AUDIT-1")
+        alias = seal_event_bytes(
+            _replace(red.target_event(event_id="EVT-ALIAS", version=4),
+                     payload_ref=AUDIT_REF, batch_id="BATCH-ALIAS"),
+            b'{"n":1}', previous_hash=audit_event.event_hash)
+        store._insert_event(alias)  # synthetic fixture: unreachable through the public API
+        single = kept + audit
+        report = red_r0(store, payload=audit, total=single).verify_stream(STREAM)
+        refused(report)  # the alias event's own charge overflows the single-charge total
+        assert report.failure.event_id == "EVT-ALIAS"
+        assert f"observed {single + audit}" in report.failure.message
+        # with room for the alias's separate charge the resource check passes (it then fails on content)
+        later = red_r0(store, payload=audit, total=single + audit).verify_stream(STREAM)
+        assert not later.ok and later.failure.code is not IntegrityCode.RESOURCE_BUDGET_EXCEEDED
+
+
+@pytest.mark.parametrize("bad", [True, False, -1, -5, 1.5, float("nan"), float("inf"), -float("inf"), "5", None, b"5"])
+def test_f2_invalid_total_loaded_bytes_is_rejected_before_anything_is_read(bad) -> None:
+    with one_event_store() as store:
+        refs = padded_stream(store, [100])
+        statements = trace(store)
+        with pytest.raises((TypeError, ValueError)):
+            store.load_payload(refs[0], budget(), total_loaded_bytes=bad)
+        untrace(store)
+        assert statements == []  # no probe, no load: rejected before touching the database
+
+
+def test_f2_integer_subclasses_with_overridden_arithmetic_cannot_bypass_the_check() -> None:
+    class Liar(int):
+        def __add__(self, other):
+            return 0
+
+        def __radd__(self, other):
+            return 0
+
+        def __gt__(self, other):
+            return False
+
+        def __lt__(self, other):
+            return False
+
+    with one_event_store() as store:
+        refs = padded_stream(store, [300])
+        statements = trace(store)
+        with pytest.raises(TypeError):
+            store.load_payload(refs[0], budget(payload=400, total=700), total_loaded_bytes=Liar(10**9))
+        untrace(store)
+        assert statements == []
+
+
+def test_f2_valid_non_negative_integers_still_work_and_aggregate_is_exact() -> None:
+    with one_event_store() as store:
+        refs = padded_stream(store, [300])
+        assert store.load_payload(refs[0], budget(payload=400, total=700), total_loaded_bytes=0) is not None
+        assert store.load_payload(refs[0], budget(payload=400, total=700), total_loaded_bytes=400) is not None
+        with pytest.raises(ResourceBudgetExceeded) as captured:
+            store.load_payload(refs[0], budget(payload=400, total=700), total_loaded_bytes=401)
+        assert (captured.value.dimension, captured.value.observed) == ("total_payload_bytes", 701)
+        assert store.load_payload(refs[0]) is not None  # legacy call without any budget unchanged

@@ -86,6 +86,23 @@ class R0IntegrityReport:
     failure: IntegrityFailure | None
 
 
+class _PayloadAccount:
+    """Per-verification logical payload spend, keyed by *event identity*.
+
+    A payload is charged once per event, at that event's first admission (the
+    redaction evidence check for a linked audit event, otherwise the event's own
+    verification). A later admission of the same event reads it again but does not
+    charge it again. Different events that happen to share a ``payload_ref`` are
+    different keys and are charged separately.
+    """
+
+    __slots__ = ("total", "charged")
+
+    def __init__(self) -> None:
+        self.total = 0
+        self.charged: dict[str, int] = {}
+
+
 @dataclass(frozen=True, slots=True)
 class _RedactionEvidence:
     target_event_id: str
@@ -232,7 +249,7 @@ class R0IntegrityVerifier:
         expected_previous_hash = GENESIS_HASH
         checked = 0
         batch_start = 0
-        total_payload_bytes = 0
+        account = _PayloadAccount()
         for index, event in enumerate(events):
             expected_version = index + 1
             if event.stream_version != expected_version:
@@ -311,6 +328,7 @@ class R0IntegrityVerifier:
                     event,
                     evidence,
                     checked,
+                    account,
                 )
                 if linkage_failure is not None:
                     return linkage_failure
@@ -334,12 +352,14 @@ class R0IntegrityVerifier:
 
             # Probe the stored size/type and admit it against the individual and
             # the remaining aggregate budget *before* the BLOB is fetched.
+            already_charged = account.charged.get(event.event_id)
             try:
                 loaded = admit_and_load(
                     self._store._connection,
                     event.payload_ref,
                     self._budget,
-                    total_payload_bytes,
+                    account.total,
+                    charge_total=already_charged is None,
                 )
             except ResourceBudgetExceeded as exc:
                 return self._event_budget_fail(event, checked, exc)
@@ -366,7 +386,16 @@ class R0IntegrityVerifier:
                     "payload material is missing",
                 )
             payload_bytes = loaded.payload_bytes
-            total_payload_bytes += loaded.size
+            if already_charged is None:
+                account.total += loaded.size
+                account.charged[event.event_id] = loaded.size
+            elif already_charged != loaded.size:
+                return self._event_fail(
+                    event,
+                    checked,
+                    IntegrityCode.SNAPSHOT_INCOHERENT,
+                    "payload size changed between two reads within one read snapshot",
+                )
             try:
                 decoded = json.loads(payload_bytes.decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -493,6 +522,7 @@ class R0IntegrityVerifier:
         target_event: EventEnvelope,
         evidence: _RedactionEvidence,
         checked: int,
+        account: _PayloadAccount,
     ) -> R0IntegrityReport | None:
         audit_event = self._store.load_event(evidence.audit_event_id)
         if audit_event is None:
@@ -551,15 +581,20 @@ class R0IntegrityVerifier:
                 str(envelope_issues[0]),
             )
 
-        # Individual limit only: the logical aggregate counts this payload once,
-        # when the audit event itself is verified as an event of the stream.
+        # The audit payload is admitted against the individual limit AND the
+        # remaining logical aggregate before it is loaded, and is charged here,
+        # at its first admission, under the audit *event's* identity. When the
+        # stream loop later verifies that same event it reads the payload again
+        # without charging it again (no double count), so a valid journal keeps
+        # exactly the same logical total as before.
+        already_charged = account.charged.get(audit_event.event_id)
         try:
             audit_loaded = admit_and_load(
                 self._store._connection,
                 audit_event.payload_ref,
                 self._budget,
-                0,
-                charge_total=False,
+                account.total,
+                charge_total=already_charged is None,
             )
         except ResourceBudgetExceeded as exc:
             return self._event_budget_fail(target_event, checked, exc)
@@ -586,6 +621,17 @@ class R0IntegrityVerifier:
                 "redaction audit payload material is missing",
             )
         audit_bytes = audit_loaded.payload_bytes
+        if already_charged is None:
+            account.total += audit_loaded.size
+            account.charged[audit_event.event_id] = audit_loaded.size
+        elif already_charged != audit_loaded.size:
+            return self._event_fail(
+                target_event,
+                checked,
+                IntegrityCode.SNAPSHOT_INCOHERENT,
+                "redaction audit payload size changed between two reads "
+                "within one read snapshot",
+            )
         try:
             decoded = json.loads(audit_bytes.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
