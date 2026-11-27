@@ -94,6 +94,17 @@ The lifecycle uses canonical `CommandEnvelope.issued_at` as `evaluated_at`.
 The committed gated event must use the same value as immutable
 `EventEnvelope.occurred_at`. The reducer rejects time rebinding during replay.
 
+The storage write boundary (`validate_event_for_commit`, used by `append_one`,
+the atomic batch appender and the idempotent appender, legacy and admitted
+paths alike) enforces the same equality **before** a `BELIEF_EVIDENCE_GATED`
+event is stored: `occurred_at`, `payload.evaluated_at`, `receipt.evaluated_at`
+and, at first application of an idempotent command, `command.issued_at` must be
+the same canonical instant (compared as UTC instants, not as text). The check
+reads the exact canonical bytes that will be persisted, never rewrites a
+timestamp, and does not apply to other event types. A semantic replay of an
+already applied command returns the original result and writes nothing. Time
+agreement does not prove the clock or the evidence is honest.
+
 This preserves deterministic freshness semantics. It does not prove that the
 issuer's clock was honest; trusted-clock validation remains an outer authority
 concern.

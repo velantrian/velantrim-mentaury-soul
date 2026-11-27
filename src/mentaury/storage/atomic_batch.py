@@ -145,6 +145,7 @@ def _prepare_batch(
     entries: tuple[BatchEntry, ...],
     registry: SchemaRegistry,
     admission: OperationAdmissionState | None = None,
+    command_issued_at: str | None = None,
 ) -> tuple[_PreparedEntry, ...]:
     if not entries:
         raise BatchInvariantError("batch cannot be empty")
@@ -191,6 +192,7 @@ def _prepare_batch(
                 entry.payload,
                 registry,
                 admission,
+                command_issued_at=command_issued_at,
             ),
             created_at=canonical_timestamp(entry.event.recorded_at),
         )

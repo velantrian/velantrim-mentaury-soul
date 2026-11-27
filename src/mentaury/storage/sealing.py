@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Mapping
 from dataclasses import replace
 from typing import TYPE_CHECKING
@@ -13,6 +14,8 @@ from mentaury.contracts import (
     canonical_json_bytes,
     canonical_timestamp,
 )
+from mentaury.evidence import BELIEF_EVIDENCE_GATED
+from mentaury.evidence.temporal import require_gate_time_consistency
 from mentaury.validation import SchemaRegistry
 
 if TYPE_CHECKING:
@@ -106,8 +109,17 @@ def validate_event_for_commit(
     payload: Mapping[str, object],
     registry: SchemaRegistry,
     admission: OperationAdmissionState | None = None,
+    *,
+    command_issued_at: str | None = None,
 ) -> bytes:
     """Fail closed on event/schema identity, payload structure, and encoding.
+
+    Evidence Gate decisions (``BELIEF_EVIDENCE_GATED``) additionally must satisfy
+    the P0-015 time contract before they can be stored: ``occurred_at``,
+    ``payload.evaluated_at`` and ``receipt.evaluated_at`` (and
+    ``command_issued_at`` when the originating command is known at first
+    application) must be the same canonical instant. The check reads the exact
+    canonical bytes that will be persisted. Other event types are unaffected.
 
     The returned bytes are the exact canonical payload bytes used for both the
     payload digest and immutable persistence.
@@ -132,7 +144,9 @@ def validate_event_for_commit(
     if admission is None:
         registry.require_event_envelope(event)
         registry.require_event_payload(event, payload)
-        return canonical_json_bytes(payload)
+        legacy_bytes = canonical_json_bytes(payload)
+        _require_gate_time(event, legacy_bytes, command_issued_at)
+        return legacy_bytes
     # One trusted, detached representation: the bytes are rendered from the
     # snapshot and the schema validator walks that same snapshot, so what is
     # validated is exactly what is digested and persisted (a mapping that
@@ -144,4 +158,19 @@ def validate_event_for_commit(
         snapshot,  # type: ignore[arg-type]
         admission.validation_visit,
     )
+    _require_gate_time(event, payload_bytes, command_issued_at)
     return payload_bytes
+
+
+def _require_gate_time(
+    event: EventEnvelope,
+    payload_bytes: bytes,
+    command_issued_at: str | None,
+) -> None:
+    if event.event_type != BELIEF_EVIDENCE_GATED:
+        return
+    require_gate_time_consistency(
+        event,
+        json.loads(payload_bytes),
+        command_issued_at=command_issued_at,
+    )
