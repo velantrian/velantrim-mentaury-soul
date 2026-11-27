@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import sqlite3
 import threading
+import time
+import types
+from dataclasses import replace
 from pathlib import Path
 from queue import Queue
 
 import pytest
 
 from mentaury.contracts import ActorRef, AuthorityRef, EventEnvelope, ProducerRef
+from mentaury.storage import concurrency as concurrency_module
 from mentaury.storage import (
     REDACTION_EVENT_TYPE,
     REDACTION_PAYLOAD_SCHEMA,
@@ -15,6 +19,7 @@ from mentaury.storage import (
     IntegrityCode,
     R0IntegrityVerifier,
     RedactionConflictError,
+    RedactionEvidenceInUseError,
     RedactionRequest,
     RedactionStatus,
     SQLiteRedactionExecutor,
@@ -22,9 +27,11 @@ from mentaury.storage import (
     TargetAlreadyRedactedError,
     TargetEventNotFoundError,
     TargetPayloadMissingError,
+    GENESIS_HASH,
     VerificationBudget,
     VersionConflictError,
     redaction_fingerprint,
+    seal_event_bytes,
 )
 from mentaury.validation import (
     EventSchemaDefinition,
@@ -514,3 +521,334 @@ def test_concurrent_redaction_attempts_produce_one_winner(tmp_path: Path) -> Non
     with SQLiteEventPayloadStore.connect(database) as check:
         assert len(check.list_stream("test:stream")) == 2
         assert check.load_payload("PAYLOAD-EVT-1") is None
+
+
+# ---------------------------------------------------------------------------
+# Stage 02: redaction must not delete committed redaction-audit evidence.
+#
+# Scenario map (derived from the Stage 02 brief; the original Manus R01-R10
+# text was not available in-repo):
+#   R01 direct attempt on an audit event       R06 ALREADY_REDACTED preserved
+#   R02 alias via shared payload_ref/stream    R07 no active own transaction, store reusable
+#   R03 not a bare event_type rule             R08 error leaks no reason/payload
+#   R04 every table unchanged after refusal    R09 two-connection committed-link race
+#   R05 refusal repeatable, no new receipt     R10 R0 diagnostics on corrupt history intact
+# ---------------------------------------------------------------------------
+
+_TABLES = (
+    "events",
+    "event_payloads",
+    "stream_meta",
+    "idempotency_records",
+    "redactions",
+)
+_REASON_SECRET = "SECRET-REASON-do-not-leak"
+
+
+def _state(store: SQLiteEventPayloadStore) -> dict[str, list[tuple[object, ...]]]:
+    connection = store.raw_connection_for_tests()
+    return {
+        table: [
+            tuple(row)
+            for row in connection.execute(f"SELECT * FROM {table} ORDER BY 1, 2").fetchall()
+        ]
+        for table in _TABLES
+    }
+
+
+def _redacted_store() -> SQLiteEventPayloadStore:
+    """In-memory store with EVT-1 redacted; audit event AUDIT-1 is evidence."""
+
+    store = SQLiteEventPayloadStore.in_memory()
+    store.initialize_schema()
+    append_target(store)
+    executor(store).redact(redaction_request())
+    return store
+
+
+def _attack_audit_request(**overrides: object) -> RedactionRequest:
+    values: dict[str, object] = dict(
+        idempotency_key="REDACT-ATTACK",
+        command_id="CMD-ATTACK",
+        target_event_id="AUDIT-1",
+        expected_stream_version=2,
+        audit_event_id="AUDIT-ATTACK",
+        correlation_id="CORR-ATTACK",
+        reason=_REASON_SECRET,
+    )
+    values.update(overrides)
+    return redaction_request(**values)  # type: ignore[arg-type]
+
+
+def _insert_alias_event(store: SQLiteEventPayloadStore) -> None:
+    """Synthetic fixture: an event in another stream sharing the audit payload_ref.
+
+    The public API cannot produce this (payload_ref is the payload primary key),
+    so it is inserted raw to prove the guard is by payload reference, globally.
+    """
+
+    audit = store.load_event("AUDIT-1")
+    assert audit is not None
+    alias = seal_event_bytes(
+        replace(
+            target_event(event_id="EVT-ALIAS", stream_id="other:stream", version=1),
+            payload_ref=audit.payload_ref,
+        ),
+        b'{"n":1}',
+        previous_hash=GENESIS_HASH,
+    )
+    store._insert_event(alias)
+
+
+def test_r01_direct_redaction_of_audit_event_is_refused_and_changes_nothing() -> None:
+    with _redacted_store() as store:
+        before = _state(store)
+        with pytest.raises(RedactionEvidenceInUseError) as captured:
+            executor(store).redact(_attack_audit_request())
+        assert captured.value.target_event_id == "AUDIT-1"
+        assert store.load_payload("PAYLOAD-REDACTION-AUDIT-1") is not None
+        assert _state(store) == before  # R04: all affected tables identical
+
+
+def test_r02_alias_in_other_stream_sharing_audit_payload_ref_is_refused() -> None:
+    with _redacted_store() as store:
+        _insert_alias_event(store)
+        before = _state(store)
+        request = redaction_request(
+            idempotency_key="REDACT-ALIAS",
+            command_id="CMD-ALIAS",
+            target_event_id="EVT-ALIAS",
+            target_stream="other:stream",
+            expected_stream_version=0,
+            audit_event_id="AUDIT-ALIAS",
+        )
+        with pytest.raises(RedactionEvidenceInUseError):
+            executor(store).redact(request)
+        assert store.load_payload("PAYLOAD-REDACTION-AUDIT-1") is not None
+        assert _state(store) == before
+
+
+def test_r03_protection_is_linkage_based_not_a_bare_event_type_rule() -> None:
+    """A REDACTION_RECORDED event no ``redactions`` row points at is redactable."""
+
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        unlinked = replace(
+            target_event(event_id="EVT-LOOKALIKE"),
+            event_type=REDACTION_EVENT_TYPE,
+            payload_schema=REDACTION_PAYLOAD_SCHEMA,
+            payload_ref="PAYLOAD-LOOKALIKE",
+        )
+        store.append_one(
+            unlinked,
+            {
+                "target_event_id": "EVT-X",
+                "target_stream_id": "test:stream",
+                "target_payload_ref": "PAYLOAD-X",
+                "reason": "unrelated",
+                "authority": {"capability_lease_id": "CAP-1", "capability_revision": 1},
+            },
+            registry=registry(),
+        )
+        result = executor(store).redact(
+            redaction_request(target_event_id="EVT-LOOKALIKE")
+        )
+        assert result.status is RedactionStatus.REDACTED
+        assert store.load_payload("PAYLOAD-LOOKALIKE") is None
+
+
+def test_r05_refusal_is_repeatable_and_writes_no_receipt() -> None:
+    with _redacted_store() as store:
+        before = _state(store)
+        for key in ("REDACT-ATTACK", "REDACT-ATTACK", "REDACT-ATTACK-2"):
+            with pytest.raises(RedactionEvidenceInUseError):
+                executor(store).redact(_attack_audit_request(idempotency_key=key))
+        assert _state(store) == before
+        count = store.raw_connection_for_tests().execute(
+            "SELECT COUNT(*) FROM redactions WHERE idempotency_key LIKE 'REDACT-ATTACK%'"
+        ).fetchone()[0]
+        assert count == 0
+
+
+def test_r06_previously_successful_request_still_replays_already_redacted() -> None:
+    with _redacted_store() as store:
+        with pytest.raises(RedactionEvidenceInUseError):
+            executor(store).redact(_attack_audit_request())
+        replay = executor(store).redact(redaction_request())
+        assert replay.status is RedactionStatus.ALREADY_REDACTED
+        assert replay.audit_event_id == "AUDIT-1"
+
+
+def test_r07_refusal_leaves_no_open_transaction_and_store_stays_usable() -> None:
+    with _redacted_store() as store:
+        connection = store.raw_connection_for_tests()
+        with pytest.raises(RedactionEvidenceInUseError):
+            executor(store).redact(_attack_audit_request())
+        assert not connection.in_transaction
+        append_target(store, event_id="EVT-2", version=3, n=2)
+        result = executor(store).redact(
+            redaction_request(
+                idempotency_key="REDACT-2",
+                target_event_id="EVT-2",
+                expected_stream_version=3,
+                audit_event_id="AUDIT-2",
+            )
+        )
+        assert result.status is RedactionStatus.REDACTED
+        assert not connection.in_transaction
+
+
+def test_r07b_refusal_does_not_disturb_a_foreign_transaction() -> None:
+    from mentaury.storage import TransactionOwnershipError
+
+    with _redacted_store() as store:
+        connection = store.raw_connection_for_tests()
+        connection.execute("CREATE TABLE sentinel(x)")
+        connection.execute("BEGIN")
+        connection.execute("INSERT INTO sentinel VALUES (1)")
+        with pytest.raises(TransactionOwnershipError):
+            executor(store).redact(_attack_audit_request())
+        assert connection.in_transaction
+        assert connection.execute("SELECT COUNT(*) FROM sentinel").fetchone()[0] == 1
+        connection.execute("ROLLBACK")
+
+
+def test_r08_error_message_carries_no_reason_or_payload() -> None:
+    with _redacted_store() as store:
+        with pytest.raises(RedactionEvidenceInUseError) as captured:
+            executor(store).redact(_attack_audit_request())
+        text = str(captured.value) + repr(captured.value.args)
+        assert _REASON_SECRET not in text
+        assert "user-requested erasure" not in text  # the stored audit reason
+        assert "target_payload_ref" not in text  # no payload field material
+
+
+def test_r09_committed_evidence_from_another_connection_is_seen_after_lock(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A holds the write lock mid-COMMIT; B (separate connection) waits, then
+    must observe A's now-committed audit link and refuse to delete it."""
+
+    from mentaury.storage import BusyRetryPolicy
+
+    database = tmp_path / "evidence-race.sqlite3"
+    with SQLiteEventPayloadStore.connect(database) as setup:
+        setup.initialize_schema()
+        append_target(setup)
+
+    policy = BusyRetryPolicy(max_attempts=2000, backoff_seconds=0.002)
+    a_holding_lock = threading.Event()
+    release_a = threading.Event()
+    b_retrying = threading.Event()
+    outcomes: dict[str, object] = {}
+
+    def writer_a() -> None:
+        try:
+            with SQLiteEventPayloadStore.connect(database, busy_policy=policy) as store:
+                def authorizer(action: int, arg1: object, *_: object) -> int:
+                    if action == sqlite3.SQLITE_TRANSACTION and arg1 == "COMMIT":
+                        a_holding_lock.set()
+                        assert release_a.wait(10)
+                    return sqlite3.SQLITE_OK
+
+                store.raw_connection_for_tests().set_authorizer(authorizer)
+                outcomes["a"] = SQLiteRedactionExecutor(
+                    store, registry(), policy
+                ).redact(redaction_request(idempotency_key="REDACT-A", audit_event_id="AUDIT-A"))
+        except BaseException as exc:
+            outcomes["a"] = exc
+
+    def writer_b() -> None:
+        try:
+            with SQLiteEventPayloadStore.connect(database, busy_policy=policy) as store:
+                outcomes["b"] = SQLiteRedactionExecutor(
+                    store, registry(), policy
+                ).redact(
+                    _attack_audit_request(
+                        idempotency_key="REDACT-B",
+                        target_event_id="AUDIT-A",
+                        audit_event_id="AUDIT-B",
+                    )
+                )
+        except BaseException as exc:
+            outcomes["b"] = exc
+
+    # B's backoff sleeps only happen when BEGIN IMMEDIATE failed on A's held
+    # lock, so counting them proves B really contended while A held the lock.
+    real_sleep = time.sleep
+    sleeps = 0
+
+    def counting_sleep(seconds: float) -> None:
+        nonlocal sleeps
+        sleeps += 1
+        if sleeps >= 3:
+            b_retrying.set()
+        real_sleep(seconds)
+
+    monkeypatch.setattr(
+        concurrency_module, "time", types.SimpleNamespace(sleep=counting_sleep)
+    )
+
+    thread_a = threading.Thread(target=writer_a)
+    thread_b = threading.Thread(target=writer_b)
+    thread_a.start()
+    assert a_holding_lock.wait(10)
+    thread_b.start()
+    assert b_retrying.wait(10), f"B never contended for the write lock: {outcomes!r}"
+    release_a.set()
+    thread_a.join(timeout=10)
+    thread_b.join(timeout=10)
+    assert not thread_a.is_alive() and not thread_b.is_alive()
+
+    assert getattr(outcomes["a"], "status", None) is RedactionStatus.REDACTED
+    assert isinstance(outcomes["b"], RedactionEvidenceInUseError)
+    with SQLiteEventPayloadStore.connect(database) as check:
+        assert check.load_payload("PAYLOAD-REDACTION-AUDIT-A") is not None
+        assert len(check.list_stream("test:stream")) == 2
+        assert check.load_event("AUDIT-B") is None
+        assert check.raw_connection_for_tests().execute(
+            "SELECT COUNT(*) FROM redactions"
+        ).fetchone()[0] == 1
+        assert not check.raw_connection_for_tests().in_transaction
+
+
+def test_r10_r0_diagnostics_on_corrupt_history_are_unchanged() -> None:
+    """Forged row pointing at a missing audit event: the guard stays out of the
+    way and R0 still reports its specific pre-existing failure code."""
+
+    with SQLiteEventPayloadStore.in_memory() as store:
+        store.initialize_schema()
+        append_target(store)
+        append_target(store, event_id="EVT-2", version=2, n=2)
+        connection = store.raw_connection_for_tests()
+        connection.execute("DELETE FROM event_payloads WHERE payload_ref = 'PAYLOAD-EVT-1'")
+        connection.execute(
+            """
+            INSERT INTO redactions(
+                target_event_id, idempotency_key, fingerprint, target_stream_id,
+                target_payload_ref, audit_event_id, reason, capability_lease_id,
+                capability_revision, redacted_at
+            ) VALUES ('EVT-1', 'FORGED', 'sha256:forged', 'test:stream',
+                      'PAYLOAD-EVT-1', 'AUDIT-GHOST', 'forged', 'CAP-1', 1,
+                      '2026-08-05T01:00:00Z')
+            """
+        )
+        report = verifier(store).verify_stream("test:stream")
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.REDACTION_AUDIT_EVENT_MISSING
+
+        # Unrelated, legitimately redactable target is not blocked by the
+        # dangling forged row (INNER JOIN finds no audit event).
+        result = executor(store).redact(
+            redaction_request(
+                idempotency_key="REDACT-2",
+                target_event_id="EVT-2",
+                expected_stream_version=2,
+                audit_event_id="AUDIT-2",
+            )
+        )
+        assert result.status is RedactionStatus.REDACTED
+        report = verifier(store).verify_stream("test:stream")
+        assert report.failure is not None
+        assert report.failure.code is IntegrityCode.REDACTION_AUDIT_EVENT_MISSING

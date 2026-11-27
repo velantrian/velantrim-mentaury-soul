@@ -79,6 +79,22 @@ class TargetPayloadMissingError(RedactionError):
         super().__init__(f"target payload material already absent: {payload_ref}")
 
 
+class RedactionEvidenceInUseError(RedactionError):
+    """Raised when a target's payload is committed redaction-audit evidence.
+
+    The message carries only identifiers, never payload bytes or the redaction
+    reason.
+    """
+
+    def __init__(self, target_event_id: str, payload_ref: str) -> None:
+        self.target_event_id = target_event_id
+        self.payload_ref = payload_ref
+        super().__init__(
+            "redaction rejected: payload is committed redaction audit evidence "
+            f"(target event {target_event_id}, payload {payload_ref})"
+        )
+
+
 class RedactionConflictError(RedactionError):
     """Raised when one idempotency key is reused for a different redaction."""
 
@@ -283,6 +299,27 @@ class SQLiteRedactionExecutor:
             if target.stream_id != request.target_stream:
                 raise CrossStreamRedactionError(
                     request.target_stream, target.stream_id
+                )
+
+            # Protect committed redaction evidence. The link is derived from
+            # the authoritative ``redactions`` rows (not from event_type) and
+            # is global: any event, in any stream, whose payload_ref is the
+            # payload of a recorded audit event is protected. Runs under the
+            # write lock, before any mutation.
+            evidence_in_use = connection.execute(
+                """
+                SELECT 1
+                FROM redactions AS r
+                JOIN events AS e
+                    ON e.event_id = r.audit_event_id
+                WHERE e.payload_ref = ?
+                LIMIT 1
+                """,
+                (target.payload_ref,),
+            ).fetchone()
+            if evidence_in_use is not None:
+                raise RedactionEvidenceInUseError(
+                    target.event_id, target.payload_ref
                 )
 
             unsealed_audit = EventEnvelope(
