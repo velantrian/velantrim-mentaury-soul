@@ -100,8 +100,17 @@ paths alike) enforces the same equality **before** a `BELIEF_EVIDENCE_GATED`
 event is stored: `occurred_at`, `payload.evaluated_at`, `receipt.evaluated_at`
 and, at first application of an idempotent command, `command.issued_at` must be
 the same canonical instant (compared as UTC instants, not as text). The check
-reads the exact canonical bytes that will be persisted, never rewrites a
-timestamp, and does not apply to other event types. A semantic replay of an
+never rewrites a timestamp, and does not apply to other event types. The
+`receipt.evaluated_at` value must be the **exact canonical timestamp spelling**
+(not merely an equivalent instant), because `EvidenceGate.verify_receipt`
+compares the full canonical receipt with the recomputed one and the receipt is
+content-addressed; the stored receipt is never normalized or re-digested. The
+other time fields (`occurred_at`, `payload.evaluated_at`, `command.issued_at`)
+need only denote the same canonical instant, as the reducer canonicalizes them.
+On the legacy write path the check reads the exact canonical bytes that will be
+persisted; on the explicitly budgeted (admitted) path it reads the trusted,
+already-admitted snapshot those bytes were rendered from, so no payload is
+decoded or traversed again and no additional work is charged. A semantic replay of an
 already applied command returns the original result and writes nothing. Time
 agreement does not prove the clock or the evidence is honest.
 
