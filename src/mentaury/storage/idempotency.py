@@ -224,7 +224,15 @@ class SQLiteIdempotentBatchAppender:
                     receipt,
                 )
 
-            prepared = _prepare_batch(request.entries, self._registry, admission)
+            # first application only: the originating command is known here, so
+            # Evidence Gate events are also bound to command.issued_at. A semantic
+            # replay returned above and never reaches this point.
+            prepared = _prepare_batch(
+                request.entries,
+                self._registry,
+                admission,
+                request.command.issued_at,
+            )
             committed = _insert_prepared_batch(connection, prepared, admission)
             receipt = _receipt_from_prepared(committed)
             connection.execute(
