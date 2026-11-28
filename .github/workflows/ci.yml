@@ -39,7 +39,9 @@ jobs:
         with:
           python-version: '3.13'
           cache: pip
-          cache-dependency-path: requirements-dev.lock
+          cache-dependency-path: |
+            requirements-dev.lock
+            requirements-typecheck.lock
 
       - name: Install locked development toolchain
         run: |
@@ -52,6 +54,17 @@ jobs:
 
       - name: Check derived-status documentation freshness
         run: python scripts/check_doc_freshness.py
+
+      # Package-wide static typing is a merge-blocking part of this job (the
+      # required check context is unchanged). mypy lives in an isolated venv
+      # built from its own lock so the development environment keeps a clean
+      # `pip check`. No exclusions, no follow-imports=skip, no continue-on-error:
+      # a non-zero mypy exit fails the job.
+      - name: Type-check entire src/mentaury package (mypy, locked, isolated venv)
+        run: |
+          python -m venv "$RUNNER_TEMP/typecheck-venv"
+          "$RUNNER_TEMP/typecheck-venv/bin/python" -m pip install -r requirements-typecheck.lock
+          "$RUNNER_TEMP/typecheck-venv/bin/python" -m mypy --python-version 3.13 --warn-unused-ignores --show-error-codes --pretty src/mentaury
 
       - name: Run complete test suite with coverage baseline
         run: python -m pytest --cov=mentaury --cov-report=term-missing --cov-report=xml
