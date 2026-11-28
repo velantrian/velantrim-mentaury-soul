@@ -396,3 +396,110 @@ def test_whatever_bytes_are_stored_satisfy_the_time_contract_even_for_a_mutating
         decoded = _json.loads(stored)
         assert decoded["evaluated_at"] == journal.event().occurred_at  # the stored bytes are consistent
         assert r1(store).ok
+
+
+# --- final fixes: exact canonical receipt time (F1) and snapshot reuse (F2) -------------------------------------------------------------------
+
+NON_CANONICAL_RECEIPT_TIMES = ["2026-08-06T14:00:00+02:00", "2026-08-06T12:00:00.000Z", "2026-08-06T10:00:00-02:00"]
+
+
+@pytest.mark.parametrize("spelled", NON_CANONICAL_RECEIPT_TIMES)
+@pytest.mark.parametrize("kind", ADMISSIONS)
+@pytest.mark.parametrize("path", PATHS)
+def test_f1_equivalent_but_non_canonical_receipt_time_is_refused(path, kind, spelled) -> None:
+    journal = Journal()
+    payload = journal.payload_with(receipt_evaluated_at=spelled)  # the same instant, different spelling
+    with journal.store() as store:
+        with pytest.raises(EvidenceGateTemporalError, match="exact canonical timestamp representation"):
+            journal.write(store, path, kind, payload=payload)
+        refused_clean(journal, store)
+        assert payload["receipt"]["evaluated_at"] == spelled  # the caller's receipt is never normalized
+        journal.write(store, path, kind)  # the canonical receipt is accepted
+        assert r0(store).ok and r1(store).ok
+
+
+def test_f1_only_the_receipt_needs_the_exact_form_other_fields_keep_instant_equivalence() -> None:
+    journal = Journal()
+    zoned = "2026-08-06T14:00:00+02:00"
+    with journal.store() as store:
+        journal.write(store, "append_one", "legacy", event=journal.event(occurred_at=zoned),
+                      payload=journal.payload_with(evaluated_at="2026-08-06T10:00:00-02:00"))
+        assert r0(store).ok and r1(store).ok  # event/payload spellings differ, receipt canonical: valid
+
+
+def test_f1_a_stored_non_canonical_receipt_is_still_refused_by_the_unchanged_reducer(monkeypatch) -> None:
+    journal = Journal()
+    with journal.store() as store:
+        with monkeypatch.context() as patch:  # a record written before the stricter check existed
+            patch.setattr(sealing_module, "_require_gate_time", lambda *a, **k: None)
+            journal.write(store, "append_one", "legacy",
+                          payload=journal.payload_with(receipt_evaluated_at="2026-08-06T14:00:00+02:00"))
+        assert r0(store).ok  # R0 unchanged
+        report = r1(store)
+        assert not report.ok and "invalid evidence-gate receipt" in report.failure.message
+
+
+def test_f2_admitted_path_reuses_the_trusted_snapshot_instead_of_decoding_the_payload(monkeypatch) -> None:
+    import json as _json
+
+    journal = Journal()
+    calls = {"loads": 0}
+    real = _json.loads
+
+    def counting(*args, **kwargs):
+        calls["loads"] += 1
+        return real(*args, **kwargs)
+
+    admitted_calls = {"n": 0}
+    real_admit = OperationAdmissionState.admit_payload
+
+    def counting_admit(self, value):
+        admitted_calls["n"] += 1
+        return real_admit(self, value)
+
+    monkeypatch.setattr(sealing_module.json, "loads", counting)
+    monkeypatch.setattr(OperationAdmissionState, "admit_payload", counting_admit)
+    event = journal.event()
+    sealing_module.validate_event_for_commit(event, journal.payload, journal.registry, admission("admitted"))
+    assert calls["loads"] == 0  # no decode of the whole payload on the admitted path
+    assert admitted_calls["n"] == 1  # the one admission produced the snapshot that is checked
+    # legacy control: no snapshot exists, so the exact persisted bytes are decoded and checked
+    sealing_module.validate_event_for_commit(event, journal.payload, journal.registry, None)
+    assert calls["loads"] == 1
+
+
+def test_f2_the_temporal_check_adds_no_charged_work_on_the_admitted_path(monkeypatch) -> None:
+    journal = Journal()
+    with_check, without_check = admission("admitted"), admission("admitted")
+    sealing_module.validate_event_for_commit(journal.event(), journal.payload, journal.registry, with_check)
+    monkeypatch.setattr(sealing_module, "_require_gate_time", lambda *a, **k: None)
+    sealing_module.validate_event_for_commit(journal.event(), journal.payload, journal.registry, without_check)
+    assert (with_check.nodes, with_check.output_bytes) == (without_check.nodes, without_check.output_bytes)
+
+
+@pytest.mark.parametrize("kind", ADMISSIONS)
+def test_f2_both_paths_judge_the_same_persisted_content(kind) -> None:
+    journal = Journal()
+    bad_payload = journal.payload_with(evaluated_at=LATER, receipt_evaluated_at=LATER)
+    with journal.store() as store:
+        with pytest.raises(EvidenceGateTemporalError):
+            journal.write(store, "append_one", kind, payload=bad_payload)
+        refused_clean(journal, store)
+        journal.write(store, "append_one", kind)
+        stored = store.load_payload("PAYLOAD-EVT-GATED").payload_bytes
+        import json as _json
+
+        assert _json.loads(stored)["receipt"]["evaluated_at"] == "2026-08-06T12:00:00Z"  # exactly as given
+
+
+def test_alreadyapplied_contract_and_fingerprint_profile_are_untouched() -> None:
+    from mentaury.storage.idempotency import IDEMPOTENCY_PROFILE
+
+    assert IDEMPOTENCY_PROFILE == "MENTAURY_IDEMPOTENCY_V1"
+    journal = Journal()
+    with journal.store() as store:
+        first = journal.write(store, "idempotent", "legacy")
+        retry = journal.write(store, "idempotent", "admitted",
+                              event=journal.event(event_id="EVT-RETRY", payload_ref="PAYLOAD-RETRY"))
+        assert retry.status is IdempotencyStatus.ALREADY_APPLIED
+        assert retry.receipt == first.receipt and retry.fingerprint == first.fingerprint

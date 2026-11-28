@@ -145,7 +145,10 @@ def validate_event_for_commit(
         registry.require_event_envelope(event)
         registry.require_event_payload(event, payload)
         legacy_bytes = canonical_json_bytes(payload)
-        _require_gate_time(event, legacy_bytes, command_issued_at)
+        if event.event_type == BELIEF_EVIDENCE_GATED:
+            # legacy path: no trusted snapshot exists, so check the exact bytes
+            # that will be persisted
+            _require_gate_time(event, json.loads(legacy_bytes), command_issued_at)
         return legacy_bytes
     # One trusted, detached representation: the bytes are rendered from the
     # snapshot and the schema validator walks that same snapshot, so what is
@@ -158,19 +161,20 @@ def validate_event_for_commit(
         snapshot,  # type: ignore[arg-type]
         admission.validation_visit,
     )
-    _require_gate_time(event, payload_bytes, command_issued_at)
+    if event.event_type == BELIEF_EVIDENCE_GATED:
+        # admitted path: reuse the trusted snapshot the bytes were rendered from
+        # (already admitted and charged); no second decode or traversal
+        _require_gate_time(event, snapshot, command_issued_at)  # type: ignore[arg-type]
     return payload_bytes
 
 
 def _require_gate_time(
     event: EventEnvelope,
-    payload_bytes: bytes,
+    payload: Mapping[str, object],
     command_issued_at: str | None,
 ) -> None:
-    if event.event_type != BELIEF_EVIDENCE_GATED:
-        return
     require_gate_time_consistency(
         event,
-        json.loads(payload_bytes),
+        payload,
         command_issued_at=command_issued_at,
     )

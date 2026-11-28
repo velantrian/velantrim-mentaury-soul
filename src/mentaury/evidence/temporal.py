@@ -42,7 +42,8 @@ def require_gate_time_consistency(
     command_issued_at: str | None = None,
 ) -> None:
     """Require occurred_at == payload.evaluated_at == receipt.evaluated_at
-    (== command.issued_at when the originating command is available).
+    (== command.issued_at when the originating command is available), with the
+    receipt's own time in exact canonical form.
 
     ``payload`` must be the exact representation that is about to be stored (the
     caller passes the decoded persisted bytes, never a mutable object that could
@@ -54,7 +55,8 @@ def require_gate_time_consistency(
     receipt = payload.get("receipt")
     if not isinstance(receipt, Mapping):
         raise EvidenceGateTemporalError("payload receipt must be an object")
-    receipt_evaluated_at = _moment(receipt.get("evaluated_at"), "receipt evaluated_at")
+    receipt_raw = receipt.get("evaluated_at")
+    receipt_evaluated_at = _moment(receipt_raw, "receipt evaluated_at")
     if evaluated_at != occurred_at:
         raise EvidenceGateTemporalError(
             "gate evaluated_at must equal immutable event occurred_at"
@@ -62,6 +64,15 @@ def require_gate_time_consistency(
     if receipt_evaluated_at != evaluated_at:
         raise EvidenceGateTemporalError(
             "gate receipt evaluated_at must equal payload evaluated_at"
+        )
+    # The receipt is content-addressed and ``EvidenceGate.verify_receipt`` compares
+    # the *full canonical* receipt with the recomputed one, so its time must be the
+    # exact canonical spelling, not merely an equivalent instant. (The other time
+    # fields only need to denote the same instant, as the reducer canonicalizes
+    # them.) The stored receipt is never normalized or re-digested here.
+    if receipt_raw != receipt_evaluated_at:
+        raise EvidenceGateTemporalError(
+            "gate receipt evaluated_at must use the exact canonical timestamp representation"
         )
     if command_issued_at is not None:
         issued_at = _moment(command_issued_at, "command issued_at")
