@@ -838,3 +838,7 @@ ARCHITECTURE CONSEQUENCE = NONE
 Status: RESEARCH NOTE · NON-CANONICAL · DOCS_ONLY · Tier C
 NO RUNTIME / ACTION / AUTHORITY
 ```
+
+## 2026-11-28 — Recognition and acquired significance (research capture)
+
+- [Recognition and acquired significance](RECOGNITION_ACQUIRED_SIGNIFICANCE_2026_11_28.md): explanatory research supplement to [Mentaury Life](../MENTAURY_LIFE.md) and [Path Dependence Evaluation](PATH_DEPENDENCE_EVALUATION_V0.md). DRAFT / DOCS ONLY / NON-CANONICAL. No implementation selection, authority change, roadmap priority or experiment authorization.
